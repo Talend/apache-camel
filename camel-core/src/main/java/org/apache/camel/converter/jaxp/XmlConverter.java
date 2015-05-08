@@ -36,6 +36,8 @@ import java.util.Properties;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.OutputKeys;
@@ -52,14 +54,6 @@ import javax.xml.transform.stax.StAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
 import org.apache.camel.BytesSource;
 import org.apache.camel.Converter;
 import org.apache.camel.Exchange;
@@ -67,9 +61,15 @@ import org.apache.camel.StringSource;
 import org.apache.camel.builder.xml.XPathBuilder;
 import org.apache.camel.util.IOHelper;
 import org.apache.camel.util.ObjectHelper;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 /**
  * A helper class to transform to and from various JAXB types such as {@link Source} and {@link Document}
@@ -568,7 +568,28 @@ public class XmlConverter {
         }
         inputSource.setSystemId(source.getSystemId());
         inputSource.setPublicId(source.getPublicId());
-        return new SAXSource(inputSource);
+        XMLReader xmlReader = null;
+        //Need to setup XMLReader security feature by default
+        try {
+            SAXParserFactory sfactory = SAXParserFactory.newInstance();
+            try {
+                sfactory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            } catch (Exception e) {
+                LOG.warn("SAXParser doesn't support the feature {} with value {}, due to {}.", new Object[]{javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, "true", e});
+            }
+            try {
+                sfactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            } catch (SAXException e) {
+                LOG.warn("SAXParser doesn't support the feature {} with value {}, due to {}."
+                        , new Object[]{"http://xml.org/sax/features/external-general-entities", false, e});
+            }
+            sfactory.setNamespaceAware(true);
+            SAXParser parser = sfactory.newSAXParser();
+            xmlReader = parser.getXMLReader();
+        } catch (Exception ex) {
+            LOG.warn("Cannot create the SAXParser XMLReader, due to {}", ex);
+        }
+        return new SAXSource(xmlReader, inputSource);
     }
 
     /**
