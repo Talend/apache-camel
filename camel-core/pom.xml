@@ -29,7 +29,7 @@
   <artifactId>camel-core</artifactId>
   <packaging>bundle</packaging>
   <name>Camel :: Core</name>
-  <description>The Core Camel Java DSL based router</description>
+  <description>The Core Camel Java DSL based router. Hotfixes TESB-18156</description>
 
   <properties>
     <camel.osgi.export.pkg>
