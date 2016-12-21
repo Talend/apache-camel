@@ -27,7 +27,7 @@
   <artifactId>camel-cxf</artifactId>
   <packaging>bundle</packaging>
   <name>Camel :: CXF</name>
-  <description>Camel CXF support</description>
+  <description>Camel CXF support. Hotfixes TESB-18508</description>
 
   <properties>
     <camel.osgi.import>
