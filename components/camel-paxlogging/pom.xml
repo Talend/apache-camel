@@ -27,7 +27,7 @@
     <artifactId>camel-paxlogging</artifactId>
     <packaging>bundle</packaging>
     <name>Camel :: Pax Logging</name>
-    <description>Camel OSGi PaxLogging support</description>
+    <description>Camel OSGi PaxLogging support - Hotfixes CAMEL-11352, TESB-19585</description>
 
     <properties>
         <camel.osgi.export.pkg>org.apache.camel.component.paxlogging</camel.osgi.export.pkg>
