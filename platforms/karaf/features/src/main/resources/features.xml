@@ -97,18 +97,18 @@
   </feature>
   <feature name='camel-amqp' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-jms</feature>
-    <bundle dependency='true'>mvn:org.apache.qpid/qpid-jms-client/${qpid-jms-client-version}</bundle>
-    <bundle dependency='true'>mvn:org.apache.qpid/proton-j/${qpid-proton-j-version}</bundle>
-    <bundle dependency='true'>mvn:io.netty/netty-common/${netty-version}</bundle>
-    <bundle dependency='true'>mvn:io.netty/netty-buffer/${netty-version}</bundle>
-    <bundle dependency='true'>mvn:io.netty/netty-resolver/${netty-version}</bundle>
-    <bundle dependency='true'>mvn:io.netty/netty-transport/${netty-version}</bundle>
-    <bundle dependency='true'>mvn:io.netty/netty-handler/${netty-version}</bundle>
-    <bundle dependency='true'>mvn:io.netty/netty-codec/${netty-version}</bundle>
-    <bundle dependency='true'>mvn:io.netty/netty-transport-native-epoll/${netty-version}</bundle>
-    <bundle dependency='true'>mvn:io.netty/netty-transport-native-kqueue/${netty-version}</bundle>
-    <bundle dependency='true'>mvn:io.netty/netty-codec-http/${netty-version}</bundle>
-    <bundle dependency='true'>mvn:io.netty/netty-transport-native-unix-common/${netty-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.qpid/qpid-jms-client/${qpid-jms-client.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.qpid/proton-j/${qpid-proton-j-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:io.netty/netty-common/${netty40-version}</bundle>
+    <bundle dependency='true'>mvn:io.netty/netty-buffer/${netty40-version}</bundle>
+    <bundle dependency='true'>mvn:io.netty/netty-resolver/${netty40-version}</bundle>
+    <bundle dependency='true'>mvn:io.netty/netty-transport/${netty40-version}</bundle>
+    <bundle dependency='true'>mvn:io.netty/netty-handler/${netty40-version}</bundle>
+    <bundle dependency='true'>mvn:io.netty/netty-codec/${netty40-version}</bundle>
+    <bundle dependency='true'>mvn:io.netty/netty-transport-native-epoll/${netty40-version}</bundle>
+    <bundle dependency='true'>mvn:io.netty/netty-transport-native-kqueue/${netty40-version}</bundle>
+    <bundle dependency='true'>mvn:io.netty/netty-codec-http/${netty40-version}</bundle>
+    <bundle dependency='true'>mvn:io.netty/netty-transport-native-unix-common/${netty40-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-amqp/${upstream.version}</bundle>
   </feature>
   <feature name='camel-apns' version='${upstream.version}' resolver='(obr)' start-level='50'>
@@ -547,13 +547,14 @@
     <feature version='${upstream.version}'>camel-core</feature>
     <feature>war</feature>
     <bundle dependency='true'>mvn:com.github.dozermapper/dozer-core/${dozer-version}</bundle>
-    <bundle dependency='true'>mvn:com.github.dozermapper/dozer-schema/${dozer-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.commons/commons-lang3/${commons-lang3-version}</bundle>
     <bundle dependency='true'>mvn:commons-collections/commons-collections/${commons-collections-version}</bundle>
     <bundle dependency='true'>mvn:commons-beanutils/commons-beanutils/${commons-beanutils-version}</bundle>
-    <bundle dependency='true'>mvn:javax.el/javax.el-api/${javax.el-api-version}</bundle>
-    <bundle dependency='true'>mvn:org.glassfish.web/javax.el/${javax.el-version}</bundle>
-    <bundle>mvn:org.apache.camel/camel-dozer/${upstream.version}</bundle>
+    <bundle dependency='true'>mvn:commons-io/commons-io/${commons-io-version}</bundle>
+    <bundle dependency='true'>mvn:javax.el/javax.el-api/${javax.el3-version}</bundle>
+    <bundle dependency='true'>mvn:org.glassfish/javax.el/${javax.el3-version}</bundle>
+    <bundle dependency='true'>mvn:org.objenesis/objenesis/${objenesis-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-dozer/${camel-dozer.tesb.version}</bundle>
   </feature>
   <feature name='camel-dropbox' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version="${upstream.version}">camel-core</feature>
@@ -674,7 +675,7 @@
   </feature>
   <feature name='camel-fastjson' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.fastjson/${fastjson-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.fastjson/${org.apache.servicemix.bundles.fastjson.tesb.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-fastjson/${upstream.version}</bundle>
   </feature>
   <feature name='camel-fhir' version='${upstream.version}' resolver='(obr)' start-level='50'>

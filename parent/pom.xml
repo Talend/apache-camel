@@ -190,7 +190,7 @@
     <docker-java-bundle-version>3.0.14_1</docker-java-bundle-version>
     <docker-maven-plugin-version>0.24.0</docker-maven-plugin-version>
     <dom4j-bundle-version>1.6.1_5</dom4j-bundle-version>
-    <dozer-version>6.1.0</dozer-version>
+    <dozer-version>6.2.0</dozer-version>
     <drools-version>7.3.0.Final</drools-version>
     <dropbox-version>3.0.6</dropbox-version>
     <eclipse-equinox-common-version>3.3.0-v20070426</eclipse-equinox-common-version>
@@ -358,6 +358,7 @@
     <javassist-version>3.20.0-GA</javassist-version>
     <javax.el-api-version>2.2.5</javax.el-api-version>
     <javax.el-version>2.2.5</javax.el-version>
+    <javax.el3-version>3.0.0</javax.el3-version>
     <javax-inject-bundle-version>1_2</javax-inject-bundle-version>
     <javax-mail-version>1.6.1</javax-mail-version>
     <javax.servlet-api-version>3.1.0</javax.servlet-api-version>
@@ -526,6 +527,7 @@
     <netty40-version>4.0.56.Final</netty40-version>
     <networknt-json-schema-validator-version>0.1.16</networknt-json-schema-validator-version>
     <noggit-bundle-version>0.5_1</noggit-bundle-version>
+    <objenesis-version>2.6</objenesis-version>
     <!-- should be in-sync with deltaspike -->
     <openwebbeans1-version>1.2.7</openwebbeans1-version>
     <openwebbeans-version>1.7.3</openwebbeans-version>
