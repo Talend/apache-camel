@@ -25,7 +25,7 @@ import org.osgi.service.blueprint.reflect.ComponentMetadata;
 
 /**
  * A helper class to find the ids of the {@link BlueprintCamelContext} defined
- * in the {@link org.osgi.service.blueprint.container.BlueprintContainer}
+ * in the {@link BlueprintContainer}
  */
 public final class BlueprintCamelContextLookupHelper {
 

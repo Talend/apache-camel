@@ -30,7 +30,7 @@
     <name>Camel :: Blueprint</name>
     <description>Using Camel with OSGi Blueprint</description>
     <packaging>jar</packaging>
-    <version>2.20.1.tesb1</version>
+    <version>2.20.1.tesb2</version>
 
     <properties>
         <!-- use by camel-catalog -->
@@ -44,6 +44,7 @@
             !org.apache.camel.core.xml.*,
             org.apache.camel.*;${camel.osgi.import.strict.version},
             org.osgi.service.event*;resolution:=optional,
+            org.apache.karaf.bundle.core;version="[4,5)";resolution:=optional,
             org.apache.aries*;version="[1.0,2)",
             ${camel.osgi.import.defaults},
             *
@@ -90,6 +91,13 @@
             <groupId>org.apache.aries</groupId>
             <artifactId>org.apache.aries.util</artifactId>
             <version>${aries-util-version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.bundle</groupId>
+            <artifactId>org.apache.karaf.bundle.core</artifactId>
+            <version>${karaf4-version}</version>
+            <optional>true</optional>
             <scope>provided</scope>
         </dependency>
 

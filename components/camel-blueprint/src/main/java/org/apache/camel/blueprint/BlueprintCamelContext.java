@@ -51,12 +51,14 @@ import org.slf4j.LoggerFactory;
 public class BlueprintCamelContext extends DefaultCamelContext implements ServiceListener, BlueprintListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(BlueprintCamelContext.class);
-    
+
     protected final AtomicBoolean routeDefinitionValid = new AtomicBoolean(true);
 
     private BundleContext bundleContext;
     private BlueprintContainer blueprintContainer;
     private ServiceRegistration<?> registration;
+
+    private BlueprintCamelStateService bundleStateService;
 
     public BlueprintCamelContext() {
     }
@@ -96,7 +98,15 @@ public class BlueprintCamelContext extends DefaultCamelContext implements Servic
     public void setBlueprintContainer(BlueprintContainer blueprintContainer) {
         this.blueprintContainer = blueprintContainer;
     }
-   
+
+    public BlueprintCamelStateService getBundleStateService() {
+        return bundleStateService;
+    }
+
+    public void setBundleStateService(BlueprintCamelStateService bundleStateService) {
+        this.bundleStateService = bundleStateService;
+    }
+
     public void init() throws Exception {
         LOG.trace("init {}", this);
 
@@ -125,6 +135,7 @@ public class BlueprintCamelContext extends DefaultCamelContext implements Servic
             }
             registration = null;
         }
+        bundleStateService.setBundleState(bundleContext.getBundle(), this.getName(), null);
 
         // must stop Camel
         stop();
@@ -234,15 +245,18 @@ public class BlueprintCamelContext extends DefaultCamelContext implements Servic
         Registry reg = new BlueprintContainerRegistry(getBlueprintContainer());
         return OsgiCamelContextHelper.wrapRegistry(this, reg, bundleContext);
     }
-    
+
     @Override
     public void start() throws Exception {
         final ClassLoader original = Thread.currentThread().getContextClassLoader();
         try {
             // let's set a more suitable TCCL while starting the context
             Thread.currentThread().setContextClassLoader(getApplicationContextClassLoader());
+            bundleStateService.setBundleState(bundleContext.getBundle(), this.getName(), BlueprintCamelStateService.State.Starting);
             super.start();
+            bundleStateService.setBundleState(bundleContext.getBundle(), this.getName(), BlueprintCamelStateService.State.Active);
         } catch (Exception e) {
+            bundleStateService.setBundleState(bundleContext.getBundle(), this.getName(), BlueprintCamelStateService.State.Failure, e);
             routeDefinitionValid.set(false);
             throw e;
         } finally {
