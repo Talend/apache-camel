@@ -123,7 +123,7 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>spi-annotations</artifactId>
-      <version>${project.version}</version>
+      <version>${upstream.version}</version>
       <optional>true</optional>
     </dependency>
 
@@ -137,7 +137,7 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>json-simple-ordered</artifactId>
-      <version>${project.version}</version>
+      <version>${upstream.version}</version>
     </dependency>
 
     <!-- required dependencies by camel-core -->
@@ -354,7 +354,7 @@
       <plugin>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-package-maven-plugin</artifactId>
-        <version>${project.version}</version>
+        <version>${upstream.version}</version>
         <executions>
           <execution>
             <id>components</id>
@@ -488,7 +488,7 @@
           <plugin>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-maven-plugin</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
             <configuration>
               <failOnError>true</failOnError>
               <includeTest>true</includeTest>

@@ -145,7 +145,7 @@
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
       <scope>test</scope>
-    </dependency>  
+    </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
@@ -238,7 +238,7 @@
                 <artifactItem>
                   <groupId>org.apache.camel</groupId>
                   <artifactId>camel-core-xml</artifactId>
-                  <version>${project.version}</version>
+                  <version>${upstream.version}</version>
                   <includes>org/apache/camel/**</includes>
                   <outputDirectory>${project.build.directory}/classes</outputDirectory>
                 </artifactItem>
@@ -390,7 +390,7 @@
           </execution>
         </executions>
       </plugin>
-      
+
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>properties-maven-plugin</artifactId>
@@ -409,7 +409,7 @@
           </execution>
         </executions>
       </plugin>
-      
+
       <!-- add the sources from camel-core-osgi and camel-core-xml as source code in the camel-spring-sources.jar -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -435,7 +435,7 @@
       <plugin>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-eip-documentation-enricher-maven-plugin</artifactId>
-        <version>${project.version}</version>
+        <version>${upstream.version}</version>
         <executions>
           <execution>
             <id>eip-documentation-enricher</id>
@@ -462,7 +462,7 @@
                         <artifactItem>
                             <groupId>org.apache.camel</groupId>
                             <artifactId>camel-spring</artifactId>
-                            <version>${project.version}</version>
+                            <version>${upstream.version}</version>
                             <type>jar</type>
                             <overWrite>false</overWrite>
                             <outputDirectory>${project.build.directory}/schema</outputDirectory>

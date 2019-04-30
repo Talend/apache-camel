@@ -155,14 +155,14 @@
                       <artifactItem>
                         <groupId>org.apache.camel</groupId>
                         <artifactId>camel-core-xml</artifactId>
-                        <version>${project.version}</version>
+                        <version>${upstream.version}</version>
                         <includes>org/apache/camel/**</includes>
                         <outputDirectory>${project.build.directory}/classes</outputDirectory>
                       </artifactItem>
                       <artifactItem>
                         <groupId>org.apache.camel</groupId>
                         <artifactId>camel-core-osgi</artifactId>
-                        <version>${project.version}</version>
+                        <version>${upstream.version}</version>
                         <includes>org/apache/camel/**</includes>
                         <outputDirectory>${project.build.directory}/classes</outputDirectory>
                       </artifactItem>
@@ -199,7 +199,7 @@
             <plugin>
               <groupId>org.apache.camel</groupId>
               <artifactId>camel-eip-documentation-enricher-maven-plugin</artifactId>
-              <version>${project.version}</version>
+              <version>${upstream.version}</version>
               <executions>
                 <execution>
                   <id>eip-documentation-enricher</id>
@@ -240,7 +240,7 @@
                             <artifactItem>
                                 <groupId>org.apache.camel</groupId>
                                 <artifactId>camel-blueprint</artifactId>
-                                <version>${project.version}</version>
+                                <version>${upstream.version}</version>
                                 <type>jar</type>
                                 <overWrite>false</overWrite>
                                 <outputDirectory>${project.build.directory}/schema</outputDirectory>
@@ -439,7 +439,7 @@
               </plugin>
             </plugins>
           </build>
-        </profile>        
+        </profile>
         <profile>
           <id>on-ibmjdk</id>
           <activation>
@@ -464,11 +464,11 @@
                   </execution>
 
                 </executions>
-              </plugin>                  
+              </plugin>
             </plugins>
           </build>
 
-        </profile>    
+        </profile>
         <profile>
           <id>on-hpjdk</id>
           <activation>
@@ -491,7 +491,7 @@
                     </goals>
                   </execution>
                 </executions>
-              </plugin>                          
+              </plugin>
             </plugins>
           </build>
         </profile>
@@ -578,7 +578,7 @@
                                 </goals>
                             </execution>
                             <execution>
-                                <id>copy-schema</id>              
+                                <id>copy-schema</id>
                                 <phase>process-test-sources</phase>
                                 <configuration>
                                     <target>

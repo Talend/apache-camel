@@ -27,7 +27,7 @@
       <resourceURI>http://nexus.dummy/service/local/repositories/staging/content/org/apache/camel/myfoo-connector/${project.version}/myfoo-connector-${project.version}.jar</resourceURI>
       <groupId>org.apache.camel</groupId>
       <artifactId>myfoo-connector</artifactId>
-      <version>${project.version}</version>
+      <version>${upstream.version}</version>
       <packaging>jar</packaging>
       <extension>jar</extension>
       <repoId>staging</repoId>
