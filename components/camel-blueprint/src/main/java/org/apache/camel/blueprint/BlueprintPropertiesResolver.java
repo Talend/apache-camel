@@ -28,7 +28,7 @@ import org.apache.camel.component.properties.PropertiesResolver;
  * A {@link PropertiesResolver} which supports the <tt>blueprint</tt> scheme.
  * <p/>
  * This implementation will sit on top of any existing configured
- * {@link org.apache.camel.component.properties.PropertiesResolver} and will delegate
+ * {@link PropertiesResolver} and will delegate
  * to any non <tt>blueprint</tt> schemes.
  */
 public class BlueprintPropertiesResolver implements PropertiesResolver {
