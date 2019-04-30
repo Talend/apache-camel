@@ -20,9 +20,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.camel.api.management.ManagedAttribute;
@@ -52,13 +56,80 @@ import org.slf4j.LoggerFactory;
 @ManagedResource(description = "File based idempotent repository")
 public class FileIdempotentRepository extends ServiceSupport implements IdempotentRepository<String> {
 
+    private static final class MiniCache {
+
+        private final Set<String> set;
+        private final List<String> list;
+        private final int maxSize;
+
+        MiniCache(int maxSize) {
+            super();
+            this.set = new HashSet<String>(maxSize);
+            this.list = new LinkedList<String>();
+            this.maxSize = maxSize;
+        }
+
+        MiniCache(Map<?,?> map) {
+            super();
+            int mx = map instanceof LRUCache ? ((LRUCache<?,?>) map).getMaxCacheSize() : 1000;
+            this.set = new HashSet<String>(mx);
+            this.list = new LinkedList<String>();
+            this.maxSize = mx;
+        }
+
+        synchronized boolean contains(String element) {
+            return set.contains(element);
+        }
+
+        synchronized boolean add(String element) {
+            if (!set.add(element)) {
+                return false;
+            }
+            list.add(element);
+            if (list.size() > maxSize) {
+                String toRemove = list.remove(0);
+                set.remove(toRemove);
+            }
+            return true;
+        }
+
+        synchronized boolean remove(String element) {
+            if (!set.remove(element)) {
+                return false;
+            }
+            list.remove(element);
+            return true;
+        }
+
+        synchronized void clear() {
+            set.clear();
+            list.clear();
+        }
+
+        int size() {
+            return list.size();
+        }
+
+        int getMaxSize() {
+            return maxSize;
+        }
+
+        Map<String, Object> toMap() {
+            Map<String, Object> result = new HashMap<String, Object>(list.size());
+            for (String element : list) {
+                result.put(element, element);
+            }
+            return result;
+        }
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(FileIdempotentRepository.class);
 
     private static final String STORE_DELIMITER = "\n";
 
     private final AtomicBoolean init = new AtomicBoolean();
 
-    private Map<String, Object> cache;
+    private MiniCache cache;
     private File fileStore;
     private long maxFileStoreSize = 32 * 1024 * 1000L; // 32mb store file
     private long dropOldestFileStore = 1000;
@@ -68,7 +139,7 @@ public class FileIdempotentRepository extends ServiceSupport implements Idempote
 
     public FileIdempotentRepository(File fileStore, Map<String, Object> set) {
         this.fileStore = fileStore;
-        this.cache = set;
+        this.cache = new MiniCache(set);
     }
 
     /**
@@ -125,29 +196,37 @@ public class FileIdempotentRepository extends ServiceSupport implements Idempote
     @ManagedOperation(description = "Adds the key to the store")
     public boolean add(String key) {
         synchronized (cache) {
-            if (cache.containsKey(key)) {
+            if (cache.contains(key)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("{}: Element {} is already in cache", instanceName(), key);
+                }
                 return false;
-            } else {
-                // always register the most used keys in the LRUCache
-                cache.put(key, key);
-
-                // now check the file store
-                boolean containsInFile = containsStore(key);
-                if (containsInFile) {
-                    return false;
-                }
-
-                // its a new key so append to file store
-                appendToStore(key);
-
-                // check if we hit maximum capacity (if enabled) and report a warning about this
-                if (maxFileStoreSize > 0 && fileStore.length() > maxFileStoreSize) {
-                    LOG.warn("Maximum capacity of file store: {} hit at {} bytes. Dropping {} oldest entries from the file store", fileStore, maxFileStoreSize, dropOldestFileStore);
-                    trunkStore();
-                }
-
-                return true;
             }
+            // always register the most used keys in the LRUCache
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("{}: Adding entry {} to memory cache, cache size is {} of {} entries",
+                        instanceName(), key, cache.size(), cache.getMaxSize());
+            }
+            cache.add(key);
+
+            // now check the file store
+            /*
+            boolean containsInFile = containsStore(key);
+            if (containsInFile) {
+                return false;
+            }
+            */
+
+            // its a new key so append to file store
+            appendToStore(key);
+
+            // check if we hit maximum capacity (if enabled) and report a warning about this
+            if (maxFileStoreSize > 0 && fileStore.length() > maxFileStoreSize) {
+                LOG.warn("Maximum capacity of file store: {} hit at {} bytes. Dropping {} oldest entries from the file store", fileStore, maxFileStoreSize, dropOldestFileStore);
+                trunkStore();
+            }
+
+            return true;
         }
     }
 
@@ -155,7 +234,7 @@ public class FileIdempotentRepository extends ServiceSupport implements Idempote
     public boolean contains(String key) {
         synchronized (cache) {
             // check 1st-level first and then fallback to check the actual file
-            return cache.containsKey(key) || containsStore(key);
+            return cache.contains(key) || containsStore(key);
         }
     }
 
@@ -163,7 +242,7 @@ public class FileIdempotentRepository extends ServiceSupport implements Idempote
     public boolean remove(String key) {
         boolean answer;
         synchronized (cache) {
-            answer = cache.remove(key) != null;
+            answer = cache.remove(key);
             // remove from file cache also
             removeFromStore(key);
         }
@@ -179,9 +258,6 @@ public class FileIdempotentRepository extends ServiceSupport implements Idempote
     public void clear() {
         synchronized (cache) {
             cache.clear();
-            if (cache instanceof LRUCache) {
-                ((LRUCache) cache).cleanUp();
-            }
             // clear file store
             clearStore();
         }
@@ -201,11 +277,11 @@ public class FileIdempotentRepository extends ServiceSupport implements Idempote
     }
 
     public Map<String, Object> getCache() {
-        return cache;
+        return cache.toMap();
     }
 
     public void setCache(Map<String, Object> cache) {
-        this.cache = cache;
+        this.cache = new MiniCache(cache);
     }
 
     @ManagedAttribute(description = "The maximum file size for the file store in bytes")
@@ -244,15 +320,11 @@ public class FileIdempotentRepository extends ServiceSupport implements Idempote
      *
      * Setting cache size is only possible when using the default {@link LRUCache} cache implementation.
      */
-    @SuppressWarnings("unchecked")
     public void setCacheSize(int size) {
-        if (cache != null && !(cache instanceof LRUCache)) {
-            throw new IllegalArgumentException("Setting cache size is only possible when using the default LRUCache cache implementation");
-        }
         if (cache != null) {
             cache.clear();
         }
-        cache = LRUCacheFactory.newLRUCache(size);
+        cache = new MiniCache(size);
     }
 
     @ManagedAttribute(description = "The current 1st-level cache size")
@@ -270,9 +342,6 @@ public class FileIdempotentRepository extends ServiceSupport implements Idempote
     public synchronized void reset() throws IOException {
         synchronized (cache) {
             // run the cleanup task first
-            if (cache instanceof LRUCache) {
-                ((LRUCache) cache).cleanUp();
-            }
             cache.clear();
             loadStore();
         }
@@ -285,21 +354,23 @@ public class FileIdempotentRepository extends ServiceSupport implements Idempote
      * @return <tt>true</tt> if exists in the file, <tt>false</tt> otherwise
      */
     protected boolean containsStore(final String key) {
-//        if (fileStore == null || !fileStore.exists()) {
-//            return false;
-//        }
-//
-//        try (Scanner scanner = new Scanner(fileStore)) {
-//            scanner.useDelimiter(STORE_DELIMITER);
-//            while (scanner.hasNext()) {
-//                String line = scanner.next();
-//                if (line.equals(key)) {
-//                    return true;
-//                }
-//            }
-//        } catch (IOException e) {
-//            throw ObjectHelper.wrapRuntimeCamelException(e);
-//        }
+        /*
+        if (fileStore == null || !fileStore.exists()) {
+            return false;
+        }
+
+        try (Scanner scanner = new Scanner(fileStore)) {
+            scanner.useDelimiter(STORE_DELIMITER);
+            while (scanner.hasNext()) {
+                String line = scanner.next();
+                if (line.equals(key)) {
+                    return true;
+                }
+            }
+        } catch (IOException e) {
+            throw ObjectHelper.wrapRuntimeCamelException(e);
+        }
+        */
         return false;
     }
 
@@ -344,16 +415,14 @@ public class FileIdempotentRepository extends ServiceSupport implements Idempote
         List<String> lines = new ArrayList<>();
 
         boolean found = false;
-        try {
-            try (Scanner scanner = new Scanner(fileStore)) {
-                scanner.useDelimiter(STORE_DELIMITER);
-                while (scanner.hasNext()) {
-                    String line = scanner.next();
-                    if (key.equals(line)) {
-                        found = true;
-                    } else {
-                        lines.add(line);
-                    }
+        try (Scanner scanner = new Scanner(fileStore)) {
+            scanner.useDelimiter(STORE_DELIMITER);
+            while (scanner.hasNext()) {
+                String line = scanner.next();
+                if (key.equals(line)) {
+                    found = true;
+                } else {
+                    lines.add(line);
                 }
             }
         } catch (IOException e) {
@@ -404,15 +473,13 @@ public class FileIdempotentRepository extends ServiceSupport implements Idempote
         List<String> lines = new ArrayList<>();
 
         int count = 0;
-        try {
-            try (Scanner scanner = new Scanner(fileStore)) {
-                scanner.useDelimiter(STORE_DELIMITER);
-                while (scanner.hasNext()) {
-                    String line = scanner.next();
-                    count++;
-                    if (count > dropOldestFileStore) {
-                        lines.add(line);
-                    }
+        try (Scanner scanner = new Scanner(fileStore)) {
+            scanner.useDelimiter(STORE_DELIMITER);
+            while (scanner.hasNext()) {
+                String line = scanner.next();
+                count++;
+                if (count > dropOldestFileStore) {
+                    lines.add(line);
                 }
             }
         } catch (IOException e) {
@@ -446,9 +513,6 @@ public class FileIdempotentRepository extends ServiceSupport implements Idempote
      */
     protected void cleanup() {
         // run the cleanup task first
-        if (cache instanceof LRUCache) {
-            ((LRUCache) cache).cleanUp();
-        }
     }
 
     /**
@@ -475,7 +539,7 @@ public class FileIdempotentRepository extends ServiceSupport implements Idempote
             scanner.useDelimiter(STORE_DELIMITER);
             while (scanner.hasNext()) {
                 String line = scanner.next();
-                cache.put(line, line);
+                cache.add(line);
             }
         } catch (IOException e) {
             throw ObjectHelper.wrapRuntimeCamelException(e);
@@ -485,13 +549,13 @@ public class FileIdempotentRepository extends ServiceSupport implements Idempote
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected void doStart() throws Exception {
         ObjectHelper.notNull(fileStore, "fileStore", this);
 
         if (this.cache == null) {
             // default use a 1st level cache
-            this.cache = LRUCacheFactory.newLRUCache(1000);
+            this.cache = new MiniCache(1000);
+            LOG.debug("Memory cache has not been set, created with max size 1000");
         }
 
         // init store if not loaded before
@@ -503,12 +567,11 @@ public class FileIdempotentRepository extends ServiceSupport implements Idempote
     @Override
     protected void doStop() throws Exception {
         // run the cleanup task first
-        if (cache instanceof LRUCache) {
-            ((LRUCache) cache).cleanUp();
-        }
-
         cache.clear();
         init.set(false);
     }
 
+    private String instanceName() {
+        return "FIPR(" + (fileStore == null ? "null" : fileStore.getName()) + ")";
+    }
 }
