@@ -29,7 +29,7 @@ import org.apache.camel.spi.Metadata;
 /**
  * Castor data format is used for unmarshal a XML payload to POJO or to marshal POJO back to XML payload.
  *
- * @version 
+ * @version
  */
 @Metadata(firstVersion = "2.1.0", label = "dataformat,transformation,xml", title = "Castor")
 @XmlRootElement(name = "castor")
@@ -154,6 +154,10 @@ public class CastorDataFormat extends DataFormatDefinition {
      */
     public void setDeniedUnmarshallObjects(String deniedUnmarshallObjects) {
         this.deniedUnmarshallObjects = deniedUnmarshallObjects;
+    }
+
+    public Boolean getWhitelistEnabled() {
+        return whitelistEnabled;
     }
 
     @Override
