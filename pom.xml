@@ -40,6 +40,8 @@
   </prerequisites>
 
   <properties>
+    <upstream.version>2.21.2</upstream.version>
+
     <!-- enforce to require using at least this maven version -->
     <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
 
@@ -153,9 +155,9 @@
   </modules>
 
   <scm>
-    <connection>scm:git:http://gitbox.apache.org/repos/asf/camel.git</connection>
-    <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/camel.git</developerConnection>
-    <url>https://gitbox.apache.org/repos/asf?p=camel.git;a=summary</url>
+    <connection>scm:git:https:/github.com/Talend/apache-camel.git</connection>
+    <developerConnection>scm:git:https://github.Com/Talend/apache-camel.git</developerConnection>
+    <url>https://github.com/Talend/apache-camel</url>
     <tag>camel-2.21.2</tag>
   </scm>
 
@@ -201,7 +203,7 @@
             <dependency>
               <groupId>org.apache.camel</groupId>
               <artifactId>camel-buildtools</artifactId>
-              <version>${project.version}</version>
+              <version>${upstream.version}</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -758,7 +760,7 @@
               <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-buildtools</artifactId>
-                <version>${project.version}</version>
+                <version>${upstream.version}</version>
               </dependency>
             </dependencies>
           </plugin>

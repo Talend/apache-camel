@@ -180,7 +180,7 @@
       <plugin>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-package-maven-plugin</artifactId>
-        <version>${project.version}</version>
+        <version>${upstream.version}</version>
         <executions>
           <execution>
             <goals>
@@ -195,7 +195,7 @@
       <plugin>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-maven-plugin</artifactId>
-        <version>${project.version}</version>
+        <version>${upstream.version}</version>
         <configuration>
           <failOnError>false</failOnError>
           <includeTest>true</includeTest>
@@ -253,9 +253,9 @@
         <skip.starting.camel.context>true</skip.starting.camel.context>
       </properties>
     </profile>
-    <!-- 
-      This profile allows you to add a repository to the repo list so that 
-      you can test the examples out against a staged version of the camel distribution 
+    <!--
+      This profile allows you to add a repository to the repo list so that
+      you can test the examples out against a staged version of the camel distribution
     -->
     <profile>
       <id>add-remote-repo</id>
