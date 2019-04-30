@@ -285,21 +285,21 @@ public class FileIdempotentRepository extends ServiceSupport implements Idempote
      * @return <tt>true</tt> if exists in the file, <tt>false</tt> otherwise
      */
     protected boolean containsStore(final String key) {
-        if (fileStore == null || !fileStore.exists()) {
-            return false;
-        }
-
-        try (Scanner scanner = new Scanner(fileStore)) {
-            scanner.useDelimiter(STORE_DELIMITER);
-            while (scanner.hasNext()) {
-                String line = scanner.next();
-                if (line.equals(key)) {
-                    return true;
-                }
-            }
-        } catch (IOException e) {
-            throw ObjectHelper.wrapRuntimeCamelException(e);
-        }
+//        if (fileStore == null || !fileStore.exists()) {
+//            return false;
+//        }
+//
+//        try (Scanner scanner = new Scanner(fileStore)) {
+//            scanner.useDelimiter(STORE_DELIMITER);
+//            while (scanner.hasNext()) {
+//                String line = scanner.next();
+//                if (line.equals(key)) {
+//                    return true;
+//                }
+//            }
+//        } catch (IOException e) {
+//            throw ObjectHelper.wrapRuntimeCamelException(e);
+//        }
         return false;
     }
 
