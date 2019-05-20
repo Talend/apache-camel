@@ -492,7 +492,7 @@ public class DefaultCamelContext extends ServiceSupport implements ModelCamelCon
             componentsInCreation.get().remove(name);
         }
     }
-    
+
     /**
      * Function to initialize a component and auto start. Returns null if the autoCreateComponents is disabled
      */
@@ -3500,9 +3500,25 @@ public class DefaultCamelContext extends ServiceSupport implements ModelCamelCon
         stopWatch.restart();
         log.info("Apache Camel {} (CamelContext: {}) is shutting down", getVersion(), getName());
         EventHelper.notifyCamelContextStopping(this);
-        
+
         // Stop the route controller
         ServiceHelper.stopAndShutdownService(this.routeController);
+
+        // fill all the routes to be stopped to be able to stop routes even if they failed to start
+        for (RouteService routeService : routeServices.values()) {
+            boolean found = false;
+            for (RouteStartupOrder routeStartupOrder : getRouteStartupOrder()) {
+                if (routeStartupOrder.getRoute().getId().equals(routeService.getId())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                getRouteStartupOrder().add(doPrepareRouteToBeStarted(routeService));
+            }
+        }
+        // getRouteStartupOrder().addAll(routeServices.values().stream().map(
+        //         this::doPrepareRouteToBeStarted).collect(Collectors.toList()));
 
         // stop route inputs in the same order as they was started so we stop the very first inputs first
         try {
