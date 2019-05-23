@@ -1,0 +1,64 @@
+def GIT_URL = 'https://github.com/Talend/apache-camel.git'
+def DEFAULT_VERSION = 'tesb/camel-2.23.1.x'
+
+pipeline {
+
+    agent {
+        kubernetes {
+            label 'camel'
+            yaml """
+                apiVersion: v1
+                kind: Pod
+                spec:
+                  containers:
+                  - name: maven
+                    image: jenkinsxio/builder-maven:0.1.211
+                    tty: true
+                    command:
+                    - cat
+                    volumeMounts:
+                    - name: docker
+                      mountPath: /var/run/docker.sock
+                  volumes:
+                  - name: docker
+                    hostPath:
+                      path: /var/run/docker.sock
+            """
+        }
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        disableConcurrentBuilds()
+        timeout(time: 15, unit: 'MINUTES')
+    }
+
+    parameters {
+        string(name: 'BRANCH', defaultValue: DEFAULT_VERSION, description: 'Branch to build')
+    }
+
+    stages {
+
+        stage('Checkout source') {
+            steps {
+                container('maven') {
+                    git url: GIT_URL, branch: params.BRANCH, credentialsId: 'github-credentials'
+                }
+            }
+        }
+
+        stage("Build distribution packages") {
+            steps {
+                container('maven') {
+                    script {
+                        configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
+                            sh """
+                            mvn clean deploy -s ${MAVEN_SETTINGS} -B -pl :camel-core,org.apache.camel.karaf:apache-camel -DskipTests -DaltReleaseDeploymentRepository=talend_nexus_deployment::default::https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/
+                            """
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
