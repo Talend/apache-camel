@@ -30,9 +30,10 @@
   <name>Camel :: Blueprint</name>
   <description>Using Camel with OSGi Blueprint</description>
   <packaging>jar</packaging>
-  <version>2.21.2.tesb1</version>
+  <version>${revision}</version>
 
   <properties>
+    <revision>2.21.2.tesb1</revision>
     <!-- use by camel-catalog -->
     <firstVersion>2.4.0</firstVersion>
     <label>java,osgi</label>
