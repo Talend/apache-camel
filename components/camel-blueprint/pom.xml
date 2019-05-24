@@ -33,7 +33,7 @@
   <version>${revision}</version>
 
   <properties>
-    <revision>2.21.2.tesb1</revision>
+    <revision>${camel-blueprint.tesb.version}</revision>
     <!-- use by camel-catalog -->
     <firstVersion>2.4.0</firstVersion>
     <label>java,osgi</label>
