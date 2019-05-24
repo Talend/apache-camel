@@ -42,6 +42,8 @@
   <properties>
     <!-- used for project patches in order to avoid usage of project.version which can differ, for instance when project.version = 2.20.1.tesb1 -->
     <upstream.version>2.20.1</upstream.version>
+    <camel-core.tesb.version>2.20.1.tesb5</camel-core.tesb.version>
+    <camel-blueprint.tesb.version>2.20.1.tesb2</camel-blueprint.tesb.version>
 
     <!-- enforce to require using at least this maven version -->
     <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
