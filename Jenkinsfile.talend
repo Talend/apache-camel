@@ -53,6 +53,7 @@ pipeline {
                     script {
                         configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
                             sh """
+                            mvn --version
                             mvn clean deploy -s ${MAVEN_SETTINGS} -B -pl :camel-core,org.apache.camel.karaf:apache-camel -DskipTests -DaltReleaseDeploymentRepository=talend_nexus_deployment::default::https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/
                             """
                         }
