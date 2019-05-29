@@ -1,5 +1,6 @@
 def GIT_URL = 'https://github.com/Talend/apache-camel.git'
-def DEFAULT_VERSION = 'tesb/camel-2.23.1.x'
+def DEFAULT_BRANCH = 'tesb/camel-2.23.1.x'
+def DEFAULT_MVN_MODULES = ':camel-core,org.apache.camel.karaf:apache-camel'
 
 pipeline {
 
@@ -34,7 +35,8 @@ pipeline {
     }
 
     parameters {
-        string(name: 'BRANCH', defaultValue: DEFAULT_VERSION, description: 'Branch to build')
+        string(name: 'BRANCH', defaultValue: DEFAULT_BRANCH, description: 'Branch to build')
+        string(name: 'MVN_MODULES', defaultValue: DEFAULT_MVN_MODULES, description: 'Modules to build')
     }
 
     stages {
@@ -47,14 +49,36 @@ pipeline {
             }
         }
 
-        stage("Build distribution packages") {
+        stage('Package distribution') {
             steps {
                 container('maven') {
                     script {
                         configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
                             sh """
-                            mvn --version
-                            mvn clean deploy -s ${MAVEN_SETTINGS} -B -pl :camel-core,org.apache.camel.karaf:apache-camel -DskipTests -DaltReleaseDeploymentRepository=talend_nexus_deployment::default::https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/
+                            mvn clean package -s ${MAVEN_SETTINGS} -B -pl ${MVN_MODULES} -DskipTests
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Sanity check') {
+            steps {
+                timeout(time: 24, unit: "HOURS") {
+                    input 'Do you want to proceed to the Deployment?'
+                    milestone 1
+                }
+            }
+        }
+
+        stage('Deploy distribution') {
+            steps {
+                container('maven') {
+                    script {
+                        configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
+                            sh """
+                            mvn deploy -s ${MAVEN_SETTINGS} -B -pl ${MVN_MODULES} -DskipTests -DaltReleaseDeploymentRepository=talend_nexus_deployment::default::https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/
                             """
                         }
                     }
