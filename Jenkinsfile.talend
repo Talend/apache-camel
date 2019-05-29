@@ -67,7 +67,6 @@ pipeline {
             steps {
                 timeout(time: 24, unit: "HOURS") {
                     input 'Do you want to proceed to the Deployment?'
-                    milestone 1
                 }
             }
         }
