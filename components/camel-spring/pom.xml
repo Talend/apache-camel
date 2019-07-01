@@ -359,7 +359,7 @@
                 <echo>Copying XSD schema to be included in JAR</echo>
                 <copy file="${project.build.directory}/classes/camel-spring.xsd" tofile="${project.build.directory}/schema/camel-spring.xsd" />
                 <copy file="${project.build.directory}/classes/camel-spring.xsd" tofile="${project.build.directory}/schema/camel-spring-v${camel.schema.version}.xsd" />
-                <replace file="${project.build.directory}/schema/camel-spring-v${camel.schema.version}.xsd" token="http://camel.apache.org/schema/spring" value="http://camel.apache.org/schema/spring/v${camel.schema.version}" />
+                <replace file="${project.build.directory}/schema/camel-spring-v${camel.schema.version}.xsd" token="http://camel.apache.org/schema/spring&quot;" value="http://camel.apache.org/schema/spring/v${camel.schema.version}&quot;" />
                 <!-- copy modified schemas back again in classes so they are included in the JAR -->
                 <copy todir="${project.build.directory}/classes">
                   <fileset dir="${project.build.directory}/schema" />
