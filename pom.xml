@@ -48,7 +48,7 @@
 
       <!-- patches after release -->
       <camel-core.tesb.version>2.21.2.tesb2</camel-core.tesb.version>
-      <camel-blueprint.tesb.version>2.21.2.tesb1</camel-blueprint.tesb.version>
+      <camel-blueprint.tesb.version>2.21.2.tesb2</camel-blueprint.tesb.version>
       <camel-dozer.tesb.version>2.21.2.tesb1</camel-dozer.tesb.version>
       <org.apache.servicemix.bundles.fastjson.tesb.version>1.2.37_1.tesb1</org.apache.servicemix.bundles.fastjson.tesb.version>
       <org.apache.servicemix.bundles.mustache-compiler.tesb.version>0.9.5_1.tesb1</org.apache.servicemix.bundles.mustache-compiler.tesb.version>
