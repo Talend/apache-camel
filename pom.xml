@@ -56,6 +56,8 @@
     <!-- Make sure to keep JAXB version up to date in parent/pom.xml in the bottom of the file -->
     <jaxb-version>2.2.11</jaxb-version>
     <errorprone-version>2.5</errorprone-version>
+
+    <upstream.version>2.17.6</upstream.version>
   </properties>
 
   <mailingLists>
@@ -145,10 +147,10 @@
   </modules>
 
   <scm>
-    <connection>scm:git:http://git-wip-us.apache.org/repos/asf/camel.git</connection>
-    <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/camel.git</developerConnection>
-    <url>https://fisheye6.atlassian.com/browse/~br=master/camel-git</url>
-    <tag>camel-2.17.6</tag>
+    <connection>scm:git:http://github.com/Talend/apache-camel.git</connection>
+    <developerConnection>scm:git:https://github.com/Talend/apache-camel.git</developerConnection>
+    <url>https://github.com/Talend/apache-camel</url>
+    <tag>HEAD</tag>
   </scm>
 
   <build>
@@ -188,7 +190,7 @@
             <dependency>
               <groupId>org.apache.camel</groupId>
               <artifactId>camel-buildtools</artifactId>
-              <version>${project.version}</version>
+              <version>${upstream.version}</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -205,7 +207,7 @@
             <dependency>
               <groupId>org.apache.camel</groupId>
               <artifactId>camel-buildtools</artifactId>
-              <version>${project.version}</version>
+              <version>${upstream.version}</version>
             </dependency>
           </dependencies>
           <configuration>
