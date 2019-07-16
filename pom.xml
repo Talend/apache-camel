@@ -58,6 +58,7 @@
     <errorprone-version>2.5</errorprone-version>
 
     <upstream.version>2.17.6</upstream.version>
+    <camel-cxf.tesb.version>2.17.6.tesb1</camel-cxf.tesb.version>
   </properties>
 
   <mailingLists>

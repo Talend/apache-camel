@@ -28,8 +28,10 @@
   <packaging>bundle</packaging>
   <name>Camel :: CXF</name>
   <description>Camel CXF support</description>
+  <version>${revision}</version>
 
   <properties>
+    <revision>${camel-cxf.tesb.version}</revision>
     <camel.osgi.import>
       !org.apache.camel.component.cxf,
       !org.apache.camel.component.cxf.blueprint,
@@ -155,7 +157,7 @@
       <artifactId>camel-core-xml</artifactId>
       <scope>test</scope>
     </dependency>
-    
+
     <!-- Try to test convert PayLoad into POJO -->
     <dependency>
        <groupId>org.apache.camel</groupId>
@@ -182,7 +184,7 @@
        <artifactId>activemq-broker</artifactId>
        <scope>test</scope>
     </dependency>
-    
+
     <!-- test for cxf failover feature -->
 	<dependency>
 		<groupId>org.apache.cxf</groupId>
@@ -190,13 +192,13 @@
 		<version>${cxf-version}</version>
                 <scope>test</scope>
 	</dependency>
-    
+
     <dependency>
         <groupId>org.apache.activemq</groupId>
         <artifactId>activemq-kahadb-store</artifactId>
         <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-transports-jms</artifactId>
@@ -228,7 +230,7 @@
       <version>${httpclient4-version}</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
     	<groupId>org.apache.httpcomponents</groupId>
     	<artifactId>httpmime</artifactId>
@@ -248,7 +250,7 @@
       <version>${cxf-version}</version>
       <scope>test</scope>
     </dependency>
-    
+
     <!-- this dependency is just for testing -->
     <dependency>
       <groupId>org.apache.cxf</groupId>
@@ -256,7 +258,7 @@
       <version>${cxf-version}</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-ws-security</artifactId>
@@ -287,7 +289,7 @@
       <artifactId>cxf-rt-rs-extension-providers</artifactId>
       <version>${cxf-version}</version>
       <scope>test</scope>
-    </dependency>  
+    </dependency>
     <dependency>
       <groupId>org.codehaus.jettison</groupId>
       <artifactId>jettison</artifactId>
