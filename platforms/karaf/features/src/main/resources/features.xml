@@ -136,7 +136,7 @@
     <bundle dependency='true'>mvn:org.apache.abdera/abdera-core/${abdera-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.abdera/abdera-extensions-main/${abdera-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.abdera/abdera-i18n/${abdera-version}</bundle>
-    <bundle>mvn:org.apache.abdera/abdera-parser/${abdera-version}</bundle>
+    <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.abdera-parser/1.1.3_2</bundle>
     <bundle dependency='true'>mvn:org.apache.james/apache-mime4j-core/${apache-mime4j-version}</bundle>
     <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-atom/${upstream.version}</bundle>
@@ -266,8 +266,6 @@
     <bundle dependency='true'>wrap:mvn:net.sourceforge.nekohtml/nekohtml/${nekohtml-version}</bundle>
     <bundle dependency='true'>wrap:mvn:net.sourceforge.htmlunit/neko-htmlunit/${htmlunit-version}</bundle>
     <bundle dependency='true'>wrap:mvn:net.sourceforge.htmlunit/htmlunit-core-js/${htmlunit-core-js-version}</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xalan/${xalan-bundle-version}</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xerces/${xerces-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${xmlresolver-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.bouncycastle/bcprov-jdk15on/${bouncycastle-version}</bundle>
     <bundle dependency='true'>mvn:org.bouncycastle/bcpkix-jdk15on/${bouncycastle-version}</bundle>
@@ -461,7 +459,7 @@
     <feature version='${cxf-version-range}'>cxf-bindings-soap</feature>
     <bundle>mvn:org.apache.camel/camel-http-common/${upstream.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-cxf-transport/${upstream.version}</bundle>
-    <bundle>mvn:org.apache.camel/camel-cxf/${upstream.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-cxf/${camel-cxf.tesb.version}</bundle>
   </feature>
   <feature name='camel-digitalocean' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
@@ -649,8 +647,6 @@
     <feature version='${upstream.version}'>camel-core</feature>
     <bundle dependency='true'>mvn:commons-io/commons-io/${commons-io-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${xmlresolver-bundle-version}</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xerces/${xerces-bundle-version}</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xalan/${xalan-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.avalon-framework/${avalon-bundle-version}</bundle>
     <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlgraphics-commons/${xmlgraphics-commons-bundle-version}</bundle>
     <bundle dependency="true">wrap:mvn:org.apache.xmlgraphics/batik-svg-dom/${xmlgraphics-batik-version}$Bundle-SymbolicName=org.apache.xmlgraphics.batik-svg-dom&amp;Bundle-Version=${xmlgraphics-batik-version}</bundle>
@@ -915,7 +911,6 @@
     <bundle dependency='true'>mvn:commons-net/commons-net/${commons-net-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.zookeeper/zookeeper/${zookeeper-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlenc/0.52_1</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xerces/${xerces-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${xmlresolver-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr311-api-1.1.1/${servicemix-specs-version}</bundle>
     <bundle dependency='true'>wrap:mvn:org.apache.htrace/htrace-core/${htrace-version}$Bundle-SymbolicName=Apache-HTrace-Core</bundle>
@@ -1369,8 +1364,6 @@
     <bundle dependency='true'>wrap:mvn:net.sourceforge.nekohtml/nekohtml/${nekohtml-version}</bundle>
     <bundle dependency='true'>wrap:mvn:net.sourceforge.htmlunit/neko-htmlunit/${htmlunit-version}</bundle>
     <bundle dependency='true'>wrap:mvn:net.sourceforge.htmlunit/htmlunit-core-js/${htmlunit-core-js-version}</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xalan/${xalan-bundle-version}</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xerces/${xerces-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${xmlresolver-bundle-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-linkedin-api/${upstream.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-linkedin/${upstream.version}</bundle>
@@ -1501,14 +1494,13 @@
     <feature version='${upstream.version}'>camel-core</feature>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${xmlresolver-bundle-version}</bundle>
     <!-- xerces is an optional dependency from isorelax -->
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xerces/${xerces-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.ant/${ant-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.isorelax/${isorelax-bundle-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-msv/${upstream.version}</bundle>
   </feature>
   <feature name='camel-mustache' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.mustache-compiler/${mustache-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.mustache-compiler/${org.apache.servicemix.bundles.mustache-compiler.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.google.guava/guava/${mustache-guava-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-mustache/${upstream.version}</bundle>
   </feature>
@@ -1777,7 +1769,7 @@
     <bundle dependency='true'>mvn:org.codehaus.woodstox/woodstox-core-asl/${restlet-woodstox-version}</bundle>
     <bundle dependency='true'>mvn:org.yaml/snakeyaml/${restlet-yaml-version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${restlet-jackson-version}</bundle>
-    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${restlet-jackson-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson-databind-version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${restlet-jackson-version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-csv/${restlet-jackson-version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-smile/${restlet-jackson-version}</bundle>
@@ -1978,7 +1970,7 @@
     </details>
     <feature version='${upstream.version}'>camel-core</feature>
     <feature version='${upstream.version}'>camel-jetty9</feature>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.sparkjava-core/${spark-rest-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.sparkjava-core/${org.apache.servicemix.bundles.sparkjava-core.tesb.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-spark-rest/${upstream.version}</bundle>
   </feature>
   <feature name='camel-splunk' version='${upstream.version}' resolver='(obr)' start-level='50'>
@@ -2101,7 +2093,7 @@
     <bundle dependency='true'>mvn:commons-lang/commons-lang/${commons-lang-version}</bundle>
     <bundle dependency='true'>mvn:com.google.guava/guava/${swagger-scala-guava-version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-scala-version}</bundle>
-    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-scala-version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson-databind-version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-scala-version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-scala-version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${jackson2-scala-version}</bundle>
@@ -2320,9 +2312,7 @@
   <feature name='camel-xmlsecurity' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
     <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xalan/${xalan-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.santuario/xmlsec/${xmlsec-version}</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xerces/${xerces-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${xmlresolver-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.bcel/${bcel-bundle-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-xmlsecurity/${upstream.version}</bundle>

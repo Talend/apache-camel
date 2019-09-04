@@ -1,6 +1,6 @@
 def GIT_URL = 'https://github.com/Talend/apache-camel.git'
 def DEFAULT_BRANCH = 'tesb/camel-2.20.1.x'
-def DEFAULT_MVN_MODULES = ':camel-core,:camel-blueprint,:camel-dozer'
+def DEFAULT_MVN_MODULES = ':camel-core,:camel-blueprint,:camel-dozer,:camel-cxf'
 
 pipeline {
 
@@ -31,7 +31,7 @@ pipeline {
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
         disableConcurrentBuilds()
-        timeout(time: 15, unit: 'MINUTES')
+        timeout(time: 24, unit: 'HOURS')
     }
 
     parameters {

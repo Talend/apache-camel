@@ -50,10 +50,13 @@
     <camel-core.tesb.version>2.20.1.tesb5</camel-core.tesb.version>
     <camel-blueprint.tesb.version>2.20.1.tesb2</camel-blueprint.tesb.version>
     <camel-dozer.tesb.version>2.20.1.tesb1</camel-dozer.tesb.version>
+    <camel-cxf.tesb.version>2.20.1.tesb1</camel-cxf.tesb.version>
     <org.apache.servicemix.bundles.fastjson.tesb.version>1.2.37_1.tesb1</org.apache.servicemix.bundles.fastjson.tesb.version>
     <org.apache.servicemix.bundles.mustache-compiler.tesb.version>0.9.5_1.tesb1</org.apache.servicemix.bundles.mustache-compiler.tesb.version>
     <org.apache.servicemix.bundles.sparkjava-core.tesb.version>2.6.0_1.tesb1</org.apache.servicemix.bundles.sparkjava-core.tesb.version>
 
+    <!-- override -->
+    <jackson-databind-version>2.6.7.1</jackson-databind-version>
 
     <!-- enforce to require using at least this maven version -->
     <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
