@@ -55,6 +55,8 @@
     <org.apache.servicemix.bundles.mustache-compiler.tesb.version>0.9.5_1.tesb1</org.apache.servicemix.bundles.mustache-compiler.tesb.version>
     <org.apache.servicemix.bundles.sparkjava-core.tesb.version>2.6.0_1.tesb1</org.apache.servicemix.bundles.sparkjava-core.tesb.version>
 
+    <apache-camel.features.tesb.version>2.20.1.tesb1</apache-camel.features.tesb.version>
+
     <!-- override -->
     <jackson-databind-version>2.6.7.1</jackson-databind-version>
 

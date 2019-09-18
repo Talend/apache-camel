@@ -30,9 +30,11 @@
   <artifactId>apache-camel</artifactId>
   <packaging>pom</packaging>
   <name>Camel :: Platforms :: Apache Karaf :: Features</name>
+  <version>${revision}</version>
 
   <properties>
     <features.file>features.xml</features.file>
+    <revision>${apache-camel.features.tesb.version}</revision>
   </properties>
 
   <!-- The validate plugin will export these provided dependencies bundles export packages first -->
