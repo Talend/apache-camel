@@ -59,6 +59,7 @@
 
     <upstream.version>2.17.6</upstream.version>
     <camel-cxf.tesb.version>2.17.6.tesb1</camel-cxf.tesb.version>
+    <camel-core.tesb.version>2.17.6.tesb1</camel-core.tesb.version>
   </properties>
 
   <mailingLists>

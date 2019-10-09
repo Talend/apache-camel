@@ -30,8 +30,10 @@
   <packaging>bundle</packaging>
   <name>Camel :: Core</name>
   <description>The Core Camel Java DSL based router</description>
+  <version>${revision}</version>
 
   <properties>
+    <revision>${camel-core.tesb.version}</revision>
     <camel.osgi.export.pkg>
       !org.apache.camel.tools.*,
       org.apache.camel.*;-noimport:=true

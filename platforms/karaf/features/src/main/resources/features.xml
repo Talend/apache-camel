@@ -36,7 +36,7 @@
   </feature>
   <feature name='camel-core' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${servicemix-specs-version}'>xml-specs-api</feature>
-    <bundle>mvn:org.apache.camel/camel-core/${upstream.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-core/${camel-core.tesb.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-catalog/${upstream.version}</bundle>
     <conditional>
       <condition>shell</condition>
