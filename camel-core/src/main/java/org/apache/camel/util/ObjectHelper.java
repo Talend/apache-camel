@@ -1731,10 +1731,10 @@ public final class ObjectHelper {
      */
     public static <T> T newInstance(Class<T> type) {
         try {
-            return type.newInstance();
-        } catch (InstantiationException e) {
-            throw new RuntimeCamelException(e);
-        } catch (IllegalAccessException e) {
+            Constructor<T> ctr = type.getDeclaredConstructor();
+            ctr.setAccessible(true);
+            return ctr.newInstance();
+        } catch (Exception e) {
             throw new RuntimeCamelException(e);
         }
     }
