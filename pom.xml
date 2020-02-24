@@ -41,7 +41,7 @@
 
   <properties>
     <upstream.version>2.23.1</upstream.version>
-    <camel-core.tesb.version>2.23.1.tesb1</camel-core.tesb.version>
+    <camel-core.tesb.version>2.23.1.tesb2</camel-core.tesb.version>
 
     <!-- enforce to require using at least this maven version -->
     <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
