@@ -64,6 +64,7 @@
     <mycila-license-version>3.0</mycila-license-version>
     <gmavenplus-plugin-version>1.6.2</gmavenplus-plugin-version>
     <groovy-version>2.5.5</groovy-version>
+    <camel-mqtt.tesb.version>2.24.2.tesb1</camel-mqtt.tesb.version>
   </properties>
 
   <mailingLists>
