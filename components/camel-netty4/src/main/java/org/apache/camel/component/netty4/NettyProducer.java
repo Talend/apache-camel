@@ -18,8 +18,6 @@ package org.apache.camel.component.netty4;
 
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -42,6 +40,7 @@ import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import org.apache.camel.AsyncCallback;
 import org.apache.camel.CamelContext;
+import org.apache.camel.CamelContextAware;
 import org.apache.camel.CamelExchangeException;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultAsyncProducer;
@@ -49,6 +48,7 @@ import org.apache.camel.support.SynchronizationAdapter;
 import org.apache.camel.util.CamelLogger;
 import org.apache.camel.util.ExchangeHelper;
 import org.apache.camel.util.IOHelper;
+import org.apache.camel.util.ServiceHelper;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
@@ -64,7 +64,7 @@ public class NettyProducer extends DefaultAsyncProducer {
     private CamelLogger noReplyLogger;
     private EventLoopGroup workerGroup;
     private ObjectPool<ChannelFuture> pool;
-    private Map<Channel, NettyCamelState> nettyCamelStatesMap = new ConcurrentHashMap<Channel, NettyCamelState>();
+    private NettyCamelStateCorrelationManager correlationManager;
 
     public NettyProducer(NettyEndpoint nettyEndpoint, NettyConfiguration configuration) {
         super(nettyEndpoint);
@@ -87,6 +87,10 @@ public class NettyProducer extends DefaultAsyncProducer {
         return context;
     }
 
+    public NettyCamelStateCorrelationManager getCorrelationManager() {
+        return correlationManager;
+    }
+
     protected boolean isTcp() {
         return configuration.getProtocol().equalsIgnoreCase("tcp");
     }
@@ -94,6 +98,17 @@ public class NettyProducer extends DefaultAsyncProducer {
     @Override
     protected void doStart() throws Exception {
         super.doStart();
+
+        if (configuration.getCorrelationManager() != null) {
+            correlationManager = configuration.getCorrelationManager();
+        } else {
+            correlationManager = new DefaultNettyCamelStateCorrelationManager();
+        }
+        if (correlationManager instanceof CamelContextAware) {
+            ((CamelContextAware) correlationManager).setCamelContext(getContext());
+        }
+        ServiceHelper.startService(correlationManager);
+
         if (configuration.getWorkerGroup() == null) {
             // create new pool which we should shutdown when stopping as its not shared
             workerGroup = new NettyWorkerPoolBuilder()
@@ -116,16 +131,16 @@ public class NettyProducer extends DefaultAsyncProducer {
             config.timeBetweenEvictionRunsMillis = 30 * 1000L;
             config.minEvictableIdleTimeMillis = configuration.getProducerPoolMinEvictableIdle();
             config.whenExhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_FAIL;
-            pool = new GenericObjectPool<ChannelFuture>(new NettyProducerPoolableObjectFactory(), config);
+            pool = new GenericObjectPool<>(new NettyProducerPoolableObjectFactory(), config);
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Created NettyProducer pool[maxActive={}, minIdle={}, maxIdle={}, minEvictableIdleTimeMillis={}] -> {}",
                         new Object[]{config.maxActive, config.minIdle, config.maxIdle, config.minEvictableIdleTimeMillis, pool});
             }
         } else {
-            pool = new SharedSingletonObjectPool<ChannelFuture>(new NettyProducerPoolableObjectFactory());
+            pool = new SharedSingletonObjectPool<>(new NettyProducerPoolableObjectFactory());
             if (LOG.isDebugEnabled()) {
-                LOG.info("Created NettyProducer shared singleton pool -> {}", pool);
+                LOG.debug("Created NettyProducer shared singleton pool -> {}", pool);
             }
         }
 
@@ -174,6 +189,8 @@ public class NettyProducer extends DefaultAsyncProducer {
             pool = null;
         }
 
+        ServiceHelper.stopService(correlationManager);
+
         super.doStop();
     }
 
@@ -214,7 +231,7 @@ public class NettyProducer extends DefaultAsyncProducer {
         }
 
         // get a channel from the pool
-        ChannelFuture channelFuture = null;
+        ChannelFuture channelFuture;
         Channel channel = null;
         try {
             if (getConfiguration().isReuseChannel()) {
@@ -301,7 +318,7 @@ public class NettyProducer extends DefaultAsyncProducer {
         }
 
         // setup state as attachment on the channel, so we can access the state later when needed
-        putState(channel, new NettyCamelState(producerCallback, exchange));
+        correlationManager.putState(channel, new NettyCamelState(producerCallback, exchange));
         // here we need to setup the remote address information here
         InetSocketAddress remoteAddress = null;
         if (!isTcp()) {
@@ -372,28 +389,6 @@ public class NettyProducer extends DefaultAsyncProducer {
         return body;
     }
 
-    /**
-     * To get the {@link NettyCamelState} from the given channel.
-     */
-    public NettyCamelState getState(Channel channel) {
-        return nettyCamelStatesMap.get(channel);
-    }
-
-    /**
-     * To remove the {@link NettyCamelState} stored on the channel,
-     * when no longer needed
-     */
-    public void removeState(Channel channel) {
-        nettyCamelStatesMap.remove(channel);
-    }
-
-    /**
-     * Put the {@link NettyCamelState} into the map use the given channel as the key
-     */
-    public void putState(Channel channel, NettyCamelState state) {
-        nettyCamelStatesMap.put(channel, state);
-    }
-
     protected EventLoopGroup getWorkerGroup() {
         // prefer using explicit configured thread pools
         EventLoopGroup wg = configuration.getWorkerGroup();
@@ -420,7 +415,7 @@ public class NettyProducer extends DefaultAsyncProducer {
             clientBootstrap.option(ChannelOption.SO_REUSEADDR, configuration.isReuseAddress());
             clientBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, configuration.getConnectTimeout());
 
-            //TODO need to check it later
+            //TODO need to check it later;
             // set any additional netty options
             /*
             if (configuration.getOptions() != null) {
@@ -525,7 +520,6 @@ public class NettyProducer extends DefaultAsyncProducer {
     public void setConfiguration(NettyConfiguration configuration) {
         this.configuration = configuration;
     }
-
 
     public ChannelGroup getAllChannels() {
         return allChannels;
@@ -642,6 +636,7 @@ public class NettyProducer extends DefaultAsyncProducer {
                 }
                 exchange.setException(cause);
                 callback.done(false);
+                releaseChannel(future);
                 return;
             }
 
@@ -655,8 +650,7 @@ public class NettyProducer extends DefaultAsyncProducer {
     }
 
     /**
-     * This class is used to release body in case when some error occured and body was not handed over
-     * to netty
+     * This class is used to release body in case when some error occurred and body was not handed over to netty
      */
     private static final class BodyReleaseCallback implements AsyncCallback {
         private volatile Object body;

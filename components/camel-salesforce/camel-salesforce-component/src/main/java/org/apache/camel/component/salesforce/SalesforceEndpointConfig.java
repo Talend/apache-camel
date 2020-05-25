@@ -49,6 +49,8 @@ public class SalesforceEndpointConfig implements Cloneable {
 
     // parameters for Rest API
     public static final String FORMAT = "format";
+    public static final String RAW_PAYLOAD = "rawPayload";
+
     public static final String SOBJECT_NAME = "sObjectName";
     public static final String SOBJECT_ID = "sObjectId";
     public static final String SOBJECT_FIELDS = "sObjectFields";
@@ -93,6 +95,8 @@ public class SalesforceEndpointConfig implements Cloneable {
 
     public static final String NOT_FOUND_BEHAVIOUR = "notFoundBehaviour";
 
+    public static final String SERIALIZE_NULLS = "serializeNulls";
+
     // general properties
     @UriParam
     private String apiVersion = DEFAULT_VERSION;
@@ -100,6 +104,8 @@ public class SalesforceEndpointConfig implements Cloneable {
     // Rest API properties
     @UriParam
     private PayloadFormat format = PayloadFormat.JSON;
+    @UriParam
+    private boolean rawPayload;
     @UriParam(displayName = "SObject Name")
     private String sObjectName;
     @UriParam(displayName = "SObject Id")
@@ -118,6 +124,8 @@ public class SalesforceEndpointConfig implements Cloneable {
     private String sObjectQuery;
     @UriParam(displayName = "SObject Search")
     private String sObjectSearch;
+    @UriParam(displayName = "Serialize NULL values")
+    private boolean serializeNulls;
     @UriParam
     private String apexMethod;
     @UriParam
@@ -211,6 +219,18 @@ public class SalesforceEndpointConfig implements Cloneable {
      */
     public void setFormat(PayloadFormat format) {
         this.format = format;
+    }
+
+    public boolean getRawPayload() {
+        return rawPayload;
+    }
+
+    /**
+     * Use raw payload {@link String} for request and response (either JSON or XML depending on {@code format}),
+     * instead of DTOs, false by default
+     */
+    public void setRawPayload(boolean rawPayload) {
+        this.rawPayload = rawPayload;
     }
 
     public String getApiVersion() {
@@ -321,6 +341,18 @@ public class SalesforceEndpointConfig implements Cloneable {
      */
     public void setSObjectSearch(String sObjectSearch) {
         this.sObjectSearch = sObjectSearch;
+    }
+
+    /**
+     * Should the NULL values of given DTO be serialized with
+     * empty (NULL) values. This affects only JSON data format.
+     */
+    public void setSerializeNulls(boolean serializeNulls) {
+        this.serializeNulls = serializeNulls;
+    }
+
+    public boolean isSerializeNulls() {
+        return serializeNulls;
     }
 
     public String getApexMethod() {
@@ -582,7 +614,7 @@ public class SalesforceEndpointConfig implements Cloneable {
 
     public Map<String, Object> toValueMap() {
 
-        final Map<String, Object> valueMap = new HashMap<String, Object>();
+        final Map<String, Object> valueMap = new HashMap<>();
         valueMap.put(FORMAT, format.toString().toLowerCase());
         valueMap.put(API_VERSION, apiVersion);
 
@@ -595,6 +627,7 @@ public class SalesforceEndpointConfig implements Cloneable {
         valueMap.put(SOBJECT_CLASS, sObjectClass);
         valueMap.put(SOBJECT_QUERY, sObjectQuery);
         valueMap.put(SOBJECT_SEARCH, sObjectSearch);
+        valueMap.put(SERIALIZE_NULLS, serializeNulls);
         valueMap.put(APEX_METHOD, apexMethod);
         valueMap.put(APEX_URL, apexUrl);
         valueMap.put(LIMIT, limit);

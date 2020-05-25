@@ -21,12 +21,14 @@ import java.util.Set;
 
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class DefaultHeaderFilterStrategyTest extends ContextTestSupport {
 
+    @Test
     public void testSimpleDefaultHeaderFilterStrategy() {
         DefaultHeaderFilterStrategy comp = new DefaultHeaderFilterStrategy();
 
@@ -40,20 +42,22 @@ public class DefaultHeaderFilterStrategyTest extends ContextTestSupport {
         assertEquals(true, comp.isCaseInsensitive());
     }
 
+    @Test
     public void testInFilterDefaultHeaderFilterStrategy() {
         DefaultHeaderFilterStrategy comp = new DefaultHeaderFilterStrategy();
 
-        Set<String> set = new HashSet<String>();
+        Set<String> set = new HashSet<>();
         set.add("foo");
         comp.setInFilter(set);
 
         assertEquals(set, comp.getInFilter());
     }
 
+    @Test
     public void testInFilterDoFilterDefaultHeaderFilterStrategy() {
         DefaultHeaderFilterStrategy comp = new DefaultHeaderFilterStrategy();
 
-        Set<String> set = new HashSet<String>();
+        Set<String> set = new HashSet<>();
         set.add("foo");
         comp.setInFilter(set);
 
@@ -65,20 +69,22 @@ public class DefaultHeaderFilterStrategyTest extends ContextTestSupport {
         assertTrue(comp.applyFilterToExternalHeaders("foo", "cheese", exchange));
     }
 
+    @Test
     public void testOutFilterDefaultHeaderFilterStrategy() {
         DefaultHeaderFilterStrategy comp = new DefaultHeaderFilterStrategy();
 
-        Set<String> set = new HashSet<String>();
+        Set<String> set = new HashSet<>();
         set.add("foo");
         comp.setOutFilter(set);
 
         assertEquals(set, comp.getOutFilter());
     }
 
+    @Test
     public void testOutFilterDoFilterDefaultHeaderFilterStrategy() {
         DefaultHeaderFilterStrategy comp = new DefaultHeaderFilterStrategy();
 
-        Set<String> set = new HashSet<String>();
+        Set<String> set = new HashSet<>();
         set.add("foo");
         comp.setOutFilter(set);
 
@@ -90,11 +96,12 @@ public class DefaultHeaderFilterStrategyTest extends ContextTestSupport {
         assertTrue(comp.applyFilterToCamelHeaders("foo", "cheese", exchange));
     }
     
+    @Test
     public void testCaseInsensitiveHeaderNameDoFilterDefaultHeaderFilterStrategy() {
         DefaultHeaderFilterStrategy comp = new DefaultHeaderFilterStrategy();
         comp.setCaseInsensitive(true);
         
-        Set<String> set = new HashSet<String>();
+        Set<String> set = new HashSet<>();
         set.add("Content-Type");
         comp.setOutFilter(set);
 

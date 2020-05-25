@@ -22,9 +22,11 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlType;
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.transformer.DataFormatTransformer;
 import org.apache.camel.model.DataFormatDefinition;
+import org.apache.camel.model.dataformat.ASN1DataFormat;
 import org.apache.camel.model.dataformat.AvroDataFormat;
 import org.apache.camel.model.dataformat.BarcodeDataFormat;
 import org.apache.camel.model.dataformat.Base64DataFormat;
@@ -35,6 +37,8 @@ import org.apache.camel.model.dataformat.CastorDataFormat;
 import org.apache.camel.model.dataformat.CryptoDataFormat;
 import org.apache.camel.model.dataformat.CsvDataFormat;
 import org.apache.camel.model.dataformat.CustomDataFormat;
+import org.apache.camel.model.dataformat.FhirJsonDataFormat;
+import org.apache.camel.model.dataformat.FhirXmlDataFormat;
 import org.apache.camel.model.dataformat.FlatpackDataFormat;
 import org.apache.camel.model.dataformat.GzipDataFormat;
 import org.apache.camel.model.dataformat.HL7DataFormat;
@@ -54,6 +58,7 @@ import org.apache.camel.model.dataformat.SoapJaxbDataFormat;
 import org.apache.camel.model.dataformat.StringDataFormat;
 import org.apache.camel.model.dataformat.SyslogDataFormat;
 import org.apache.camel.model.dataformat.TarFileDataFormat;
+import org.apache.camel.model.dataformat.ThriftDataFormat;
 import org.apache.camel.model.dataformat.TidyMarkupDataFormat;
 import org.apache.camel.model.dataformat.UniVocityCsvDataFormat;
 import org.apache.camel.model.dataformat.UniVocityFixedWidthDataFormat;
@@ -83,6 +88,7 @@ import org.apache.camel.spi.Transformer;
 public class DataFormatTransformerDefinition extends TransformerDefinition {
 
     @XmlElements({
+        @XmlElement(required = false, name = "asn1", type = ASN1DataFormat.class),
         @XmlElement(required = false, name = "avro", type = AvroDataFormat.class),
         @XmlElement(required = false, name = "barcode", type = BarcodeDataFormat.class),
         @XmlElement(required = false, name = "base64", type = Base64DataFormat.class),
@@ -94,6 +100,8 @@ public class DataFormatTransformerDefinition extends TransformerDefinition {
         @XmlElement(required = false, name = "csv", type = CsvDataFormat.class),
         // TODO: Camel 3.0 - Should be named customDataFormat to avoid naming clash with custom loadbalancer
         @XmlElement(required = false, name = "custom", type = CustomDataFormat.class),
+        @XmlElement(required = false, name = "fhirJson", type = FhirJsonDataFormat.class),
+        @XmlElement(required = false, name = "fhirXml", type = FhirXmlDataFormat.class),
         @XmlElement(required = false, name = "flatpack", type = FlatpackDataFormat.class),
         @XmlElement(required = false, name = "gzip", type = GzipDataFormat.class),
         @XmlElement(required = false, name = "hessian", type = HessianDataFormat.class),
@@ -113,6 +121,7 @@ public class DataFormatTransformerDefinition extends TransformerDefinition {
         @XmlElement(required = false, name = "string", type = StringDataFormat.class),
         @XmlElement(required = false, name = "syslog", type = SyslogDataFormat.class),
         @XmlElement(required = false, name = "tarfile", type = TarFileDataFormat.class),
+        @XmlElement(required = false, name = "thrift", type = ThriftDataFormat.class),
         @XmlElement(required = false, name = "tidyMarkup", type = TidyMarkupDataFormat.class),
         @XmlElement(required = false, name = "univocity-csv", type = UniVocityCsvDataFormat.class),
         @XmlElement(required = false, name = "univocity-fixed", type = UniVocityFixedWidthDataFormat.class),

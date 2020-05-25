@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.regex.Pattern;
 
+import org.apache.camel.CamelContextAware;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
@@ -31,6 +32,8 @@ import org.apache.camel.ShutdownRunningTask;
 import org.apache.camel.impl.ScheduledBatchPollingConsumer;
 import org.apache.camel.support.EmptyAsyncCallback;
 import org.apache.camel.util.CastUtils;
+import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.ServiceHelper;
 import org.apache.camel.util.StopWatch;
 import org.apache.camel.util.StringHelper;
 import org.apache.camel.util.TimeUtils;
@@ -44,6 +47,7 @@ public abstract class GenericFileConsumer<T> extends ScheduledBatchPollingConsum
     protected final Logger log = LoggerFactory.getLogger(getClass());
     protected GenericFileEndpoint<T> endpoint;
     protected GenericFileOperations<T> operations;
+    protected GenericFileProcessStrategy<T> processStrategy;
     protected String fileExpressionResult;
     protected volatile ShutdownRunningTask shutdownRunningTask;
     protected volatile int pendingExchanges;
@@ -53,10 +57,11 @@ public abstract class GenericFileConsumer<T> extends ScheduledBatchPollingConsum
     private final Pattern includePattern;
     private final Pattern excludePattern;
 
-    public GenericFileConsumer(GenericFileEndpoint<T> endpoint, Processor processor, GenericFileOperations<T> operations) {
+    public GenericFileConsumer(GenericFileEndpoint<T> endpoint, Processor processor, GenericFileOperations<T> operations, GenericFileProcessStrategy<T> processStrategy) {
         super(endpoint, processor);
         this.endpoint = endpoint;
         this.operations = operations;
+        this.processStrategy = processStrategy;
 
         this.includePattern = endpoint.getIncludePattern();
         this.excludePattern = endpoint.getExcludePattern();
@@ -92,11 +97,11 @@ public abstract class GenericFileConsumer<T> extends ScheduledBatchPollingConsum
     /**
      * Poll for files
      */
-    protected int poll() throws Exception {
+    public int poll() throws Exception {
         // must prepare on startup the very first time
         if (!prepareOnStartup) {
             // prepare on startup
-            endpoint.getGenericFileProcessStrategy().prepareOnStartup(operations, endpoint);
+            processStrategy.prepareOnStartup(operations, endpoint);
             prepareOnStartup = true;
         }
 
@@ -113,7 +118,7 @@ public abstract class GenericFileConsumer<T> extends ScheduledBatchPollingConsum
         }
 
         // gather list of files to process
-        List<GenericFile<T>> files = new ArrayList<GenericFile<T>>();
+        List<GenericFile<T>> files = new ArrayList<>();
         String name = endpoint.getConfiguration().getDirectory();
 
         // time how long it takes to poll
@@ -124,7 +129,7 @@ public abstract class GenericFileConsumer<T> extends ScheduledBatchPollingConsum
         } catch (Exception e) {
             // during poll directory we add files to the in progress repository, in case of any exception thrown after this work
             // we must then drain the in progress files before rethrowing the exception
-            log.debug("Error occurred during poll directory: " + name + " due " + e.getMessage() + ". Removing " + files.size() + " files marked as in-progress.");
+            log.debug("Error occurred during poll directory: {} due {}. Removing {} files marked as in-progress.", name, e.getMessage(), files.size());
             removeExcessiveInProgressFiles(files);
             throw e;
         }
@@ -146,7 +151,7 @@ public abstract class GenericFileConsumer<T> extends ScheduledBatchPollingConsum
 
         // sort using build in sorters so we can use expressions
         // use a linked list so we can dequeue the exchanges
-        LinkedList<Exchange> exchanges = new LinkedList<Exchange>();
+        LinkedList<Exchange> exchanges = new LinkedList<>();
         for (GenericFile<T> file : files) {
             Exchange exchange = endpoint.createExchange(file);
             endpoint.configureExchange(exchange);
@@ -351,8 +356,6 @@ public abstract class GenericFileConsumer<T> extends ScheduledBatchPollingConsum
         String absoluteFileName = file.getAbsoluteFilePath();
 
         // check if we can begin processing the file
-        final GenericFileProcessStrategy<T> processStrategy = endpoint.getGenericFileProcessStrategy();
-
         Exception beginCause = null;
         boolean begin = false;
         try {
@@ -405,7 +408,7 @@ public abstract class GenericFileConsumer<T> extends ScheduledBatchPollingConsum
                 boolean retrieved;
                 Exception cause = null;
                 try {
-                    retrieved = operations.retrieveFile(name, exchange);
+                    retrieved = operations.retrieveFile(name, exchange, target.getFileLength());
                 } catch (Exception e) {
                     retrieved = false;
                     cause = e;
@@ -421,7 +424,7 @@ public abstract class GenericFileConsumer<T> extends ScheduledBatchPollingConsum
                         // throw exception to handle the problem with retrieving the file
                         // then if the method return false or throws an exception is handled the same in here
                         // as in both cases an exception is being thrown
-                        if (cause != null && cause instanceof GenericFileOperationFailedException) {
+                        if (cause instanceof GenericFileOperationFailedException) {
                             throw cause;
                         } else {
                             throw new GenericFileOperationFailedException("Cannot retrieve file: " + file + " from: " + endpoint, cause);
@@ -437,7 +440,7 @@ public abstract class GenericFileConsumer<T> extends ScheduledBatchPollingConsum
 
             // register on completion callback that does the completion strategies
             // (for instance to move the file after we have processed it)
-            exchange.addOnCompletion(new GenericFileOnCompletion<T>(endpoint, operations, target, absoluteFileName));
+            exchange.addOnCompletion(new GenericFileOnCompletion<>(endpoint, operations, processStrategy, target, absoluteFileName));
 
             log.debug("About to process file: {} using exchange: {}", target, exchange);
 
@@ -697,6 +700,9 @@ public abstract class GenericFileConsumer<T> extends ScheduledBatchPollingConsum
             // create a dummy exchange as Exchange is needed for expression evaluation
             Exchange dummy = endpoint.createExchange();
             fileExpressionResult = endpoint.getFileName().evaluate(dummy, String.class);
+            if (dummy.getException() != null) {
+                throw ObjectHelper.wrapRuntimeCamelException(dummy.getException());
+            }
         }
         return fileExpressionResult;
     }
@@ -708,6 +714,11 @@ public abstract class GenericFileConsumer<T> extends ScheduledBatchPollingConsum
 
     @Override
     protected void doStart() throws Exception {
+        // inject CamelContext before starting as it may be needed
+        if (processStrategy instanceof CamelContextAware) {
+            ((CamelContextAware) processStrategy).setCamelContext(getEndpoint().getCamelContext());
+        }
+        ServiceHelper.startService(processStrategy);
         super.doStart();
     }
 
@@ -715,5 +726,23 @@ public abstract class GenericFileConsumer<T> extends ScheduledBatchPollingConsum
     protected void doStop() throws Exception {
         prepareOnStartup = false;
         super.doStop();
+        ServiceHelper.stopService(processStrategy);
     }
+
+    @Override
+    public void onInit() throws Exception {
+        // noop as we do a manual on-demand poll with GenericFilePolllingConsumer
+    }
+
+    @Override
+    public long beforePoll(long timeout) throws Exception {
+        // noop as we do a manual on-demand poll with GenericFilePolllingConsumer
+        return timeout;
+    }
+
+    @Override
+    public void afterPoll() throws Exception {
+        // noop as we do a manual on-demand poll with GenericFilePolllingConsumer
+    }
+
 }

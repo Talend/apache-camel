@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package org.apache.camel.processor;
-
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,17 +25,21 @@ import org.apache.camel.Processor;
 import org.apache.camel.ShutdownRunningTask;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class ShutdownCompleteAllTasksTest extends ContextTestSupport {
 
-    private static String url = "file:target/pending";
+    private static String url = "file:target/pending?initialDelay=0&delay=10";
     private static AtomicInteger counter = new AtomicInteger();
+    private static CountDownLatch latch = new CountDownLatch(2);
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/pending");
         super.setUp();
 
@@ -46,6 +50,7 @@ public class ShutdownCompleteAllTasksTest extends ContextTestSupport {
         template.sendBodyAndHeader(url, "E", Exchange.FILE_NAME, "e.txt");
     }
 
+    @Test
     public void testShutdownCompleteAllTasks() throws Exception {
         // give it 30 seconds to shutdown
         context.getShutdownStrategy().setTimeout(30);
@@ -56,10 +61,12 @@ public class ShutdownCompleteAllTasksTest extends ContextTestSupport {
         MockEndpoint bar = getMockEndpoint("mock:bar");
         bar.expectedMinimumMessageCount(1);
 
-        // wait 20 seconds to give more time for slow servers
-        bar.await(20, TimeUnit.SECONDS);
+        assertMockEndpointsSatisfied();
 
         int batch = bar.getReceivedExchanges().get(0).getProperty(Exchange.BATCH_SIZE, int.class);
+
+        // wait for latch
+        latch.await(10, TimeUnit.SECONDS);
 
         // shutdown during processing
         context.stop();
@@ -87,8 +94,8 @@ public class ShutdownCompleteAllTasksTest extends ContextTestSupport {
     public static class MyProcessor implements Processor {
 
         public void process(Exchange exchange) throws Exception {
-            Thread.sleep(500);
             counter.incrementAndGet();
+            latch.countDown();
         }
     }
 

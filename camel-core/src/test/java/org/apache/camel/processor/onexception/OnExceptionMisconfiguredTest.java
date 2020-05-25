@@ -17,11 +17,13 @@
 package org.apache.camel.processor.onexception;
 
 import java.io.IOException;
+
 import javax.xml.soap.SOAPException;
 
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.FailedToCreateRouteException;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Test;
 
 /**
  *
@@ -33,6 +35,7 @@ public class OnExceptionMisconfiguredTest extends ContextTestSupport {
         return false;
     }
 
+    @Test
     public void testOnExceptionMisconfigured() throws Exception {
         context.addRoutes(new RouteBuilder() {
             @Override
@@ -47,10 +50,11 @@ public class OnExceptionMisconfiguredTest extends ContextTestSupport {
             fail("Should have thrown exception");
         } catch (FailedToCreateRouteException e) {
             IllegalArgumentException iae = assertIsInstanceOf(IllegalArgumentException.class, e.getCause());
-            assertEquals("OnException[[class java.lang.Exception] -> []] is not configured.", iae.getMessage());
+            assertEquals("OnException[[java.lang.Exception] -> []] is not configured.", iae.getMessage());
         }
     }
 
+    @Test
     public void testOnExceptionMisconfigured2() throws Exception {
         context.addRoutes(new RouteBuilder() {
             @Override
@@ -65,10 +69,11 @@ public class OnExceptionMisconfiguredTest extends ContextTestSupport {
             fail("Should have thrown exception");
         } catch (FailedToCreateRouteException e) {
             IllegalArgumentException iae = assertIsInstanceOf(IllegalArgumentException.class, e.getCause());
-            assertEquals("OnException[[class java.lang.Exception] -> []] is not configured.", iae.getMessage());
+            assertEquals("OnException[[java.lang.Exception] -> []] is not configured.", iae.getMessage());
         }
     }
 
+    @Test
     public void testOnExceptionMisconfigured3() throws Exception {
         context.addRoutes(new RouteBuilder() {
             @Override
@@ -84,10 +89,11 @@ public class OnExceptionMisconfiguredTest extends ContextTestSupport {
             fail("Should have thrown exception");
         } catch (FailedToCreateRouteException e) {
             IllegalArgumentException iae = assertIsInstanceOf(IllegalArgumentException.class, e.getCause());
-            assertEquals("OnException[[class java.lang.Exception] -> []] is not configured.", iae.getMessage());
+            assertEquals("OnException[[java.lang.Exception] -> []] is not configured.", iae.getMessage());
         }
     }
 
+    @Test
     public void testOnExceptionMisconfigured4() throws Exception {
         context.addRoutes(new RouteBuilder() {
             @Override
@@ -103,10 +109,11 @@ public class OnExceptionMisconfiguredTest extends ContextTestSupport {
             fail("Should have thrown exception");
         } catch (FailedToCreateRouteException e) {
             IllegalArgumentException iae = assertIsInstanceOf(IllegalArgumentException.class, e.getCause());
-            assertEquals("OnException[[class java.lang.Exception] -> []] is not configured.", iae.getMessage());
+            assertEquals("OnException[[java.lang.Exception] -> []] is not configured.", iae.getMessage());
         }
     }
 
+    @Test
     public void testOnExceptionMisconfigured5() throws Exception {
         context.addRoutes(new RouteBuilder() {
             @Override
@@ -127,6 +134,7 @@ public class OnExceptionMisconfiguredTest extends ContextTestSupport {
         }
     }
 
+    @Test
     public void testOnExceptionNotMisconfigured() throws Exception {
         context.addRoutes(new RouteBuilder() {
             @Override
@@ -141,6 +149,7 @@ public class OnExceptionMisconfiguredTest extends ContextTestSupport {
         // okay
     }
 
+    @Test
     public void testOnExceptionNotMisconfigured2() throws Exception {
         context.addRoutes(new RouteBuilder() {
             @Override
@@ -155,6 +164,7 @@ public class OnExceptionMisconfiguredTest extends ContextTestSupport {
         // okay
     }
 
+    @Test
     public void testOnExceptionNotMisconfigured3() throws Exception {
         context.addRoutes(new RouteBuilder() {
             @Override
@@ -168,6 +178,7 @@ public class OnExceptionMisconfiguredTest extends ContextTestSupport {
         // okay
     }
 
+    @Test
     public void testOnExceptionNotMisconfigured4() throws Exception {
         context.addRoutes(new RouteBuilder() {
             @Override
@@ -181,6 +192,7 @@ public class OnExceptionMisconfiguredTest extends ContextTestSupport {
         // okay
     }
 
+    @Test
     public void testOnExceptionNotMisconfigured5() throws Exception {
         context.addRoutes(new RouteBuilder() {
             @Override

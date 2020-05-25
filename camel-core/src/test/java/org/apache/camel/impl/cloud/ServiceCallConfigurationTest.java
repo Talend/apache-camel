@@ -24,6 +24,7 @@ import org.apache.camel.Processor;
 import org.apache.camel.Route;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.cloud.ServiceDefinition;
+import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.SimpleRegistry;
 import org.apache.camel.model.cloud.ServiceCallConfigurationDefinition;
@@ -40,13 +41,56 @@ public class ServiceCallConfigurationTest {
     // ****************************************
 
     @Test
+    public void testDynamicUri() throws Exception {
+        StaticServiceDiscovery sd = new StaticServiceDiscovery();
+        sd.addServer("scall@127.0.0.1:8080");
+        sd.addServer("scall@127.0.0.1:8081");
+
+        ServiceCallConfigurationDefinition conf = new ServiceCallConfigurationDefinition();
+        conf.setServiceDiscovery(sd);
+        conf.setComponent("mock");
+
+        CamelContext context = new DefaultCamelContext();
+        context.setServiceCallConfiguration(conf);
+        context.addRoutes(new RouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                from("direct:start")
+                    .routeId("default")
+                    .serviceCall("scall", "scall/api/${header.customerId}");
+            }
+        });
+
+        context.start();
+
+        MockEndpoint mock = context.getEndpoint("mock:127.0.0.1:8080/api/123", MockEndpoint.class);
+        mock.expectedMessageCount(1);
+
+        DefaultServiceCallProcessor proc = findServiceCallProcessor(context.getRoute("default"));
+
+        Assert.assertNotNull(proc);
+        Assert.assertTrue(proc.getLoadBalancer() instanceof DefaultServiceLoadBalancer);
+
+        DefaultServiceLoadBalancer loadBalancer = (DefaultServiceLoadBalancer)proc.getLoadBalancer();
+        Assert.assertEquals(sd, loadBalancer.getServiceDiscovery());
+
+        // call the route
+        context.createFluentProducerTemplate().to("direct:start").withHeader("customerId", "123").send();
+
+        // the service should call the mock
+        mock.assertIsSatisfied();
+
+        context.stop();
+    }
+
+    @Test
     public void testDefaultConfigurationFromCamelContext() throws Exception {
         StaticServiceDiscovery sd = new StaticServiceDiscovery();
-        sd.addServer("127.0.0.1:8080");
-        sd.addServer("127.0.0.1:8081");
+        sd.addServer("service@127.0.0.1:8080");
+        sd.addServer("service@127.0.0.1:8081");
 
         BlacklistServiceFilter sf = new BlacklistServiceFilter();
-        sf.addServer("127.0.0.1:8080");
+        sf.addServer("*@127.0.0.1:8080");
 
         ServiceCallConfigurationDefinition conf = new ServiceCallConfigurationDefinition();
         conf.setServiceDiscovery(sd);
@@ -83,11 +127,11 @@ public class ServiceCallConfigurationTest {
     @Test
     public void testDefaultConfigurationFromRegistryWithDefaultName() throws Exception {
         StaticServiceDiscovery sd = new StaticServiceDiscovery();
-        sd.addServer("127.0.0.1:8080");
-        sd.addServer("127.0.0.1:8081");
+        sd.addServer("service@127.0.0.1:8080");
+        sd.addServer("service@127.0.0.1:8081");
 
         BlacklistServiceFilter sf = new BlacklistServiceFilter();
-        sf.addServer("127.0.0.1:8080");
+        sf.addServer("*@127.0.0.1:8080");
 
         ServiceCallConfigurationDefinition conf = new ServiceCallConfigurationDefinition();
         conf.setServiceDiscovery(sd);
@@ -127,11 +171,11 @@ public class ServiceCallConfigurationTest {
     @Test
     public void testDefaultConfigurationFromRegistryWithNonDefaultName() throws Exception {
         StaticServiceDiscovery sd = new StaticServiceDiscovery();
-        sd.addServer("127.0.0.1:8080");
-        sd.addServer("127.0.0.1:8081");
+        sd.addServer("service@127.0.0.1:8080");
+        sd.addServer("service@127.0.0.1:8081");
 
         BlacklistServiceFilter sf = new BlacklistServiceFilter();
-        sf.addServer("127.0.0.1:8080");
+        sf.addServer("*@127.0.0.1:8080");
 
         ServiceCallConfigurationDefinition conf = new ServiceCallConfigurationDefinition();
         conf.setServiceDiscovery(sd);
@@ -175,12 +219,12 @@ public class ServiceCallConfigurationTest {
     public void testMixedConfiguration() throws Exception {
         // Default
         StaticServiceDiscovery defaultServiceDiscovery = new StaticServiceDiscovery();
-        defaultServiceDiscovery.addServer("127.0.0.1:8080");
-        defaultServiceDiscovery.addServer("127.0.0.1:8081");
-        defaultServiceDiscovery.addServer("127.0.0.1:8082");
+        defaultServiceDiscovery.addServer("service@127.0.0.1:8080");
+        defaultServiceDiscovery.addServer("service@127.0.0.1:8081");
+        defaultServiceDiscovery.addServer("service@127.0.0.1:8082");
 
         BlacklistServiceFilter defaultServiceFilter = new BlacklistServiceFilter();
-        defaultServiceFilter.addServer("127.0.0.1:8080");
+        defaultServiceFilter.addServer("*@127.0.0.1:8080");
 
         ServiceCallConfigurationDefinition defaultConfiguration = new ServiceCallConfigurationDefinition();
         defaultConfiguration.setServiceDiscovery(defaultServiceDiscovery);
@@ -188,17 +232,17 @@ public class ServiceCallConfigurationTest {
 
         // Named
         BlacklistServiceFilter namedServiceFilter = new BlacklistServiceFilter();
-        namedServiceFilter.addServer("127.0.0.1:8081");
+        namedServiceFilter.addServer("*@127.0.0.1:8081");
 
         ServiceCallConfigurationDefinition namedConfiguration = new ServiceCallConfigurationDefinition();
         namedConfiguration.serviceFilter(namedServiceFilter);
 
         // Local
         StaticServiceDiscovery localServiceDiscovery = new StaticServiceDiscovery();
-        localServiceDiscovery.addServer("127.0.0.1:8080");
-        localServiceDiscovery.addServer("127.0.0.1:8081");
-        localServiceDiscovery.addServer("127.0.0.1:8082");
-        localServiceDiscovery.addServer("127.0.0.1:8084");
+        localServiceDiscovery.addServer("service@127.0.0.1:8080");
+        localServiceDiscovery.addServer("service@127.0.0.1:8081");
+        localServiceDiscovery.addServer("service@127.0.0.1:8082");
+        localServiceDiscovery.addServer("service@127.0.0.1:8084");
 
 
         // Camel context

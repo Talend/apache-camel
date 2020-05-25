@@ -21,6 +21,7 @@ import javax.naming.Context;
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 
 /**
  * @version 
@@ -28,11 +29,14 @@ import org.apache.camel.component.mock.MockEndpoint;
 public class DataSetPreloadTest extends ContextTestSupport {
 
     private SimpleDataSet dataSet = new SimpleDataSet(20);
-    private String uri = "dataset:foo?preloadSize=5";
+    private String uri = "dataset:foo?initialDelay=0&preloadSize=5";
 
+    @Test
     public void testDataSetPreloadSize() throws Exception {
         MockEndpoint endpoint = getMockEndpoint(uri);
         endpoint.expectedMessageCount((int) dataSet.getSize());
+
+        context.startAllRoutes();
 
         assertMockEndpointsSatisfied();
 
@@ -55,7 +59,7 @@ public class DataSetPreloadTest extends ContextTestSupport {
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() throws Exception {
-                from(uri).to("seda:test");
+                from(uri).to("seda:test").noAutoStartup();
 
                 from("seda:test").to(uri);
             }

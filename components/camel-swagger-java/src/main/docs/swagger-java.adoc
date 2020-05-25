@@ -1,92 +1,35 @@
-[[SwaggerJava-SwaggerJavaComponent]]
-Swagger Java Component
-~~~~~~~~~~~~~~~~~~~~~~
+== Swagger Java Component
 
 *Available as of Camel 2.16*
 
-The  link:rest-dsl.html[Rest DSL] can be integrated with
+The  Rest DSL can be integrated with
 the `camel-swagger-java` module which is used for exposing the REST
 services and their APIs using http://swagger.io/[Swagger].
 
 Maven users will need to add the following dependency to
 their `pom.xml` for this component:
 
-From *Camel 2.16* onwards the swagger component is purely Java based,
-and its 
-
-[source,java]
-------------------------------------------------------------
+[source,xml]
+----
 <dependency>
     <groupId>org.apache.camel</groupId>
     <artifactId>camel-swagger-java</artifactId>
     <version>x.x.x</version>
     <!-- use the same version as your Camel core version -->
 </dependency>
-------------------------------------------------------------
+----
 
-The camel-swagger-java module can be used as a Servlet or directly from
+The camel-swagger-java module can be used from
 the REST components (without the need for servlet)
 
-For an example see the `camel-example-swagger-cdi` in the examples
-directory of the Apache Camel distribution.
 
-[[SwaggerJava-UsingSwaggerasaServlet]]
-Using Swagger as a Servlet
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-You configure the swagger in the web.xml as shown below:
-
-[source,java]
-------------------------------------------------------------------------------------------------------------------------
-  <servlet>
- 
-    <servlet-name>SwaggerServlet</servlet-name>
-    <servlet-class>org.apache.camel.swagger.servlet.RestSwaggerServlet</servlet-class>
-
-    <init-param>
-      <!-- we specify the base.path using relative notation, that means the actual path will be calculated at runtime as
-           http://server:port/contextpath/rest -->
-      <param-name>base.path</param-name>
-      <param-value>rest</param-value>
-    </init-param>
-    <init-param>
-      <!-- we specify the api.path using relative notation, that means the actual path will be calculated at runtime as
-           http://server:port/contextpath/api-docs -->
-      <param-name>api.path</param-name>
-      <param-value>api-docs</param-value>
-    </init-param>
-
-    <init-param>
-      <param-name>api.version</param-name>
-      <param-value>1.2.3</param-value>
-    </init-param>
-    <init-param>
-      <param-name>api.title</param-name>
-      <param-value>User Services</param-value>
-    </init-param>
-    <init-param>
-      <param-name>api.description</param-name>
-      <param-value>Camel Rest Example with Swagger that provides an User REST service</param-value>
-    </init-param>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-
-  <!-- swagger api -->
-  <servlet-mapping>
-    <servlet-name>SwaggerServlet</servlet-name>
-    <url-pattern>/api-docs/*</url-pattern>
-  </servlet-mapping>
-------------------------------------------------------------------------------------------------------------------------
-
-[[SwaggerJava-UsingSwaggerinrest-dsl]]
-Using Swagger in rest-dsl
-^^^^^^^^^^^^^^^^^^^^^^^^^
+=== Using Swagger in rest-dsl
 
 You can enable the swagger api from the rest-dsl by configuring the
 `apiContextPath` dsl as shown below:
 
 [source,java]
-------------------------------------------------------------------------------------------------------------------
+----
 public class UserRouteBuilder extends RouteBuilder {
     @Override
     public void configure() throws Exception {
@@ -116,13 +59,10 @@ public class UserRouteBuilder extends RouteBuilder {
                 .to("bean:userService?method=listUsers");
     }
 }
-------------------------------------------------------------------------------------------------------------------
-
+----
  
 
-[[SwaggerJava-Options]]
-Options
-^^^^^^^
+=== Options
 
 The swagger module can be configured using the following options. To
 configure using a servlet you use the init-param as shown above. When
@@ -131,13 +71,12 @@ such as `enableCORS`, `host,contextPath`, dsl. The options
 with `api.xxx` is configured using `apiProperty` dsl.
 
 [width="100%",cols="10%,10%,80%",options="header",]
-|=======================================================================
+|===
 |Option |Type |Description
 
 |cors |Boolean |Whether to enable CORS. Notice this only enables CORS for the api
 browser, and not the actual access to the REST services. Is default
-false. Instead of using this option is recommended to use the CorsFilte, see
-further below.
+false.
 
 |swagger.version |String |Swagger spec version. Is default 2.0.
 
@@ -189,57 +128,52 @@ false.
 |apiContextIdPattern |String |A pattern that allows to filter which CamelContext names is shown in the
 context listing. The pattern is using regular expression and * as
 wildcard. Its the same pattern matching as used by
-link:intercept.html[Intercept]
-|=======================================================================
+Intercept
+|===
 
-[[SwaggerJava-CorsFilter]]
-CorsFilter
-^^^^^^^^^^
+=== Adding Security Definitions in API doc
 
-If you use the swagger ui to view the REST api then you likely need to
-enable support for CORS. This is needed if the swagger ui is hosted and
-running on another hostname/port than the actual REST apis. When doing
-this the swagger ui needs to be allowed to access the REST resources
-across the origin (CORS). The CorsFilter adds the necessary HTTP headers
-to enable CORS.
+*Available as of Camel 2.22.0*
 
-To use CORS adds the following filter
-`org.apache.camel.swagger.servlet.RestSwaggerCorsFilter` to your
-web.xml.
+The Rest DSL now supports declaring Swagger `securityDefinitions` in the generated API document.
+For example as shown below:
 
 [source,java]
---------------------------------------------------------------------------------------
-  <!-- enable CORS filter so people can use swagger ui to browse and test the apis -->
-  <filter>
-    <filter-name>RestSwaggerCorsFilter</filter-name>
-    <filter-class>org.apache.camel.swagger.servlet.RestSwaggerCorsFilter</filter-class>
-  </filter>
+----
+rest("/user").tag("dude").description("User rest service")
+    // setup security definitions
+    .securityDefinitions()
+        .oauth2("petstore_auth").authorizationUrl("http://petstore.swagger.io/oauth/dialog").end()
+        .apiKey("api_key").withHeader("myHeader").end()
+    .end()
+    .consumes("application/json").produces("application/json")
+----
+
+Here we have setup two security definitions
+
+- OAuth2 - with implicit authorization with the provided url
+- Api Key - using an api key that comes from HTTP header named _myHeader_
+
+Then you need to specify on the rest operations which security to use by referring to
+their key (petstore_auth or api_key).
+
+[source,java]
+----
+.get("/{id}/{date}").description("Find user by id and date").outType(User.class)
+    .security("api_key")
+
+...
+
+.put().description("Updates or create a user").type(User.class)
+    .security("petstore_auth", "write:pets,read:pets")
+----
+
+Here the get operation is using the Api Key security and the put operation
+is using OAuth security with permitted scopes of read and write pets.
 
 
-  <filter-mapping>
-    <filter-name>RestSwaggerCorsFilter</filter-name>
-    <url-pattern>/api-docs/*</url-pattern>
-    <url-pattern>/rest/*</url-pattern>
-  </filter-mapping>
---------------------------------------------------------------------------------------
 
-The CorsFilter sets the following headers for all requests
-
-* Access-Control-Allow-Origin = *
-* Access-Control-Allow-Methods = GET, HEAD, POST, PUT, DELETE, TRACE,
-OPTIONS, CONNECT, PATCH
-* Access-Control-Max-Age = 3600
-* Access-Control-Allow-Headers = Origin, Accept, X-Requested-With,
-Content-Type, Access-Control-Request-Method,
-Access-Control-Request-Headers
-
-Notice this is a very simple CORS filter. You may need to use a more
-sophisticated filter to set the header values differently for a given
-client. Or block certain clients etc.
-
-[[SwaggerJava-ContextIdListingenabled]]
-ContextIdListing enabled
-^^^^^^^^^^^^^^^^^^^^^^^^
+=== ContextIdListing enabled
 
 When contextIdListing is enabled then its detecting all the running
 CamelContexts in the same JVM. These contexts are listed in the root
@@ -248,9 +182,7 @@ the swagger documentation then the context-path must be appended with
 the Camel context id, such as `api-docs/myCamel`. The
 option apiContextIdPattern can be used to filter the names in this list.
 
-[[SwaggerJava-JSonorYaml]]
-JSon or Yaml
-^^^^^^^^^^^^
+=== JSon or Yaml
 
 *Available as of Camel 2.17*
 
@@ -261,9 +193,7 @@ the HTTP Accept header is used to detect if json or yaml can be
 accepted. If either both is accepted or none was set as accepted then
 json is returned as the default format.
 
-[[SwaggerJava-Examples]]
-Examples
-^^^^^^^^
+=== Examples
 
 In the Apache Camel distribution we ship
 the `camel-example-swagger-cdi` and `camel-example-swagger-java` which

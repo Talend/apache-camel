@@ -32,7 +32,6 @@ import org.w3c.dom.NodeList;
 import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.xpath.XPathEvaluator;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.StringSource;
 import org.apache.camel.builder.xml.DefaultNamespaceContext;
@@ -106,7 +105,7 @@ public class SaxonConverterTest extends CamelTestSupport {
 
     @Test
     public void convertToNodeList() throws XPathException {
-        List<NodeInfo> nil = new LinkedList<NodeInfo>();
+        List<NodeInfo> nil = new LinkedList<>();
         nil.add(doc);
         NodeList nodeList = context.getTypeConverter().convertTo(NodeList.class, exchange, nil);
         assertNotNull(nodeList);

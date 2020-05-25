@@ -15,13 +15,9 @@
  * limitations under the License.
  */
 package org.apache.camel.component.twitter;
-
-import java.util.Date;
-
+import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import twitter4j.Twitter;
 
 /**
  * consumes tweets
@@ -29,6 +25,7 @@ import twitter4j.Twitter;
 public class DirectMessageDirectTest extends CamelTwitterConsumerTestSupport {
 
     @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         /* Uncomment when you need a test direct message

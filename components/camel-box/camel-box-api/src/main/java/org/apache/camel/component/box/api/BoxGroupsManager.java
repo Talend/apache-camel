@@ -66,7 +66,7 @@ public class BoxGroupsManager {
         try {
             LOG.debug("Getting all groups");
 
-            Collection<BoxGroup> groups = new ArrayList<BoxGroup>();
+            Collection<BoxGroup> groups = new ArrayList<>();
             for (BoxGroup.Info groupInfo : BoxGroup.getAllGroups(boxConnection)) {
                 groups.add(groupInfo.getResource());
             }
@@ -78,20 +78,35 @@ public class BoxGroupsManager {
     }
 
     /**
-     * Create a new group with a specified name.
+     * Create a new group with a specified name and optional additional parameters.
+     * Optional parameters may be null.
      * 
      * @param name
      *            - the name of the new group.
+     * @param provenance
+     *            - the provenance of the new group.
+     * @param externalSyncIdentifier
+     *            - the external_sync_identifier of the new group.
+     * @param description
+     *            - the description of the new group.
+     * @param invitabilityLevel
+     *            - the invitibility_level of the new group.
+     * @param memberViewabilityLevel
+     *            - the member_viewability_level of the new group.
      * @return The newly created group.
      */
-    public BoxGroup createGroup(String name) {
+    public BoxGroup createGroup(String name, String provenance,
+        String externalSyncIdentifier, String description,
+        String invitabilityLevel, String memberViewabilityLevel) {
+
         try {
-            LOG.debug("Creating group name=" + name);
+            LOG.debug("Creating group name={}", name);
             if (name == null) {
                 throw new IllegalArgumentException("Parameter 'name' can not be null");
             }
 
-            return BoxGroup.createGroup(boxConnection, name).getResource();
+            return BoxGroup.createGroup(boxConnection, name, provenance, externalSyncIdentifier, description,
+                invitabilityLevel, memberViewabilityLevel).getResource();
         } catch (BoxAPIException e) {
             throw new RuntimeException(
                     String.format("Box API returned the error code %d\n\n%s", e.getResponseCode(), e.getResponse()), e);
@@ -106,7 +121,7 @@ public class BoxGroupsManager {
      */
     public void deleteGroup(String groupId) {
         try {
-            LOG.debug("Deleting group(" + groupId + ")");
+            LOG.debug("Deleting group({})", groupId);
             if (groupId == null) {
                 throw new IllegalArgumentException("Parameter 'groupId' can not be null");
             }
@@ -128,7 +143,7 @@ public class BoxGroupsManager {
      */
     public BoxGroup.Info getGroupInfo(String groupId) {
         try {
-            LOG.debug("Getting info for group(id=" + groupId + ")");
+            LOG.debug("Getting info for group(id={})", groupId);
             if (groupId == null) {
                 throw new IllegalArgumentException("Parameter 'groupId' can not be null");
             }
@@ -136,6 +151,34 @@ public class BoxGroupsManager {
             BoxGroup group = new BoxGroup(boxConnection, groupId);
 
             return group.getInfo();
+        } catch (BoxAPIException e) {
+            throw new RuntimeException(
+                    String.format("Box API returned the error code %d\n\n%s", e.getResponseCode(), e.getResponse()), e);
+        }
+    }
+
+    /**
+     * Update group information.
+     *
+     * @param groupId
+     *            - the id of group to update.
+     * @param groupInfo
+     *            - the updated information
+     * @return The updated group.
+     */
+    public BoxGroup updateGroupInfo(String groupId, BoxGroup.Info groupInfo) {
+        try {
+            LOG.debug("Updating info for group(id={})", groupId);
+            if (groupId == null) {
+                throw new IllegalArgumentException("Parameter 'groupId' can not be null");
+            }
+            if (groupInfo == null) {
+                throw new IllegalArgumentException("Parameter 'groupInfo' can not be null");
+            }
+
+            BoxGroup group = new BoxGroup(boxConnection, groupId);
+            group.updateInfo(groupInfo);
+            return group;
         } catch (BoxAPIException e) {
             throw new RuntimeException(
                     String.format("Box API returned the error code %d\n\n%s", e.getResponseCode(), e.getResponse()), e);
@@ -151,7 +194,7 @@ public class BoxGroupsManager {
      */
     public Collection<BoxGroupMembership.Info> getGroupMemberships(String groupId) {
         try {
-            LOG.debug("Getting information about all memberships for group(id=" + groupId + ")");
+            LOG.debug("Getting information about all memberships for group(id={})", groupId);
             if (groupId == null) {
                 throw new IllegalArgumentException("Parameter 'groupId' can not be null");
             }
@@ -206,7 +249,7 @@ public class BoxGroupsManager {
      */
     public void deleteGroupMembership(String groupMembershipId) {
         try {
-            LOG.debug("Deleting groupMembership(id=" + groupMembershipId + ")");
+            LOG.debug("Deleting groupMembership(id={})", groupMembershipId);
             if (groupMembershipId == null) {
                 throw new IllegalArgumentException("Parameter 'groupMemebershipId' can not be null");
             }
@@ -229,7 +272,7 @@ public class BoxGroupsManager {
      */
     public BoxGroupMembership.Info getGroupMembershipInfo(String groupMemebershipId) {
         try {
-            LOG.debug("Getting info for groupMemebership(id=" + groupMemebershipId + ")");
+            LOG.debug("Getting info for groupMemebership(id={})", groupMemebershipId);
             if (groupMemebershipId == null) {
                 throw new IllegalArgumentException("Parameter 'groupMemebershipId' can not be null");
             }
@@ -252,17 +295,17 @@ public class BoxGroupsManager {
      *            - the updated information.
      * @return The group information.
      */
-    public BoxGroupMembership updateGroupMembershipInfo(String groupMemebershipId, BoxGroupMembership.Info info) {
+    public BoxGroupMembership updateGroupMembershipInfo(String groupMembershipId, BoxGroupMembership.Info info) {
         try {
-            LOG.debug("Updating info for groupMembership(id=" + groupMemebershipId + ")");
-            if (groupMemebershipId == null) {
-                throw new IllegalArgumentException("Parameter 'groupMemebershipId' can not be null");
+            LOG.debug("Updating info for groupMembership(id={})", groupMembershipId);
+            if (groupMembershipId == null) {
+                throw new IllegalArgumentException("Parameter 'groupMembershipId' can not be null");
             }
             if (info == null) {
                 throw new IllegalArgumentException("Parameter 'info' can not be null");
             }
 
-            BoxGroupMembership groupMembership = new BoxGroupMembership(boxConnection, groupMemebershipId);
+            BoxGroupMembership groupMembership = new BoxGroupMembership(boxConnection, groupMembershipId);
 
             groupMembership.updateInfo(info);
             return groupMembership;

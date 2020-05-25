@@ -16,6 +16,7 @@
  */
 package org.apache.camel.component.kura;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
@@ -33,9 +34,9 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;   
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 
@@ -93,7 +94,7 @@ public class KuraRouterTest extends Assert {
 
     @Test
     public void shouldReturnNoService() {
-        given(bundleContext.getServiceReference(any(Class.class))).willReturn(null);
+        given(bundleContext.getServiceReference(any(String.class))).willReturn(null);
         assertNull(router.service(ConfigurationAdmin.class));
     }
 
@@ -104,7 +105,7 @@ public class KuraRouterTest extends Assert {
 
     @Test(expected = IllegalStateException.class)
     public void shouldValidateLackOfService() {
-        given(bundleContext.getServiceReference(any(Class.class))).willReturn(null);
+        given(bundleContext.getServiceReference(any(String.class))).willReturn(null);
         router.requiredService(ConfigurationAdmin.class);
     }
 
@@ -113,7 +114,8 @@ public class KuraRouterTest extends Assert {
         // Given
         given(configurationAdmin.getConfiguration(anyString())).willReturn(configuration);
         Dictionary<String, Object> properties = new Hashtable<>();
-        properties.put("kura.camel.symbolic_name.route", IOUtils.toString(getClass().getResource("/route.xml")));
+        String routeDefinition = IOUtils.toString(getClass().getResource("/route.xml"), StandardCharsets.UTF_8);
+        properties.put("kura.camel.symbolic_name.route", routeDefinition);
         given(configuration.getProperties()).willReturn(properties);
 
         // When

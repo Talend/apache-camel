@@ -17,10 +17,8 @@
 package org.apache.camel.component.twitter;
 
 import org.apache.camel.component.twitter.data.EndpointType;
-import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriParams;
-import org.apache.camel.spi.UriPath;
 import org.apache.camel.util.ObjectHelper;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
@@ -32,10 +30,6 @@ import twitter4j.conf.ConfigurationBuilder;
 @UriParams
 public class TwitterConfiguration {
 
-    //@UriPath(description = "The kind of endpoint", enums = "directmessage,search,streaming/filter,streaming/sample,streaming/user"
-    //        + ",timeline/home,timeline/mentions,timeline/retweetsofme,timeline/user") @Metadata(required = "true")
-    @Deprecated
-    private String kind;
     @UriParam(label = "consumer", defaultValue = "polling", enums = "polling,direct,event")
     private EndpointType type = EndpointType.POLLING;
     @UriParam(label = "security", secret = true)
@@ -46,10 +40,6 @@ public class TwitterConfiguration {
     private String consumerKey;
     @UriParam(label = "security", secret = true)
     private String consumerSecret;
-    @UriParam
-    private String user;
-    @UriParam(label = "consumer,filter")
-    private String keywords;
     @UriParam(label = "consumer,filter")
     private String userIds;
     @UriParam(label = "consumer,filter", defaultValue = "true")
@@ -58,8 +48,8 @@ public class TwitterConfiguration {
     private long sinceId  = 1;
     @UriParam(label = "consumer,filter")
     private String lang;
-    @UriParam(label = "consumer,filter")
-    private Integer count;
+    @UriParam(label = "consumer,filter", defaultValue = "5")
+    private Integer count = 5;
     @UriParam(label = "consumer,filter", defaultValue = "1")
     private Integer numberOfPages = 1;
     @UriParam(label = "consumer,sort", defaultValue = "true")
@@ -82,6 +72,8 @@ public class TwitterConfiguration {
     private Double radius;
     @UriParam(label = "consumer,advanced", defaultValue = "km", enums = "km,mi")
     private String distanceMetric;
+    @UriParam(label = "consumer,advanced", defaultValue = "true")
+    private boolean extendedMode = true;
 
     /**
      * Singleton, on demand instances of Twitter4J's Twitter & TwitterStream.
@@ -117,19 +109,20 @@ public class TwitterConfiguration {
         confBuilder.setOAuthConsumerSecret(consumerSecret);
         confBuilder.setOAuthAccessToken(accessToken);
         confBuilder.setOAuthAccessTokenSecret(accessTokenSecret);
+        confBuilder.setTweetModeExtended(isExtendedMode());
         if (getHttpProxyHost() != null) {
             confBuilder.setHttpProxyHost(getHttpProxyHost());
         }
         if (getHttpProxyUser() != null) {
-            confBuilder.setHttpProxyHost(getHttpProxyUser());
+            confBuilder.setHttpProxyUser(getHttpProxyUser());
         }
         if (getHttpProxyPassword() != null) {
-            confBuilder.setHttpProxyHost(getHttpProxyPassword());
+            confBuilder.setHttpProxyPassword(getHttpProxyPassword());
         }
         if (httpProxyPort != null) {
             confBuilder.setHttpProxyPort(httpProxyPort);
         }
-        
+
         return confBuilder.build();
     }
 
@@ -160,20 +153,6 @@ public class TwitterConfiguration {
             twitterStream = new TwitterStreamFactory(getConfiguration()).getInstance();
         }
         return twitterStream;
-    }
-
-    @Deprecated
-    public String getKind() {
-        return kind;
-    }
-
-    /**
-     * What polling mode to use, direct, polling or event based.
-     * The event mode is only supported when the endpoint kind is event based.
-     */
-    @Deprecated
-    public void setKind(String kind) {
-        this.kind = kind;
     }
 
     public String getConsumerKey() {
@@ -218,28 +197,6 @@ public class TwitterConfiguration {
 
     public void setAccessTokenSecret(String accessTokenSecret) {
         this.accessTokenSecret = accessTokenSecret;
-    }
-    
-    public String getUser() {
-        return user;
-    }
-
-    /**
-     * Username, used for user timeline consumption, direct message production, etc.
-     */
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public String getKeywords() {
-        return keywords;
-    }
-
-    /**
-     * Can be used for search and streaming/filter. Multiple values can be separated with comma.
-     */
-    public void setKeywords(String keywords) {
-        this.keywords = keywords;
     }
 
     public EndpointType getType() {
@@ -348,7 +305,7 @@ public class TwitterConfiguration {
     public void setHttpProxyHost(String httpProxyHost) {
         this.httpProxyHost = httpProxyHost;
     }
-    
+
     public String getHttpProxyHost() {
         return httpProxyHost;
     }
@@ -438,6 +395,17 @@ public class TwitterConfiguration {
      */
     public void setDistanceMetric(String distanceMetric) {
         this.distanceMetric = distanceMetric;
+    }
+
+    /**
+     * Used for enabling full text from twitter (eg receive tweets that contains more than 140 characters).
+     */
+    public void setExtendedMode(Boolean extendedMode) {
+        this.extendedMode = extendedMode;
+    }
+
+    public boolean isExtendedMode() {
+        return extendedMode;
     }
 
 }

@@ -25,6 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -59,11 +60,13 @@ import org.apache.camel.spi.RestApiConsumerFactory;
 import org.apache.camel.spi.RestConfiguration;
 import org.apache.camel.spi.RestConsumerFactory;
 import org.apache.camel.spi.RestProducerFactory;
+import org.apache.camel.spi.RestProducerFactoryHelper;
 import org.apache.camel.util.FileUtil;
 import org.apache.camel.util.HostUtils;
 import org.apache.camel.util.IntrospectionSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.ServiceHelper;
+import org.apache.camel.util.StringHelper;
 import org.apache.camel.util.URISupport;
 import org.apache.camel.util.UnsafeUriCharactersEncoder;
 import org.apache.camel.util.jsse.SSLContextParameters;
@@ -104,7 +107,7 @@ import org.slf4j.LoggerFactory;
 public abstract class JettyHttpComponent extends HttpCommonComponent implements RestConsumerFactory, RestApiConsumerFactory, RestProducerFactory, SSLContextParametersAware {
     public static final String TMP_DIR = "CamelJettyTempDir";
 
-    protected static final HashMap<String, ConnectorRef> CONNECTORS = new HashMap<String, ConnectorRef>();
+    protected static final HashMap<String, ConnectorRef> CONNECTORS = new HashMap<>();
 
     private static final Logger LOG = LoggerFactory.getLogger(JettyHttpComponent.class);
     private static final String JETTY_SSL_KEYSTORE = "org.eclipse.jetty.ssl.keystore";
@@ -145,12 +148,14 @@ public abstract class JettyHttpComponent extends HttpCommonComponent implements 
     }
 
     class ConnectorRef {
+        CamelContext camelContext;
         Server server;
         Connector connector;
         CamelServlet servlet;
         int refCount;
 
-        ConnectorRef(Server server, Connector connector, CamelServlet servlet) {
+        ConnectorRef(CamelContext camelContext, Server server, Connector connector, CamelServlet servlet) {
+            this.camelContext = camelContext;
             this.server = server;
             this.connector = connector;
             this.servlet = servlet;
@@ -211,7 +216,7 @@ public abstract class JettyHttpComponent extends HttpCommonComponent implements 
         // create endpoint after all known parameters have been extracted from parameters
 
         // include component scheme in the uri
-        String scheme = ObjectHelper.before(uri, ":");
+        String scheme = StringHelper.before(uri, ":");
         endpointUri = new URI(scheme + ":" + endpointUri);
 
         JettyHttpEndpoint endpoint = createEndpoint(endpointUri, httpUri);
@@ -277,7 +282,7 @@ public abstract class JettyHttpComponent extends HttpCommonComponent implements 
         if (enableCors) {
             endpoint.setEnableCORS(enableCors);
             if (filters == null) {
-                filters = new ArrayList<Filter>(1);
+                filters = new ArrayList<>(1);
             }
             filters.add(new CrossOriginFilter());
         }
@@ -313,6 +318,34 @@ public abstract class JettyHttpComponent extends HttpCommonComponent implements 
 
     protected abstract JettyHttpEndpoint createEndpoint(URI endpointUri, URI httpUri) throws URISyntaxException;
 
+    @Override
+    public boolean canConnect(HttpConsumer consumer) throws Exception {
+        // Make sure that there is a connector for the requested endpoint.
+        JettyHttpEndpoint endpoint = (JettyHttpEndpoint)consumer.getEndpoint();
+        String connectorKey = getConnectorKey(endpoint);
+
+        synchronized (CONNECTORS) {
+            ConnectorRef connectorRef = CONNECTORS.get(connectorKey);
+
+            // check if there are already another consumer on the same context-path and if so fail
+            if (connectorRef != null) {
+                for (Map.Entry<String, HttpConsumer> entry : connectorRef.servlet.getConsumers().entrySet()) {
+                    String path = entry.getValue().getPath();
+                    CamelContext camelContext = entry.getValue().getEndpoint().getCamelContext();
+                    if (consumer.getPath().equals(path)) {
+                        // its allowed if they are from the same camel context
+                        boolean sameContext = consumer.getEndpoint().getCamelContext() == camelContext;
+                        if (!sameContext) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Connects the URL specified on the endpoint to the specified processor.
      */
@@ -336,22 +369,33 @@ public abstract class JettyHttpComponent extends HttpCommonComponent implements 
                 }
                 server.addConnector(connector);
 
-                connectorRef = new ConnectorRef(server, connector, createServletForConnector(server, connector, endpoint.getHandlers(), endpoint));
+                connectorRef = new ConnectorRef(getCamelContext(), server, connector, createServletForConnector(server, connector, endpoint.getHandlers(), endpoint));
                 // must enable session before we start
                 if (endpoint.isSessionSupport()) {
                     enableSessionSupport(connectorRef.server, connectorKey);
                 }
                 connectorRef.server.start();
 
+                LOG.debug("Adding connector key: {} -> {}", connectorKey, connectorRef);
                 CONNECTORS.put(connectorKey, connectorRef);
 
             } else {
+                LOG.debug("Using existing connector key: {} -> {}", connectorKey, connectorRef);
 
+                // check if there are any new handlers, and if so then we need to re-start the server
                 if (endpoint.getHandlers() != null && !endpoint.getHandlers().isEmpty()) {
-                    // As the server is started, we need to stop the server for a while to add the new handler
-                    connectorRef.server.stop();
-                    addJettyHandlers(connectorRef.server, endpoint.getHandlers());
-                    connectorRef.server.start();
+                    List<Handler> existingHandlers = new ArrayList<>();
+                    if (connectorRef.server.getHandlers() != null && connectorRef.server.getHandlers().length > 0) {
+                        existingHandlers = Arrays.asList(connectorRef.server.getHandlers());
+                    }
+                    List<Handler> newHandlers = new ArrayList<>(endpoint.getHandlers());
+                    boolean changed = !existingHandlers.containsAll(newHandlers) && !newHandlers.containsAll(existingHandlers);
+                    if (changed) {
+                        LOG.debug("Restarting Jetty server due to adding new Jetty Handlers: {}", newHandlers);
+                        connectorRef.server.stop();
+                        addJettyHandlers(connectorRef.server, endpoint.getHandlers());
+                        connectorRef.server.start();
+                    }
                 }
                 // ref track the connector
                 connectorRef.increment();
@@ -583,12 +627,13 @@ public abstract class JettyHttpComponent extends HttpCommonComponent implements 
 
         if (endpointSslContextParameters != null) {
             try {
-                sslcf = createSslContextFactory(endpointSslContextParameters);
+                sslcf = createSslContextFactory(endpointSslContextParameters, false);
             } catch (Exception e) {
                 throw new RuntimeCamelException(e);
             }
         } else if ("https".equals(endpoint.getProtocol())) {
             sslcf = new SslContextFactory();
+            sslcf.setEndpointIdentificationAlgorithm(null);
             String keystoreProperty = System.getProperty(JETTY_SSL_KEYSTORE);
             if (keystoreProperty != null) {
                 sslcf.setKeyStorePath(keystoreProperty);
@@ -616,11 +661,49 @@ public abstract class JettyHttpComponent extends HttpCommonComponent implements 
 
     protected abstract AbstractConnector createConnectorJettyInternal(Server server, JettyHttpEndpoint endpoint, SslContextFactory sslcf);
 
-    private SslContextFactory createSslContextFactory(SSLContextParameters ssl) throws GeneralSecurityException, IOException {
+    private SslContextFactory createSslContextFactory(SSLContextParameters ssl, boolean client) throws GeneralSecurityException, IOException {
         SslContextFactory answer = new SslContextFactory();
+        if (!client) {
+            answer.setEndpointIdentificationAlgorithm(null);
+        }
         if (ssl != null) {
             answer.setSslContext(ssl.createSSLContext(getCamelContext()));
         }
+
+        // jetty default is
+        // addExcludeProtocols("SSL", "SSLv2", "SSLv2Hello", "SSLv3");
+        // setExcludeCipherSuites("^.*_(MD5|SHA|SHA1)$");
+
+        // configure include/exclude ciphers and protocols
+        if (ssl != null && ssl.getCipherSuitesFilter() != null)  {
+            List<String> includeCiphers = ssl.getCipherSuitesFilter().getInclude();
+            if (includeCiphers != null && !includeCiphers.isEmpty()) {
+                String[] arr = includeCiphers.toArray(new String[includeCiphers.size()]);
+                answer.setIncludeCipherSuites(arr);
+            } else {
+                answer.setIncludeCipherSuites(".*");
+            }
+            List<String> excludeCiphers = ssl.getCipherSuitesFilter().getExclude();
+            if (excludeCiphers != null && !excludeCiphers.isEmpty()) {
+                String[] arr = excludeCiphers.toArray(new String[excludeCiphers.size()]);
+                answer.setExcludeCipherSuites(arr);
+            }
+        }
+        if (ssl != null && ssl.getSecureSocketProtocolsFilter() != null) {
+            List<String> includeProtocols = ssl.getSecureSocketProtocolsFilter().getInclude();
+            if (includeProtocols != null && !includeProtocols.isEmpty()) {
+                String[] arr = includeProtocols.toArray(new String[includeProtocols.size()]);
+                answer.setIncludeProtocols(arr);
+            } else {
+                answer.setIncludeProtocols(".*");
+            }
+            List<String> excludeProtocols = ssl.getSecureSocketProtocolsFilter().getExclude();
+            if (excludeProtocols != null && !excludeProtocols.isEmpty()) {
+                String[] arr = excludeProtocols.toArray(new String[excludeProtocols.size()]);
+                answer.setExcludeProtocols(arr);
+            }
+        }
+
         return answer;
     }
 
@@ -670,7 +753,7 @@ public abstract class JettyHttpComponent extends HttpCommonComponent implements 
      * @param ssl        option SSL parameters
      */
     public CamelHttpClient createHttpClient(JettyHttpEndpoint endpoint, Integer minThreads, Integer maxThreads, SSLContextParameters ssl) throws Exception {
-        SslContextFactory sslContextFactory = createSslContextFactory(ssl);
+        SslContextFactory sslContextFactory = createSslContextFactory(ssl, true);
         HttpClientTransport transport = createHttpClientTransport(maxThreads);
         CamelHttpClient httpClient = createCamelHttpClient(transport, sslContextFactory);
 
@@ -713,7 +796,7 @@ public abstract class JettyHttpComponent extends HttpCommonComponent implements 
 
         if (LOG.isDebugEnabled()) {
             if (minThreads != null) {
-                LOG.debug("Created HttpClient with thread pool {}-{} -> {}", new Object[]{minThreads, maxThreads, httpClient});
+                LOG.debug("Created HttpClient with thread pool {}-{} -> {}", minThreads, maxThreads, httpClient);
             } else {
                 LOG.debug("Created HttpClient with default thread pool size -> {}", httpClient);
             }
@@ -896,14 +979,14 @@ public abstract class JettyHttpComponent extends HttpCommonComponent implements 
 
     public void addSocketConnectorProperty(String key, Object value) {
         if (socketConnectorProperties == null) {
-            socketConnectorProperties = new HashMap<String, Object>();
+            socketConnectorProperties = new HashMap<>();
         }
         socketConnectorProperties.put(key, value);
     }
 
     public void addSslSocketConnectorProperty(String key, Object value) {
         if (sslSocketConnectorProperties == null) {
-            sslSocketConnectorProperties = new HashMap<String, Object>();
+            sslSocketConnectorProperties = new HashMap<>();
         }
         sslSocketConnectorProperties.put(key, value);
     }
@@ -1056,7 +1139,7 @@ public abstract class JettyHttpComponent extends HttpCommonComponent implements 
      * If the option is true, jetty will send the server header with the jetty version information to the client which sends the request.
      * NOTE please make sure there is no any other camel-jetty endpoint is share the same port, otherwise this option may not work as expected.
      */
-    @Metadata(description = "If the option is true, jetty server will send the date header to the client which sends the request."
+    @Metadata(description = "If the option is true, jetty will send the server header with the jetty version information to the client which sends the request."
             + " NOTE please make sure there is no any other camel-jetty endpoint is share the same port, otherwise this option may not work as expected.",
             defaultValue = "true", label = "consumer")
     public void setSendServerVersion(boolean sendServerVersion) {
@@ -1134,7 +1217,7 @@ public abstract class JettyHttpComponent extends HttpCommonComponent implements 
             }
         }
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         // build query string, and append any endpoint configuration properties
         if (config.getComponent() == null || config.getComponent().equals("jetty")) {
             // setup endpoint options
@@ -1195,7 +1278,7 @@ public abstract class JettyHttpComponent extends HttpCommonComponent implements 
     @Override
     public Producer createProducer(CamelContext camelContext, String host,
                                    String verb, String basePath, String uriTemplate, String queryParameters,
-                                   String consumes, String produces, Map<String, Object> parameters) throws Exception {
+                                   String consumes, String produces, RestConfiguration configuration, Map<String, Object> parameters) throws Exception {
 
         // avoid leading slash
         basePath = FileUtil.stripLeadingSeparator(basePath);
@@ -1209,6 +1292,31 @@ public abstract class JettyHttpComponent extends HttpCommonComponent implements 
         if (!ObjectHelper.isEmpty(uriTemplate)) {
             url += "/" + uriTemplate;
         }
+
+        RestConfiguration config = configuration;
+        if (config == null) {
+            config = camelContext.getRestConfiguration("jetty", true);
+        }
+
+        Map<String, Object> map = new HashMap<>();
+        // build query string, and append any endpoint configuration properties
+        if (config.getComponent() == null || config.getComponent().equals("jetty")) {
+            // setup endpoint options
+            if (config.getEndpointProperties() != null && !config.getEndpointProperties().isEmpty()) {
+                map.putAll(config.getEndpointProperties());
+            }
+        }
+
+        // get the endpoint
+        String query = URISupport.createQueryString(map);
+        if (!query.isEmpty()) {
+            url = url + "?" + query;
+        }
+
+        // there are cases where we might end up here without component being created beforehand
+        // we need to abide by the component properties specified in the parameters when creating
+        // the component
+        RestProducerFactoryHelper.setupComponentFor(url, camelContext, (Map<String, Object>) parameters.get("component"));
 
         JettyHttpEndpoint endpoint = camelContext.getEndpoint(url, JettyHttpEndpoint.class);
         if (parameters != null && !parameters.isEmpty()) {
@@ -1328,7 +1436,7 @@ public abstract class JettyHttpComponent extends HttpCommonComponent implements 
         if (getErrorHandler() != null) {
             s.addBean(getErrorHandler());
         } else if (!Server.getVersion().startsWith("8")) {
-            //need an error handler that won't leak information about the exception 
+            //need an error handler that won't leak information about the exception
             //back to the client.
             ErrorHandler eh = new ErrorHandler() {
                 public void handle(String target, Request baseRequest,

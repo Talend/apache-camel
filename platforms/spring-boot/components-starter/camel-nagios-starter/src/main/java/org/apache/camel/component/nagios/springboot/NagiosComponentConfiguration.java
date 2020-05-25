@@ -17,11 +17,12 @@
 package org.apache.camel.component.nagios.springboot;
 
 import javax.annotation.Generated;
-import com.googlecode.jsendnsca.core.NagiosSettings;
+import com.googlecode.jsendnsca.NagiosSettings;
+import com.googlecode.jsendnsca.encryption.Encryption;
 import org.apache.camel.component.nagios.NagiosEncryptionMethod;
 import org.apache.camel.spring.boot.ComponentConfigurationPropertiesCommon;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import org.springframework.boot.context.properties.DeprecatedConfigurationProperty;
 
 /**
  * To send passive checks to Nagios using JSendNSCA.
@@ -34,6 +35,11 @@ public class NagiosComponentConfiguration
         extends
             ComponentConfigurationPropertiesCommon {
 
+    /**
+     * Whether to enable auto configuration of the nagios component. This is
+     * enabled by default.
+     */
+    private Boolean enabled;
     /**
      * To use a shared NagiosConfiguration
      */
@@ -65,7 +71,6 @@ public class NagiosComponentConfiguration
 
     public static class NagiosConfigurationNestedConfiguration {
         public static final Class CAMEL_NESTED_CLASS = org.apache.camel.component.nagios.NagiosConfiguration.class;
-        @NestedConfigurationProperty
         private NagiosSettings nagiosSettings;
         /**
          * This is the address of the Nagios host where checks should be send.
@@ -90,7 +95,12 @@ public class NagiosComponentConfiguration
         /**
          * To specify an encryption method.
          */
+        @Deprecated
         private NagiosEncryptionMethod encryptionMethod;
+        /**
+         * To specify an encryption method.
+         */
+        private Encryption encryption;
 
         public NagiosSettings getNagiosSettings() {
             return nagiosSettings;
@@ -140,12 +150,23 @@ public class NagiosComponentConfiguration
             this.password = password;
         }
 
+        @Deprecated
+        @DeprecatedConfigurationProperty
         public NagiosEncryptionMethod getEncryptionMethod() {
             return encryptionMethod;
         }
 
+        @Deprecated
         public void setEncryptionMethod(NagiosEncryptionMethod encryptionMethod) {
             this.encryptionMethod = encryptionMethod;
+        }
+
+        public Encryption getEncryption() {
+            return encryption;
+        }
+
+        public void setEncryption(Encryption encryption) {
+            this.encryption = encryption;
         }
     }
 }

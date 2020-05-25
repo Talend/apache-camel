@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import java.io.File;
 
 import org.apache.camel.ContextTestSupport;
@@ -23,6 +22,8 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @version 
@@ -30,11 +31,13 @@ import org.apache.camel.component.mock.MockEndpoint;
 public class FileConsumerPreMoveIssueTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/premove");
         super.setUp();
     }
 
+    @Test
     public void testPreMove() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
@@ -49,7 +52,7 @@ public class FileConsumerPreMoveIssueTest extends ContextTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("file://target/premove?preMove=before/${file:name.noext}-moved.${file:ext}")
+                from("file://target/premove?preMove=before/${file:name.noext}-moved.${file:ext}&initialDelay=0&delay=10")
                     .process(new MyPreMoveCheckerProcessor())
                     .to("mock:result");
             }

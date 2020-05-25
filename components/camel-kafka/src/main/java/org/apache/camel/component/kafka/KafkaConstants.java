@@ -23,7 +23,9 @@ public final class KafkaConstants {
     public static final String KEY = "kafka.KEY";
     public static final String TOPIC = "kafka.TOPIC";
     public static final String OFFSET = "kafka.OFFSET";
+    public static final String HEADERS = "kafka.HEADERS";
     public static final String LAST_RECORD_BEFORE_COMMIT = "kafka.LAST_RECORD_BEFORE_COMMIT";
+    public static final String TIMESTAMP = "kafka.TIMESTAMP";
 
     @Deprecated
     public static final String KAFKA_DEFAULT_ENCODER = "kafka.serializer.DefaultEncoder";
@@ -35,6 +37,8 @@ public final class KafkaConstants {
     public static final String KAFKA_DEFAULT_PARTITIONER = "org.apache.kafka.clients.producer.internals.DefaultPartitioner";
     public static final String PARTITIONER_RANGE_ASSIGNOR = "org.apache.kafka.clients.consumer.RangeAssignor";
     public static final String KAFKA_RECORDMETA = "org.apache.kafka.clients.producer.RecordMetadata";
+
+    public static final String MANUAL_COMMIT = "CamelKafkaManualCommit";
 
     private KafkaConstants() {
         // Utility class

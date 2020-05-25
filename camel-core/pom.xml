@@ -17,15 +17,14 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>camel-parent</artifactId>
-    <version>2.20.0-SNAPSHOT</version>
+    <version>2.24.2</version>
     <relativePath>../parent</relativePath>
   </parent>
 
@@ -43,6 +42,7 @@
       org.apache.camel.tools.*;resolution:=optional,
       !org.apache.camel.*,
       !com.github.benmanes.caffeine.cache,
+      !org.json.simple,
       ${camel.osgi.import.defaults},
       org.springframework.transaction;resolution:=optional,
       org.apache.camel.spring.spi;resolution:=optional,
@@ -55,6 +55,7 @@
       javax.xml.transform.stax;resolution:=optional,
       net.sf.saxon.event;resolution:=optional,
       net.sf.saxon.serialize;resolution:=optional,
+      net.sf.saxon.xpath;resolution:=optional,
       *
     </camel.osgi.import>
     <camel.osgi.export.service>
@@ -76,6 +77,7 @@
       org.apache.camel.spi.ComponentResolver;component=rest,
       org.apache.camel.spi.ComponentResolver;component=rest-api,
       org.apache.camel.spi.ComponentResolver;component=scheduler,
+      org.apache.camel.spi.ComponentResolver;component=saga,
       org.apache.camel.spi.ComponentResolver;component=seda,
       org.apache.camel.spi.ComponentResolver;component=stub,
       org.apache.camel.spi.ComponentResolver;component=test,
@@ -113,7 +115,7 @@
       org.apache.camel.impl.osgi.Activator
     </camel.osgi.activator>
     <!-- do not skip any tests by default -->
-    <platform.skip.tests/>
+    <platform.skip.tests />
   </properties>
 
   <dependencies>
@@ -132,6 +134,12 @@
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>
+    </dependency>
+    <!-- we shade our patched ordered json-simple parser -->
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>json-simple-ordered</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
     <!-- required dependencies by camel-core -->
@@ -153,11 +161,34 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>hamcrest-core</artifactId>
+          <groupId>org.hamcrest</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>java-hamcrest</artifactId>
       <version>${hamcrest-version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>hamcrest-core</artifactId>
+          <groupId>org.hamcrest</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>${assertj-version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -179,8 +210,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymock</artifactId>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -189,6 +220,11 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <scope>test</scope>
     </dependency>
 
     <!-- validator -->
@@ -223,7 +259,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore/>
+                    <ignore />
                   </action>
                 </pluginExecution>
               </pluginExecutions>
@@ -236,6 +272,7 @@
     <plugins>
 
       <!-- shade caffeine cache for faster Camel and spi-annotations as needed by everybody -->
+      <!-- shade json-simple for parsing Camel component JSon schema files -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -249,6 +286,7 @@
               <artifactSet>
                 <includes>
                   <include>com.github.ben-manes.caffeine:caffeine</include>
+                  <include>org.apache.camel:json-simple-ordered</include>
                   <include>org.apache.camel:spi-annotations</include>
                 </includes>
                 <excludes>
@@ -259,6 +297,11 @@
                 <relocation>
                   <pattern>com.github.benmanes.caffeine</pattern>
                   <shadedPattern>org.apache.camel.com.github.benmanes.caffeine</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.json.simple</pattern>
+                  <!-- scala compiler do not like org.apache.camel.org so its just json.simple instead of org.json.simple -->
+                  <shadedPattern>org.apache.camel.json.simple</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
@@ -277,12 +320,11 @@
             <configuration>
               <target>
                 <echo>Including metadata properties files in camel-core.jar</echo>
-                <jar destfile="${project.build.directory}/${project.artifactId}-${project.version}.jar"
-                     update="true">
-                  <fileset dir="${basedir}/target/generated/camel/components/" includes="**/*"/>
-                  <fileset dir="${basedir}/target/generated/camel/dataformats/" includes="**/*"/>
-                  <fileset dir="${basedir}/target/generated/camel/languages/" includes="**/*"/>
-                  <fileset dir="${basedir}/target/generated/camel/models/" includes="**/*"/>
+                <jar destfile="${project.build.directory}/${project.artifactId}-${project.version}.jar" update="true">
+                  <fileset dir="${basedir}/target/generated/camel/components/" includes="**/*" />
+                  <fileset dir="${basedir}/target/generated/camel/dataformats/" includes="**/*" />
+                  <fileset dir="${basedir}/target/generated/camel/languages/" includes="**/*" />
+                  <fileset dir="${basedir}/target/generated/camel/models/" includes="**/*" />
                 </jar>
               </target>
             </configuration>
@@ -628,9 +670,9 @@
     </profile>
 
     <profile>
-      <id>jdk9-build</id>
+      <id>jdk9+-build</id>
       <activation>
-        <jdk>9</jdk>
+        <jdk>[9,)</jdk>
       </activation>
       <dependencies>
 
@@ -654,10 +696,10 @@
             <configuration>
               <!-- skip file stress tests as they are intended to run manually -->
               <excludes>
-              <exclude>org/apache/camel/component/file/stress/**.java</exclude>
-              <exclude>**/DistributedCompletionIntervalTest.java</exclude>
-              <exclude>**/DistributedConcurrentPerCorrelationKeyTest.java</exclude>
-              <exclude>${platform.skip.tests}</exclude>
+                <exclude>org/apache/camel/component/file/stress/**.java</exclude>
+                <exclude>**/DistributedCompletionIntervalTest.java</exclude>
+                <exclude>**/DistributedConcurrentPerCorrelationKeyTest.java</exclude>
+                <exclude>${platform.skip.tests}</exclude>
               </excludes>
               <forkedProcessTimeoutInSeconds>3000</forkedProcessTimeoutInSeconds>
               <!-- needed for testing the properties component -->
@@ -671,12 +713,12 @@
               <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-core</artifactId>
-                <version>2.2.11</version>
+                <version>${jaxb-version}</version>
               </dependency>
               <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
-                <version>2.2.11</version>
+                <version>${jaxb-version}</version>
               </dependency>
             </dependencies>
           </plugin>

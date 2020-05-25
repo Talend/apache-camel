@@ -27,10 +27,12 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
+import org.junit.Test;
 
 public class ComposedMessageProcessorTest extends ContextTestSupport {
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testValidatingCorrectOrder() throws Exception {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
         resultEndpoint.expectedMessageCount(1);
@@ -50,6 +52,7 @@ public class ComposedMessageProcessorTest extends ContextTestSupport {
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testValidatingIncorrectOrder() throws Exception {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
         resultEndpoint.expectedMessageCount(1);
@@ -95,7 +98,7 @@ public class ComposedMessageProcessorTest extends ContextTestSupport {
                 
                 // collect and re-assemble the validated OrderItems into an order again
                 from("seda:aggregate")
-                    .aggregate(new MyOrderAggregationStrategy()).header("orderId").completionTimeout(1000L)
+                    .aggregate(new MyOrderAggregationStrategy()).header("orderId").completionTimeout(100).completionTimeoutCheckerInterval(10)
                         .to("mock:result");
                 // END SNIPPET: e2
             }
@@ -166,7 +169,7 @@ public class ComposedMessageProcessorTest extends ContextTestSupport {
                 return newExchange;
             }
 
-            List<OrderItem> order = new ArrayList<OrderItem>(2);
+            List<OrderItem> order = new ArrayList<>(2);
             order.add(oldExchange.getIn().getBody(OrderItem.class));
             order.add(newExchange.getIn().getBody(OrderItem.class));
 

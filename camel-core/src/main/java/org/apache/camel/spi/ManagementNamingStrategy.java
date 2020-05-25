@@ -17,6 +17,7 @@
 package org.apache.camel.spi;
 
 import java.util.concurrent.ThreadPoolExecutor;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -30,6 +31,7 @@ import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.Route;
 import org.apache.camel.Service;
+import org.apache.camel.cluster.CamelClusterService;
 
 /**
  * Strategy for computing {@link ObjectName} names for the various beans that Camel register for management.
@@ -42,7 +44,11 @@ public interface ManagementNamingStrategy {
 
     ObjectName getObjectNameForCamelContext(String managementName, String name) throws MalformedObjectNameException;
 
+    ObjectName getObjectNameForCamelHealth(CamelContext context) throws MalformedObjectNameException;
+
     ObjectName getObjectNameForCamelContext(CamelContext context) throws MalformedObjectNameException;
+
+    ObjectName getObjectNameForRouteController(CamelContext context) throws MalformedObjectNameException;
 
     ObjectName getObjectNameForComponent(Component component, String name) throws MalformedObjectNameException;
 
@@ -63,6 +69,8 @@ public interface ManagementNamingStrategy {
     ObjectName getObjectNameForTracer(CamelContext context, InterceptStrategy tracer) throws MalformedObjectNameException;
 
     ObjectName getObjectNameForService(CamelContext context, Service service) throws MalformedObjectNameException;
+
+    ObjectName getObjectNameForClusterService(CamelContext context, CamelClusterService service) throws MalformedObjectNameException;
 
     ObjectName getObjectNameForThreadPool(CamelContext context, ThreadPoolExecutor threadPool, String id, String sourceId) throws MalformedObjectNameException;
 

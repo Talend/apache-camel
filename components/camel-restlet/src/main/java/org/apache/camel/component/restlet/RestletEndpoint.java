@@ -35,7 +35,6 @@ import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriPath;
-import org.apache.camel.util.CollectionStringBuffer;
 import org.apache.camel.util.jsse.SSLContextParameters;
 import org.restlet.data.Method;
 
@@ -67,7 +66,8 @@ public class RestletEndpoint extends DefaultEndpoint implements AsyncEndpoint, H
     private Method restletMethod = Method.GET;
     @UriParam(label = "consumer", javaType = "java.lang.String")
     private Method[] restletMethods;
-    @UriParam(label = "consumer")
+    @UriParam(label = "consumer,advanced")
+    @Deprecated
     private List<String> restletUriPatterns;
     @UriParam(label = "security")
     private Map<String, String> restletRealm;
@@ -273,10 +273,12 @@ public class RestletEndpoint extends DefaultEndpoint implements AsyncEndpoint, H
      * reference a List<String> in the Camel Registry.
      * If a URI pattern has been defined in the endpoint URI, both the URI pattern defined in the endpoint and the restletUriPatterns option will be honored.
      */
+    @Deprecated
     public void setRestletUriPatterns(List<String> restletUriPatterns) {
         this.restletUriPatterns = restletUriPatterns;
     }
 
+    @Deprecated
     public List<String> getRestletUriPatterns() {
         return restletUriPatterns;
     }

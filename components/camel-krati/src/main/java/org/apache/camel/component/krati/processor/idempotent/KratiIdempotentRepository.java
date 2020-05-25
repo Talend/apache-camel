@@ -20,7 +20,6 @@ import krati.core.segment.ChannelSegmentFactory;
 import krati.core.segment.SegmentFactory;
 import krati.io.Serializer;
 import krati.store.DataSet;
-
 import org.apache.camel.api.management.ManagedOperation;
 import org.apache.camel.component.krati.KratiHelper;
 import org.apache.camel.component.krati.serializer.KratiDefaultSerializer;
@@ -37,7 +36,7 @@ public class KratiIdempotentRepository extends ServiceSupport implements Idempot
 
     private DataSet<byte[]> dataSet;
     private int initialCapacity = 100;
-    private Serializer<String> serializer = new KratiDefaultSerializer<String>();
+    private Serializer<String> serializer = new KratiDefaultSerializer<>();
     private SegmentFactory segmentFactory = new ChannelSegmentFactory();
 
     public KratiIdempotentRepository(String repositoryPath) {

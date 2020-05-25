@@ -34,7 +34,7 @@ import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.RoutesDefinition;
 import org.apache.camel.spi.ReloadStrategy;
 import org.apache.camel.util.CollectionStringBuffer;
-import org.apache.camel.util.LRUCache;
+import org.apache.camel.util.LRUCacheFactory;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.StringHelper;
 import org.apache.camel.util.XmlLineNumberParser;
@@ -44,11 +44,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Base class for implementing custom {@link ReloadStrategy} SPI plugins.
  */
+@Deprecated
 public abstract class ReloadStrategySupport extends ServiceSupport implements ReloadStrategy {
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
-    // store state
-    protected final Map<String, Object> cache = new LRUCache<String, Object>(100);
+    protected Map<String, Object> cache;
 
     private CamelContext camelContext;
 
@@ -77,7 +77,7 @@ public abstract class ReloadStrategySupport extends ServiceSupport implements Re
             dom = XmlLineNumberParser.parseXml(new ByteArrayInputStream(xml.getBytes()), null, "camelContext,routeContext,routes", "http://camel.apache.org/schema/spring");
         } catch (Exception e) {
             failed++;
-            log.warn("Cannot load the resource " + name + " as XML");
+            log.warn("Cannot load the resource {} as XML", name);
             return;
         }
 
@@ -198,8 +198,10 @@ public abstract class ReloadStrategySupport extends ServiceSupport implements Re
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void doStart() throws Exception {
         // noop
+        cache = LRUCacheFactory.newLRUCache(100);
     }
 
     @Override

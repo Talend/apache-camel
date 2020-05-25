@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @version 
@@ -28,11 +29,13 @@ import org.apache.camel.component.mock.MockEndpoint;
 public class FileConsumerMoveAndMoveFailureTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/failed");
         super.setUp();
     }
 
+    @Test
     public void testMoveAndMoveFailed() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodiesReceived("Hello World");
@@ -51,7 +54,7 @@ public class FileConsumerMoveAndMoveFailureTest extends ContextTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("file://target/failed?move=moved&moveFailed=error/${file:name.noext}-error.txt")
+                from("file://target/failed?move=moved&initialDelay=0&delay=10&moveFailed=error/${file:name.noext}-error.txt")
                     .process(new Processor() {
                         public void process(Exchange exchange) throws Exception {
                             String body = exchange.getIn().getBody(String.class);

@@ -6,7 +6,7 @@ This quickstart is based on the Kubernetes example here: https://github.com/kube
 
 This example is based on:
 
-- Minikube (Kubernetes version >= 1.5)
+- Minikube (Kubernetes version >= 1.5) or Minishift (Openshift >= 3.5)
 - Fabric8 Maven Plugin (version >= 3.2)
 
 First thing you'll need to do is preparing the environment.
@@ -15,14 +15,29 @@ Once your Minikube node is up and running you'll need to run the following comma
 In your src/main/resources/fabric8/ folder you'll find two yaml file. Run the following command using them:
 
 ```
-kubectl create -f src/main/resources/fabric8/hazelcast-service.yaml
-kubectl create -f src/main/resources/fabric8/hazelcast-deployment.yaml
+$ kubectl create -f src/main/resources/fabric8/hazelcast-service.yaml
+$ kubectl create -f src/main/resources/fabric8/hazelcast-deployment.yaml
+```
+
+or once your Minishift cluster is up and running:
+
+```
+$ oc create -f src/main/resources/fabric8/hazelcast-service.yaml
+$ oc create -f src/main/resources/fabric8/hazelcast-deployment.yaml
 ```
 
 To check the correct startup of the Hazelcast instance run the following command:
 
 ```
-kubectl get deployment
+$ kubectl get deployment
+NAME        DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+hazelcast   1         1         1            1           1m
+```
+
+or on Minishift
+
+```
+$ oc get deployment
 NAME        DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 hazelcast   1         1         1            1           1m
 ```
@@ -30,73 +45,101 @@ hazelcast   1         1         1            1           1m
 and check the status of the pod
 
 ```
-kubectl get pods
-NAME                                        READY     STATUS             RESTARTS   AGE
-hazelcast-2400991854-1zk9g                  1/1       Running            0          29s
+$ kubectl get pods
+NAME                         READY     STATUS    RESTARTS   AGE
+hazelcast-69df7cd6c-ccbft    1/1       Running   0          54s
+```
+
+on Minishift:
+
+```
+$ oc get pods
+NAME                         READY     STATUS    RESTARTS   AGE
+hazelcast-1638707704-n64tk   1/1       Running   0          1m
 ```
 
 Now you can decide to scale-up your Hazelcast cluster
 
 ```
-kubectl scale deployment hazelcast --replicas 4
+$ kubectl scale deployment hazelcast --replicas 4
+```
+
+on Minishift
+
+```
+$ oc scale deployment hazelcast --replicas=4
 ```
 
 and again check the status of your pods
 
 ```
-kubectl get pods
-NAME                                                  READY     STATUS    RESTARTS   AGE
-hazelcast-2400991854-1zk9g                            1/1       Running   1          8m
-hazelcast-2400991854-4pwn8                            1/1       Running   1          6m
-hazelcast-2400991854-fbx4b                            1/1       Running   1          6m
-hazelcast-2400991854-wh2sr                            1/1       Running   1          6m
-```
-
-You can also take a look at the logs from the pods:
+$ kubectl get pods
+NAME                         READY     STATUS    RESTARTS   AGE
+hazelcast-69df7cd6c-2ps79    1/1       Running   0          30s
+hazelcast-69df7cd6c-ccbft    1/1       Running   0          1m
+hazelcast-69df7cd6c-csdwr    1/1       Running   0          30s
+hazelcast-69df7cd6c-ghxgq    1/1       Running   0          30s
 
 ```
-kubectl logs hazelcast-2400991854-1zk9g
-2017-05-26 12:07:40.267  INFO 7 --- [           main] com.github.pires.hazelcast.Application   : Starting Application on hazelcast-2400991854-1zk9g with PID 7 (/bootstrapper.jar started by root in /)
-2017-05-26 12:07:40.270  INFO 7 --- [           main] com.github.pires.hazelcast.Application   : No active profile set, falling back to default profiles: default
-2017-05-26 12:07:40.335  INFO 7 --- [           main] s.c.a.AnnotationConfigApplicationContext : Refreshing org.springframework.context.annotation.AnnotationConfigApplicationContext@14514713: startup date [Fri May 26 12:07:40 GMT 2017]; root of context hierarchy
-2017-05-26 12:07:41.083  INFO 7 --- [           main] o.s.j.e.a.AnnotationMBeanExporter        : Registering beans for JMX exposure on startup
-2017-05-26 12:07:41.091  INFO 7 --- [           main] c.g.p.h.HazelcastDiscoveryController     : Asking k8s registry at https://kubernetes.default.svc.cluster.local..
-2017-05-26 12:07:41.447  INFO 7 --- [           main] c.g.p.h.HazelcastDiscoveryController     : Found 1 pods running Hazelcast.
-2017-05-26 12:07:41.508  INFO 7 --- [           main] c.h.instance.DefaultAddressPicker        : [LOCAL] [someGroup] [3.8.2] Interfaces is disabled, trying to pick one address from TCP-IP config addresses: [172.17.0.4]
-2017-05-26 12:07:41.508  INFO 7 --- [           main] c.h.instance.DefaultAddressPicker        : [LOCAL] [someGroup] [3.8.2] Prefer IPv4 stack is true.
-2017-05-26 12:07:41.514  INFO 7 --- [           main] c.h.instance.DefaultAddressPicker        : [LOCAL] [someGroup] [3.8.2] Picked [172.17.0.4]:5701, using socket ServerSocket[addr=/0:0:0:0:0:0:0:0,localport=5701], bind any local is true
-2017-05-26 12:07:41.528  INFO 7 --- [           main] com.hazelcast.system                     : [172.17.0.4]:5701 [someGroup] [3.8.2] Hazelcast 3.8.2 (20170518 - a60f944) starting at [172.17.0.4]:5701
-2017-05-26 12:07:41.529  INFO 7 --- [           main] com.hazelcast.system                     : [172.17.0.4]:5701 [someGroup] [3.8.2] Copyright (c) 2008-2016, Hazelcast, Inc. All Rights Reserved.
-2017-05-26 12:07:41.529  INFO 7 --- [           main] com.hazelcast.system                     : [172.17.0.4]:5701 [someGroup] [3.8.2] Configured Hazelcast Serialization version : 1
-2017-05-26 12:07:41.741  INFO 7 --- [           main] c.h.s.i.o.impl.BackpressureRegulator     : [172.17.0.4]:5701 [someGroup] [3.8.2] Backpressure is disabled
-2017-05-26 12:07:42.187  INFO 7 --- [           main] com.hazelcast.instance.Node              : [172.17.0.4]:5701 [someGroup] [3.8.2] Creating TcpIpJoiner
-2017-05-26 12:07:42.315  INFO 7 --- [           main] c.h.s.i.o.impl.OperationExecutorImpl     : [172.17.0.4]:5701 [someGroup] [3.8.2] Starting 2 partition threads
-2017-05-26 12:07:42.318  INFO 7 --- [           main] c.h.s.i.o.impl.OperationExecutorImpl     : [172.17.0.4]:5701 [someGroup] [3.8.2] Starting 3 generic threads (1 dedicated for priority tasks)
-2017-05-26 12:07:42.324  INFO 7 --- [           main] com.hazelcast.core.LifecycleService      : [172.17.0.4]:5701 [someGroup] [3.8.2] [172.17.0.4]:5701 is STARTING
-2017-05-26 12:07:42.336  INFO 7 --- [           main] com.hazelcast.system                     : [172.17.0.4]:5701 [someGroup] [3.8.2] Cluster version set to 3.8
-2017-05-26 12:07:42.338  INFO 7 --- [           main] com.hazelcast.cluster.impl.TcpIpJoiner   : [172.17.0.4]:5701 [someGroup] [3.8.2] 
 
+on Minishift
 
-Members [1] {
-	Member [172.17.0.4]:5701 - d9f0d2db-ec68-4352-93a3-90b3f264d061 this
-}
+```
+$ oc get pods
+NAME                         READY     STATUS    RESTARTS   AGE
+hazelcast-1638707704-g8qwh   1/1       Running   0          1m
+hazelcast-1638707704-n64tk   1/1       Running   0          3m
+hazelcast-1638707704-wwwff   1/1       Running   0          1m
+hazelcast-1638707704-z1g6r   1/1       Running   0          1m
 
-2017-05-26 12:07:42.363  INFO 7 --- [           main] com.hazelcast.core.LifecycleService      : [172.17.0.4]:5701 [someGroup] [3.8.2] [172.17.0.4]:5701 is STARTED
-2017-05-26 12:07:42.365  INFO 7 --- [           main] com.github.pires.hazelcast.Application   : Started Application in 2.55 seconds (JVM running for 3.014)
-2017-05-26 12:08:36.270  INFO 7 --- [thread-Acceptor] c.h.nio.tcp.SocketAcceptorThread         : [172.17.0.4]:5701 [someGroup] [3.8.2] Accepting socket connection from /172.17.0.7:43717
-2017-05-26 12:08:36.290  INFO 7 --- [cached.thread-2] c.h.nio.tcp.TcpIpConnectionManager       : [172.17.0.4]:5701 [someGroup] [3.8.2] Established socket connection between /172.17.0.4:5701 and /172.17.0.7:43717
-2017-05-26 12:08:40.117  INFO 7 --- [thread-Acceptor] c.h.nio.tcp.SocketAcceptorThread         : [172.17.0.4]:5701 [someGroup] [3.8.2] Accepting socket connection from /172.17.0.5:37139
-2017-05-26 12:08:40.120  INFO 7 --- [cached.thread-2] c.h.nio.tcp.TcpIpConnectionManager       : [172.17.0.4]:5701 [someGroup] [3.8.2] Established socket connection between /172.17.0.4:5701 and /172.17.0.5:37139
-2017-05-26 12:08:44.004  INFO 7 --- [thread-Acceptor] c.h.nio.tcp.SocketAcceptorThread         : [172.17.0.4]:5701 [someGroup] [3.8.2] Accepting socket connection from /172.17.0.6:36975
-2017-05-26 12:08:44.013  INFO 7 --- [cached.thread-2] c.h.nio.tcp.TcpIpConnectionManager       : [172.17.0.4]:5701 [someGroup] [3.8.2] Established socket connection between /172.17.0.4:5701 and /172.17.0.6:36975
-2017-05-26 12:08:50.132  INFO 7 --- [ration.thread-0] c.h.internal.cluster.ClusterService      : [172.17.0.4]:5701 [someGroup] [3.8.2] 
+```
 
-Members [4] {
-	Member [172.17.0.4]:5701 - d9f0d2db-ec68-4352-93a3-90b3f264d061 this
-	Member [172.17.0.7]:5701 - 7d9a02fb-267e-4dae-92af-c461db0be93b
-	Member [172.17.0.5]:5701 - 15c21689-2aab-4de8-b1ca-ee681b33dfa9
-	Member [172.17.0.6]:5701 - f63fcf65-f477-451a-a805-e68ba7cd1d79
-}
+You can also take a look at the logs from the pods with kubectl or oc
+
+```
+kubectl logs hazelcast-69df7cd6c-ghxgq
+2018-02-19 07:14:43.728  INFO 5 --- [           main] com.github.pires.hazelcast.Application   : Starting Application on hazelcast-69df7cd6c-ghxgq with PID 5 (/bootstrapper.jar started by root in /)
+2018-02-19 07:14:43.751  INFO 5 --- [           main] com.github.pires.hazelcast.Application   : No active profile set, falling back to default profiles: default
+2018-02-19 07:14:43.841  INFO 5 --- [           main] s.c.a.AnnotationConfigApplicationContext : Refreshing org.springframework.context.annotation.AnnotationConfigApplicationContext@5f4da5c3: startup date [Mon Feb 19 07:14:43 GMT 2018]; root of context hierarchy
+2018-02-19 07:14:44.636  INFO 5 --- [           main] o.s.j.e.a.AnnotationMBeanExporter        : Registering beans for JMX exposure on startup
+2018-02-19 07:14:44.647  INFO 5 --- [           main] c.g.p.h.HazelcastDiscoveryController     : Asking k8s registry at https://kubernetes.default.svc.cluster.local..
+2018-02-19 07:14:44.993  INFO 5 --- [           main] c.g.p.h.HazelcastDiscoveryController     : Found 2 pods running Hazelcast.
+2018-02-19 07:14:45.060  INFO 5 --- [           main] com.hazelcast.instance.AddressPicker     : [LOCAL] [someGroup] [3.9.3] Interfaces is disabled, trying to pick one address from TCP-IP config addresses: [172.17.0.4, 172.17.0.5]
+2018-02-19 07:14:45.060  INFO 5 --- [           main] com.hazelcast.instance.AddressPicker     : [LOCAL] [someGroup] [3.9.3] Prefer IPv4 stack is true.
+2018-02-19 07:14:45.065  INFO 5 --- [           main] com.hazelcast.instance.AddressPicker     : [LOCAL] [someGroup] [3.9.3] Picked [172.17.0.5]:5701, using socket ServerSocket[addr=/0.0.0.0,localport=5701], bind any local is true
+2018-02-19 07:14:45.105  INFO 5 --- [           main] com.hazelcast.system                     : [172.17.0.5]:5701 [someGroup] [3.9.3] Hazelcast 3.9.3 (20180216 - 539b124) starting at [172.17.0.5]:5701
+2018-02-19 07:14:45.105  INFO 5 --- [           main] com.hazelcast.system                     : [172.17.0.5]:5701 [someGroup] [3.9.3] Copyright (c) 2008-2018, Hazelcast, Inc. All Rights Reserved.
+2018-02-19 07:14:45.105  INFO 5 --- [           main] com.hazelcast.system                     : [172.17.0.5]:5701 [someGroup] [3.9.3] Configured Hazelcast Serialization version: 1
+2018-02-19 07:14:45.370  INFO 5 --- [           main] c.h.s.i.o.impl.BackpressureRegulator     : [172.17.0.5]:5701 [someGroup] [3.9.3] Backpressure is disabled
+2018-02-19 07:14:46.712  INFO 5 --- [           main] com.hazelcast.instance.Node              : [172.17.0.5]:5701 [someGroup] [3.9.3] Creating TcpIpJoiner
+2018-02-19 07:14:47.218  INFO 5 --- [           main] c.h.s.i.o.impl.OperationExecutorImpl     : [172.17.0.5]:5701 [someGroup] [3.9.3] Starting 2 partition threads and 3 generic threads (1 dedicated for priority tasks)
+2018-02-19 07:14:47.221  INFO 5 --- [           main] c.h.internal.diagnostics.Diagnostics     : [172.17.0.5]:5701 [someGroup] [3.9.3] Diagnostics disabled. To enable add -Dhazelcast.diagnostics.enabled=true to the JVM arguments.
+2018-02-19 07:14:47.227  INFO 5 --- [           main] com.hazelcast.core.LifecycleService      : [172.17.0.5]:5701 [someGroup] [3.9.3] [172.17.0.5]:5701 is STARTING
+2018-02-19 07:14:47.274  INFO 5 --- [cached.thread-3] com.hazelcast.nio.tcp.TcpIpConnector     : [172.17.0.5]:5701 [someGroup] [3.9.3] Connecting to /172.17.0.4:5701, timeout: 0, bind-any: true
+2018-02-19 07:14:47.283  INFO 5 --- [cached.thread-3] c.h.nio.tcp.TcpIpConnectionManager       : [172.17.0.5]:5701 [someGroup] [3.9.3] Established socket connection between /172.17.0.5:34227 and /172.17.0.4:5701
+2018-02-19 07:14:54.177  INFO 5 --- [thread-Acceptor] com.hazelcast.nio.tcp.TcpIpAcceptor      : [172.17.0.5]:5701 [someGroup] [3.9.3] Accepting socket connection from /172.17.0.7:59967
+2018-02-19 07:14:54.200  INFO 5 --- [cached.thread-3] c.h.nio.tcp.TcpIpConnectionManager       : [172.17.0.5]:5701 [someGroup] [3.9.3] Established socket connection between /172.17.0.5:5701 and /172.17.0.7:59967
+2018-02-19 07:14:54.411  INFO 5 --- [ration.thread-0] com.hazelcast.system                     : [172.17.0.5]:5701 [someGroup] [3.9.3] Cluster version set to 3.9
+2018-02-19 07:14:54.429  INFO 5 --- [ration.thread-0] c.h.internal.cluster.ClusterService      : [172.17.0.5]:5701 [someGroup] [3.9.3] 
+
+Members {size:2, ver:2} [
+	Member [172.17.0.4]:5701 - 59045d20-faf3-4a73-b4de-e8036f4b7caa
+	Member [172.17.0.5]:5701 - e737cd89-cbf1-4358-8d5a-f5b06a464c4a this
+]
+
+2018-02-19 07:14:55.482  INFO 5 --- [thread-Acceptor] com.hazelcast.nio.tcp.TcpIpAcceptor      : [172.17.0.5]:5701 [someGroup] [3.9.3] Accepting socket connection from /172.17.0.6:38585
+2018-02-19 07:14:55.516  INFO 5 --- [cached.thread-3] c.h.nio.tcp.TcpIpConnectionManager       : [172.17.0.5]:5701 [someGroup] [3.9.3] Established socket connection between /172.17.0.5:5701 and /172.17.0.6:38585
+2018-02-19 07:14:56.330  INFO 5 --- [           main] com.hazelcast.core.LifecycleService      : [172.17.0.5]:5701 [someGroup] [3.9.3] [172.17.0.5]:5701 is STARTED
+2018-02-19 07:14:56.339  INFO 5 --- [           main] com.github.pires.hazelcast.Application   : Started Application in 13.151 seconds (JVM running for 13.526)
+2018-02-19 07:15:02.079  INFO 5 --- [ration.thread-0] c.h.internal.cluster.ClusterService      : [172.17.0.5]:5701 [someGroup] [3.9.3] 
+
+Members {size:4, ver:3} [
+	Member [172.17.0.4]:5701 - 59045d20-faf3-4a73-b4de-e8036f4b7caa
+	Member [172.17.0.5]:5701 - e737cd89-cbf1-4358-8d5a-f5b06a464c4a this
+	Member [172.17.0.7]:5701 - d80f7b66-26b1-4b48-92ea-c07ddac05314
+	Member [172.17.0.6]:5701 - b1c0aa3a-760e-4d89-955b-c1650e1e5661
+]
+
 
 ```
 
@@ -104,54 +147,84 @@ Members [4] {
 
 Navigate to the project folder and the example can be built with
 
-    mvn clean -Pkubernetes-install fabric8:deploy
+    $ mvn clean -Pkubernetes-install fabric8:deploy
 
 When the example runs in fabric8, you can use the Kubectl command tool to inspect the status
 
-To list all the running pods:
+To list all the running pods on Minikube:
 
-    kubectl get pods
+    $ kubectl get pods
 
-Then find the name of the pod that runs this quickstart, and output the logs from the running pods with:
+Then find the name on Minikube of the pod that runs this quickstart, and output the logs from the running pods with:
 
-    kubectl logs <name of pod>
+    $ kubectl logs <name of pod>
+
+To list all the running pods on Minishift:
+
+    $ oc get pods
+
+Then find the name on Minishift of the pod that runs this quickstart, and output the logs from the running pods with:
+
+    $ kubectl logs <name of pod>
 
 and you should see something like this:
 
 ```
-INFO: hz.client_0 [someGroup] [3.8.2] HazelcastClient 3.8.2 (20170518 - a60f944) is CLIENT_CONNECTED
-2017-05-26 12:14:57,135 [main           ] INFO  SpringCamelContext             - Apache Camel 2.20.0-SNAPSHOT (CamelContext: camel-1) is starting
-2017-05-26 12:14:57,136 [main           ] INFO  ManagedManagementStrategy      - JMX is enabled
-2017-05-26 12:14:57,271 [main           ] INFO  DefaultTypeConverter           - Loaded 193 type converters
-2017-05-26 12:14:57,302 [main           ] INFO  DefaultRuntimeEndpointRegistry - Runtime endpoint registry is in extended mode gathering usage statistics of all incoming and outgoing endpoints (cache limit: 1000)
-2017-05-26 12:14:57,405 [main           ] INFO  SpringCamelContext             - StreamCaching is not in use. If using streams then its recommended to enable stream caching. See more details at http://camel.apache.org/stream-caching.html
-May 26, 2017 12:14:57 PM com.hazelcast.client.connection.ClientConnectionManager
-INFO: hz.client_0 [someGroup] [3.8.2] Authenticated with server [172.17.0.7]:5701, server version:3.8.2 Local address: /172.17.0.8:37538
-May 26, 2017 12:14:58 PM com.hazelcast.client.connection.ClientConnectionManager
-INFO: hz.client_0 [someGroup] [3.8.2] Authenticated with server [172.17.0.2]:5701, server version:3.8.2 Local address: /172.17.0.8:59990
-May 26, 2017 12:14:58 PM com.hazelcast.client.connection.ClientConnectionManager
-INFO: hz.client_0 [someGroup] [3.8.2] Authenticated with server [172.17.0.4]:5701, server version:3.8.2 Local address: /172.17.0.8:38928
-2017-05-26 12:14:59,956 [main           ] INFO  SpringCamelContext             - Route: route1 started and consuming from: timer://foo?period=5000
-2017-05-26 12:14:59,960 [main           ] INFO  SpringCamelContext             - Route: route2 started and consuming from: hazelcast-topic://foo
-2017-05-26 12:14:59,961 [main           ] INFO  SpringCamelContext             - Total 2 routes, of which 2 are started.
-2017-05-26 12:14:59,963 [main           ] INFO  SpringCamelContext             - Apache Camel 2.20.0-SNAPSHOT (CamelContext: camel-1) started in 2.825 seconds
-2017-05-26 12:15:00,972 [0 - timer://foo] INFO  route1                         - Producer side: Sending data to Hazelcast topic..
-2017-05-26 12:15:01,001 [lient_0.event-3] INFO  route2                         - Consumer side: Detected following action: received
-2017-05-26 12:15:05,967 [0 - timer://foo] INFO  route1                         - Producer side: Sending data to Hazelcast topic..
-2017-05-26 12:15:05,974 [lient_0.event-3] INFO  route2                         - Consumer side: Detected following action: received
-2017-05-26 12:15:10,961 [0 - timer://foo] INFO  route1                         - Producer side: Sending data to Hazelcast topic..
-2017-05-26 12:15:10,963 [lient_0.event-3] INFO  route2                         - Consumer side: Detected following action: received
-2017-05-26 12:15:15,961 [0 - timer://foo] INFO  route1                         - Producer side: Sending data to Hazelcast topic..
-2017-05-26 12:15:15,963 [lient_0.event-3] INFO  route2                         - Consumer side: Detected following action: received
-2017-05-26 12:15:20,962 [0 - timer://foo] INFO  route1                         - Producer side: Sending data to Hazelcast topic..
-2017-05-26 12:15:20,964 [lient_0.event-3] INFO  route2                         - Consumer side: Detected following action: received
-2017-05-26 12:15:25,962 [0 - timer://foo] INFO  route1                         - Producer side: Sending data to Hazelcast topic..
-2017-05-26 12:15:25,963 [lient_0.event-3] INFO  route2                         - Consumer side: Detected following action: received
-2017-05-26 12:15:30,962 [0 - timer://foo] INFO  route1                         - Producer side: Sending data to Hazelcast topic..
-2017-05-26 12:15:30,965 [lient_0.event-3] INFO  route2                         - Consumer side: Detected following action: received
-2017-05-26 12:15:35,961 [0 - timer://foo] INFO  route1                         - Producer side: Sending data to Hazelcast topic..
-2017-05-26 12:15:35,963 [lient_0.event-3] INFO  route2                         - Consumer side: Detected following action: received
-2017-05-26 12:15:40,962 [0 - timer://foo] INFO  route1                         - Producer side: Sending data to Hazelcast topic..
-2017-05-26 12:15:40,964 [lient_0.event-3] INFO  route2                         - Consumer side: Detected following action: received
+Feb 19, 2018 7:18:39 AM com.hazelcast.client.connection.ClientConnectionManager
+INFO: hz.client_0 [someGroup] [3.9.2] Setting ClientConnection{alive=true, connectionId=1, channel=NioChannel{/172.17.0.8:41011->hazelcast/10.102.1.255:5701}, remoteEndpoint=[172.17.0.4]:5701, lastReadTime=2018-02-19 07:18:39.464, lastWriteTime=2018-02-19 07:18:39.424, closedTime=never, lastHeartbeatRequested=never, lastHeartbeatReceived=never, connected server version=3.9.3} as owner with principal ClientPrincipal{uuid='0daabf2b-0b33-4a55-8453-683d7fa0436e', ownerUuid='59045d20-faf3-4a73-b4de-e8036f4b7caa'}
+Feb 19, 2018 7:18:39 AM com.hazelcast.core.LifecycleService
+INFO: hz.client_0 [someGroup] [3.9.2] HazelcastClient 3.9.2 (20180103 - 17e4ec3) is CLIENT_CONNECTED
+Feb 19, 2018 7:18:39 AM com.hazelcast.internal.diagnostics.Diagnostics
+INFO: hz.client_0 [someGroup] [3.9.2] Diagnostics disabled. To enable add -Dhazelcast.diagnostics.enabled=true to the JVM arguments.
+2018-02-19 07:18:39,582 [main           ] INFO  SpringCamelContext             - Apache Camel 2.21.0-SNAPSHOT (CamelContext: camel-1) is starting
+2018-02-19 07:18:39,583 [main           ] INFO  ManagedManagementStrategy      - JMX is enabled
+2018-02-19 07:18:39,842 [main           ] INFO  DefaultTypeConverter           - Type converters loaded (core: 193, classpath: 1)
+2018-02-19 07:18:40,028 [main           ] INFO  SpringCamelContext             - StreamCaching is not in use. If using streams then its recommended to enable stream caching. See more details at http://camel.apache.org/stream-caching.html
+Feb 19, 2018 7:18:40 AM com.hazelcast.client.connection.ClientConnectionManager
+INFO: hz.client_0 [someGroup] [3.9.2] Authenticated with server [172.17.0.6]:5701, server version:3.9.3 Local address: /172.17.0.8:46877
+Feb 19, 2018 7:18:40 AM com.hazelcast.client.connection.ClientConnectionManager
+INFO: hz.client_0 [someGroup] [3.9.2] Authenticated with server [172.17.0.5]:5701, server version:3.9.3 Local address: /172.17.0.8:36763
+Feb 19, 2018 7:18:40 AM com.hazelcast.client.connection.ClientConnectionManager
+INFO: hz.client_0 [someGroup] [3.9.2] Authenticated with server [172.17.0.7]:5701, server version:3.9.3 Local address: /172.17.0.8:34969
+2018-02-19 07:18:40,837 [main           ] INFO  SpringCamelContext             - Route: route1 started and consuming from: timer://foo?period=5000
+2018-02-19 07:18:40,838 [main           ] INFO  SpringCamelContext             - Route: route2 started and consuming from: hazelcast-topic://foo
+2018-02-19 07:18:40,838 [main           ] INFO  SpringCamelContext             - Total 2 routes, of which 2 are started
+2018-02-19 07:18:40,840 [main           ] INFO  SpringCamelContext             - Apache Camel 2.21.0-SNAPSHOT (CamelContext: camel-1) started in 1.258 seconds
+2018-02-19 07:18:40,843 [main           ] INFO  DefaultLifecycleProcessor      - Starting beans in phase 2147483646
+2018-02-19 07:18:41,846 [2 - timer://foo] INFO  route1                         - Producer side: Sending data to Hazelcast topic..
+2018-02-19 07:18:41,886 [lient_0.event-3] INFO  route2                         - Consumer side: Detected following action: received
+2018-02-19 07:18:46,840 [2 - timer://foo] INFO  route1                         - Producer side: Sending data to Hazelcast topic..
+2018-02-19 07:18:46,842 [lient_0.event-3] INFO  route2                         - Consumer side: Detected following action: received
+2018-02-19 07:18:51,840 [2 - timer://foo] INFO  route1                         - Producer side: Sending data to Hazelcast topic..
+2018-02-19 07:18:51,842 [lient_0.event-3] INFO  route2                         - Consumer side: Detected following action: received
 
+```
+
+### Cleanup
+
+Run following to undeploy on Minikube
+
+```
+$ mvn -Pkubernetes-install fabric8:undeploy
+$ kubectl delete -f src/main/resources/fabric8/hazelcast-deployment.yaml
+$ kubectl delete -f src/main/resources/fabric8/hazelcast-service.yaml
+```
+
+Run following to undeploy on Minishift
+
+```
+$ mvn -Pkubernetes-install fabric8:undeploy
+$ oc delete -f src/main/resources/fabric8/hazelcast-deployment.yaml
+$ oc delete -f src/main/resources/fabric8/hazelcast-service.yaml
+```
+
+Make sure no pod is running
+```
+$ kubectl get pods
+No resources found.
+```
+
+```
+$ oc get pods
+No resources found.
 ```

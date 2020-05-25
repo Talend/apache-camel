@@ -16,6 +16,7 @@
  */
 package org.apache.camel.component.olingo4;
 
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.camel.RuntimeCamelException;
@@ -48,7 +49,7 @@ public class Olingo4AppWrapper {
     }
 
     // double checked locking based singleton Edm reader
-    public Edm getEdm() throws RuntimeCamelException {
+    public Edm getEdm(Map<String, String> endpointHttpHeaders) throws RuntimeCamelException {
         Edm localEdm = edm;
         if (localEdm == null) {
 
@@ -59,10 +60,10 @@ public class Olingo4AppWrapper {
 
                     final CountDownLatch latch = new CountDownLatch(1);
                     final Exception[] error = new Exception[1];
-                    olingo4App.read(null, Constants.METADATA, null, new Olingo4ResponseHandler<Edm>() {
+                    olingo4App.read(null, Constants.METADATA, null, endpointHttpHeaders, new Olingo4ResponseHandler<Edm>() {
 
                         @Override
-                        public void onResponse(Edm response) {
+                        public void onResponse(Edm response, Map<String, String> responseHeaders) {
                             edm = response;
                             latch.countDown();
                         }

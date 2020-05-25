@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -25,17 +24,21 @@ import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 public class FileConcurrentWriteAppendSameFileTest extends ContextTestSupport {
 
     private final int size = 100;
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/concurrent");
         super.setUp();
     }
 
+    @Test
     public void testConcurrentAppend() throws Exception {
         // create file with many lines
         StringBuilder sb = new StringBuilder();
@@ -52,7 +55,7 @@ public class FileConcurrentWriteAppendSameFileTest extends ContextTestSupport {
         mock.setResultWaitTime(30000);
 
         // we need to wait a bit for our slow CI server to make sure the entire file is written on disc
-        Thread.sleep(1000);
+        Thread.sleep(500);
         context.startRoute("foo");
 
         assertMockEndpointsSatisfied();
@@ -65,7 +68,7 @@ public class FileConcurrentWriteAppendSameFileTest extends ContextTestSupport {
         assertEquals("Should be " + size + " lines", size, lines.length);
 
         // should be unique
-        Set<String> rows = new LinkedHashSet<String>(Arrays.asList(lines));
+        Set<String> rows = new LinkedHashSet<>(Arrays.asList(lines));
         assertEquals("Should be " + size + " unique lines", size, rows.size());
 
         log.info(txt);
@@ -76,7 +79,7 @@ public class FileConcurrentWriteAppendSameFileTest extends ContextTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("file:target/concurrent").routeId("foo").noAutoStartup()
+                from("file:target/concurrent?initialDelay=0&delay=10").routeId("foo").noAutoStartup()
                     .split(body().tokenize(LS)).parallelProcessing().streaming()
                         .setBody(body().append(":Status=OK").append(LS))
                         .to("file:target/concurrent/outbox?fileExist=Append&fileName=result.txt")

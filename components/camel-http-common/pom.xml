@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>components</artifactId>
-    <version>2.20.0-SNAPSHOT</version>
+    <version>2.24.2</version>
   </parent>
 
   <artifactId>camel-http-common</artifactId>
@@ -48,6 +48,7 @@
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
       <version>${javax.servlet-api-version}</version>
+      <scope>provided</scope>
     </dependency>
 
     <!-- testing -->
@@ -75,6 +76,12 @@
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j-impl</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>${assertj-version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

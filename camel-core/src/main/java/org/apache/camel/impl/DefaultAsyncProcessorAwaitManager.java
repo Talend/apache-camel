@@ -49,7 +49,7 @@ public class DefaultAsyncProcessorAwaitManager extends ServiceSupport implements
     private final AtomicLong maxDuration = new AtomicLong();
     private final AtomicLong meanDuration = new AtomicLong();
 
-    private final Map<Exchange, AwaitThread> inflight = new ConcurrentHashMap<Exchange, AwaitThread>();
+    private final Map<Exchange, AwaitThread> inflight = new ConcurrentHashMap<>();
     private final ExchangeFormatter exchangeFormatter;
     private boolean interruptThreadsWhileStopping = true;
 
@@ -161,6 +161,7 @@ public class DefaultAsyncProcessorAwaitManager extends ServiceSupport implements
                     interruptedCounter.incrementAndGet();
                 }
                 exchange.setException(new RejectedExecutionException("Interrupted while waiting for asynchronous callback for exchangeId: " + exchange.getExchangeId()));
+                exchange.setProperty(Exchange.INTERRUPTED, Boolean.TRUE);
                 entry.getLatch().countDown();
             }
         }
@@ -188,7 +189,7 @@ public class DefaultAsyncProcessorAwaitManager extends ServiceSupport implements
         Collection<AwaitThread> threads = browse();
         int count = threads.size();
         if (count > 0) {
-            LOG.warn("Shutting down while there are still " + count + " inflight threads currently blocked.");
+            LOG.warn("Shutting down while there are still {} inflight threads currently blocked.", count);
 
             StringBuilder sb = new StringBuilder();
             for (AwaitThread entry : threads) {
@@ -196,7 +197,7 @@ public class DefaultAsyncProcessorAwaitManager extends ServiceSupport implements
             }
 
             if (isInterruptThreadsWhileStopping()) {
-                LOG.warn("The following threads are blocked and will be interrupted so the threads are released:\n" + sb.toString());
+                LOG.warn("The following threads are blocked and will be interrupted so the threads are released:\n{}", sb);
                 for (AwaitThread entry : threads) {
                     try {
                         interrupt(entry.getExchange());
@@ -205,7 +206,7 @@ public class DefaultAsyncProcessorAwaitManager extends ServiceSupport implements
                     }
                 }
             } else {
-                LOG.warn("The following threads are blocked, and may reside in the JVM:\n" + sb.toString());
+                LOG.warn("The following threads are blocked, and may reside in the JVM:\n{}", sb);
             }
         } else {
             LOG.debug("Shutting down with no inflight threads.");

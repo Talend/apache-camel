@@ -36,6 +36,7 @@ import org.apache.camel.support.ServiceSupport;
 import org.apache.camel.util.EndpointHelper;
 import org.apache.camel.util.IntrospectionSupport;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.StringHelper;
 import org.apache.camel.util.URISupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,7 @@ public abstract class DefaultEndpoint extends ServiceSupport implements Endpoint
                     + " By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored.")
     private boolean bridgeErrorHandler;
     @UriParam(label = "consumer,advanced", optionalPrefix = "consumer.", description = "To let the consumer use a custom ExceptionHandler."
-            + " Notice if the option bridgeErrorHandler is enabled then this options is not in use."
+            + " Notice if the option bridgeErrorHandler is enabled then this option is not in use."
             + " By default the consumer will deal with exceptions, that will be logged at WARN or ERROR level and ignored.")
     private ExceptionHandler exceptionHandler;
     @UriParam(label = "consumer,advanced",
@@ -213,11 +214,10 @@ public abstract class DefaultEndpoint extends ServiceSupport implements Endpoint
 
     public String getEndpointKey() {
         if (isLenientProperties()) {
-            // only use the endpoint uri without parameters as the properties is
-            // lenient
+            // only use the endpoint uri without parameters as the properties are lenient
             String uri = getEndpointUri();
             if (uri.indexOf('?') != -1) {
-                return ObjectHelper.before(uri, "?");
+                return StringHelper.before(uri, "?");
             } else {
                 return uri;
             }
@@ -476,7 +476,7 @@ public abstract class DefaultEndpoint extends ServiceSupport implements Endpoint
     public Map<String, Object> getConsumerProperties() {
         if (consumerProperties == null) {
             // must create empty if none exists
-            consumerProperties = new HashMap<String, Object>();
+            consumerProperties = new HashMap<>();
         }
         return consumerProperties;
     }
@@ -485,7 +485,7 @@ public abstract class DefaultEndpoint extends ServiceSupport implements Endpoint
         // append consumer properties
         if (consumerProperties != null && !consumerProperties.isEmpty()) {
             if (this.consumerProperties == null) {
-                this.consumerProperties = new HashMap<String, Object>(consumerProperties);
+                this.consumerProperties = new HashMap<>(consumerProperties);
             } else {
                 this.consumerProperties.putAll(consumerProperties);
             }
@@ -501,7 +501,7 @@ public abstract class DefaultEndpoint extends ServiceSupport implements Endpoint
         if (consumerProperties != null) {
             // use a defensive copy of the consumer properties as the methods below will remove the used properties
             // and in case we restart routes, we need access to the original consumer properties again
-            Map<String, Object> copy = new HashMap<String, Object>(consumerProperties);
+            Map<String, Object> copy = new HashMap<>(consumerProperties);
 
             // set reference properties first as they use # syntax that fools the regular properties setter
             EndpointHelper.setReferenceProperties(getCamelContext(), consumer, copy);

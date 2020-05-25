@@ -78,12 +78,12 @@ public class BindyFixedLengthDataFormat extends BindyAbstractDataFormat {
 
         // the body is not a prepared list so help a bit here and create one for us
         if (!isPreparedList(body)) {
-            models = new ArrayList<Map<String, Object>>();
+            models = new ArrayList<>();
             Iterator<?> it = ObjectHelper.createIterator(body);
             while (it.hasNext()) {
                 Object model = it.next();
                 String name = model.getClass().getName();
-                Map<String, Object> row = new HashMap<String, Object>();
+                Map<String, Object> row = new HashMap<>();
                 row.put(name, model);
                 row.putAll(createLinkedFieldsModel(model));
                 models.add(row);
@@ -119,7 +119,7 @@ public class BindyFixedLengthDataFormat extends BindyAbstractDataFormat {
                         LOG.info("Skipping marshal of header row; 'skipHeader=true'");
                         continue;
                     } else {
-                        result = headerFactory.unbind(model);
+                        result = headerFactory.unbind(getCamelContext(), model);
                     }
                 }
             } else if (row == models.size() && footerFactory != null) {
@@ -131,14 +131,14 @@ public class BindyFixedLengthDataFormat extends BindyAbstractDataFormat {
                         LOG.info("Skipping marshal of footer row; 'skipFooter=true'");
                         continue;
                     } else {
-                        result = footerFactory.unbind(model);
+                        result = footerFactory.unbind(getCamelContext(), model);
                     }
                 }
             }
 
             if (result == null) {
                 // marshal as a normal / default row
-                result = factory.unbind(model);
+                result = factory.unbind(getCamelContext(), model);
             }
 
             byte[] bytes = exchange.getContext().getTypeConverter().convertTo(byte[].class, exchange, result);
@@ -180,7 +180,7 @@ public class BindyFixedLengthDataFormat extends BindyAbstractDataFormat {
         ObjectHelper.notNull(factory, "not instantiated");
 
         // List of Pojos
-        List<Map<String, Object>> models = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> models = new ArrayList<>();
 
         // Pojos of the model
         Map<String, Object> model;
@@ -189,16 +189,21 @@ public class BindyFixedLengthDataFormat extends BindyAbstractDataFormat {
 
         // Scanner is used to read big file
         Scanner scanner = new Scanner(in);
+        boolean isEolSet = false;
+        if (!"".equals(factory.getEndOfLine())) {
+            scanner.useDelimiter(factory.getEndOfLine());
+            isEolSet = true;
+        }
 
         AtomicInteger count = new AtomicInteger(0);
 
         try {
 
             // Parse the header if it exists
-            if (scanner.hasNextLine() && factory.hasHeader()) {
+            if (((isEolSet && scanner.hasNext()) || (!isEolSet && scanner.hasNextLine())) && factory.hasHeader()) {
 
                 // Read the line (should not trim as its fixed length)
-                String line = getNextNonEmptyLine(scanner, count);
+                String line = getNextNonEmptyLine(scanner, count, isEolSet);
 
                 if (!factory.skipHeader()) {
                     Map<String, Object> headerObjMap = createModel(headerFactory, line, count.intValue());
@@ -206,11 +211,11 @@ public class BindyFixedLengthDataFormat extends BindyAbstractDataFormat {
                 }
             }
 
-            String thisLine = getNextNonEmptyLine(scanner, count);
+            String thisLine = getNextNonEmptyLine(scanner, count, isEolSet);
 
             String nextLine = null;
             if (thisLine != null) {
-                nextLine = getNextNonEmptyLine(scanner, count);
+                nextLine = getNextNonEmptyLine(scanner, count, isEolSet);
             }
 
             // Parse the main file content
@@ -222,7 +227,7 @@ public class BindyFixedLengthDataFormat extends BindyAbstractDataFormat {
                 models.add(model);
 
                 thisLine = nextLine;
-                nextLine = getNextNonEmptyLine(scanner, count);
+                nextLine = getNextNonEmptyLine(scanner, count, isEolSet);
             }
 
             // this line should be the last non-empty line from the file
@@ -242,7 +247,7 @@ public class BindyFixedLengthDataFormat extends BindyAbstractDataFormat {
             // BigIntegerFormatFactory if models list is empty or not
             // If this is the case (correspond to an empty stream, ...)
             if (models.size() == 0) {
-                throw new java.lang.IllegalArgumentException("No records have been defined in the the file");
+                throw new java.lang.IllegalArgumentException("No records have been defined in the file");
             } else {
                 return extractUnmarshalResult(models);
             }
@@ -254,11 +259,15 @@ public class BindyFixedLengthDataFormat extends BindyAbstractDataFormat {
 
     }
 
-    private String getNextNonEmptyLine(Scanner scanner, AtomicInteger count) {
+    private String getNextNonEmptyLine(Scanner scanner, AtomicInteger count, boolean isEolSet) {
         String line = "";
-        while (ObjectHelper.isEmpty(line) && scanner.hasNextLine()) {
+        while (ObjectHelper.isEmpty(line) && ((isEolSet && scanner.hasNext()) || (!isEolSet && scanner.hasNextLine()))) {
             count.incrementAndGet();
-            line = scanner.nextLine();
+            if (!isEolSet) {
+                line = scanner.nextLine();
+            } else {
+                line = scanner.next();
+            }
         }
 
         if (ObjectHelper.isEmpty(line)) {
@@ -291,7 +300,7 @@ public class BindyFixedLengthDataFormat extends BindyAbstractDataFormat {
         Map<String, Object> model = factory.factory();
 
         // Bind data from Fixed record with model classes
-        factory.bind(myLine, model, count);
+        factory.bind(getCamelContext(), myLine, model, count);
 
         // Link objects together
         factory.link(model);
@@ -304,6 +313,7 @@ public class BindyFixedLengthDataFormat extends BindyAbstractDataFormat {
         return factory.isIgnoreTrailingChars() && myLine.length() > factory.recordLength();
     }
 
+    @SuppressWarnings("unused")
     private String rightPad(String myLine, int length) {
         return String.format("%1$-" + length + "s", myLine);
     }

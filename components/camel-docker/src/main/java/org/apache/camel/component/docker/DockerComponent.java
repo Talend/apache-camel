@@ -35,7 +35,7 @@ public class DockerComponent extends DefaultComponent {
 
     @Metadata(label = "advanced")
     private DockerConfiguration configuration = new DockerConfiguration();
-    private Map<DockerClientProfile, DockerClient> clients = new HashMap<DockerClientProfile, DockerClient>();
+    private Map<DockerClientProfile, DockerClient> clients = new HashMap<>();
 
     public DockerComponent() {
     }
@@ -60,9 +60,6 @@ public class DockerComponent extends DefaultComponent {
         }
 
         configuration.setOperation(operation);
-
-        // Validate URI Parameters
-        DockerHelper.validateParameters(operation, parameters);
 
         Endpoint endpoint = new DockerEndpoint(uri, this, configuration);
         setProperties(configuration, parameters);

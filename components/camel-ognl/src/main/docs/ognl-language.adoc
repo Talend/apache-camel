@@ -1,16 +1,17 @@
-## OGNL Language
+[[ognl-language]]
+== OGNL Language
 
 *Available as of Camel version 1.1*
 
 Camel allows http://commons.apache.org/proper/commons-ognl/[OGNL] to be
-used as an link:expression.html[Expression] or
-link:predicate.html[Predicate] the link:dsl.html[DSL] or
-link:xml-configuration.html[Xml Configuration].
+used as an Expression or
+Predicate the DSL or
+Xml Configuration.
 
-You could use OGNL to create an link:predicate.html[Predicate] in a
-link:message-filter.html[Message Filter] or as an
-link:expression.html[Expression] for a
-link:recipient-list.html[Recipient List]
+You could use OGNL to create an Predicate in a
+Message Filter or as an
+Expression for a
+Recipient List
 
 You can use OGNL dot notation to invoke operations. If you for instance
 have a body that contains a POJO that has a `getFamilyName` method then
@@ -27,16 +28,32 @@ you can construct the syntax as follows:
 
 
 // language options: START
-The OGNL language supports 1 options which are listed below.
+The OGNL language supports 1 options, which are listed below.
 
 
 
 [width="100%",cols="2,1m,1m,6",options="header"]
-|=======================================================================
+|===
 | Name | Default | Java Type | Description
 | trim | true | Boolean | Whether to trim the value to remove leading and trailing whitespaces and line breaks
-|=======================================================================
+|===
 // language options: END
+// spring-boot-auto-configure options: START
+=== Spring Boot Auto-Configuration
+
+
+The component supports 2 options, which are listed below.
+
+
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Name | Description | Default | Type
+| *camel.language.ognl.enabled* | Enable ognl language | true | Boolean
+| *camel.language.ognl.trim* | Whether to trim the value to remove leading and trailing whitespaces and line breaks | true | Boolean
+|===
+// spring-boot-auto-configure options: END
+
 
 
 
@@ -111,7 +128,7 @@ To use OGNL in your camel routes you need to add the a dependency on
 
 If you use maven you could just add the following to your pom.xml,
 substituting the version number for the latest & greatest release (see
-link:download.html[the download page for the latest versions]).
+the download page for the latest versions).
 
 [source,java]
 -------------------------------------

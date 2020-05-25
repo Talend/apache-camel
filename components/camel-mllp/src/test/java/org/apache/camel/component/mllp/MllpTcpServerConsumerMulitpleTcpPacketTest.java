@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.camel.component.mllp;
 
 import java.util.concurrent.TimeUnit;
@@ -27,13 +28,12 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.test.AvailablePortFinder;
 import org.apache.camel.test.junit.rule.mllp.MllpClientResource;
 import org.apache.camel.test.junit4.CamelTestSupport;
+import org.apache.camel.test.mllp.Hl7TestMessageGenerator;
 import org.apache.camel.test.mllp.PassthroughProcessor;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-
-import static org.apache.camel.test.mllp.Hl7MessageGenerator.generateMessage;
 
 public class MllpTcpServerConsumerMulitpleTcpPacketTest extends CamelTestSupport {
     @Rule
@@ -68,15 +68,15 @@ public class MllpTcpServerConsumerMulitpleTcpPacketTest extends CamelTestSupport
             public void configure() throws Exception {
 
                 onCompletion()
-                        .log(LoggingLevel.DEBUG, routeId, "Test route complete");
+                    .log(LoggingLevel.INFO, routeId, "Test route complete");
 
                 fromF("mllp://%s:%d",
-                        mllpClient.getMllpHost(), mllpClient.getMllpPort())
-                        .routeId(routeId)
-                        .process(new PassthroughProcessor("Before send to result"))
-                        .to(result)
-                        .toF("log://%s?level=INFO&groupInterval=%d&groupActiveOnly=%b", routeId, groupInterval, groupActiveOnly)
-                        .log(LoggingLevel.DEBUG, routeId, "Test route received message");
+                    mllpClient.getMllpHost(), mllpClient.getMllpPort())
+                    .routeId(routeId)
+                    .process(new PassthroughProcessor("Before send to result"))
+                    .to(result)
+                    .toF("log://%s?level=INFO&groupInterval=%d&groupActiveOnly=%b", routeId, groupInterval, groupActiveOnly)
+                    .log(LoggingLevel.DEBUG, routeId, "Test route received message");
 
             }
         };
@@ -86,7 +86,7 @@ public class MllpTcpServerConsumerMulitpleTcpPacketTest extends CamelTestSupport
     public void testReceiveSingleMessage() throws Exception {
         mllpClient.connect();
 
-        String message = generateMessage();
+        String message = Hl7TestMessageGenerator.generateMessage();
         result.expectedBodiesReceived(message);
 
         mllpClient.sendFramedDataInMultiplePackets(message, (byte) '\r');
@@ -100,13 +100,14 @@ public class MllpTcpServerConsumerMulitpleTcpPacketTest extends CamelTestSupport
 
     @Test
     public void testReceiveMultipleMessages() throws Exception {
-        int sendMessageCount = 1000;
-        result.expectedMinimumMessageCount(5);
+        int sendMessageCount = 100;
+        result.expectedMessageCount(sendMessageCount);
 
+        mllpClient.setSoTimeout(10000);
         mllpClient.connect();
 
         for (int i = 1; i <= sendMessageCount; ++i) {
-            String testMessage = generateMessage(i);
+            String testMessage = Hl7TestMessageGenerator.generateMessage(i);
             result.message(i - 1).body().isEqualTo(testMessage);
             mllpClient.sendFramedDataInMultiplePackets(testMessage, (byte) '\r');
             String acknowledgement = mllpClient.receiveFramedData();
@@ -115,6 +116,5 @@ public class MllpTcpServerConsumerMulitpleTcpPacketTest extends CamelTestSupport
 
         assertMockEndpointsSatisfied(10, TimeUnit.SECONDS);
     }
-
 
 }

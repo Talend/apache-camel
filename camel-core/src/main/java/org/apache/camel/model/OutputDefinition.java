@@ -18,6 +18,7 @@ package org.apache.camel.model;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElementRef;
@@ -36,7 +37,7 @@ import org.apache.camel.spi.Metadata;
 public class OutputDefinition<Type extends ProcessorDefinition<Type>> extends ProcessorDefinition<Type> {
 
     @XmlElementRef
-    protected List<ProcessorDefinition<?>> outputs = new ArrayList<ProcessorDefinition<?>>();
+    protected List<ProcessorDefinition<?>> outputs = new ArrayList<>();
 
     public List<ProcessorDefinition<?>> getOutputs() {
         return outputs;
@@ -53,6 +54,11 @@ public class OutputDefinition<Type extends ProcessorDefinition<Type>> extends Pr
                 configureChild(output);
             }
         }
+    }
+
+    @Override
+    public String getShortName() {
+        return "output";
     }
 
     @Override

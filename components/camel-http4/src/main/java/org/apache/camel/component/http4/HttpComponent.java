@@ -32,6 +32,7 @@ import org.apache.camel.Producer;
 import org.apache.camel.ResolveEndpointFailedException;
 import org.apache.camel.SSLContextParametersAware;
 import org.apache.camel.VerifiableComponent;
+import org.apache.camel.component.extension.ComponentVerifierExtension;
 import org.apache.camel.http.common.HttpBinding;
 import org.apache.camel.http.common.HttpCommonComponent;
 import org.apache.camel.http.common.HttpHelper;
@@ -39,11 +40,14 @@ import org.apache.camel.http.common.HttpRestHeaderFilterStrategy;
 import org.apache.camel.http.common.UrlRewrite;
 import org.apache.camel.spi.HeaderFilterStrategy;
 import org.apache.camel.spi.Metadata;
+import org.apache.camel.spi.RestConfiguration;
 import org.apache.camel.spi.RestProducerFactory;
+import org.apache.camel.spi.RestProducerFactoryHelper;
 import org.apache.camel.util.FileUtil;
 import org.apache.camel.util.IntrospectionSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.ServiceHelper;
+import org.apache.camel.util.StringHelper;
 import org.apache.camel.util.URISupport;
 import org.apache.camel.util.UnsafeUriCharactersEncoder;
 import org.apache.camel.util.jsse.SSLContextParameters;
@@ -93,6 +97,24 @@ public class HttpComponent extends HttpCommonComponent implements RestProducerFa
         + " shouldn't be stored as we are just bridging (eg acting as a proxy).")
     protected CookieStore cookieStore;
 
+    // timeout
+    @Metadata(label = "timeout", defaultValue = "-1", description = "The timeout in milliseconds used when requesting a connection"
+        + " from the connection manager. A timeout value of zero is interpreted as an infinite timeout."
+        + " A timeout value of zero is interpreted as an infinite timeout."
+        + " A negative value is interpreted as undefined (system default).")
+    protected int connectionRequestTimeout = -1;
+    @Metadata(label = "timeout", defaultValue = "-1", description = "Determines the timeout in milliseconds until a connection is established."
+        + " A timeout value of zero is interpreted as an infinite timeout."
+        + " A timeout value of zero is interpreted as an infinite timeout."
+        + " A negative value is interpreted as undefined (system default).")
+    protected int connectTimeout = -1;
+    @Metadata(label = "timeout", defaultValue = "-1", description = "Defines the socket timeout in milliseconds,"
+        + " which is the timeout for waiting for data  or, put differently,"
+        + " a maximum period inactivity between two consecutive data packets)."
+        + " A timeout value of zero is interpreted as an infinite timeout."
+        + " A negative value is interpreted as undefined (system default).")
+    protected int socketTimeout = -1;
+
     // options to the default created http connection manager
     @Metadata(label = "advanced", defaultValue = "200", description = "The maximum number of connections.")
     protected int maxTotalConnections = 200;
@@ -105,11 +127,13 @@ public class HttpComponent extends HttpCommonComponent implements RestProducerFa
     private boolean useGlobalSslContextParameters;
 
     public HttpComponent() {
-        super(HttpEndpoint.class);
+        this(HttpEndpoint.class);
     }
 
     public HttpComponent(Class<? extends HttpEndpoint> endpointClass) {
         super(endpointClass);
+
+        registerExtension(HttpComponentVerifierExtension::new);
     }
 
     /**
@@ -176,8 +200,23 @@ public class HttpComponent extends HttpCommonComponent implements RestProducerFa
 
     @Override
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
-        Map<String, Object> httpClientParameters = new HashMap<String, Object>(parameters);
+        Map<String, Object> httpClientParameters = new HashMap<>(parameters);
         final Map<String, Object> httpClientOptions = new HashMap<>();
+
+        // timeout values can be configured on both component and endpoint level, where endpoint take priority
+        int val = getAndRemoveParameter(parameters, "connectionRequestTimeout", int.class, connectionRequestTimeout);
+        if (val != -1) {
+            httpClientOptions.put("connectionRequestTimeout", val);
+        }
+        val = getAndRemoveParameter(parameters, "connectTimeout", int.class, connectTimeout);
+        if (val != -1) {
+            httpClientOptions.put("connectTimeout", val);
+        }
+        val = getAndRemoveParameter(parameters, "socketTimeout", int.class, socketTimeout);
+        if (val != -1) {
+            httpClientOptions.put("socketTimeout", val);
+        }
+
         final HttpClientBuilder clientBuilder = createHttpClientBuilder(uri, parameters, httpClientOptions);
         
         HttpBinding httpBinding = resolveAndRemoveReferenceParameter(parameters, "httpBinding", HttpBinding.class);
@@ -219,7 +258,7 @@ public class HttpComponent extends HttpCommonComponent implements RestProducerFa
         URI endpointUri = URISupport.createRemainingURI(uriHttpUriAddress, httpClientParameters);
 
         // the endpoint uri should use the component name as scheme, so we need to re-create it once more
-        String scheme = ObjectHelper.before(uri, "://");
+        String scheme = StringHelper.before(uri, "://");
         endpointUri = URISupport.createRemainingURI(
                 new URI(scheme,
                         endpointUri.getUserInfo(),
@@ -254,9 +293,6 @@ public class HttpComponent extends HttpCommonComponent implements RestProducerFa
         // configure the endpoint
         setProperties(endpoint, parameters);
 
-        // determine the portnumber (special case: default portnumber)
-        //int port = getPort(uriHttpUriAddress);
-
         // we can not change the port of an URI, we must create a new one with an explicit port value
         URI httpUri = URISupport.createRemainingURI(
                 new URI(uriHttpUriAddress.getScheme(),
@@ -275,9 +311,9 @@ public class HttpComponent extends HttpCommonComponent implements RestProducerFa
         } else {
             setEndpointHeaderFilterStrategy(endpoint);
         }
-        endpoint.setBinding(getHttpBinding());
+        endpoint.setHttpBinding(getHttpBinding());
         if (httpBinding != null) {
-            endpoint.setBinding(httpBinding);
+            endpoint.setHttpBinding(httpBinding);
         }
         if (httpMethodRestrict != null) {
             endpoint.setHttpMethodRestrict(httpMethodRestrict);
@@ -368,7 +404,7 @@ public class HttpComponent extends HttpCommonComponent implements RestProducerFa
         if (localConnectionsPerRoute > 0) {
             answer.setDefaultMaxPerRoute(localConnectionsPerRoute);
         }
-        LOG.info("Created ClientConnectionManager " + answer);
+        LOG.info("Created ClientConnectionManager {}", answer);
 
         return answer;
     }
@@ -382,14 +418,14 @@ public class HttpComponent extends HttpCommonComponent implements RestProducerFa
     @Override
     public Producer createProducer(CamelContext camelContext, String host,
                                    String verb, String basePath, String uriTemplate, String queryParameters,
-                                   String consumes, String produces, Map<String, Object> parameters) throws Exception {
+                                   String consumes, String produces, RestConfiguration configuration, Map<String, Object> parameters) throws Exception {
 
         // avoid leading slash
         basePath = FileUtil.stripLeadingSeparator(basePath);
         uriTemplate = FileUtil.stripLeadingSeparator(uriTemplate);
 
         // replace http with http4 in the host part
-        host = host.replace("http", "http4");
+        host = host.replaceFirst(":", "4:");
 
         // get the endpoint
         String url = host;
@@ -399,6 +435,31 @@ public class HttpComponent extends HttpCommonComponent implements RestProducerFa
         if (!ObjectHelper.isEmpty(uriTemplate)) {
             url += "/" + uriTemplate;
         }
+        
+        RestConfiguration config = configuration;
+        if (config == null) {
+            config = camelContext.getRestConfiguration("http4", true);
+        }
+
+        Map<String, Object> map = new HashMap<>();
+        // build query string, and append any endpoint configuration properties
+        if (config.getComponent() == null || config.getComponent().equals("http4")) {
+            // setup endpoint options
+            if (config.getEndpointProperties() != null && !config.getEndpointProperties().isEmpty()) {
+                map.putAll(config.getEndpointProperties());
+            }
+        }
+
+        // get the endpoint
+        String query = URISupport.createQueryString(map);
+        if (!query.isEmpty()) {
+            url = url + "?" + query;
+        }
+
+        // there are cases where we might end up here without component being created beforehand
+        // we need to abide by the component properties specified in the parameters when creating
+        // the component, one such case is when we switch from "http4" to "https4" component name
+        RestProducerFactoryHelper.setupComponentFor(url, camelContext, (Map<String, Object>) parameters.get("component"));
 
         HttpEndpoint endpoint = camelContext.getEndpoint(url, HttpEndpoint.class);
         if (parameters != null && !parameters.isEmpty()) {
@@ -532,6 +593,65 @@ public class HttpComponent extends HttpCommonComponent implements RestProducerFa
         this.cookieStore = cookieStore;
     }
 
+    public int getConnectionRequestTimeout() {
+        return connectionRequestTimeout;
+    }
+
+    /**
+     * The timeout in milliseconds used when requesting a connection
+     * from the connection manager. A timeout value of zero is interpreted
+     * as an infinite timeout.
+     * <p>
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * A negative value is interpreted as undefined (system default).
+     * </p>
+     * <p>
+     * Default: {@code -1}
+     * </p>
+     */
+    public void setConnectionRequestTimeout(int connectionRequestTimeout) {
+        this.connectionRequestTimeout = connectionRequestTimeout;
+    }
+
+    public int getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    /**
+     * Determines the timeout in milliseconds until a connection is established.
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * <p>
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * A negative value is interpreted as undefined (system default).
+     * </p>
+     * <p>
+     * Default: {@code -1}
+     * </p>
+     */
+    public void setConnectTimeout(int connectTimeout) {
+        this.connectTimeout = connectTimeout;
+    }
+
+    public int getSocketTimeout() {
+        return socketTimeout;
+    }
+
+    /**
+     * Defines the socket timeout ({@code SO_TIMEOUT}) in milliseconds,
+     * which is the timeout for waiting for data  or, put differently,
+     * a maximum period inactivity between two consecutive data packets).
+     * <p>
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * A negative value is interpreted as undefined (system default).
+     * </p>
+     * <p>
+     * Default: {@code -1}
+     * </p>
+     */
+    public void setSocketTimeout(int socketTimeout) {
+        this.socketTimeout = socketTimeout;
+    }
+
     @Override
     public void doStart() throws Exception {
         super.doStart();
@@ -541,7 +661,7 @@ public class HttpComponent extends HttpCommonComponent implements RestProducerFa
     public void doStop() throws Exception {
         // shutdown connection manager
         if (clientConnectionManager != null) {
-            LOG.info("Shutting down ClientConnectionManager: " + clientConnectionManager);
+            LOG.info("Shutting down ClientConnectionManager: {}", clientConnectionManager);
             clientConnectionManager.shutdown();
             clientConnectionManager = null;
         }
@@ -549,10 +669,8 @@ public class HttpComponent extends HttpCommonComponent implements RestProducerFa
         super.doStop();
     }
 
-    /**
-     * TODO: document
-     */
+    @Override
     public ComponentVerifier getVerifier() {
-        return new HttpComponentVerifier(this);
+        return (scope, parameters) -> getExtension(ComponentVerifierExtension.class).orElseThrow(UnsupportedOperationException::new).verify(scope, parameters);
     }
 }

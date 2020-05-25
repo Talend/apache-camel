@@ -16,18 +16,22 @@
  */
 package org.apache.camel.util;
 
-import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class XmlLineNumberParserTest extends TestCase {
+public class XmlLineNumberParserTest extends Assert {
 
+    @Test
     public void testParse() throws Exception {
-        FileInputStream fis = new FileInputStream("src/test/resources/org/apache/camel/util/camel-context.xml");
+        InputStream fis = Files.newInputStream(Paths.get("src/test/resources/org/apache/camel/util/camel-context.xml"));
         Document dom = XmlLineNumberParser.parseXml(fis);
         assertNotNull(dom);
 
@@ -42,8 +46,9 @@ public class XmlLineNumberParserTest extends TestCase {
         assertEquals("49", lineNumberEnd);
     }
 
+    @Test
     public void testParseCamelContext() throws Exception {
-        FileInputStream fis = new FileInputStream("src/test/resources/org/apache/camel/util/camel-context.xml");
+        InputStream fis = Files.newInputStream(Paths.get("src/test/resources/org/apache/camel/util/camel-context.xml"));
         Document dom = XmlLineNumberParser.parseXml(fis, null, "camelContext", null);
         assertNotNull(dom);
 
@@ -58,8 +63,9 @@ public class XmlLineNumberParserTest extends TestCase {
         assertEquals("47", lineNumberEnd);
     }
 
+    @Test
     public void testParseCamelContextForceNamespace() throws Exception {
-        FileInputStream fis = new FileInputStream("src/test/resources/org/apache/camel/util/camel-context.xml");
+        InputStream fis = Files.newInputStream(Paths.get("src/test/resources/org/apache/camel/util/camel-context.xml"));
         Document dom = XmlLineNumberParser.parseXml(fis, null, "camelContext", "http://camel.apache.org/schema/spring");
         assertNotNull(dom);
 

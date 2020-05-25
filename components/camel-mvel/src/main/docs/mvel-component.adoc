@@ -1,10 +1,11 @@
-## MVEL Component
+[[mvel-component]]
+== MVEL Component
 
 *Available as of Camel version 2.12*
 
 The *mvel:* component allows you to process a message using an
 http://mvel.codehaus.org/[MVEL] template. This can be ideal when using
-link:templating.html[Templating] to generate responses for requests.
+Templating to generate responses for requests.
 
 Maven users will need to add the following dependency to their `pom.xml`
 for this component:
@@ -46,28 +47,51 @@ The MVEL component has no options.
 // endpoint options: START
 The MVEL endpoint is configured using URI syntax:
 
-    mvel:resourceUri
+----
+mvel:resourceUri
+----
 
 with the following path and query parameters:
 
-#### Path Parameters (1 parameters):
+==== Path Parameters (1 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **resourceUri** | *Required* Path to the resource. You can prefix with: classpath file http ref or bean. classpath file and http loads the resource using these protocols (classpath is default). ref will lookup the resource in the registry. bean will call a method on a bean to be used as the resource. For bean you can specify the method name after dot eg bean:myBean.myMethod. |  | String
-|=======================================================================
+| *resourceUri* | *Required* Path to the resource. You can prefix with: classpath, file, http, ref, or bean. classpath, file and http loads the resource using these protocols (classpath is default). ref will lookup the resource in the registry. bean will call a method on a bean to be used as the resource. For bean you can specify the method name after dot, eg bean:myBean.myMethod. |  | String
+|===
 
-#### Query Parameters (3 parameters):
+
+==== Query Parameters (3 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **contentCache** (producer) | Sets whether to use resource content cache or not | false | boolean
-| **encoding** (producer) | Character encoding of the resource content. |  | String
-| **synchronous** (advanced) | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported). | false | boolean
-|=======================================================================
+| *contentCache* (producer) | Sets whether to use resource content cache or not | false | boolean
+| *encoding* (producer) | Character encoding of the resource content. |  | String
+| *synchronous* (advanced) | Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported). | false | boolean
+|===
 // endpoint options: END
+// spring-boot-auto-configure options: START
+=== Spring Boot Auto-Configuration
+
+
+The component supports 4 options, which are listed below.
+
+
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Name | Description | Default | Type
+| *camel.component.mvel.enabled* | Enable mvel component | true | Boolean
+| *camel.component.mvel.resolve-property-placeholders* | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | Boolean
+| *camel.language.mvel.enabled* | Enable mvel language | true | Boolean
+| *camel.language.mvel.trim* | Whether to trim the value to remove leading and trailing whitespaces and line breaks | true | Boolean
+|===
+// spring-boot-auto-configure options: END
+
 
 
 
@@ -170,7 +194,7 @@ from("direct:in").
 
 ### See Also
 
-* link:configuring-camel.html[Configuring Camel]
-* link:component.html[Component]
-* link:endpoint.html[Endpoint]
-* link:getting-started.html[Getting Started]
+* Configuring Camel
+* Component
+* Endpoint
+* Getting Started

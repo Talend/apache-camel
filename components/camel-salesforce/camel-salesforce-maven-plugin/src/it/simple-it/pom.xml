@@ -70,10 +70,10 @@
               </httpClientProperties>
               <includePattern>(.*__c)</includePattern>
               <!-- Salesforce login info -->
-              <clientId>${clientId}</clientId>
-              <clientSecret>${clientSecret}</clientSecret>
-              <userName>${userName}</userName>
-              <password>${password}</password>
+              <clientId>${salesforce.client.id}</clientId>
+              <clientSecret>${salesforce.client.secret}</clientSecret>
+              <userName>${salesforce.username}</userName>
+              <password>${salesforce.password}</password>
             </configuration>
           </execution>
         </executions>

@@ -134,6 +134,8 @@ public class MethodInfo {
             routingSlip = new RoutingSlip(camelContext);
             routingSlip.setDelimiter(routingSlipAnnotation.delimiter());
             routingSlip.setIgnoreInvalidEndpoints(routingSlipAnnotation.ignoreInvalidEndpoints());
+            routingSlip.setCacheSize(routingSlipAnnotation.cacheSize());
+
             // add created routingSlip as a service so we have its lifecycle managed
             try {
                 camelContext.addService(routingSlip);
@@ -149,6 +151,7 @@ public class MethodInfo {
             dynamicRouter = new DynamicRouter(camelContext);
             dynamicRouter.setDelimiter(dynamicRouterAnnotation.delimiter());
             dynamicRouter.setIgnoreInvalidEndpoints(dynamicRouterAnnotation.ignoreInvalidEndpoints());
+            dynamicRouter.setCacheSize(dynamicRouterAnnotation.cacheSize());
             // add created dynamicRouter as a service so we have its lifecycle managed
             try {
                 camelContext.addService(dynamicRouter);
@@ -202,7 +205,7 @@ public class MethodInfo {
     }
 
     private Map<Class<?>, Annotation> collectMethodAnnotations(Class<?> c, Method method) {
-        Map<Class<?>, Annotation> annotations = new HashMap<Class<?>, Annotation>();
+        Map<Class<?>, Annotation> annotations = new HashMap<>();
         collectMethodAnnotations(c, method, annotations);
         return annotations;
     }
@@ -243,8 +246,14 @@ public class MethodInfo {
         return method.toString();
     }
 
-    public MethodInvocation createMethodInvocation(final Object pojo, final Exchange exchange) {
-        final Object[] arguments = parametersExpression.evaluate(exchange, Object[].class);
+    public MethodInvocation createMethodInvocation(final Object pojo, boolean hasParameters, final Exchange exchange) {
+        final Object[] arguments;
+        if (hasParameters) {
+            arguments = parametersExpression.evaluate(exchange, Object[].class);
+        } else {
+            arguments = null;
+        }
+
         return new MethodInvocation() {
             public Method getMethod() {
                 return method;
@@ -256,7 +265,7 @@ public class MethodInfo {
 
             public boolean proceed(AsyncCallback callback) {
                 Object body = exchange.getIn().getBody();
-                if (body != null && body instanceof StreamCache) {
+                if (body instanceof StreamCache) {
                     // ensure the stream cache is reset before calling the method
                     ((StreamCache) body).reset();
                 }
@@ -286,7 +295,7 @@ public class MethodInfo {
 
                 // invoke pojo
                 if (LOG.isTraceEnabled()) {
-                    LOG.trace(">>>> invoking: {} on bean: {} with arguments: {} for exchange: {}", new Object[]{method, pojo, asString(arguments), exchange});
+                    LOG.trace(">>>> invoking: {} on bean: {} with arguments: {} for exchange: {}", method, pojo, asString(arguments), exchange);
                 }
                 Object result = invoke(method, pojo, arguments, exchange);
 
@@ -508,7 +517,7 @@ public class MethodInfo {
             Class<?> type = method.getDeclaringClass();
 
             // create the search order of types to scan
-            List<Class<?>> typesToSearch = new ArrayList<Class<?>>();
+            List<Class<?>> typesToSearch = new ArrayList<>();
             addTypeAndSuperTypes(type, typesToSearch);
             Class<?>[] interfaces = type.getInterfaces();
             for (Class<?> anInterface : interfaces) {
@@ -560,7 +569,7 @@ public class MethodInfo {
                         if (answer == null) {
                             answer = another;
                         } else {
-                            LOG.warn("Duplicate pattern annotation: " + another + " found on annotation: " + annotation + " which will be ignored");
+                            LOG.warn("Duplicate pattern annotation: {} found on annotation: {} which will be ignored", another, annotation);
                         }
                     }
                 }
@@ -632,22 +641,19 @@ public class MethodInfo {
         @SuppressWarnings("unchecked")
         public <T> T evaluate(Exchange exchange, Class<T> type) {
             Object body = exchange.getIn().getBody();
-            boolean multiParameterArray = false;
-            if (exchange.getIn().getHeader(Exchange.BEAN_MULTI_PARAMETER_ARRAY) != null) {
-                multiParameterArray = exchange.getIn().getHeader(Exchange.BEAN_MULTI_PARAMETER_ARRAY, Boolean.class);
-                if (multiParameterArray) {
-                    // Just change the message body to an Object array
-                    if (!(body instanceof Object[])) {
-                        body = exchange.getIn().getBody(Object[].class);
-                    }
+            boolean multiParameterArray = exchange.getIn().getHeader(Exchange.BEAN_MULTI_PARAMETER_ARRAY, false, boolean.class);
+            if (multiParameterArray) {
+                // Just change the message body to an Object array
+                if (!(body instanceof Object[])) {
+                    body = exchange.getIn().getBody(Object[].class);
                 }
             }
 
             // if there was an explicit method name to invoke, then we should support using
             // any provided parameter values in the method name
-            String methodName = exchange.getIn().getHeader(Exchange.BEAN_METHOD_NAME, "", String.class);
+            String methodName = exchange.getIn().getHeader(Exchange.BEAN_METHOD_NAME, String.class);
             // the parameter values is between the parenthesis
-            String methodParameters = ObjectHelper.betweenOuterPair(methodName, '(', ')');
+            String methodParameters = StringHelper.betweenOuterPair(methodName, '(', ')');
             // use an iterator to walk the parameter values
             Iterator<?> it = null;
             if (methodParameters != null) {
@@ -661,8 +667,12 @@ public class MethodInfo {
             // we need to do this before the expressions gets evaluated as it may contain
             // a @Bean expression which would by mistake read these headers. So the headers
             // must be removed at this point of time
-            exchange.getIn().removeHeader(Exchange.BEAN_MULTI_PARAMETER_ARRAY);
-            exchange.getIn().removeHeader(Exchange.BEAN_METHOD_NAME);
+            if (multiParameterArray) {
+                exchange.getIn().removeHeader(Exchange.BEAN_MULTI_PARAMETER_ARRAY);
+            }
+            if (methodName != null) {
+                exchange.getIn().removeHeader(Exchange.BEAN_METHOD_NAME);
+            }
 
             Object[] answer = evaluateParameterExpressions(exchange, body, multiParameterArray, it);
             return (T) answer;
@@ -675,7 +685,7 @@ public class MethodInfo {
             Object[] answer = new Object[expressions.length];
             for (int i = 0; i < expressions.length; i++) {
 
-                if (body != null && body instanceof StreamCache) {
+                if (body instanceof StreamCache) {
                     // need to reset stream cache for each expression as you may access the message body in multiple parameters
                     ((StreamCache) body).reset();
                 }
@@ -790,11 +800,11 @@ public class MethodInfo {
                             // its a valid parameter value, so convert it to the expected type of the parameter
                             answer = exchange.getContext().getTypeConverter().mandatoryConvertTo(parameterType, exchange, parameterValue);
                             if (LOG.isTraceEnabled()) {
-                                LOG.trace("Parameter #{} evaluated as: {} type: ", new Object[]{index, answer, ObjectHelper.type(answer)});
+                                LOG.trace("Parameter #{} evaluated as: {} type: ", index, answer, ObjectHelper.type(answer));
                             }
                         } catch (Exception e) {
                             if (LOG.isDebugEnabled()) {
-                                LOG.debug("Cannot convert from type: {} to type: {} for parameter #{}", new Object[]{ObjectHelper.type(parameterValue), parameterType, index});
+                                LOG.debug("Cannot convert from type: {} to type: {} for parameter #{}", ObjectHelper.type(parameterValue), parameterType, index);
                             }
                             throw new ParameterBindingException(e, method, index, parameterType, parameterValue);
                         }
@@ -823,11 +833,11 @@ public class MethodInfo {
                         answer = exchange.getContext().getTypeConverter().mandatoryConvertTo(parameterType, result);
                     }
                     if (LOG.isTraceEnabled()) {
-                        LOG.trace("Parameter #{} evaluated as: {} type: ", new Object[]{index, answer, ObjectHelper.type(answer)});
+                        LOG.trace("Parameter #{} evaluated as: {} type: ", index, answer, ObjectHelper.type(answer));
                     }
                 } catch (NoTypeConversionAvailableException e) {
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("Cannot convert from type: {} to type: {} for parameter #{}", new Object[]{ObjectHelper.type(result), parameterType, index});
+                        LOG.debug("Cannot convert from type: {} to type: {} for parameter #{}", ObjectHelper.type(result), parameterType, index);
                     }
                     throw new ParameterBindingException(e, method, index, parameterType, result);
                 }

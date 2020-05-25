@@ -62,7 +62,7 @@ public interface GenericFileOperations<T> {
      * folder already exists.
      *
      * @param directory the directory path to build as a relative string name
-     * @param absolute wether the directory is an absolute or relative path
+     * @param absolute whether the directory is an absolute or relative path
      * @return true if build or already exists, false if not possible (could be lack of permissions)
      * @throws GenericFileOperationFailedException can be thrown
      */
@@ -73,10 +73,11 @@ public interface GenericFileOperations<T> {
      *
      * @param name     name of the file
      * @param exchange stream to write the content of the file into
+     * @param size     the total file size to retrieve, if possible to determine
      * @return true if file has been retrieved, false if not
      * @throws GenericFileOperationFailedException can be thrown
      */
-    boolean retrieveFile(String name, Exchange exchange) throws GenericFileOperationFailedException;
+    boolean retrieveFile(String name, Exchange exchange, long size) throws GenericFileOperationFailedException;
     
     /**
      * Releases the resources consumed by a retrieved file
@@ -84,17 +85,18 @@ public interface GenericFileOperations<T> {
      * @param exchange exchange with the content of the file
      * @throws GenericFileOperationFailedException can be thrown
      */
-    void releaseRetreivedFileResources(Exchange exchange) throws GenericFileOperationFailedException;
+    void releaseRetrievedFileResources(Exchange exchange) throws GenericFileOperationFailedException;
 
     /**
      * Stores the content as a new remote file (upload)
      *
      * @param name     name of new file
      * @param exchange with the content content of the file
+     * @param size     the total file size to store, if possible to determine
      * @return true if the file was stored, false if not
      * @throws GenericFileOperationFailedException can be thrown
      */
-    boolean storeFile(String name, Exchange exchange) throws GenericFileOperationFailedException;
+    boolean storeFile(String name, Exchange exchange, long size) throws GenericFileOperationFailedException;
 
     /**
      * Gets the current remote directory

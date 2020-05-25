@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file.strategy;
-
 import java.io.FileOutputStream;
 import java.util.Date;
 
@@ -23,6 +22,8 @@ import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,14 +35,17 @@ public class FileChangedReadLockMinAgeShortCircuitTest extends ContextTestSuppor
     private static final Logger LOG = LoggerFactory.getLogger(FileChangedReadLockMinAgeShortCircuitTest.class);
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/changed/");
         createDirectory("target/changed/in");
         writeFile();
-        Thread.sleep(1000);
+        // sleep to make the file a little bit old
+        Thread.sleep(100);
         super.setUp();
     }
 
+    @Test
     public void testChangedReadLockMinAge() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
@@ -67,7 +71,7 @@ public class FileChangedReadLockMinAgeShortCircuitTest extends ContextTestSuppor
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("file:target/changed/in?readLock=changed&readLockMinAge=500&readLockCheckInterval=30000&readLockTimeout=90000")
+                from("file:target/changed/in?initialDelay=0&delay=10&readLock=changed&readLockMinAge=10&readLockCheckInterval=30000&readLockTimeout=90000")
                         .to("file:target/changed/out", "mock:result");
             }
         };

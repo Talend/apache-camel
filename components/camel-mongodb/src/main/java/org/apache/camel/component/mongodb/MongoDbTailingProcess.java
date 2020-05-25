@@ -25,7 +25,6 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoCursorNotFoundException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
-
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +93,9 @@ public class MongoDbTailingProcess implements Runnable {
     }
 
     private Boolean isCollectionCapped() {
-        return endpoint.getMongoDatabase().runCommand(createCollStatsCommand()).getBoolean(CAPPED_KEY);
+        // A non-capped collection does not return a "capped" key/value, so we have to deal with null here
+        Boolean result = endpoint.getMongoDatabase().runCommand(createCollStatsCommand()).getBoolean(CAPPED_KEY);
+        return result != null ? result : false;
     }
 
     private BasicDBObject createCollStatsCommand() {
@@ -178,6 +179,8 @@ public class MongoDbTailingProcess implements Runnable {
             if (keepRunning) {
                 LOG.debug("Cursor not found exception from MongoDB, will regenerate cursor. This is normal behaviour with tailable cursors.", e);
             }
+        } catch (IllegalStateException e) {
+            // do nothing
         }
 
         // the loop finished, persist the lastValue just in case we are shutting down

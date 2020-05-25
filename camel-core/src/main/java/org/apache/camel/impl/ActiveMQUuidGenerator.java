@@ -35,7 +35,10 @@ import org.slf4j.LoggerFactory;
  * <p/>
  * The JVM system property {@link #PROPERTY_IDGENERATOR_PORT} can be used to set a specific port
  * number to be used as part of the initialization process to generate unique UUID.
+ *
+ * @deprecated replaced by {@link DefaultUuidGenerator}
  */
+@Deprecated
 public class ActiveMQUuidGenerator implements UuidGenerator {
 
     // use same JVM property name as ActiveMQ
@@ -48,6 +51,7 @@ public class ActiveMQUuidGenerator implements UuidGenerator {
     private static int instanceCount;
     private static String hostName;
     private String seed;
+    // must use AtomicLong to ensure atomic get and update operation that is thread-safe
     private final AtomicLong sequence = new AtomicLong(1);
     private final int length;
 
@@ -85,9 +89,9 @@ public class ActiveMQUuidGenerator implements UuidGenerator {
                 }
             } catch (Exception e) {
                 if (LOG.isTraceEnabled()) {
-                    LOG.trace("Cannot generate unique stub by using DNS and binding to local port: " + idGeneratorPort, e);
+                    LOG.trace("Cannot generate unique stub by using DNS and binding to local port: {}", idGeneratorPort, e);
                 } else {
-                    LOG.warn("Cannot generate unique stub by using DNS and binding to local port: " + idGeneratorPort + " due " + e.getMessage());
+                    LOG.warn("Cannot generate unique stub by using DNS and binding to local port: {} due {}", idGeneratorPort, e.getMessage());
                 }
                 // Restore interrupted state so higher level code can deal with it.
                 if (e instanceof InterruptedException) {

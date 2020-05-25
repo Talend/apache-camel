@@ -1,4 +1,5 @@
-## JGroups Component
+[[jgroups-component]]
+== JGroups Component
 
 *Available as of Camel version 2.13*
 
@@ -49,18 +50,18 @@ component should connect to.
 
 
 // component options: START
-The JGroups component supports 4 options which are listed below.
+The JGroups component supports 4 options, which are listed below.
 
 
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **channel** (common) | Channel to use |  | JChannel
-| **channelProperties** (common) | Specifies configuration properties of the JChannel used by the endpoint. |  | String
-| **enableViewMessages** (consumer) | If set to true the consumer endpoint will receive org.jgroups.View messages as well (not only org.jgroups.Message instances). By default only regular messages are consumed by the endpoint. | false | boolean
-| **resolveProperty Placeholders** (advanced) | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | boolean
-|=======================================================================
+| *channel* (common) | Channel to use |  | JChannel
+| *channelProperties* (common) | Specifies configuration properties of the JChannel used by the endpoint. |  | String
+| *enableViewMessages* (consumer) | If set to true, the consumer endpoint will receive org.jgroups.View messages as well (not only org.jgroups.Message instances). By default only regular messages are consumed by the endpoint. | false | boolean
+| *resolveProperty Placeholders* (advanced) | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | boolean
+|===
 // component options: END
 
 
@@ -71,31 +72,59 @@ The JGroups component supports 4 options which are listed below.
 // endpoint options: START
 The JGroups endpoint is configured using URI syntax:
 
-    jgroups:clusterName
+----
+jgroups:clusterName
+----
 
 with the following path and query parameters:
 
-#### Path Parameters (1 parameters):
+==== Path Parameters (1 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **clusterName** | *Required* The name of the JGroups cluster the component should connect to. |  | String
-|=======================================================================
+| *clusterName* | *Required* The name of the JGroups cluster the component should connect to. |  | String
+|===
 
-#### Query Parameters (6 parameters):
+
+==== Query Parameters (6 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **channelProperties** (common) | Specifies configuration properties of the JChannel used by the endpoint. |  | String
-| **bridgeErrorHandler** (consumer) | Allows for bridging the consumer to the Camel routing Error Handler which mean any exceptions occurred while the consumer is trying to pickup incoming messages or the likes will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions that will be logged at WARN or ERROR level and ignored. | false | boolean
-| **enableViewMessages** (consumer) | If set to true the consumer endpoint will receive org.jgroups.View messages as well (not only org.jgroups.Message instances). By default only regular messages are consumed by the endpoint. | false | boolean
-| **exceptionHandler** (consumer) | To let the consumer use a custom ExceptionHandler. Notice if the option bridgeErrorHandler is enabled then this options is not in use. By default the consumer will deal with exceptions that will be logged at WARN or ERROR level and ignored. |  | ExceptionHandler
-| **exchangePattern** (consumer) | Sets the exchange pattern when the consumer creates an exchange. |  | ExchangePattern
-| **synchronous** (advanced) | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported). | false | boolean
-|=======================================================================
+| *channelProperties* (common) | Specifies configuration properties of the JChannel used by the endpoint. |  | String
+| *bridgeErrorHandler* (consumer) | Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions occurred while the consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored. | false | boolean
+| *enableViewMessages* (consumer) | If set to true, the consumer endpoint will receive org.jgroups.View messages as well (not only org.jgroups.Message instances). By default only regular messages are consumed by the endpoint. | false | boolean
+| *exceptionHandler* (consumer) | To let the consumer use a custom ExceptionHandler. Notice if the option bridgeErrorHandler is enabled then this option is not in use. By default the consumer will deal with exceptions, that will be logged at WARN or ERROR level and ignored. |  | ExceptionHandler
+| *exchangePattern* (consumer) | Sets the exchange pattern when the consumer creates an exchange. |  | ExchangePattern
+| *synchronous* (advanced) | Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported). | false | boolean
+|===
 // endpoint options: END
+// spring-boot-auto-configure options: START
+=== Spring Boot Auto-Configuration
+
+
+The component supports 9 options, which are listed below.
+
+
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Name | Description | Default | Type
+| *camel.component.jgroups.channel* | Channel to use. The option is a org.jgroups.JChannel type. |  | String
+| *camel.component.jgroups.channel-properties* | Specifies configuration properties of the JChannel used by the endpoint. |  | String
+| *camel.component.jgroups.enable-view-messages* | If set to true, the consumer endpoint will receive org.jgroups.View messages as well (not only org.jgroups.Message instances). By default only regular messages are consumed by the endpoint. | false | Boolean
+| *camel.component.jgroups.enabled* | Enable jgroups component | true | Boolean
+| *camel.component.jgroups.lock.cluster.service.enabled* | Sets if the jgroups lock cluster service should be enabled or not, default is false. | false | Boolean
+| *camel.component.jgroups.lock.cluster.service.id* | Cluster Service ID |  | String
+| *camel.component.jgroups.lock.cluster.service.jgroups-cluster-name* | JGroups Cluster name |  | String
+| *camel.component.jgroups.lock.cluster.service.jgroups-config* | JGrups configuration File name |  | String
+| *camel.component.jgroups.resolve-property-placeholders* | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | Boolean
+|===
+// spring-boot-auto-configure options: END
+
 
 
 
@@ -173,14 +202,14 @@ from("jgroups:clusterName?enableViewMessages=true").
 Starting from version *2.13.0* of Camel, JGroups component comes with
 predefined expressions factory class named `JGroupsExpressions.`
 
-If you would like to create link:delayer.html[delayer] that would affect
+If you would like to create delayer that would affect
 the route only if the Camel context has not been started yet, use the
 `JGroupsExpressions.delayIfContextNotStarted(long delay)` factory
 method. The expression created by this factory method will return given
 delay value only if the Camel context is in the state different than
 `started`. This expression is particularly useful if you would like to
 use JGroups component for keeping singleton (master) route within the
-cluster. link:controlbus-component.html[Control Bus] `start` command
+cluster. <<controlbus-component,Control Bus>> `start` command
 won't initialize the singleton route if the Camel Context hasn't been
 yet started. So you need to delay a startup of the master route, to be
 sure that it has been initialized after the Camel Context startup.
@@ -255,20 +284,16 @@ mockEndpoint.assertIsSatisfied();
 The snippet below demonstrates how to keep the singleton consumer route
 in the cluster of Camel Contexts. As soon as the master node dies, one
 of the slaves will be elected as a new master and started. In this
-particular example we want to keep singleton link:jetty.html[jetty]
+particular example we want to keep singleton <<jetty-component,jetty>>
 instance listening for the requests on
 address` http://localhost:8080/orders`.
 
 [source,java]
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.camel.component.jgroups.JGroupsExpressions.delayIfContextNotStarted;
-import static org.apache.camel.component.jgroups.JGroupsFilters.dropNonCoordinatorViews;
+JGroupsLockClusterService service = new JGroupsLockClusterService();
+service.setId("uniqueNodeId");
 ...
-from("jgroups:clusterName?enableViewMessages=true").
-  filter(dropNonCoordinatorViews()).
-  threads().delay(delayIfContextNotStarted(SECONDS.toMillis(5))). // run in separated and delayed thread. Delay only if the context hasn't been started already. 
-  to("controlbus:route?routeId=masterRoute&action=start&async=true");
+context.addService(service);
 
-from("jetty:http://localhost:8080/orders").routeId("masterRoute").autoStartup(false).to("jms:orders"); 
+from("master:mycluster:jetty:http://localhost:8080/orders").to("jms:orders"); 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------

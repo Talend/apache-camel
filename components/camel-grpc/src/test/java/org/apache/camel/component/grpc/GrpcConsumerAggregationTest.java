@@ -50,8 +50,8 @@ public class GrpcConsumerAggregationTest extends CamelTestSupport {
 
     @Before
     public void startGrpcChannels() {
-        syncRequestChannel = ManagedChannelBuilder.forAddress("localhost", GRPC_SYNC_REQUEST_TEST_PORT).usePlaintext(true).build();
-        asyncRequestChannel = ManagedChannelBuilder.forAddress("localhost", GRPC_ASYNC_REQUEST_TEST_PORT).usePlaintext(true).build();
+        syncRequestChannel = ManagedChannelBuilder.forAddress("localhost", GRPC_SYNC_REQUEST_TEST_PORT).usePlaintext().build();
+        asyncRequestChannel = ManagedChannelBuilder.forAddress("localhost", GRPC_ASYNC_REQUEST_TEST_PORT).usePlaintext().build();
         blockingStub = PingPongGrpc.newBlockingStub(syncRequestChannel);
         nonBlockingStub = PingPongGrpc.newStub(syncRequestChannel);
         asyncNonBlockingStub = PingPongGrpc.newStub(asyncRequestChannel);
@@ -166,10 +166,10 @@ public class GrpcConsumerAggregationTest extends CamelTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() {
-                from("grpc://org.apache.camel.component.grpc.PingPong?synchronous=true&processingStrategy=AGGREGATION&host=localhost&port=" + GRPC_SYNC_REQUEST_TEST_PORT)
+                from("grpc://localhost:" + GRPC_SYNC_REQUEST_TEST_PORT + "/org.apache.camel.component.grpc.PingPong?synchronous=true&consumerStrategy=AGGREGATION")
                     .bean(new GrpcMessageBuilder(), "buildPongResponse");
                 
-                from("grpc://org.apache.camel.component.grpc.PingPong?synchronous=true&processingStrategy=AGGREGATION&host=localhost&port=" + GRPC_ASYNC_REQUEST_TEST_PORT)
+                from("grpc://localhost:" + GRPC_ASYNC_REQUEST_TEST_PORT + "/org.apache.camel.component.grpc.PingPong?synchronous=true&consumerStrategy=AGGREGATION")
                     .bean(new GrpcMessageBuilder(), "buildAsyncPongResponse");
             }
         };

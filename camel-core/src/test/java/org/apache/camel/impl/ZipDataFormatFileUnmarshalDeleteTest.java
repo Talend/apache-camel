@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 package org.apache.camel.impl;
-
 import java.io.File;
 
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.NotifyBuilder;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @version 
@@ -29,11 +30,13 @@ import org.apache.camel.builder.RouteBuilder;
 public class ZipDataFormatFileUnmarshalDeleteTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/zip");
         super.setUp();
     }
 
+    @Test
     public void testZipFileUnmarshalDelete() throws Exception {
         // there are 2 exchanges
         NotifyBuilder event = event().whenDone(2).create();
@@ -56,11 +59,11 @@ public class ZipDataFormatFileUnmarshalDeleteTest extends ContextTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("file:target/zip?delete=true")
+                from("file:target/zip?initialDelay=0&delay=10&delete=true")
                     .marshal().zip()
                     .to("file:target/zip/out?fileName=${file:name}.zip");
 
-                from("file:target/zip/out?delete=true")
+                from("file:target/zip/out?initialDelay=0&delay=10&delete=true")
                     .unmarshal().zip()
                     .to("mock:result");
             }

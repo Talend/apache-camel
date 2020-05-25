@@ -31,7 +31,6 @@ import javax.cache.integration.CacheLoader;
 import javax.cache.integration.CacheWriter;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriParams;
 import org.apache.camel.util.EndpointHelper;
@@ -313,7 +312,7 @@ public class JCacheConfiguration {
     }
 
     /**
-     * if the the event listener should block the thread causing the event
+     * if the event listener should block the thread causing the event
      */
     public boolean isSynchronous() {
         return synchronous;

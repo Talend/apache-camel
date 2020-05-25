@@ -18,17 +18,19 @@ package org.apache.camel.processor;
 
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class MulticastParallelFineGrainedErrorHandlingTest extends ContextTestSupport {
 
+    @Test
     public void testMulticastOk() throws Exception {
         context.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                onException(Exception.class).maximumRedeliveries(2);
+                onException(Exception.class).redeliveryDelay(0).maximumRedeliveries(2);
 
                 from("direct:start")
                     .to("mock:a")
@@ -48,11 +50,12 @@ public class MulticastParallelFineGrainedErrorHandlingTest extends ContextTestSu
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testMulticastError() throws Exception {
         context.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                onException(Exception.class).maximumRedeliveries(2);
+                onException(Exception.class).redeliveryDelay(0).maximumRedeliveries(2);
 
                 from("direct:start")
                     .to("mock:a")

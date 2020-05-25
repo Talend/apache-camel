@@ -23,12 +23,14 @@ import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Test;
 
 /**
  *
  */
 public class RoutingSlipContextScopedOnExceptionIssueTest extends ContextTestSupport {
 
+    @Test
     public void testUsingInterceptor() throws Exception {
         context.addRoutes(new RouteBuilder() {
             @Override
@@ -67,7 +69,7 @@ public class RoutingSlipContextScopedOnExceptionIssueTest extends ContextTestSup
 
         String foo = "direct:foo,direct:fail";
 
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put("foo", foo);
         headers.put(Exchange.FILE_NAME, "hello.txt");
 
@@ -76,6 +78,7 @@ public class RoutingSlipContextScopedOnExceptionIssueTest extends ContextTestSup
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testUsingExistingHeaders() throws Exception {
         context.addRoutes(new RouteBuilder() {
             @Override
@@ -108,7 +111,7 @@ public class RoutingSlipContextScopedOnExceptionIssueTest extends ContextTestSup
 
         String foo = "direct:foo,direct:fail";
 
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put("foo", foo);
         headers.put(Exchange.FILE_NAME, "hello.txt");
 

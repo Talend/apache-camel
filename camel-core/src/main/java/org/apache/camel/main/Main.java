@@ -116,7 +116,17 @@ public class Main extends MainSupport {
             throw new IllegalStateException("Error creating CamelContext");
         }
     }
-    
+
+    /**
+     * A list of locations to load properties. You can use comma to separate multiple locations.
+     * This option will override any default locations and only use the locations from this option.
+     */
+    public void setPropertyPlaceholderLocations(String location) {
+        PropertiesComponent pc = new PropertiesComponent();
+        pc.setLocation(location);
+        bind("properties", pc);
+    }
+
     // Implementation methods
     // -------------------------------------------------------------------------
 
@@ -152,7 +162,7 @@ public class Main extends MainSupport {
     }
 
     protected Map<String, CamelContext> getCamelContextMap() {
-        Map<String, CamelContext> answer = new HashMap<String, CamelContext>();
+        Map<String, CamelContext> answer = new HashMap<>();
 
         CamelContext camelContext = createContext();
         if (registry.size() > 0) {
@@ -175,13 +185,4 @@ public class Main extends MainSupport {
         return new DefaultCamelContext();
     }
 
-    /**
-     * A list of locations to load properties. You can use comma to separate multiple locations.
-     * This option will override any default locations and only use the locations from this option.
-     */
-    protected void setPropertyPlaceholderLocations(String location) {
-        PropertiesComponent pc = new PropertiesComponent();
-        pc.setLocation(location);
-        bind("properties", pc);
-    }
 }

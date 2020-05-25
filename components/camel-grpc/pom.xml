@@ -17,15 +17,14 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>components</artifactId>
-    <version>2.20.0-SNAPSHOT</version>
+    <version>2.24.2</version>
   </parent>
 
   <artifactId>camel-grpc</artifactId>
@@ -36,12 +35,20 @@
   <properties>
     <camel.osgi.export.pkg>org.apache.camel.component.grpc.*;${camel.osgi.version}</camel.osgi.export.pkg>
     <camel.osgi.export.service>org.apache.camel.spi.ComponentResolver;component=grpc</camel.osgi.export.service>
+    <!-- gRPC requires strong own of the Google Guava version -->
+    <google-guava-version>${grpc-guava-version}</google-guava-version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-auth</artifactId>
+      <version>${grpc-version}</version>
     </dependency>
     <dependency>
       <groupId>io.grpc</groupId>
@@ -58,12 +65,36 @@
       <artifactId>grpc-stub</artifactId>
       <version>${grpc-version}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.javassist</groupId>
       <artifactId>javassist</artifactId>
       <version>${javassist-version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-tcnative-boringssl-static</artifactId>
+      <version>${grpc-netty-tcnative-boringssl-static-version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.auth</groupId>
+      <artifactId>google-auth-library-oauth2-http</artifactId>
+      <version>${grpc-google-auth-library-version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.auth</groupId>
+      <artifactId>google-auth-library-credentials</artifactId>
+      <version>${grpc-google-auth-library-version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.auth0</groupId>
+      <artifactId>java-jwt</artifactId>
+      <version>${grpc-java-jwt-version}</version>
+    </dependency> 
 
     <!-- for testing -->
     <dependency>
@@ -134,7 +165,7 @@
             <configuration>
               <scripts>
                 <script><![CDATA[
-                  project.properties['skip-test']=project.properties['os.detected.classifier'].matches('^.*?(linux|windows|osx)-x86.*$') ? 'false' : 'true';
+                  project.properties['skipTests']=project.properties['os.detected.classifier'].matches('^.*?(linux|windows|osx)-x86.*$') ? 'false' : 'true';
                 ]]></script>
               </scripts>
             </configuration>
@@ -143,7 +174,13 @@
         <dependencies>
           <dependency>
             <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
+            <artifactId>groovy</artifactId>
+            <version>${groovy-version}</version>
+            <scope>runtime</scope>
+          </dependency>
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-ant</artifactId>
             <version>${groovy-version}</version>
             <scope>runtime</scope>
           </dependency>
@@ -159,7 +196,7 @@
           <protocArtifact>com.google.protobuf:protoc:${protobuf-version}:exe:${os.detected.classifier}</protocArtifact>
           <pluginId>grpc-java</pluginId>
           <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc-version}:exe:${os.detected.classifier}</pluginArtifact>
-          <skip>${skip-test}</skip>
+          <skip>${skipTests}</skip>
         </configuration>
         <executions>
           <execution>
@@ -181,7 +218,7 @@
               <goal>testCompile</goal>
             </goals>
             <configuration>
-              <skip>${skip-test}</skip>
+              <skip>${skipTests}</skip>
             </configuration>
           </execution>
         </executions>
@@ -191,7 +228,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <skipTests>${skip-test}</skipTests>
+          <skipTests>${skipTests}</skipTests>
         </configuration>
       </plugin>
     </plugins>

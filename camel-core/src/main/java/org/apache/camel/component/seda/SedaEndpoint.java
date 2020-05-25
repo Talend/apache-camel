@@ -43,6 +43,7 @@ import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriPath;
+import org.apache.camel.util.SedaConstants;
 import org.apache.camel.util.ServiceHelper;
 import org.apache.camel.util.URISupport;
 import org.slf4j.Logger;
@@ -55,8 +56,8 @@ import org.slf4j.LoggerFactory;
 @UriEndpoint(firstVersion = "1.1.0", scheme = "seda", title = "SEDA", syntax = "seda:name", consumerClass = SedaConsumer.class, label = "core,endpoint")
 public class SedaEndpoint extends DefaultEndpoint implements AsyncEndpoint, BrowsableEndpoint, MultipleConsumersSupport {
     private static final Logger LOG = LoggerFactory.getLogger(SedaEndpoint.class);
-    private final Set<SedaProducer> producers = new CopyOnWriteArraySet<SedaProducer>();
-    private final Set<SedaConsumer> consumers = new CopyOnWriteArraySet<SedaConsumer>();
+    private final Set<SedaProducer> producers = new CopyOnWriteArraySet<>();
+    private final Set<SedaConsumer> consumers = new CopyOnWriteArraySet<>();
     private volatile MulticastProcessor consumerMulticastProcessor;
     private volatile boolean multicastStarted;
     private volatile ExecutorService multicastExecutor;
@@ -65,8 +66,8 @@ public class SedaEndpoint extends DefaultEndpoint implements AsyncEndpoint, Brow
     private String name;
     @UriParam(label = "advanced", description = "Define the queue instance which will be used by the endpoint")
     private BlockingQueue queue;
-    @UriParam(defaultValue = "" + Integer.MAX_VALUE)
-    private int size = Integer.MAX_VALUE;
+    @UriParam(defaultValue = "" + SedaConstants.QUEUE_SIZE)
+    private int size = SedaConstants.QUEUE_SIZE;
 
     @UriParam(label = "consumer", defaultValue = "1")
     private int concurrentConsumers = 1;
@@ -84,6 +85,8 @@ public class SedaEndpoint extends DefaultEndpoint implements AsyncEndpoint, Brow
     @UriParam(label = "producer", defaultValue = "30000")
     private long timeout = 30000;
     @UriParam(label = "producer")
+    private long offerTimeout;
+    @UriParam(label = "producer")
     private boolean blockWhenFull;
     @UriParam(label = "producer")
     private boolean failIfNoConsumers;
@@ -93,7 +96,7 @@ public class SedaEndpoint extends DefaultEndpoint implements AsyncEndpoint, Brow
     private BlockingQueueFactory<Exchange> queueFactory;
 
     public SedaEndpoint() {
-        queueFactory = new LinkedBlockingQueueFactory<Exchange>();
+        queueFactory = new LinkedBlockingQueueFactory<>();
     }
 
     public SedaEndpoint(String endpointUri, Component component, BlockingQueue<Exchange> queue) {
@@ -106,7 +109,7 @@ public class SedaEndpoint extends DefaultEndpoint implements AsyncEndpoint, Brow
         if (queue != null) {
             this.size = queue.remainingCapacity();
         }
-        queueFactory = new LinkedBlockingQueueFactory<Exchange>();
+        queueFactory = new LinkedBlockingQueueFactory<>();
         getComponent().registerQueue(this, queue);
     }
 
@@ -126,7 +129,7 @@ public class SedaEndpoint extends DefaultEndpoint implements AsyncEndpoint, Brow
     }
 
     public Producer createProducer() throws Exception {
-        return new SedaProducer(this, getWaitForTaskToComplete(), getTimeout(), isBlockWhenFull());
+        return new SedaProducer(this, getWaitForTaskToComplete(), getTimeout(), isBlockWhenFull(), getOfferTimeout());
     }
 
     public Consumer createConsumer(Processor processor) throws Exception {
@@ -164,11 +167,11 @@ public class SedaEndpoint extends DefaultEndpoint implements AsyncEndpoint, Brow
             // can use the already existing queue referenced from the component
             if (getComponent() != null) {
                 // use null to indicate default size (= use what the existing queue has been configured with)
-                Integer size = getSize() == Integer.MAX_VALUE ? null : getSize();
+                Integer size = (getSize() == Integer.MAX_VALUE || getSize() == SedaConstants.QUEUE_SIZE) ? null : getSize();
                 QueueReference ref = getComponent().getOrCreateQueue(this, size, isMultipleConsumers(), queueFactory);
                 queue = ref.getQueue();
                 String key = getComponent().getQueueKey(getEndpointUri());
-                LOG.info("Endpoint {} is using shared queue: {} with size: {}", new Object[]{this, key, ref.getSize() !=  null ? ref.getSize() : Integer.MAX_VALUE});
+                LOG.info("Endpoint {} is using shared queue: {} with size: {}", this, key, ref.getSize() !=  null ? ref.getSize() : Integer.MAX_VALUE);
                 // and set the size we are using
                 if (ref.getSize() != null) {
                     setSize(ref.getSize());
@@ -176,7 +179,7 @@ public class SedaEndpoint extends DefaultEndpoint implements AsyncEndpoint, Brow
             } else {
                 // fallback and create queue (as this endpoint has no component)
                 queue = createQueue();
-                LOG.info("Endpoint {} is using queue: {} with size: {}", new Object[]{this, getEndpointUri(), getSize()});
+                LOG.info("Endpoint {} is using queue: {} with size: {}", this, getEndpointUri(), getSize());
             }
         }
         return queue;
@@ -228,7 +231,7 @@ public class SedaEndpoint extends DefaultEndpoint implements AsyncEndpoint, Brow
                 multicastExecutor = getCamelContext().getExecutorServiceManager().newDefaultThreadPool(this, URISupport.sanitizeUri(getEndpointUri()) + "(multicast)");
             }
             // create list of consumers to multicast to
-            List<Processor> processors = new ArrayList<Processor>(size);
+            List<Processor> processors = new ArrayList<>(size);
             for (SedaConsumer consumer : getConsumers()) {
                 processors.add(consumer.getProcessor());
             }
@@ -257,6 +260,7 @@ public class SedaEndpoint extends DefaultEndpoint implements AsyncEndpoint, Brow
 
     /**
      * The maximum capacity of the SEDA queue (i.e., the number of messages it can hold).
+     * Will by default use the defaultSize set on the SEDA component.
      */
     public void setSize(int size) {
         this.size = size;
@@ -332,6 +336,19 @@ public class SedaEndpoint extends DefaultEndpoint implements AsyncEndpoint, Brow
      */
     public void setTimeout(long timeout) {
         this.timeout = timeout;
+    }
+    
+    @ManagedAttribute
+    public long getOfferTimeout() {
+        return offerTimeout;
+    }
+    
+    /**
+     * offerTimeout (in milliseconds)  can be added to the block case when queue is full.
+     * You can disable timeout by using 0 or a negative value.
+     */
+    public void setOfferTimeout(long offerTimeout) {
+        this.offerTimeout = offerTimeout;
     }
 
     @ManagedAttribute
@@ -410,7 +427,7 @@ public class SedaEndpoint extends DefaultEndpoint implements AsyncEndpoint, Brow
      * Returns the current pending exchanges
      */
     public List<Exchange> getExchanges() {
-        return new ArrayList<Exchange>(getQueue());
+        return new ArrayList<>(getQueue());
     }
 
     @ManagedAttribute
@@ -438,7 +455,7 @@ public class SedaEndpoint extends DefaultEndpoint implements AsyncEndpoint, Brow
      * Returns the current active producers on this endpoint
      */
     public Set<SedaProducer> getProducers() {
-        return new HashSet<SedaProducer>(producers);
+        return new HashSet<>(producers);
     }
 
     void onStarted(SedaProducer producer) {

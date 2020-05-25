@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Map;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -47,7 +48,7 @@ import static org.apache.camel.component.stax.StAXUtil.getTagName;
  * to access the message body. And there must be a JAXB annotated class to use as binding.
  */
 public class StAXJAXBIteratorExpression<T> extends ExpressionAdapter {
-    private static final Map<Class<?>, JAXBContext> JAX_CONTEXTS = new LRUSoftCache<Class<?>, JAXBContext>(1000);
+    private static final Map<Class<?>, JAXBContext> JAX_CONTEXTS = new LRUSoftCache<>(1000);
 
     private final Class<T> handled;
     private final String handledName;
@@ -145,7 +146,7 @@ public class StAXJAXBIteratorExpression<T> extends ExpressionAdapter {
     }
 
     private Iterator<T> createIterator(XMLEventReader reader, Class<T> clazz) throws JAXBException {
-        return new StAXJAXBIterator<T>(clazz, reader);
+        return new StAXJAXBIterator<>(clazz, reader);
     }
 
     /**

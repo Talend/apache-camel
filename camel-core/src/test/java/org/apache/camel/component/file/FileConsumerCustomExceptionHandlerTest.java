@@ -27,6 +27,7 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.spi.ExceptionHandler;
+import org.junit.Test;
 
 /**
  *
@@ -36,6 +37,7 @@ public class FileConsumerCustomExceptionHandlerTest extends ContextTestSupport {
     private MyReadLockStrategy myReadLockStrategy = new MyReadLockStrategy();
     private MyExceptionHandler myExceptionHandler = new MyExceptionHandler();
 
+    @Test
     public void testCustomExceptionHandler() throws Exception {
         myExceptionHandler.setTemplate(context.createProducerTemplate());
 
@@ -81,7 +83,7 @@ public class FileConsumerCustomExceptionHandlerTest extends ContextTestSupport {
 
                 // this is the file route that pickup files, notice how we use our custom exception handler on the consumer
                 // the exclusiveReadLockStrategy is only configured because this is from an unit test, so we use that to simulate exceptions
-                from("file:target/nospace?exclusiveReadLockStrategy=#myReadLockStrategy&consumer.exceptionHandler=#myExceptionHandler")
+                from("file:target/nospace?exclusiveReadLockStrategy=#myReadLockStrategy&consumer.exceptionHandler=#myExceptionHandler&initialDelay=0&delay=10")
                     .convertBodyTo(String.class)
                     .to("mock:result");
             }

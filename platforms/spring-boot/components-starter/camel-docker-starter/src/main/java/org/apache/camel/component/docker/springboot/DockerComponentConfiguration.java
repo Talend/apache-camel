@@ -34,6 +34,11 @@ public class DockerComponentConfiguration
             ComponentConfigurationPropertiesCommon {
 
     /**
+     * Whether to enable auto configuration of the docker component. This is
+     * enabled by default.
+     */
+    private Boolean enabled;
+    /**
      * To use the shared docker configuration
      */
     private DockerConfigurationNestedConfiguration configuration;
@@ -136,7 +141,7 @@ public class DockerComponentConfiguration
          * The fully qualified class name of the DockerCmdExecFactory
          * implementation to use
          */
-        private String cmdExecFactory = "com.github.dockerjava.jaxrs.JerseyDockerCmdExecFactory";
+        private String cmdExecFactory = "com.github.dockerjava.netty.NettyDockerCmdExecFactory";
 
         public String getHost() {
             return host;

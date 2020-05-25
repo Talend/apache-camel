@@ -25,7 +25,6 @@ import org.apache.camel.spring.boot.ComponentConfigurationPropertiesCommon;
 import org.apache.camel.util.jsse.SSLContextParameters;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 /**
  * Socket level networking using TCP or UDP with the Apache Mina 2.x library.
@@ -38,6 +37,11 @@ public class Mina2ComponentConfiguration
         extends
             ComponentConfigurationPropertiesCommon {
 
+    /**
+     * Whether to enable auto configuration of the mina2 component. This is
+     * enabled by default.
+     */
+    private Boolean enabled;
     /**
      * To use the shared mina configuration.
      */
@@ -123,6 +127,11 @@ public class Mina2ComponentConfiguration
          */
         private String encoding;
         /**
+         * Maximum amount of time it should take to send data to the MINA
+         * session. Default is 10000 milliseconds.
+         */
+        private Long writeTimeout = 10000L;
+        /**
          * You can configure the timeout that specifies how long to wait for a
          * response from a remote server. The timeout unit is in milliseconds,
          * so 60000 is 60 seconds.
@@ -188,7 +197,6 @@ public class Mina2ComponentConfiguration
         /**
          * To configure SSL security.
          */
-        @NestedConfigurationProperty
         private SSLContextParameters sslContextParameters;
         /**
          * Whether to auto start SSL handshake.
@@ -277,6 +285,14 @@ public class Mina2ComponentConfiguration
 
         public void setEncoding(String encoding) {
             this.encoding = encoding;
+        }
+
+        public Long getWriteTimeout() {
+            return writeTimeout;
+        }
+
+        public void setWriteTimeout(Long writeTimeout) {
+            this.writeTimeout = writeTimeout;
         }
 
         public Long getTimeout() {

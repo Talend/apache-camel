@@ -26,6 +26,7 @@ import com.opengamma.elsql.ElSqlConfig;
 import com.opengamma.elsql.SpringSqlParams;
 import org.apache.camel.Component;
 import org.apache.camel.Consumer;
+import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.component.sql.DefaultSqlEndpoint;
@@ -82,7 +83,8 @@ public class ElsqlEndpoint extends DefaultSqlEndpoint {
         final SqlProcessingStrategy proStrategy = new ElsqlSqlProcessingStrategy(elSql);
         final SqlPrepareStatementStrategy preStategy = new ElsqlSqlPrepareStatementStrategy();
 
-        final SqlParameterSource param = new EmptySqlParameterSource();
+        final Exchange dummy = createExchange();
+        final SqlParameterSource param = new ElsqlSqlMapSource(dummy, null);
         final String sql = elSql.getSql(elsqlName, new SpringSqlParams(param));
         LOG.debug("ElsqlConsumer @{} using sql: {}", elsqlName, sql);
 
@@ -120,7 +122,7 @@ public class ElsqlEndpoint extends DefaultSqlEndpoint {
 
         // there can be multiple resources
         // so we have all this lovely code to turn that into an URL[]
-        final List<URL> list = new ArrayList<URL>();
+        final List<URL> list = new ArrayList<>();
         final Iterable it = ObjectHelper.createIterable(resourceUri);
         for (final Object path : it) {
             final URL url = ResourceHelper.resolveMandatoryResourceAsUrl(getCamelContext().getClassResolver(), path.toString());

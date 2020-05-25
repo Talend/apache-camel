@@ -17,10 +17,11 @@
 package org.apache.camel.component.sql.stored;
 
 import java.sql.SQLException;
+import java.util.Map;
 
 import org.apache.camel.component.sql.stored.template.TemplateParser;
 import org.apache.camel.support.ServiceSupport;
-import org.apache.camel.util.LRUCache;
+import org.apache.camel.util.LRUCacheFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
@@ -35,8 +36,10 @@ public class CallableStatementWrapperFactory extends ServiceSupport {
     final TemplateParser templateParser;
     boolean function;
 
-    private final LRUCache<String, TemplateStoredProcedure> templateCache = new LRUCache<>(TEMPLATE_CACHE_DEFAULT_SIZE);
-    private final LRUCache<String, BatchCallableStatementCreatorFactory> batchTemplateCache = new LRUCache<>(BATCH_TEMPLATE_CACHE_DEFAULT_SIZE);
+    @SuppressWarnings("unchecked")
+    private final Map<String, TemplateStoredProcedure> templateCache = LRUCacheFactory.newLRUCache(TEMPLATE_CACHE_DEFAULT_SIZE);
+    @SuppressWarnings("unchecked")
+    private final Map<String, BatchCallableStatementCreatorFactory> batchTemplateCache = LRUCacheFactory.newLRUCache(BATCH_TEMPLATE_CACHE_DEFAULT_SIZE);
 
     public CallableStatementWrapperFactory(JdbcTemplate jdbcTemplate, TemplateParser templateParser, boolean function) {
         this.jdbcTemplate = jdbcTemplate;

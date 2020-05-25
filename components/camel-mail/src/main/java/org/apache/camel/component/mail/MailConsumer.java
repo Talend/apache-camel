@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+
 import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.FolderNotFoundException;
@@ -99,7 +100,7 @@ public class MailConsumer extends ScheduledBatchPollingConsumer {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Polling mailbox folder: " + getEndpoint().getConfiguration().getMailStoreLogInformation());
+            LOG.debug("Polling mailbox folder: {}", getEndpoint().getConfiguration().getMailStoreLogInformation());
         }
 
         if (getEndpoint().getConfiguration().getFetchSize() == 0) {
@@ -162,7 +163,7 @@ public class MailConsumer extends ScheduledBatchPollingConsumer {
             try {
                 store.close();
             } catch (Exception e) {
-                LOG.debug("Could not disconnect from {}: " + getEndpoint().getConfiguration().getMailStoreLogInformation() + ". This exception is ignored.", e);
+                LOG.debug("Could not disconnect from {}. This exception is ignored.", getEndpoint().getConfiguration().getMailStoreLogInformation(), e);
             }
             store = null;
             folder = null;
@@ -280,7 +281,7 @@ public class MailConsumer extends ScheduledBatchPollingConsumer {
 
     private Message[] retrieveAllMessages() throws MessagingException {
         int total = folder.getMessageCount();
-        List<Message> msgs = new ArrayList<Message>();
+        List<Message> msgs = new ArrayList<>();
 
         // Note that message * numbers start at 1, not 0
         for (int i = 1; i <= total; i++) {
@@ -327,7 +328,7 @@ public class MailConsumer extends ScheduledBatchPollingConsumer {
     }
 
     protected Queue<Exchange> createExchanges(List<KeyValueHolder<String, Message>> messages) throws MessagingException {
-        Queue<Exchange> answer = new LinkedList<Exchange>();
+        Queue<Exchange> answer = new LinkedList<>();
 
         int fetchSize = getEndpoint().getConfiguration().getFetchSize();
         int count = fetchSize == -1 ? messages.size() : Math.min(fetchSize, messages.size());
@@ -343,7 +344,7 @@ public class MailConsumer extends ScheduledBatchPollingConsumer {
                 Message message = holder.getValue();
 
                 if (LOG.isTraceEnabled()) {
-                    LOG.trace("Mail #{} is of type: {} - {}", new Object[]{i, ObjectHelper.classCanonicalName(message), message});
+                    LOG.trace("Mail #{} is of type: {} - {}", i, ObjectHelper.classCanonicalName(message), message);
                 }
 
                 if (!message.getFlags().contains(Flags.Flag.DELETED)) {
@@ -488,9 +489,9 @@ public class MailConsumer extends ScheduledBatchPollingConsumer {
 
         Exception cause = exchange.getException();
         if (cause != null) {
-            LOG.warn("Exchange failed, so rolling back message status: " + exchange, cause);
+            LOG.warn("Exchange failed, so rolling back message status: {}", exchange, cause);
         } else {
-            LOG.warn("Exchange failed, so rolling back message status: " + exchange);
+            LOG.warn("Exchange failed, so rolling back message status: {}", exchange);
         }
     }
 

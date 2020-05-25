@@ -1,4 +1,5 @@
-## FOP Component
+[[fop-component]]
+== FOP Component
 
 *Available as of Camel version 2.10*
 
@@ -70,28 +71,49 @@ The FOP component has no options.
 // endpoint options: START
 The FOP endpoint is configured using URI syntax:
 
-    fop:outputType
+----
+fop:outputType
+----
 
 with the following path and query parameters:
 
-#### Path Parameters (1 parameters):
+==== Path Parameters (1 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **outputType** | *Required* The primary output format is PDF but other output formats are also supported. |  | FopOutputType
-|=======================================================================
+| *outputType* | *Required* The primary output format is PDF but other output formats are also supported. |  | FopOutputType
+|===
 
-#### Query Parameters (3 parameters):
+
+==== Query Parameters (3 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **fopFactory** (producer) | Allows to use a custom configured or implementation of org.apache.fop.apps.FopFactory. |  | FopFactory
-| **userConfigURL** (producer) | The location of a configuration file which can be loaded from classpath or file system. |  | String
-| **synchronous** (advanced) | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported). | false | boolean
-|=======================================================================
+| *fopFactory* (producer) | Allows to use a custom configured or implementation of org.apache.fop.apps.FopFactory. |  | FopFactory
+| *userConfigURL* (producer) | The location of a configuration file which can be loaded from classpath or file system. |  | String
+| *synchronous* (advanced) | Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported). | false | boolean
+|===
 // endpoint options: END
+// spring-boot-auto-configure options: START
+=== Spring Boot Auto-Configuration
+
+
+The component supports 2 options, which are listed below.
+
+
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Name | Description | Default | Type
+| *camel.component.fop.enabled* | Enable fop component | true | Boolean
+| *camel.component.fop.resolve-property-placeholders* | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | Boolean
+|===
+// spring-boot-auto-configure options: END
+
 
 
 The location of a configuration file with the following
@@ -160,7 +182,7 @@ For more information, see these resources...
 
 ### See Also
 
-* link:configuring-camel.html[Configuring Camel]
-* link:component.html[Component]
-* link:endpoint.html[Endpoint]
-* link:getting-started.html[Getting Started]
+* Configuring Camel
+* Component
+* Endpoint
+* Getting Started

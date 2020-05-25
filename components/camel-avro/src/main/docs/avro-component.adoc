@@ -1,4 +1,5 @@
-## Avro Component
+[[avro-component]]
+== Avro Component
 
 *Available as of Camel version 2.10*
 
@@ -171,16 +172,16 @@ wrapping.
 
 
 // component options: START
-The Avro component supports 2 options which are listed below.
+The Avro component supports 2 options, which are listed below.
 
 
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **configuration** (advanced) | To use a shared AvroConfiguration to configure options once |  | AvroConfiguration
-| **resolveProperty Placeholders** (advanced) | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | boolean
-|=======================================================================
+| *configuration* (advanced) | To use a shared AvroConfiguration to configure options once |  | AvroConfiguration
+| *resolveProperty Placeholders* (advanced) | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | boolean
+|===
 // component options: END
 
 
@@ -191,38 +192,72 @@ The Avro component supports 2 options which are listed below.
 // endpoint options: START
 The Avro endpoint is configured using URI syntax:
 
-    avro:transport:host:port/messageName
+----
+avro:transport:host:port/messageName
+----
 
 with the following path and query parameters:
 
-#### Path Parameters (4 parameters):
+==== Path Parameters (4 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **transport** | *Required* Transport to use |  | AvroTransport
-| **port** | *Required* Port number to use |  | int
-| **host** | *Required* Hostname to use |  | String
-| **messageName** | The name of the message to send. |  | String
-|=======================================================================
+| *transport* | *Required* Transport to use, can be either http or netty |  | AvroTransport
+| *port* | *Required* Port number to use |  | int
+| *host* | *Required* Hostname to use |  | String
+| *messageName* | The name of the message to send. |  | String
+|===
 
-#### Query Parameters (10 parameters):
+
+==== Query Parameters (10 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **protocol** (common) | Avro protocol to use |  | Protocol
-| **protocolClassName** (common) | Avro protocol to use defined by the FQN class name |  | String
-| **protocolLocation** (common) | Avro protocol location |  | String
-| **reflectionProtocol** (common) | If protocol object provided is reflection protocol. Should be used only with protocol parameter because for protocolClassName protocol type will be auto detected | false | boolean
-| **singleParameter** (common) | If true consumer parameter won't be wrapped into array. Will fail if protocol specifies more then 1 parameter for the message | false | boolean
-| **uriAuthority** (common) | Authority to use (username and password) |  | String
-| **bridgeErrorHandler** (consumer) | Allows for bridging the consumer to the Camel routing Error Handler which mean any exceptions occurred while the consumer is trying to pickup incoming messages or the likes will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions that will be logged at WARN or ERROR level and ignored. | false | boolean
-| **exceptionHandler** (consumer) | To let the consumer use a custom ExceptionHandler. Notice if the option bridgeErrorHandler is enabled then this options is not in use. By default the consumer will deal with exceptions that will be logged at WARN or ERROR level and ignored. |  | ExceptionHandler
-| **exchangePattern** (consumer) | Sets the exchange pattern when the consumer creates an exchange. |  | ExchangePattern
-| **synchronous** (advanced) | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported). | false | boolean
-|=======================================================================
+| *protocol* (common) | Avro protocol to use |  | Protocol
+| *protocolClassName* (common) | Avro protocol to use defined by the FQN class name |  | String
+| *protocolLocation* (common) | Avro protocol location |  | String
+| *reflectionProtocol* (common) | If protocol object provided is reflection protocol. Should be used only with protocol parameter because for protocolClassName protocol type will be auto detected | false | boolean
+| *singleParameter* (common) | If true, consumer parameter won't be wrapped into array. Will fail if protocol specifies more then 1 parameter for the message | false | boolean
+| *uriAuthority* (common) | Authority to use (username and password) |  | String
+| *bridgeErrorHandler* (consumer) | Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions occurred while the consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored. | false | boolean
+| *exceptionHandler* (consumer) | To let the consumer use a custom ExceptionHandler. Notice if the option bridgeErrorHandler is enabled then this option is not in use. By default the consumer will deal with exceptions, that will be logged at WARN or ERROR level and ignored. |  | ExceptionHandler
+| *exchangePattern* (consumer) | Sets the exchange pattern when the consumer creates an exchange. |  | ExchangePattern
+| *synchronous* (advanced) | Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported). | false | boolean
+|===
 // endpoint options: END
+// spring-boot-auto-configure options: START
+=== Spring Boot Auto-Configuration
+
+
+The component supports 15 options, which are listed below.
+
+
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Name | Description | Default | Type
+| *camel.component.avro.configuration.host* | Hostname to use |  | String
+| *camel.component.avro.configuration.message-name* | The name of the message to send. |  | String
+| *camel.component.avro.configuration.port* | Port number to use |  | Integer
+| *camel.component.avro.configuration.protocol* | Avro protocol to use |  | Protocol
+| *camel.component.avro.configuration.protocol-class-name* | Avro protocol to use defined by the FQN class name |  | String
+| *camel.component.avro.configuration.protocol-location* | Avro protocol location |  | String
+| *camel.component.avro.configuration.reflection-protocol* | If protocol object provided is reflection protocol. Should be used only with protocol parameter because for protocolClassName protocol type will be auto detected | false | Boolean
+| *camel.component.avro.configuration.single-parameter* | If true, consumer parameter won't be wrapped into array. Will fail if protocol specifies more then 1 parameter for the message | false | Boolean
+| *camel.component.avro.configuration.transport* | Transport to use, can be either http or netty |  | AvroTransport
+| *camel.component.avro.configuration.uri-authority* | Authority to use (username and password) |  | String
+| *camel.component.avro.enabled* | Enable avro component | true | Boolean
+| *camel.component.avro.resolve-property-placeholders* | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | Boolean
+| *camel.dataformat.avro.content-type-header* | Whether the data format should set the Content-Type header with the type from the data format if the data format is capable of doing so. For example application/xml for data formats marshalling to XML, or application/json for data formats marshalling to JSon etc. | false | Boolean
+| *camel.dataformat.avro.enabled* | Enable avro dataformat | true | Boolean
+| *camel.dataformat.avro.instance-class-name* | Class name to use for marshal and unmarshalling |  | String
+|===
+// spring-boot-auto-configure options: END
+
 
 
 ### Avro RPC Headers

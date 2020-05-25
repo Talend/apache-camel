@@ -1,10 +1,11 @@
-## Chunk Component
+[[chunk-component]]
+== Chunk Component
 
 *Available as of Camel version 2.15*
 
 The *chunk:* component allows for processing a message using a
 http://www.x5software.com/chunk/examples/ChunkExample?loc=en_US[Chunk] template.
-This can be ideal when using link:templating.html[Templating] to
+This can be ideal when using Templating to
 generate responses for requests.
 
 Maven users will need to add the following dependency to
@@ -44,32 +45,53 @@ The Chunk component has no options.
 // endpoint options: START
 The Chunk endpoint is configured using URI syntax:
 
-    chunk:resourceUri
+----
+chunk:resourceUri
+----
 
 with the following path and query parameters:
 
-#### Path Parameters (1 parameters):
+==== Path Parameters (1 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **resourceUri** | *Required* Path to the resource. You can prefix with: classpath file http ref or bean. classpath file and http loads the resource using these protocols (classpath is default). ref will lookup the resource in the registry. bean will call a method on a bean to be used as the resource. For bean you can specify the method name after dot eg bean:myBean.myMethod. |  | String
-|=======================================================================
+| *resourceUri* | *Required* Path to the resource. You can prefix with: classpath, file, http, ref, or bean. classpath, file and http loads the resource using these protocols (classpath is default). ref will lookup the resource in the registry. bean will call a method on a bean to be used as the resource. For bean you can specify the method name after dot, eg bean:myBean.myMethod. |  | String
+|===
 
-#### Query Parameters (7 parameters):
+
+==== Query Parameters (7 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **contentCache** (producer) | Sets whether to use resource content cache or not | false | boolean
-| **encoding** (producer) | Define the encoding of the body |  | String
-| **extension** (producer) | Define the file extension of the template |  | String
-| **themeFolder** (producer) | Define the themes folder to scan |  | String
-| **themeLayer** (producer) | Define the theme layer to elaborate |  | String
-| **themeSubfolder** (producer) | Define the themes subfolder to scan |  | String
-| **synchronous** (advanced) | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported). | false | boolean
-|=======================================================================
+| *contentCache* (producer) | Sets whether to use resource content cache or not | false | boolean
+| *encoding* (producer) | Define the encoding of the body |  | String
+| *extension* (producer) | Define the file extension of the template |  | String
+| *themeFolder* (producer) | Define the themes folder to scan |  | String
+| *themeLayer* (producer) | Define the theme layer to elaborate |  | String
+| *themeSubfolder* (producer) | Define the themes subfolder to scan |  | String
+| *synchronous* (advanced) | Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported). | false | boolean
+|===
 // endpoint options: END
+// spring-boot-auto-configure options: START
+=== Spring Boot Auto-Configuration
+
+
+The component supports 2 options, which are listed below.
+
+
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Name | Description | Default | Type
+| *camel.component.chunk.enabled* | Enable chunk component | true | Boolean
+| *camel.component.chunk.resolve-property-placeholders* | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | Boolean
+|===
+// spring-boot-auto-configure options: END
+
 
 
 Chunk component will look for a specific template in _themes_ folder
@@ -181,7 +203,7 @@ Regards Camel Riders Bookstore
 
 ### See Also
 
-* link:configuring-camel.html[Configuring Camel]
-* link:component.html[Component]
-* link:endpoint.html[Endpoint]
-* link:getting-started.html[Getting Started]
+* Configuring Camel
+* Component
+* Endpoint
+* Getting Started

@@ -15,39 +15,42 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit test that file consumer will skip any files starting with a dot
  */
 public class FileConsumerSkipDotFilesTest extends ContextTestSupport {
 
-    private String fileUrl = "file://target/dotfiles/";
+    private String fileUrl = "file://target/dotfiles/?initialDelay=0&delay=10";
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/dotfiles");
         super.setUp();
     }
 
+    @Test
     public void testSkipDotFiles() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(0);
+        mock.setResultWaitTime(100);
 
         template.sendBodyAndHeader("file:target/dotfiles/", "This is a dot file",
             Exchange.FILE_NAME, ".skipme");
 
-        mock.setResultWaitTime(2000);
         mock.assertIsSatisfied();
     }
 
+    @Test
     public void testSkipDotFilesWithARegularFile() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
-        mock.expectedMessageCount(1);
         mock.expectedBodiesReceived("Hello World");
 
         template.sendBodyAndHeader("file:target/dotfiles/", "This is a dot file",

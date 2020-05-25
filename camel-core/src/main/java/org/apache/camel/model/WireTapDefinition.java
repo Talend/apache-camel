@@ -19,6 +19,7 @@ package org.apache.camel.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -30,6 +31,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.Expression;
 import org.apache.camel.Processor;
+import org.apache.camel.builder.ExpressionBuilder;
 import org.apache.camel.processor.CamelInternalProcessor;
 import org.apache.camel.processor.SendDynamicProcessor;
 import org.apache.camel.processor.WireTapProcessor;
@@ -51,13 +53,15 @@ public class WireTapDefinition<Type extends ProcessorDefinition<Type>> extends T
     @XmlElement(name = "body")
     private ExpressionSubElementDefinition newExchangeExpression;
     @XmlElementRef
-    private List<SetHeaderDefinition> headers = new ArrayList<SetHeaderDefinition>();
+    private List<SetHeaderDefinition> headers = new ArrayList<>();
     @XmlTransient
     private ExecutorService executorService;
     @XmlAttribute
     private String executorServiceRef;
     @XmlAttribute @Metadata(defaultValue = "true")
     private Boolean copy;
+    @XmlAttribute @Metadata(defaultValue = "true")
+    private Boolean dynamicUri;
     @XmlAttribute
     private String onPrepareRef;
     @XmlTransient
@@ -88,7 +92,7 @@ public class WireTapDefinition<Type extends ProcessorDefinition<Type>> extends T
         // is true bt default
         boolean isCopy = getCopy() == null || getCopy();
 
-        WireTapProcessor answer = new WireTapProcessor(dynamicTo, internal, getPattern(), threadPool, shutdownThreadPool);
+        WireTapProcessor answer = new WireTapProcessor(dynamicTo, internal, getPattern(), threadPool, shutdownThreadPool, isDynamic());
         answer.setCopy(isCopy);
         if (newExchangeProcessorRef != null) {
             newExchangeProcessor = routeContext.mandatoryLookup(newExchangeProcessorRef, Processor.class);
@@ -115,6 +119,21 @@ public class WireTapDefinition<Type extends ProcessorDefinition<Type>> extends T
         return answer;
     }
 
+    @Override
+    protected Expression createExpression(RouteContext routeContext) {
+        // whether to use dynamic or static uri
+        if (isDynamic()) {
+            return super.createExpression(routeContext);
+        } else {
+            return ExpressionBuilder.constantExpression(getUri());
+        }
+    }
+
+    private boolean isDynamic() {
+        // its dynamic by default
+        return dynamicUri == null || dynamicUri;
+    }
+
     public ExchangePattern getPattern() {
         return ExchangePattern.InOnly;
     }
@@ -124,6 +143,11 @@ public class WireTapDefinition<Type extends ProcessorDefinition<Type>> extends T
         return "WireTap[" + getUri() + "]";
     }
     
+    @Override
+    public String getShortName() {
+        return "wireTap";
+    }
+
     @Override
     public String getLabel() {
         return "wireTap[" + getUri() + "]";
@@ -188,6 +212,20 @@ public class WireTapDefinition<Type extends ProcessorDefinition<Type>> extends T
      */
     public WireTapDefinition<Type> copy(boolean copy) {
         setCopy(copy);
+        return this;
+    }
+
+    /**
+     * Whether the uri is dynamic or static.
+     * If the uri is dynamic then the simple language is used to evaluate a dynamic uri to use as the wire-tap destination,
+     * for each incoming message. This works similar to how the <tt>toD</tt> EIP pattern works.
+     * If static then the uri is used as-is as the wire-tap destination.
+     *
+     * @param dynamicUri  whether to use dynamic or static uris
+     * @return the builder
+     */
+    public WireTapDefinition<Type> dynamicUri(boolean dynamicUri) {
+        setDynamicUri(dynamicUri);
         return this;
     }
 
@@ -371,6 +409,14 @@ public class WireTapDefinition<Type extends ProcessorDefinition<Type>> extends T
 
     public void setCopy(Boolean copy) {
         this.copy = copy;
+    }
+
+    public Boolean getDynamicUri() {
+        return dynamicUri;
+    }
+
+    public void setDynamicUri(Boolean dynamicUri) {
+        this.dynamicUri = dynamicUri;
     }
 
     public String getOnPrepareRef() {

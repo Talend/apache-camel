@@ -1,10 +1,11 @@
-## String Template Component
+[[string-template-component]]
+== String Template Component
 
 *Available as of Camel version 1.2*
 
 The *string-template:* component allows you to process a message using a
 http://www.stringtemplate.org/[String Template]. This can be ideal when
-using link:templating.html[Templating] to generate responses for
+using Templating to generate responses for
 requests.
 
 Maven users will need to add the following dependency to their `pom.xml`
@@ -45,29 +46,49 @@ The String Template component has no options.
 // endpoint options: START
 The String Template endpoint is configured using URI syntax:
 
-    string-template:resourceUri
+----
+string-template:resourceUri
+----
 
 with the following path and query parameters:
 
-#### Path Parameters (1 parameters):
+==== Path Parameters (1 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **resourceUri** | *Required* Path to the resource. You can prefix with: classpath file http ref or bean. classpath file and http loads the resource using these protocols (classpath is default). ref will lookup the resource in the registry. bean will call a method on a bean to be used as the resource. For bean you can specify the method name after dot eg bean:myBean.myMethod. |  | String
-|=======================================================================
+| *resourceUri* | *Required* Path to the resource. You can prefix with: classpath, file, http, ref, or bean. classpath, file and http loads the resource using these protocols (classpath is default). ref will lookup the resource in the registry. bean will call a method on a bean to be used as the resource. For bean you can specify the method name after dot, eg bean:myBean.myMethod. |  | String
+|===
 
-#### Query Parameters (4 parameters):
+
+==== Query Parameters (4 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **contentCache** (producer) | Sets whether to use resource content cache or not | false | boolean
-| **delimiterStart** (producer) | The variable start delimiter | < | char
-| **delimiterStop** (producer) | The variable end delimiter | > | char
-| **synchronous** (advanced) | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported). | false | boolean
-|=======================================================================
+| *contentCache* (producer) | Sets whether to use resource content cache or not | false | boolean
+| *delimiterStart* (producer) | The variable start delimiter | < | char
+| *delimiterStop* (producer) | The variable end delimiter | > | char
+| *synchronous* (advanced) | Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported). | false | boolean
+|===
 // endpoint options: END
+// spring-boot-auto-configure options: START
+=== Spring Boot Auto-Configuration
+
+
+The component supports 2 options, which are listed below.
+
+
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Name | Description | Default | Type
+| *camel.component.string-template.enabled* | Enable string-template component | true | Boolean
+| *camel.component.string-template.resolve-property-placeholders* | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | Boolean
+|===
+// spring-boot-auto-configure options: END
 
 
 ### Headers
@@ -132,7 +153,7 @@ And the java code is as follows:
 
 ### See Also
 
-* link:configuring-camel.html[Configuring Camel]
-* link:component.html[Component]
-* link:endpoint.html[Endpoint]
-* link:getting-started.html[Getting Started]
+* Configuring Camel
+* Component
+* Endpoint
+* Getting Started

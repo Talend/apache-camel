@@ -43,7 +43,7 @@ public class KestrelComponent extends UriEndpointComponent {
     /**
      * We cache the memcached clients by queue for reuse
      */
-    private final Map<String, MemcachedClient> memcachedClientCache = new HashMap<String, MemcachedClient>();
+    private final Map<String, MemcachedClient> memcachedClientCache = new HashMap<>();
 
     @Metadata(label = "advanced")
     private KestrelConfiguration configuration;
@@ -169,7 +169,7 @@ public class KestrelComponent extends UriEndpointComponent {
         }
         synchronized (memcachedClientCache) {
             if ((memcachedClient = memcachedClientCache.get(key)) == null) {
-                LOG.info("Creating MemcachedClient for " + key);
+                LOG.info("Creating MemcachedClient for {}", key);
                 try {
                     memcachedClient = new MemcachedClient(memcachedConnectionFactory, config.getInetSocketAddresses());
                 } catch (Exception e) {
@@ -187,7 +187,7 @@ public class KestrelComponent extends UriEndpointComponent {
             memcachedClient.shutdown();
             memcachedClientCache.remove(key);
         } catch (Exception e) {
-            LOG.warn("Failed to close client connection to " + key, e);
+            LOG.warn("Failed to close client connection to {}", key, e);
         }
     }
 
@@ -196,7 +196,7 @@ public class KestrelComponent extends UriEndpointComponent {
         // Use a copy so we can clear the memcached client cache eagerly
         Map<String, MemcachedClient> copy;
         synchronized (memcachedClientCache) {
-            copy = new HashMap<String, MemcachedClient>(memcachedClientCache);
+            copy = new HashMap<>(memcachedClientCache);
             memcachedClientCache.clear();
         }
 

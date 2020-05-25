@@ -1,4 +1,5 @@
-## OpenStack Nova Component
+[[openstack-nova-component]]
+== OpenStack Nova Component
 
 *Available as of Camel version 2.19*
 
@@ -41,34 +42,55 @@ The OpenStack Nova component has no options.
 // endpoint options: START
 The OpenStack Nova endpoint is configured using URI syntax:
 
-    openstack-nova:host
+----
+openstack-nova:host
+----
 
 with the following path and query parameters:
 
-#### Path Parameters (1 parameters):
+==== Path Parameters (1 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **host** | *Required* OpenStack host url |  | String
-|=======================================================================
+| *host* | *Required* OpenStack host url |  | String
+|===
 
-#### Query Parameters (9 parameters):
+
+==== Query Parameters (9 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **apiVersion** (producer) | OpenStack API version | V3 | String
-| **config** (producer) | OpenStack configuration |  | Config
-| **domain** (producer) | Authentication domain | default | String
-| **operation** (producer) | The operation to do |  | String
-| **password** (producer) | *Required* OpenStack password |  | String
-| **project** (producer) | *Required* The project ID |  | String
-| **subsystem** (producer) | *Required* OpenStack Nova subsystem |  | String
-| **username** (producer) | *Required* OpenStack username |  | String
-| **synchronous** (advanced) | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported). | false | boolean
-|=======================================================================
+| *apiVersion* (producer) | OpenStack API version | V3 | String
+| *config* (producer) | OpenStack configuration |  | Config
+| *domain* (producer) | Authentication domain | default | String
+| *operation* (producer) | The operation to do |  | String
+| *password* (producer) | *Required* OpenStack password |  | String
+| *project* (producer) | *Required* The project ID |  | String
+| *subsystem* (producer) | *Required* OpenStack Nova subsystem |  | String
+| *username* (producer) | *Required* OpenStack username |  | String
+| *synchronous* (advanced) | Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported). | false | boolean
+|===
 // endpoint options: END
+// spring-boot-auto-configure options: START
+=== Spring Boot Auto-Configuration
+
+
+The component supports 2 options, which are listed below.
+
+
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Name | Description | Default | Type
+| *camel.component.openstack-nova.enabled* | Enable openstack-nova component | true | Boolean
+| *camel.component.openstack-nova.resolve-property-placeholders* | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | Boolean
+|===
+// spring-boot-auto-configure options: END
+
 
 
 ### Usage
@@ -193,9 +215,9 @@ If you need more precise server settings you can create new object of the type *
 
 ### See Also
 
-* link:configuring-camel.html[Configuring Camel]
-* link:component.html[Component]
-* link:endpoint.html[Endpoint]
-* link:getting-started.html[Getting Started]
+* Configuring Camel
+* Component
+* Endpoint
+* Getting Started
 
-* link:openstack.html[openstack Component]
+* openstack Component

@@ -18,21 +18,29 @@ package org.apache.camel.generator.swagger;
 
 import io.swagger.models.Path;
 
+import org.apache.camel.util.ObjectHelper;
+
 class PathVisitor<T> {
 
     private final DestinationGenerator destinationGenerator;
 
     private final CodeEmitter<T> emitter;
+    private final OperationFilter filter;
 
-    PathVisitor(final CodeEmitter<T> emitter, final DestinationGenerator destinationGenerator) {
+    PathVisitor(final String basePath, final CodeEmitter<T> emitter, OperationFilter filter, final DestinationGenerator destinationGenerator) {
         this.emitter = emitter;
+        this.filter = filter;
         this.destinationGenerator = destinationGenerator;
 
-        emitter.emit("rest");
+        if (ObjectHelper.isEmpty(basePath)) {
+            emitter.emit("rest");
+        } else {
+            emitter.emit("rest", basePath);
+        }
     }
 
     void visit(final String path, final Path definition) {
-        final OperationVisitor<T> restDslOperation = new OperationVisitor<>(emitter, path, destinationGenerator);
+        final OperationVisitor<T> restDslOperation = new OperationVisitor<>(emitter, filter, path, destinationGenerator);
 
         definition.getOperationMap().forEach(restDslOperation::visit);
     }

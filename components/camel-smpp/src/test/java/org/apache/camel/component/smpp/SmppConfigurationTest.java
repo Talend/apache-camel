@@ -18,9 +18,9 @@ package org.apache.camel.component.smpp;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import java.util.HashMap;
 import java.util.Map;
+
 import org.jsmpp.bean.NumberingPlanIndicator;
 import org.jsmpp.bean.SMSCDeliveryReceipt;
 import org.jsmpp.bean.TypeOfNumber;
@@ -125,7 +125,20 @@ public class SmppConfigurationTest {
         assertEquals(new Integer(2776), configuration.getPort());
         assertEquals("client", configuration.getSystemId());
     }
-    
+
+    @Test
+    public void hostPortAndSystemIdFromComponentConfigurationShouldBeUsedIfAbsentFromUri() throws URISyntaxException {
+        configuration.setHost("host");
+        configuration.setPort(123);
+        configuration.setSystemId("systemId");
+
+        configuration.configureFromURI(new URI("smpp://?password=pw"));
+
+        assertEquals("host", configuration.getHost());
+        assertEquals(new Integer(123), configuration.getPort());
+        assertEquals("systemId", configuration.getSystemId());
+    }
+
     @Test
     public void cloneShouldReturnAnEqualInstance() {
         setNoneDefaultValues(configuration);
@@ -238,7 +251,7 @@ public class SmppConfigurationTest {
             public void onStateChange(SessionState arg0, SessionState arg1, Session arg2) {
             }
         });
-        Map<String, String> proxyHeaders = new HashMap<String, String>();
+        Map<String, String> proxyHeaders = new HashMap<>();
         proxyHeaders.put("X-Proxy-Header", "1");
         config.setProxyHeaders(proxyHeaders);
     }

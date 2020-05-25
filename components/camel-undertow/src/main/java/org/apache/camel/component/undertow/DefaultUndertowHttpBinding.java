@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.activation.FileDataSource;
 
@@ -44,7 +43,6 @@ import io.undertow.util.HeaderMap;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
 import io.undertow.util.Methods;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.TypeConverter;
@@ -125,7 +123,7 @@ public class DefaultUndertowHttpBinding implements UndertowHttpBinding {
         } else {
             //extract body by myself if undertow parser didn't handle and the method is allowed to have one
             //body is extracted as byte[] then auto TypeConverter kicks in
-            if (Methods.POST.equals(httpExchange.getRequestMethod()) || Methods.PUT.equals(httpExchange.getRequestMethod())) {
+            if (Methods.POST.equals(httpExchange.getRequestMethod()) || Methods.PUT.equals(httpExchange.getRequestMethod()) || Methods.PATCH.equals(httpExchange.getRequestMethod())) {
                 result.setBody(readFromChannel(httpExchange.getRequestChannel()));
             } else {
                 result.setBody(null);
@@ -150,15 +148,6 @@ public class DefaultUndertowHttpBinding implements UndertowHttpBinding {
     public void populateCamelHeaders(HttpServerExchange httpExchange, Map<String, Object> headersMap, Exchange exchange) throws Exception {
         LOG.trace("populateCamelHeaders: {}");
 
-        // NOTE: these headers is applied using the same logic as camel-http/camel-jetty to be consistent
-        headersMap.put(Exchange.HTTP_METHOD, httpExchange.getRequestMethod().toString());
-        // strip query parameters from the uri
-        headersMap.put(Exchange.HTTP_URL, httpExchange.getRequestURL());
-        // uri is without the host and port
-        headersMap.put(Exchange.HTTP_URI, httpExchange.getRequestURI());
-        headersMap.put(Exchange.HTTP_QUERY, httpExchange.getQueryString());
-        headersMap.put(Exchange.HTTP_RAW_QUERY, httpExchange.getQueryString());
-
         String path = httpExchange.getRequestPath();
         UndertowEndpoint endpoint = (UndertowEndpoint) exchange.getFromEndpoint();
         if (endpoint.getHttpURI() != null) {
@@ -166,7 +155,7 @@ public class DefaultUndertowHttpBinding implements UndertowHttpBinding {
             String endpointPath = endpoint.getHttpURI().getPath();
             String matchPath = path.toLowerCase(Locale.US);
             String match = endpointPath.toLowerCase(Locale.US);
-            if (match != null && matchPath.startsWith(match)) {
+            if (matchPath.startsWith(match)) {
                 path = path.substring(endpointPath.length());
             }
         }
@@ -238,6 +227,15 @@ public class DefaultUndertowHttpBinding implements UndertowHttpBinding {
                 headersMap.put(paramName, predicateContextParams.get(paramName));
             }
         }
+
+        // NOTE: these headers is applied using the same logic as camel-http/camel-jetty to be consistent
+        headersMap.put(Exchange.HTTP_METHOD, httpExchange.getRequestMethod().toString());
+        // strip query parameters from the uri
+        headersMap.put(Exchange.HTTP_URL, httpExchange.getRequestURL());
+        // uri is without the host and port
+        headersMap.put(Exchange.HTTP_URI, httpExchange.getRequestURI());
+        headersMap.put(Exchange.HTTP_QUERY, httpExchange.getQueryString());
+        headersMap.put(Exchange.HTTP_RAW_QUERY, httpExchange.getQueryString());
     }
 
     @Override
@@ -284,7 +282,7 @@ public class DefaultUndertowHttpBinding implements UndertowHttpBinding {
 
         int code = message.getHeader(Exchange.HTTP_RESPONSE_CODE, defaultCode, int.class);
 
-        httpExchange.setResponseCode(code);
+        httpExchange.setStatusCode(code);
 
         TypeConverter tc = message.getExchange().getContext().getTypeConverter();
 
@@ -312,7 +310,7 @@ public class DefaultUndertowHttpBinding implements UndertowHttpBinding {
                 // we failed due an exception, and transfer it as java serialized object
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(bos);
-                oos.writeObject(exception.getCause());
+                oos.writeObject(exception);
                 oos.flush();
                 IOHelper.close(oos, bos);
 
@@ -343,7 +341,6 @@ public class DefaultUndertowHttpBinding implements UndertowHttpBinding {
             httpExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType);
             LOG.trace("Content-Type: {}", contentType);
         }
-
         return body;
     }
 

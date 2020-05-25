@@ -63,14 +63,14 @@ import static org.apache.camel.util.ObjectHelper.isAssignableFrom;
 public final class IntrospectionSupport {
 
     private static final Logger LOG = LoggerFactory.getLogger(IntrospectionSupport.class);
-    private static final Pattern GETTER_PATTERN = Pattern.compile("(get|is)[A-Z].*");
-    private static final Pattern SETTER_PATTERN = Pattern.compile("set[A-Z].*");
-    private static final List<Method> EXCLUDED_METHODS = new ArrayList<Method>();
+    private static final List<Method> EXCLUDED_METHODS = new ArrayList<>();
     // use a cache to speedup introspecting for known classes during startup
     // use a weak cache as we dont want the cache to keep around as it reference classes
     // which could prevent classloader to unload classes if being referenced from this cache
-    private static final LRUCache<Class<?>, ClassInfo> CACHE = new LRUWeakCache<Class<?>, ClassInfo>(1000);
+    @SuppressWarnings("unchecked")
+    private static final Map<Class<?>, ClassInfo> CACHE = LRUCacheFactory.newLRUWeakCache(1000);
     private static final Object LOCK = new Object();
+    private static final Pattern SECRETS = Pattern.compile(".*(passphrase|password|secretKey).*", Pattern.CASE_INSENSITIVE);
 
     static {
         // exclude all java.lang.Object methods as we dont want to invoke them
@@ -79,7 +79,7 @@ public final class IntrospectionSupport {
         EXCLUDED_METHODS.addAll(Arrays.asList(Proxy.class.getMethods()));
     }
 
-    private static final Set<Class<?>> PRIMITIVE_CLASSES = new HashSet<Class<?>>();
+    private static final Set<Class<?>> PRIMITIVE_CLASSES = new HashSet<>();
 
     static {
         PRIMITIVE_CLASSES.add(String.class);
@@ -132,8 +132,9 @@ public final class IntrospectionSupport {
      * This implementation will clear its introspection cache.
      */
     public static void stop() {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Clearing cache[size={}, hits={}, misses={}, evicted={}]", new Object[]{CACHE.size(), CACHE.getHits(), CACHE.getMisses(), CACHE.getEvicted()});
+        if (LOG.isDebugEnabled() && CACHE instanceof LRUCache) {
+            LRUCache localCache = (LRUCache) IntrospectionSupport.CACHE;
+            LOG.debug("Clearing cache[size={}, hits={}, misses={}, evicted={}]", localCache.size(), localCache.getHits(), localCache.getMisses(), localCache.getEvicted());
         }
         CACHE.clear();
 
@@ -144,18 +145,19 @@ public final class IntrospectionSupport {
     public static boolean isGetter(Method method) {
         String name = method.getName();
         Class<?> type = method.getReturnType();
-        Class<?> params[] = method.getParameterTypes();
+        int parameterCount = method.getParameterCount();
 
-        if (!GETTER_PATTERN.matcher(name).matches()) {
-            return false;
+        // is it a getXXX method
+        if (name.startsWith("get") && name.length() >= 4 && Character.isUpperCase(name.charAt(3))) {
+            return parameterCount == 0 && !type.equals(Void.TYPE);
         }
 
         // special for isXXX boolean
-        if (name.startsWith("is")) {
-            return params.length == 0 && type.getSimpleName().equalsIgnoreCase("boolean");
+        if (name.startsWith("is") && name.length() >= 3 && Character.isUpperCase(name.charAt(2))) {
+            return parameterCount == 0 && type.getSimpleName().equalsIgnoreCase("boolean");
         }
 
-        return params.length == 0 && !type.equals(Void.TYPE);
+        return false;
     }
 
     public static String getGetterShorthandName(Method method) {
@@ -192,13 +194,14 @@ public final class IntrospectionSupport {
     public static boolean isSetter(Method method, boolean allowBuilderPattern) {
         String name = method.getName();
         Class<?> type = method.getReturnType();
-        Class<?> params[] = method.getParameterTypes();
+        int parameterCount = method.getParameterCount();
 
-        if (!SETTER_PATTERN.matcher(name).matches()) {
-            return false;
+        // is it a getXXX method
+        if (name.startsWith("set") && name.length() >= 4 && Character.isUpperCase(name.charAt(3))) {
+            return parameterCount == 1 && (type.equals(Void.TYPE) || (allowBuilderPattern && method.getDeclaringClass().isAssignableFrom(type)));
         }
 
-        return params.length == 1 && (type.equals(Void.TYPE) || (allowBuilderPattern && method.getDeclaringClass().isAssignableFrom(type)));
+        return false;
     }
     
     public static boolean isSetter(Method method) {
@@ -303,8 +306,10 @@ public final class IntrospectionSupport {
 
         // loop each method on the class and gather details about the method
         // especially about getter/setters
-        List<MethodInfo> found = new ArrayList<MethodInfo>();
+        List<MethodInfo> found = new ArrayList<>();
         Method[] methods = clazz.getMethods();
+        Map<String, MethodInfo> getters = new HashMap<>(methods.length);
+        Map<String, MethodInfo> setters = new HashMap<>(methods.length);
         for (Method method : methods) {
             if (EXCLUDED_METHODS.contains(method)) {
                 continue;
@@ -316,14 +321,15 @@ public final class IntrospectionSupport {
                 cache.isGetter = true;
                 cache.isSetter = false;
                 cache.getterOrSetterShorthandName = getGetterShorthandName(method);
+                getters.put(cache.getterOrSetterShorthandName, cache);
             } else if (isSetter(method)) {
                 cache.isGetter = false;
                 cache.isSetter = true;
                 cache.getterOrSetterShorthandName = getSetterShorthandName(method);
+                setters.put(cache.getterOrSetterShorthandName, cache);
             } else {
                 cache.isGetter = false;
                 cache.isSetter = false;
-                cache.hasGetterAndSetter = false;
             }
             found.add(cache);
         }
@@ -333,21 +339,9 @@ public final class IntrospectionSupport {
         for (MethodInfo info : found) {
             info.hasGetterAndSetter = false;
             if (info.isGetter) {
-                // loop and find the matching setter
-                for (MethodInfo info2 : found) {
-                    if (info2.isSetter && info.getterOrSetterShorthandName.equals(info2.getterOrSetterShorthandName)) {
-                        info.hasGetterAndSetter = true;
-                        break;
-                    }
-                }
+                info.hasGetterAndSetter = setters.containsKey(info.getterOrSetterShorthandName);
             } else if (info.isSetter) {
-                // loop and find the matching getter
-                for (MethodInfo info2 : found) {
-                    if (info2.isGetter && info.getterOrSetterShorthandName.equals(info2.getterOrSetterShorthandName)) {
-                        info.hasGetterAndSetter = true;
-                        break;
-                    }
-                }
+                info.hasGetterAndSetter = getters.containsKey(info.getterOrSetterShorthandName);
             }
         }
 
@@ -393,14 +387,14 @@ public final class IntrospectionSupport {
 
     public static Method getPropertyGetter(Class<?> type, String propertyName) throws NoSuchMethodException {
         if (isPropertyIsGetter(type, propertyName)) {
-            return type.getMethod("is" + ObjectHelper.capitalize(propertyName));
+            return type.getMethod("is" + StringHelper.capitalize(propertyName, true));
         } else {
-            return type.getMethod("get" + ObjectHelper.capitalize(propertyName));
+            return type.getMethod("get" + StringHelper.capitalize(propertyName, true));
         }
     }
 
     public static Method getPropertySetter(Class<?> type, String propertyName) throws NoSuchMethodException {
-        String name = "set" + ObjectHelper.capitalize(propertyName);
+        String name = "set" + StringHelper.capitalize(propertyName, true);
         for (Method method : type.getMethods()) {
             if (isSetter(method) && method.getName().equals(name)) {
                 return method;
@@ -411,7 +405,7 @@ public final class IntrospectionSupport {
 
     public static boolean isPropertyIsGetter(Class<?> type, String propertyName) {
         try {
-            Method method = type.getMethod("is" + ObjectHelper.capitalize(propertyName));
+            Method method = type.getMethod("is" + StringHelper.capitalize(propertyName, true));
             if (method != null) {
                 return method.getReturnType().isAssignableFrom(boolean.class) || method.getReturnType().isAssignableFrom(Boolean.class);
             }
@@ -443,7 +437,7 @@ public final class IntrospectionSupport {
     }
 
     public static boolean setProperties(Object target, Map<String, Object> properties, String optionPrefix) throws Exception {
-        ObjectHelper.notEmpty(optionPrefix, "optionPrefix");
+        StringHelper.notEmpty(optionPrefix, "optionPrefix");
         return setProperties(target, properties, optionPrefix, false);
     }
 
@@ -454,7 +448,7 @@ public final class IntrospectionSupport {
     public static Map<String, Object> extractProperties(Map<String, Object> properties, String optionPrefix, boolean remove) {
         ObjectHelper.notNull(properties, "properties");
 
-        Map<String, Object> rc = new LinkedHashMap<String, Object>(properties.size());
+        Map<String, Object> rc = new LinkedHashMap<>(properties.size());
 
         for (Iterator<Map.Entry<String, Object>> it = properties.entrySet().iterator(); it.hasNext();) {
             Map.Entry<String, Object> entry = it.next();
@@ -476,7 +470,7 @@ public final class IntrospectionSupport {
     public static Map<String, String> extractStringProperties(Map<String, Object> properties) {
         ObjectHelper.notNull(properties, "properties");
 
-        Map<String, String> rc = new LinkedHashMap<String, String>(properties.size());
+        Map<String, String> rc = new LinkedHashMap<>(properties.size());
 
         for (Entry<String, Object> entry : properties.entrySet()) {
             String name = entry.getKey();
@@ -566,8 +560,13 @@ public final class IntrospectionSupport {
                         // we may want to set options on classes that has package view visibility, so override the accessible
                         setter.setAccessible(true);
                         setter.invoke(target, ref);
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Configured property: {} on bean: {} with value: {}", new Object[]{name, target, ref});
+                        if (LOG.isTraceEnabled()) {
+                            // hide sensitive data
+                            String val = ref != null ? ref.toString() : "";
+                            if (SECRETS.matcher(name).find()) {
+                                val = "xxxxxx";
+                            }
+                            LOG.trace("Configured property: {} on bean: {} with value: {}", name, target, val);
                         }
                         return true;
                     } else {
@@ -576,8 +575,13 @@ public final class IntrospectionSupport {
                         // we may want to set options on classes that has package view visibility, so override the accessible
                         setter.setAccessible(true);
                         setter.invoke(target, convertedValue);
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Configured property: {} on bean: {} with value: {}", new Object[]{name, target, ref});
+                        if (LOG.isTraceEnabled()) {
+                            // hide sensitive data
+                            String val = ref != null ? ref.toString() : "";
+                            if (SECRETS.matcher(name).find()) {
+                                val = "xxxxxx";
+                            }
+                            LOG.trace("Configured property: {} on bean: {} with value: {}", name, target, val);
                         }
                         return true;
                     }
@@ -681,10 +685,10 @@ public final class IntrospectionSupport {
     }
 
     public static Set<Method> findSetterMethods(Class<?> clazz, String name, boolean allowBuilderPattern) {
-        Set<Method> candidates = new LinkedHashSet<Method>();
+        Set<Method> candidates = new LinkedHashSet<>();
 
         // Build the method name.
-        name = "set" + ObjectHelper.capitalize(name);
+        name = "set" + StringHelper.capitalize(name, true);
         while (clazz != Object.class) {
             // Since Object.class.isInstance all the objects,
             // here we just make sure it will be add to the bottom of the set.
@@ -735,8 +739,8 @@ public final class IntrospectionSupport {
     }
 
     protected static List<Method> findSetterMethodsOrderedByParameterType(Class<?> target, String propertyName, boolean allowBuilderPattern) {
-        List<Method> answer = new LinkedList<Method>();
-        List<Method> primitives = new LinkedList<Method>();
+        List<Method> answer = new LinkedList<>();
+        List<Method> primitives = new LinkedList<>();
         Set<Method> setters = findSetterMethods(target, propertyName, allowBuilderPattern);
         for (Method setter : setters) {
             Class<?> parameterType = setter.getParameterTypes()[0];

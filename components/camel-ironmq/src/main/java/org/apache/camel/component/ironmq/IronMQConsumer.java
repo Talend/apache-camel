@@ -74,7 +74,7 @@ public class IronMQConsumer extends ScheduledBatchPollingConsumer {
     protected Queue<Exchange> createExchanges(Message[] messages) {
         LOG.trace("Received {} messages in this poll", messages.length);
 
-        Queue<Exchange> answer = new LinkedList<Exchange>();
+        Queue<Exchange> answer = new LinkedList<>();
         for (Message message : messages) {
             Exchange exchange = getEndpoint().createExchange(message);
             answer.add(exchange);
@@ -150,7 +150,7 @@ public class IronMQConsumer extends ScheduledBatchPollingConsumer {
     protected void processRollback(Exchange exchange) {
         Exception cause = exchange.getException();
         if (cause != null) {
-            LOG.warn("Exchange failed, so rolling back message status: " + exchange, cause);
+            LOG.warn("Exchange failed, so rolling back message status: {}", exchange, cause);
         } else {
             LOG.warn("Exchange failed, so rolling back message status: {}", exchange);
         }

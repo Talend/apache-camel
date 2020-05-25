@@ -16,14 +16,13 @@
  */
 package org.apache.camel.converter.dozer;
 
+import com.github.dozermapper.core.Mapper;
+import com.github.dozermapper.core.metadata.ClassMappingMetadata;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.TypeConversionException;
 import org.apache.camel.TypeConverter;
 import org.apache.camel.support.TypeConverterSupport;
-import org.dozer.DozerBeanMapper;
-import org.dozer.Mapper;
-import org.dozer.metadata.ClassMappingMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,13 +40,13 @@ public class DozerTypeConverter extends TypeConverterSupport {
 
     private static final Logger LOG = LoggerFactory.getLogger(DozerTypeConverter.class);
 
-    private final DozerBeanMapper mapper;
+    private final Mapper mapper;
 
-    public DozerTypeConverter(DozerBeanMapper mapper) {
+    public DozerTypeConverter(Mapper mapper) {
         this.mapper = mapper;
     }
 
-    public DozerBeanMapper getMapper() {
+    public Mapper getMapper() {
         return mapper;
     }
 

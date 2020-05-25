@@ -184,7 +184,7 @@ public class SmppBinding {
     private Map<String, Object> createOptionalParameterByName(DeliverSm deliverSm) {
         List<OptionalParameter> oplist = Arrays.asList(deliverSm.getOptionalParameters());
 
-        Map<String, Object> optParams = new HashMap<String, Object>();
+        Map<String, Object> optParams = new HashMap<>();
         for (OptionalParameter optPara : oplist) {
             try {
                 Tag valueOfTag = OptionalParameter.Tag.valueOf(optPara.tag);
@@ -203,10 +203,10 @@ public class SmppBinding {
                         optParams.put(valueOfTag.toString(), null);
                     }
                 } else {
-                    LOG.debug("Skipping optional parameter with tag {} because it was not recogized", optPara.tag);
+                    LOG.debug("Skipping optional parameter with tag {} because it was not recognized", optPara.tag);
                 }
             } catch (IllegalArgumentException e) {
-                LOG.debug("Skipping optional parameter with tag {} due " + e.getMessage(), optPara.tag);
+                LOG.debug("Skipping optional parameter with tag {} due to {}", optPara.tag, e.getMessage());
             }
         }
 
@@ -216,7 +216,7 @@ public class SmppBinding {
     private Map<Short, Object> createOptionalParameterByCode(DeliverSm deliverSm) {
         List<OptionalParameter> oplist = Arrays.asList(deliverSm.getOptionalParameters());
 
-        Map<Short, Object> optParams = new HashMap<Short, Object>();
+        Map<Short, Object> optParams = new HashMap<>();
         for (OptionalParameter optPara : oplist) {
             if (COctetString.class.isInstance(optPara)) {
                 optParams.put(Short.valueOf(optPara.tag), ((COctetString) optPara).getValueAsString());

@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 package org.apache.camel.management;
-
 import java.util.Set;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
@@ -24,6 +24,8 @@ import org.apache.camel.Exchange;
 import org.apache.camel.ServiceStatus;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @version 
@@ -31,11 +33,13 @@ import org.apache.camel.component.mock.MockEndpoint;
 public class ManagedRouteShutdownAndStartTest extends ManagementTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/managed");
         super.setUp();
     }
 
+    @Test
     public void testShutdownAndStartRoute() throws Exception {
         // JMX tests dont work well on AIX CI servers (hangs them)
         if (isPlatform("aix")) {
@@ -64,14 +68,13 @@ public class ManagedRouteShutdownAndStartTest extends ManagementTestSupport {
         
         mock.reset();
         mock.expectedBodiesReceived("Bye World");
-        // wait 3 seconds while route is stopped to verify that file was not consumed
-        mock.setResultWaitTime(3000);
+        // wait a bit while route is stopped to verify that file was not consumed
+        mock.setResultWaitTime(250);
 
         template.sendBodyAndHeader("file://target/managed", "Bye World", Exchange.FILE_NAME, "bye.txt");
 
         // route is stopped so we do not get the file
         mock.assertIsNotSatisfied();
-        
     }
 
     static ObjectName getRouteObjectName(MBeanServer mbeanServer) throws Exception {
@@ -86,7 +89,7 @@ public class ManagedRouteShutdownAndStartTest extends ManagementTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("file://target/managed").to("mock:result");
+                from("file://target/managed?initialDelay=0&delay=10").to("mock:result");
             }
         };
     }

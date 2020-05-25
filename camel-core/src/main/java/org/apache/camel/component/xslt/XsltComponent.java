@@ -19,14 +19,13 @@ package org.apache.camel.component.xslt;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.transform.URIResolver;
 
 import org.apache.camel.Endpoint;
-import org.apache.camel.builder.xml.XsltUriResolver;
 import org.apache.camel.converter.jaxp.XmlConverter;
 import org.apache.camel.impl.UriEndpointComponent;
 import org.apache.camel.spi.Metadata;
-import org.apache.camel.spi.UriParam;
 import org.apache.camel.util.EndpointHelper;
 import org.apache.camel.util.ResourceHelper;
 import org.slf4j.Logger;
@@ -41,17 +40,17 @@ public class XsltComponent extends UriEndpointComponent {
 
     @Metadata(label = "advanced")
     private XmlConverter xmlConverter;
-    @Metadata(label = "advanced", description = "To use a custom UriResolver. Should not be used together with the option 'uriResolverFactory'.")
+    @Metadata(label = "advanced")
     private URIResolver uriResolver;
-    @Metadata(label = "advanced", description = "To use a custom UriResolver which depends on a dynamic endpoint resource URI. Should not be used together with the option 'uriResolver'.")
+    @Metadata(label = "advanced")
     private XsltUriResolverFactory uriResolverFactory;
-    @Metadata(defaultValue = "true")
-    @UriParam(label = "advanced")
+    @Metadata(label = "advanced")
     private Object saxonConfiguration;
     @Metadata(label = "advanced")
     private Map<String, Object> saxonConfigurationProperties = new HashMap<>();
-    @UriParam(label = "advanced", javaType = "java.lang.String")
+    @Metadata(label = "advanced", javaType = "java.lang.String")
     private List<Object> saxonExtensionFunctions;
+    @Metadata(defaultValue = "true")
     private boolean contentCache = true;
     private boolean saxon;
 
@@ -69,17 +68,13 @@ public class XsltComponent extends UriEndpointComponent {
     public void setXmlConverter(XmlConverter xmlConverter) {
         this.xmlConverter = xmlConverter;
     }
-    
-    
 
     public XsltUriResolverFactory getUriResolverFactory() {
         return uriResolverFactory;
     }
 
     /**
-     * To use a custom javax.xml.transform.URIResolver which depends on a dynamic endpoint resource URI or which is a subclass of {@link XsltUriResolver}.
-     *  Do not use in combination with uriResolver.
-     * See also {@link #setUriResolver(URIResolver)}.
+     * To use a custom UriResolver which depends on a dynamic endpoint resource URI. Should not be used together with the option 'uriResolver'.
      */
     public void setUriResolverFactory(XsltUriResolverFactory uriResolverFactory) {
         this.uriResolverFactory = uriResolverFactory;
@@ -90,8 +85,7 @@ public class XsltComponent extends UriEndpointComponent {
     }
 
     /**
-     * To use a custom javax.xml.transform.URIResolver. Do not use in combination with uriResolverFactory.
-     * See also {@link #setUriResolverFactory(XsltUriResolverFactory)}.
+     * To use a custom UriResolver. Should not be used together with the option 'uriResolverFactory'.
      */
     public void setUriResolver(URIResolver uriResolver) {
         this.uriResolver = uriResolver;
@@ -180,15 +174,6 @@ public class XsltComponent extends UriEndpointComponent {
         endpoint.setSaxonConfigurationProperties(saxonConfigurationProperties);
         endpoint.setSaxonExtensionFunctions(saxonExtensionFunctions);
 
-        String resourceUri = remaining;
-
-        // if its a http uri, then append additional parameters as they are part of the uri
-        if (ResourceHelper.isHttpUri(resourceUri)) {
-            resourceUri = ResourceHelper.appendParameters(resourceUri, parameters);
-        }
-        LOG.debug("{} using schema resource: {}", this, resourceUri);
-        endpoint.setResourceUri(resourceUri);
-
         // lookup custom resolver to use
         URIResolver resolver = resolveAndRemoveReferenceParameter(parameters, "uriResolver", URIResolver.class);
         if (resolver == null) {
@@ -212,6 +197,15 @@ public class XsltComponent extends UriEndpointComponent {
         endpoint.setUriResolver(resolver);
 
         setProperties(endpoint, parameters);
+
+        String resourceUri = remaining;
+        if (ResourceHelper.isHttpUri(resourceUri)) {
+            // if its a http uri, then append additional parameters as they are part of the uri
+            resourceUri = ResourceHelper.appendParameters(resourceUri, parameters);
+        }
+        LOG.debug("{} using schema resource: {}", this, resourceUri);
+        endpoint.setResourceUri(resourceUri);
+
         if (!parameters.isEmpty()) {
             // additional parameters need to be stored on endpoint as they can be used to configure xslt builder additionally
             endpoint.setParameters(parameters);

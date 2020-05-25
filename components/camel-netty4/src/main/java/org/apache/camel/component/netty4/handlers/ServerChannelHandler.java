@@ -84,7 +84,7 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<Object> {
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
         Object in = msg;
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Channel: {} received body: {}", new Object[]{ctx.channel(), in});
+            LOG.debug("Channel: {} received body: {}", ctx.channel(), in);
         }
 
         // create Exchange and let the consumer process it
@@ -95,6 +95,9 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<Object> {
         // set the exchange charset property for converting
         if (consumer.getConfiguration().getCharsetName() != null) {
             exchange.setProperty(Exchange.CHARSET_NAME, IOHelper.normalizeCharset(consumer.getConfiguration().getCharsetName()));
+        }
+        if (consumer.getConfiguration().isReuseChannel()) {
+            exchange.setProperty(NettyConstants.NETTY_CHANNEL, ctx.channel());
         }
 
         // we want to handle the UoW

@@ -29,7 +29,7 @@ import org.apache.camel.spi.Metadata;
 import org.apache.camel.util.ExpressionToPredicateAdapter;
 
 /**
- * For expressions and predicates using a body or header tokenizer
+ * To use Camel message body or header with a tokenizer in Camel expressions or predicates.
  *
  * @see TokenizeLanguage
  */
@@ -52,7 +52,7 @@ public class TokenizerExpression extends ExpressionDefinition {
     @XmlAttribute
     private Boolean includeTokens;
     @XmlAttribute
-    private Integer group;
+    private String group;
     @XmlAttribute
     private Boolean skipFirst;
 
@@ -69,7 +69,7 @@ public class TokenizerExpression extends ExpressionDefinition {
     }
 
     /**
-     * The (start) token to use as tokenizer, for example \n for a new line token.
+     * The (start) token to use as tokenizer, for example you can use the new line token.
      * You can use simple language as the token to support dynamic tokens.
      */
     public void setToken(String token) {
@@ -149,14 +149,15 @@ public class TokenizerExpression extends ExpressionDefinition {
         this.includeTokens = includeTokens;
     }
 
-    public Integer getGroup() {
+    public String getGroup() {
         return group;
     }
 
     /**
      * To group N parts together, for example to split big files into chunks of 1000 lines.
+     * You can use simple language as the group to support dynamic group sizes.
      */
-    public void setGroup(Integer group) {
+    public void setGroup(String group) {
         this.group = group;
     }
 
@@ -192,10 +193,7 @@ public class TokenizerExpression extends ExpressionDefinition {
         if (includeTokens != null) {
             language.setIncludeTokens(includeTokens);
         }
-        if (group != null) {
-            if (group <= 0) {
-                throw new IllegalArgumentException("Group must be a positive number, was: " + group);
-            }
+        if (group != null && !"0".equals(group)) {
             language.setGroup(group);
         }
         if (skipFirst != null) {

@@ -19,12 +19,14 @@ package org.apache.camel.component.xslt;
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 
 /**
  *
  */
 public class XsltIncludeClasspathTest extends ContextTestSupport {
 
+    @Test
     public void testXsltIncludeClasspath() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
@@ -39,7 +41,7 @@ public class XsltIncludeClasspathTest extends ContextTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("file:src/test/data/?fileName=staff.xml&noop=true")
+                from("file:src/test/data/?fileName=staff.xml&noop=true&initialDelay=0&delay=10")
                     .to("xslt:org/apache/camel/component/xslt/staff_include_classpath.xsl")
                     .to("log:foo")
                     .to("mock:result");

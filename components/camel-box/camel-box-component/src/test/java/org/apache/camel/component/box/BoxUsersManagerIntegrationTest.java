@@ -51,6 +51,8 @@ public class BoxUsersManagerIntegrationTest extends AbstractBoxTestSupport {
     private static final String CAMEL_TEST_CREATE_APP_USER_NAME = "Wilma";
     private static final String CAMEL_TEST_CREATE_ENTERPRISE_USER_NAME = "fred";
     private static final String CAMEL_TEST_CREATE_ENTERPRISE_USER_LOGIN = "fred@example.com";
+    private static final String CAMEL_TEST_CREATE_ENTERPRISE_USER2_NAME = "gregory";
+    private static final String CAMEL_TEST_CREATE_ENTERPRISE_USER2_LOGIN = "gregory@example.com";
 
     private BoxUser testUser;
 
@@ -59,7 +61,7 @@ public class BoxUsersManagerIntegrationTest extends AbstractBoxTestSupport {
     public void testAddUserEmailAlias() throws Exception {
         com.box.sdk.EmailAlias result = null;
         try {
-            final Map<String, Object> headers = new HashMap<String, Object>();
+            final Map<String, Object> headers = new HashMap<>();
             // parameter type is String
             headers.put("CamelBox.userId", testUser.getID());
             // parameter type is String
@@ -85,7 +87,7 @@ public class BoxUsersManagerIntegrationTest extends AbstractBoxTestSupport {
             CreateUserParams params = new CreateUserParams();
             params.setSpaceAmount(1073741824); // 1 GB
 
-            final Map<String, Object> headers = new HashMap<String, Object>();
+            final Map<String, Object> headers = new HashMap<>();
             // parameter type is String
             headers.put("CamelBox.name", CAMEL_TEST_CREATE_APP_USER_NAME);
             // parameter type is com.box.sdk.CreateUserParams
@@ -113,7 +115,7 @@ public class BoxUsersManagerIntegrationTest extends AbstractBoxTestSupport {
             CreateUserParams params = new CreateUserParams();
             params.setSpaceAmount(1073741824); // 1 GB
 
-            final Map<String, Object> headers = new HashMap<String, Object>();
+            final Map<String, Object> headers = new HashMap<>();
             // parameter type is String
             headers.put("CamelBox.login", CAMEL_TEST_CREATE_ENTERPRISE_USER_LOGIN);
             // parameter type is String
@@ -139,7 +141,7 @@ public class BoxUsersManagerIntegrationTest extends AbstractBoxTestSupport {
     public void testDeleteUser() throws Exception {
         BoxUser.Info info = BoxUser.createAppUser(getConnection(), CAMEL_TEST_CREATE_APP_USER_NAME);
 
-        final Map<String, Object> headers = new HashMap<String, Object>();
+        final Map<String, Object> headers = new HashMap<>();
         // parameter type is String
         headers.put("CamelBox.userId", info.getID());
         headers.put("CamelBox.notifyUser", Boolean.FALSE);
@@ -165,7 +167,7 @@ public class BoxUsersManagerIntegrationTest extends AbstractBoxTestSupport {
                     String.format("Box API returned the error code %d\n\n%s", e.getResponseCode(), e.getResponse()), e);
         }
 
-        final Map<String, Object> headers = new HashMap<String, Object>();
+        final Map<String, Object> headers = new HashMap<>();
         // parameter type is String
         headers.put("CamelBox.userId", testUser.getID());
         // parameter type is String
@@ -179,7 +181,7 @@ public class BoxUsersManagerIntegrationTest extends AbstractBoxTestSupport {
 
     @Test
     public void testGetAllEnterpriseOrExternalUsers() throws Exception {
-        final Map<String, Object> headers = new HashMap<String, Object>();
+        final Map<String, Object> headers = new HashMap<>();
         // parameter type is String
         headers.put("CamelBox.filterTerm", null);
         // parameter type is String[]
@@ -225,7 +227,7 @@ public class BoxUsersManagerIntegrationTest extends AbstractBoxTestSupport {
         info.setJobTitle(CAMEL_TEST_USER_JOB_TITLE);
 
         try {
-            final Map<String, Object> headers = new HashMap<String, Object>();
+            final Map<String, Object> headers = new HashMap<>();
             // parameter type is String
             headers.put("CamelBox.userId", testUser.getID());
             // parameter type is com.box.sdk.BoxUser.Info
@@ -238,6 +240,22 @@ public class BoxUsersManagerIntegrationTest extends AbstractBoxTestSupport {
             info.setJobTitle("");
             testUser.updateInfo(info);
         }
+    }
+
+    @Test
+    public void testmMoveFolderToUser() throws Exception {
+        BoxUser.Info user1 = BoxUser.createEnterpriseUser(getConnection(),
+                CAMEL_TEST_CREATE_ENTERPRISE_USER_LOGIN, CAMEL_TEST_CREATE_ENTERPRISE_USER_NAME);
+        BoxUser.Info user2 = BoxUser.createEnterpriseUser(getConnection(),
+                CAMEL_TEST_CREATE_ENTERPRISE_USER2_LOGIN, CAMEL_TEST_CREATE_ENTERPRISE_USER2_NAME);
+
+        final Map<String, Object> headers = new HashMap<>();
+        // parameter type is String
+        headers.put("CamelBox.userId", user1.getID());
+        headers.put("CamelBox.sourceUserId", user2.getID());
+
+        final com.box.sdk.BoxFolder.Info result = requestBodyAndHeaders("direct://MOVEFOLDERTOUSER", null, headers);
+        assertNotNull("moveFolderToUser result", result);
     }
 
     @Override
@@ -275,6 +293,8 @@ public class BoxUsersManagerIntegrationTest extends AbstractBoxTestSupport {
                 // test route for updateUserInfo
                 from("direct://UPDATEUSERINFO").to("box://" + PATH_PREFIX + "/updateUserInfo");
 
+                // test route for moveFolderToUser
+                from("direct://MOVEFOLDERTOUSER").to("box://" + PATH_PREFIX + "/moveFolderToUser");
             }
         };
     }

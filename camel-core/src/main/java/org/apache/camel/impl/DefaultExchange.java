@@ -18,12 +18,12 @@ package org.apache.camel.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
@@ -185,7 +185,7 @@ public final class DefaultExchange implements Exchange {
         Object value = getProperty(name);
         if (value == null) {
             // lets avoid NullPointerException when converting to boolean for null values
-            if (boolean.class.isAssignableFrom(type)) {
+            if (boolean.class == type) {
                 return (T) Boolean.FALSE;
             }
             return null;
@@ -194,7 +194,7 @@ public final class DefaultExchange implements Exchange {
         // eager same instance type test to avoid the overhead of invoking the type converter
         // if already same type
         if (type.isInstance(value)) {
-            return type.cast(value);
+            return (T) value;
         }
 
         return ExchangeHelper.convertToType(this, type, value);
@@ -205,7 +205,7 @@ public final class DefaultExchange implements Exchange {
         Object value = getProperty(name, defaultValue);
         if (value == null) {
             // lets avoid NullPointerException when converting to boolean for null values
-            if (boolean.class.isAssignableFrom(type)) {
+            if (boolean.class == type) {
                 return (T) Boolean.FALSE;
             }
             return null;
@@ -214,7 +214,7 @@ public final class DefaultExchange implements Exchange {
         // eager same instance type test to avoid the overhead of invoking the type converter
         // if already same type
         if (type.isInstance(value)) {
-            return type.cast(value);
+            return (T) value;
         }
 
         return ExchangeHelper.convertToType(this, type, value);
@@ -317,7 +317,7 @@ public final class DefaultExchange implements Exchange {
     public Message getOut() {
         // lazy create
         if (out == null) {
-            out = (in != null && in instanceof MessageSupport)
+            out = (in instanceof MessageSupport)
                 ? ((MessageSupport)in).newInstance() : new DefaultMessage(getContext());
             configureMessage(out);
         }
@@ -350,6 +350,23 @@ public final class DefaultExchange implements Exchange {
         configureMessage(out);
     }
 
+    public Message getMessage() {
+        return hasOut() ? getOut() : getIn();
+    }
+
+    public <T> T getMessage(Class<T> type) {
+        return hasOut() ? getOut(type) : getIn(type);
+    }
+
+    public void setMessage(Message message) {
+        if (hasOut()) {
+            setOut(message);
+        } else {
+            setIn(message);
+        }
+    }
+
+
     public Exception getException() {
         return exception;
     }
@@ -366,6 +383,10 @@ public final class DefaultExchange implements Exchange {
         } else {
             // wrap throwable into an exception
             this.exception = ObjectHelper.wrapCamelExecutionException(this, t);
+        }
+        if (t instanceof InterruptedException) {
+            // mark the exchange as interrupted due to the interrupt exception
+            setProperty(Exchange.INTERRUPTED, Boolean.TRUE);
         }
     }
 
@@ -473,7 +494,7 @@ public final class DefaultExchange implements Exchange {
             // unit of work not yet registered so we store the on completion temporary
             // until the unit of work is assigned to this exchange by the unit of work
             if (onCompletions == null) {
-                onCompletions = new ArrayList<Synchronization>();
+                onCompletions = new ArrayList<>();
             }
             onCompletions.add(onCompletion);
         } else {
@@ -508,7 +529,7 @@ public final class DefaultExchange implements Exchange {
     public List<Synchronization> handoverCompletions() {
         List<Synchronization> answer = null;
         if (onCompletions != null) {
-            answer = new ArrayList<Synchronization>(onCompletions);
+            answer = new ArrayList<>(onCompletions);
             onCompletions.clear();
             onCompletions = null;
         }
@@ -539,11 +560,11 @@ public final class DefaultExchange implements Exchange {
     }
 
     protected Map<String, Object> createProperties() {
-        return new HashMap<>();
+        return new ConcurrentHashMap<>();
     }
 
     protected Map<String, Object> createProperties(Map<String, Object> properties) {
-        return new HashMap<>(properties);
+        return new ConcurrentHashMap<>(properties);
     }
 
     private static boolean isExcludePatternMatch(String key, String... excludePatterns) {

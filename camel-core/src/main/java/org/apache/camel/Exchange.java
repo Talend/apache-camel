@@ -48,7 +48,7 @@ import org.apache.camel.spi.UnitOfWork;
  * and set it as the in for the next {@link Processor}. If the previous {@link Processor} did not
  * produce an out, then the in of the previous {@link Processor} is sent as the next in. At the
  * end of the processing chain, depending on the {@link ExchangePattern Message Exchange Pattern} (or MEP)
- * the last out (or in of no out available) is sent by the {@link Consumer} back to the original caller.
+ * the last out (or in if no out available) is sent by the {@link Consumer} back to the original caller.
  * <p/>
  * Camel, in addition to providing out-of-the-box a large number of useful processors, it also allows 
  * you to implement and use your own. When the Exchange is passed to a {@link Processor}, it always 
@@ -73,6 +73,7 @@ public interface Exchange {
 
     String AUTHENTICATION                   = "CamelAuthentication";
     String AUTHENTICATION_FAILURE_POLICY_ID = "CamelAuthenticationFailurePolicyId";
+    @Deprecated
     String ACCEPT_CONTENT_TYPE              = "CamelAcceptContentType";
     String AGGREGATED_SIZE                  = "CamelAggregatedSize";
     String AGGREGATED_TIMEOUT               = "CamelAggregatedTimeout";
@@ -89,20 +90,22 @@ public interface Exchange {
     String BATCH_SIZE                 = "CamelBatchSize";
     String BATCH_COMPLETE             = "CamelBatchComplete";
     String BEAN_METHOD_NAME           = "CamelBeanMethodName";
+    @Deprecated
     String BEAN_MULTI_PARAMETER_ARRAY = "CamelBeanMultiParameterArray";
     String BINDING                    = "CamelBinding";
     // do not prefix with Camel and use lower-case starting letter as its a shared key
     // used across other Apache products such as AMQ, SMX etc.
     String BREADCRUMB_ID              = "breadcrumbId";
 
-    String CHARSET_NAME          = "CamelCharsetName";
-    String CIRCUIT_BREAKER_STATE = "CamelCircuitBreakerState";
-    String CREATED_TIMESTAMP     = "CamelCreatedTimestamp";
-    String CONTENT_ENCODING      = "Content-Encoding";
-    String CONTENT_LENGTH        = "Content-Length";
-    String CONTENT_TYPE          = "Content-Type";
-    String COOKIE_HANDLER        = "CamelCookieHandler";
-    String CORRELATION_ID        = "CamelCorrelationId";
+    String CHARSET_NAME           = "CamelCharsetName";
+    String CIRCUIT_BREAKER_STATE  = "CamelCircuitBreakerState";
+    String CREATED_TIMESTAMP      = "CamelCreatedTimestamp";
+    String CLAIM_CHECK_REPOSITORY = "CamelClaimCheckRepository";
+    String CONTENT_ENCODING       = "Content-Encoding";
+    String CONTENT_LENGTH         = "Content-Length";
+    String CONTENT_TYPE           = "Content-Type";
+    String COOKIE_HANDLER         = "CamelCookieHandler";
+    String CORRELATION_ID         = "CamelCorrelationId";
 
     String DATASET_INDEX             = "CamelDataSetIndex";
     String DEFAULT_CHARSET_PROPERTY  = "org.apache.camel.default.charset";
@@ -159,6 +162,7 @@ public interface Exchange {
 
     String INTERCEPTED_ENDPOINT = "CamelInterceptedEndpoint";
     String INTERCEPT_SEND_TO_ENDPOINT_WHEN_MATCHED = "CamelInterceptSendToEndpointWhenMatched";
+    String INTERRUPTED = "CamelInterrupted";
 
     String LANGUAGE_SCRIPT          = "CamelLanguageScript";
     String LOG_DEBUG_BODY_MAX_CHARS = "CamelLogDebugBodyMaxChars";
@@ -167,8 +171,13 @@ public interface Exchange {
     String LOOP_INDEX               = "CamelLoopIndex";
     String LOOP_SIZE                = "CamelLoopSize";
 
+    // Long running action (saga): using "Long-Running-Action" as header value allows sagas
+    // to be propagated to any remote system supporting the LRA framework
+    String SAGA_LONG_RUNNING_ACTION = "Long-Running-Action";
+
     String MAXIMUM_CACHE_POOL_SIZE     = "CamelMaximumCachePoolSize";
     String MAXIMUM_ENDPOINT_CACHE_SIZE = "CamelMaximumEndpointCacheSize";
+    String MAXIMUM_SIMPLE_CACHE_SIZE = "CamelMaximumSimpleCacheSize";
     String MAXIMUM_TRANSFORMER_CACHE_SIZE = "CamelMaximumTransformerCacheSize";
     String MAXIMUM_VALIDATOR_CACHE_SIZE = "CamelMaximumValidatorCacheSize";
     String MESSAGE_HISTORY             = "CamelMessageHistory";
@@ -208,6 +217,7 @@ public interface Exchange {
     String SKIP_GZIP_ENCODING = "CamelSkipGzipEncoding";
     String SKIP_WWW_FORM_URLENCODED = "CamelSkipWwwFormUrlEncoding"; 
     String SLIP_ENDPOINT      = "CamelSlipEndpoint";
+    String SLIP_PRODUCER      = "CamelSlipProducer";
     String SPLIT_INDEX        = "CamelSplitIndex";
     String SPLIT_COMPLETE     = "CamelSplitComplete";
     String SPLIT_SIZE         = "CamelSplitSize";
@@ -352,6 +362,28 @@ public interface Exchange {
      * @return the message
      */
     Message getIn();
+
+    /**
+     * Returns the current message
+     *
+     * @return the current message
+     */
+    Message getMessage();
+
+    /**
+     * Returns the current message as the given type
+     *
+     * @param type the given type
+     * @return the message as the given type or <tt>null</tt> if not possible to covert to given type
+     */
+    <T> T getMessage(Class<T> type);
+
+    /**
+     * Replace the current message instance.
+     *
+     * @param message the new message
+     */
+    void setMessage(Message message);
 
     /**
      * Returns the inbound request message as the given type

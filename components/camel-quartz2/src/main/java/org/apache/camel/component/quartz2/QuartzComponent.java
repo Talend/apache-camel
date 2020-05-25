@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
+import org.apache.camel.ExtendedStartupListener;
 import org.apache.camel.StartupListener;
 import org.apache.camel.impl.UriEndpointComponent;
 import org.apache.camel.spi.Metadata;
@@ -32,6 +33,7 @@ import org.apache.camel.util.IOHelper;
 import org.apache.camel.util.IntrospectionSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.ResourceHelper;
+import org.apache.camel.util.StringHelper;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerContext;
 import org.quartz.SchedulerException;
@@ -49,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * of the code, but mostly has been re-written in attempt to be more easier to maintain, and use Quartz more
  * fully.</p>
  */
-public class QuartzComponent extends UriEndpointComponent implements StartupListener {
+public class QuartzComponent extends UriEndpointComponent implements ExtendedStartupListener {
     private static final Logger LOG = LoggerFactory.getLogger(QuartzComponent.class);
     @Metadata(label = "advanced")
     private Scheduler scheduler;
@@ -365,12 +367,12 @@ public class QuartzComponent extends UriEndpointComponent implements StartupList
     private TriggerKey createTriggerKey(String uri, String remaining, QuartzEndpoint endpoint) throws Exception {
         // Parse uri for trigger name and group
         URI u = new URI(uri);
-        String path = ObjectHelper.after(u.getPath(), "/");
+        String path = StringHelper.after(u.getPath(), "/");
         String host = u.getHost();
 
         // host can be null if the uri did contain invalid host characters such as an underscore
         if (host == null) {
-            host = ObjectHelper.before(remaining, "/");
+            host = StringHelper.before(remaining, "/");
             if (host == null) {
                 host = remaining;
             }
@@ -456,16 +458,28 @@ public class QuartzComponent extends UriEndpointComponent implements StartupList
 
     @Override
     public void onCamelContextStarted(CamelContext context, boolean alreadyStarted) throws Exception {
+        if (alreadyStarted) {
+            // a route may have been added or starter after CamelContext is started so ensure we startup the scheduler
+            doStartScheduler();
+        }
+    }
+
+    @Override
+    public void onCamelContextFullyStarted(CamelContext context, boolean alreadyStarted) throws Exception {
+        doStartScheduler();
+    }
+
+    protected void doStartScheduler() throws Exception {
         // If Camel has already started and then user add a route dynamically, we need to ensure
         // to create and init the scheduler first.
         if (scheduler == null) {
             createAndInitScheduler();
         } else {
-            // in case custom scheduler was injected (i.e. created elsewhere), we may need to add 
+            // in case custom scheduler was injected (i.e. created elsewhere), we may need to add
             // current camel context to quartz context so jobs have access
             storeCamelContextInQuartzContext();
         }
-        
+
         // Now scheduler is ready, let see how we should start it.
         if (!autoStartScheduler) {
             LOG.info("Not starting scheduler because autoStartScheduler is set to false.");

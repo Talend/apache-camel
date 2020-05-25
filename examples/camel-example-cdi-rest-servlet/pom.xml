@@ -17,15 +17,14 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.apache.camel</groupId>
+    <groupId>org.apache.camel.example</groupId>
     <artifactId>examples</artifactId>
-    <version>2.20.0-SNAPSHOT</version>
+    <version>2.24.2</version>
   </parent>
 
   <artifactId>camel-example-cdi-rest-servlet</artifactId>
@@ -97,6 +96,12 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>hamcrest-core</artifactId>
+          <groupId>org.hamcrest</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>
@@ -129,6 +134,12 @@
       <version>${weld2-version}</version>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-deploy</artifactId>
+      <version>${jetty9-version}</version>
+      <scope>runtime</scope>
+    </dependency>
 
   </dependencies>
 
@@ -154,7 +165,7 @@
         <dependency>
           <groupId>org.jboss.arquillian.container</groupId>
           <artifactId>arquillian-jetty-embedded-9</artifactId>
-          <version>1.0.0.CR2</version>
+          <version>1.0.0.CR3</version>
           <scope>test</scope>
           <exclusions>
             <exclusion>
@@ -166,9 +177,9 @@
       </dependencies>
     </profile>
     <profile>
-      <id>jdk9-build-jetty</id>
+      <id>jdk9+-build-jetty</id>
       <activation>
-        <jdk>9</jdk>
+        <jdk>[9,)</jdk>
       </activation>
       <dependencies>
         <dependency>
@@ -186,7 +197,7 @@
         <dependency>
           <groupId>org.jboss.arquillian.container</groupId>
           <artifactId>arquillian-jetty-embedded-9</artifactId>
-          <version>1.0.0.CR2</version>
+          <version>1.0.0.CR3</version>
           <scope>test</scope>
           <exclusions>
             <exclusion>

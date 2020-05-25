@@ -23,6 +23,8 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.management.mbean.ManagedBacklogDebugger;
 import org.apache.camel.management.mbean.ManagedBacklogTracer;
 import org.apache.camel.management.mbean.ManagedCamelContext;
+import org.apache.camel.management.mbean.ManagedCamelHealth;
+import org.apache.camel.management.mbean.ManagedClusterService;
 import org.apache.camel.management.mbean.ManagedComponent;
 import org.apache.camel.management.mbean.ManagedConsumer;
 import org.apache.camel.management.mbean.ManagedDataFormat;
@@ -32,6 +34,7 @@ import org.apache.camel.management.mbean.ManagedEventNotifier;
 import org.apache.camel.management.mbean.ManagedProcessor;
 import org.apache.camel.management.mbean.ManagedProducer;
 import org.apache.camel.management.mbean.ManagedRoute;
+import org.apache.camel.management.mbean.ManagedRouteController;
 import org.apache.camel.management.mbean.ManagedService;
 import org.apache.camel.management.mbean.ManagedThreadPool;
 import org.apache.camel.management.mbean.ManagedTracer;
@@ -86,9 +89,17 @@ public class ManagedManagementStrategy extends DefaultManagementStrategy {
 
         ObjectName objectName = null;
 
+
+
         if (managedObject instanceof ManagedCamelContext) {
             ManagedCamelContext mcc = (ManagedCamelContext) managedObject;
             objectName = getManagementNamingStrategy().getObjectNameForCamelContext(mcc.getContext());
+        } else if (managedObject instanceof ManagedCamelHealth) {
+            ManagedCamelHealth mch = (ManagedCamelHealth) managedObject;
+            objectName = getManagementNamingStrategy().getObjectNameForCamelHealth(mch.getContext());
+        } else if (managedObject instanceof ManagedRouteController) {
+            ManagedRouteController mrc = (ManagedRouteController) managedObject;
+            objectName = getManagementNamingStrategy().getObjectNameForRouteController(mrc.getContext());
         } else if (managedObject instanceof ManagedComponent) {
             ManagedComponent mc = (ManagedComponent) managedObject;
             objectName = getManagementNamingStrategy().getObjectNameForComponent(mc.getComponent(), mc.getComponentName());
@@ -130,6 +141,9 @@ public class ManagedManagementStrategy extends DefaultManagementStrategy {
         } else if (managedObject instanceof ManagedThreadPool) {
             ManagedThreadPool mes = (ManagedThreadPool) managedObject;
             objectName = getManagementNamingStrategy().getObjectNameForThreadPool(mes.getContext(), mes.getThreadPool(), mes.getId(), mes.getSourceId());
+        } else if (managedObject instanceof ManagedClusterService) {
+            ManagedClusterService mcs = (ManagedClusterService) managedObject;
+            objectName = getManagementNamingStrategy().getObjectNameForClusterService(mcs.getContext(), mcs.getService());
         } else if (managedObject instanceof ManagedService) {
             // check for managed service should be last
             ManagedService ms = (ManagedService) managedObject;
@@ -175,10 +189,10 @@ public class ManagedManagementStrategy extends DefaultManagementStrategy {
     private ObjectName getObjectName(Object managedObject, Object preferedName) throws Exception {
         ObjectName objectName;
 
-        if (preferedName != null && preferedName instanceof String) {
+        if (preferedName instanceof String) {
             String customName = (String) preferedName;
             objectName = getManagedObjectName(managedObject, customName, ObjectName.class);
-        } else if (preferedName != null && preferedName instanceof ObjectName) {
+        } else if (preferedName instanceof ObjectName) {
             objectName = (ObjectName) preferedName;
         } else {
             objectName = getManagedObjectName(managedObject, null, ObjectName.class);

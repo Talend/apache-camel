@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit test for consuming a batch of files (multiple files in one consume)
@@ -27,30 +28,37 @@ import org.apache.camel.component.mock.MockEndpoint;
 public class FileConsumerBatchTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/file-batch");
         super.setUp();
-        template.sendBodyAndHeader("file://target/file-batch/", "Hello World", Exchange.FILE_NAME, "hello.txt");
-        template.sendBodyAndHeader("file://target/file-batch/", "Bye World", Exchange.FILE_NAME, "bye.txt");
     }
 
     @Override
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() throws Exception {
-                from("file://target/file-batch?initialDelay=2000").convertBodyTo(String.class).to("mock:result");
+                from("file://target/file-batch?initialDelay=0&delay=10").noAutoStartup()
+                    .convertBodyTo(String.class).to("mock:result");
             }
         };
     }
 
+    @Test
     public void testConsumeBatch() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodiesReceivedInAnyOrder("Hello World", "Bye World");
+
+        template.sendBodyAndHeader("file://target/file-batch/", "Hello World", Exchange.FILE_NAME, "hello.txt");
+        template.sendBodyAndHeader("file://target/file-batch/", "Bye World", Exchange.FILE_NAME, "bye.txt");
 
         // test header keys
         mock.message(0).exchangeProperty(Exchange.BATCH_SIZE).isEqualTo(2);
         mock.message(0).exchangeProperty(Exchange.BATCH_INDEX).isEqualTo(0);
         mock.message(1).exchangeProperty(Exchange.BATCH_INDEX).isEqualTo(1);
+
+        // start routes
+        context.startAllRoutes();
 
         assertMockEndpointsSatisfied();
     }

@@ -19,6 +19,7 @@ package org.apache.camel.component.sjms.batch;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+
 import javax.jms.ConnectionFactory;
 
 import org.apache.camel.CamelContext;
@@ -33,7 +34,6 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.SimpleRegistry;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.util.StopWatch;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -383,7 +383,7 @@ public class SjmsBatchConsumerTest extends CamelTestSupport {
         context.startRoute("batchConsumer");
 
         assertMockEndpointsSatisfied();
-        long time = stopWatch.stop();
+        stopWatch.stop();
 
     }
 

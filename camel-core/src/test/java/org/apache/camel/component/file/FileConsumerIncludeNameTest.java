@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit test that file consumer will include pre and postfixes
@@ -27,11 +28,13 @@ import org.apache.camel.component.mock.MockEndpoint;
 public class FileConsumerIncludeNameTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/include");
         super.setUp();
     }
 
+    @Test
     public void testIncludePreAndPostfixes() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodiesReceivedInAnyOrder("Reports1", "Reports2", "Reports3");
@@ -55,7 +58,7 @@ public class FileConsumerIncludeNameTest extends ContextTestSupport {
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() throws Exception {
-                from("file://target/include/?include=^report.*txt$")
+                from("file://target/include/?initialDelay=0&delay=10&include=^report.*txt$")
                     .convertBodyTo(String.class).to("mock:result");
             }
         };

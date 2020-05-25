@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -141,7 +142,7 @@ public class ThreadsDefinition extends OutputDefinition<ThreadsDefinition> imple
 
         ThreadsProcessor thread = new ThreadsProcessor(routeContext.getCamelContext(), threadPool, shutdownThreadPool, policy);
 
-        List<Processor> pipe = new ArrayList<Processor>(2);
+        List<Processor> pipe = new ArrayList<>(2);
         pipe.add(thread);
         pipe.add(createChildProcessor(routeContext, true));
         // wrap in nested pipeline so this appears as one processor
@@ -162,6 +163,11 @@ public class ThreadsDefinition extends OutputDefinition<ThreadsDefinition> imple
             }
         }
         return getRejectedPolicy();
+    }
+
+    @Override
+    public String getShortName() {
+        return "threads";
     }
 
     @Override

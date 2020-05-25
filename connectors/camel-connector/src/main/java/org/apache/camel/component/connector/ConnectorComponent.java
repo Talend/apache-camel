@@ -27,15 +27,20 @@ import org.apache.camel.catalog.CamelCatalog;
  * A component which is based from a Camel Connector.
  */
 public interface ConnectorComponent extends Component {
-
     /**
-     * Adds a new option to the existing map of options
+     * Adds a new option to the connector's options.
      *
-     * @param options  the existing options
      * @param name     the name of the option
      * @param value    the value of the option
      */
-    void addConnectorOption(Map<String, String> options, String name, String value);
+    void addOption(String name, Object value);
+
+    /**
+     * Adds options to the connector's options.
+     *
+     * @param options  the options
+     */
+    void addOptions(Map<String, Object> options);
 
     /**
      * Creates the endpoint uri based on the options from the connector.
@@ -58,9 +63,14 @@ public interface ConnectorComponent extends Component {
     String getConnectorName();
 
     /**
-     * Gets the connector component name (component scheme)
+     * Gets the connector component name
      */
     String getComponentName();
+
+    /**
+     * Gets the connector component scheme
+     */
+    String getComponentScheme();
 
     /**
      * Gets the camel-connector JSon file.
@@ -87,6 +97,7 @@ public interface ConnectorComponent extends Component {
      *
      * @deprecated use {@link #setOptions(Map)} instead
      */
+    @Deprecated
     default void setComponentOptions(Map<String, Object> options) {
         setOptions(options);
     }

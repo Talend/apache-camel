@@ -16,6 +16,8 @@
  */
 package org.apache.camel.maven.packaging.model;
 
+import org.apache.camel.maven.packaging.StringHelper;
+
 import static org.apache.camel.maven.packaging.StringHelper.wrapCamelCaseWords;
 
 public class OtherOptionModel {
@@ -28,6 +30,7 @@ public class OtherOptionModel {
     private String type;
     private String javaType;
     private String deprecated;
+    private String deprecationNote;
     private String secret;
     private String description;
     private String defaultValue;
@@ -100,6 +103,14 @@ public class OtherOptionModel {
         this.deprecated = deprecated;
     }
 
+    public String getDeprecationNote() {
+        return deprecationNote;
+    }
+
+    public void setDeprecationNote(String deprecationNote) {
+        this.deprecationNote = deprecationNote;
+    }
+
     public String getSecret() {
         return secret;
     }
@@ -146,20 +157,8 @@ public class OtherOptionModel {
     }
 
     public String getShortJavaType(int watermark) {
-        if (javaType.startsWith("java.util.Map")) {
-            return "Map";
-        } else if (javaType.startsWith("java.util.Set")) {
-            return "Set";
-        } else if (javaType.startsWith("java.util.List")) {
-            return "List";
-        }
 
-        String text = javaType;
-
-        int pos = text.lastIndexOf(".");
-        if (pos != -1) {
-            text = text.substring(pos + 1);
-        }
+        String text = StringHelper.getClassShortName(javaType);
 
         // if its some kind of java object then lets wrap it as its long
         if ("object".equals(type)) {

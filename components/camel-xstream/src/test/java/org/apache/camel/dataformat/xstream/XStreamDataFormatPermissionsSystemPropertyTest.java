@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.dataformat.xstream;
-
 import com.thoughtworks.xstream.XStream;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -27,7 +26,7 @@ public class XStreamDataFormatPermissionsSystemPropertyTest extends XStreamDataF
     public static void setup() {
         // clear the default permissions system property
         // see AbstractXStreamWrapper.PERMISSIONS_PROPERTY_DEFAULT
-        XStreamTestUtils.setPermissionSystemProperty("");
+        XStreamTestUtils.setPermissionSystemProperty("*");
     }
 
     @AfterClass

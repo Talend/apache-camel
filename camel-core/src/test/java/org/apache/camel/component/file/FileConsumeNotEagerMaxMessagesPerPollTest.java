@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit test for max messages per poll
@@ -27,22 +28,28 @@ import org.apache.camel.component.mock.MockEndpoint;
 public class FileConsumeNotEagerMaxMessagesPerPollTest extends ContextTestSupport {
 
     // sort by name and not eager, then we should pickup the files in order
-    private String fileUrl = "file://target/poll/?initialDelay=2000&delay=5000&"
+    private String fileUrl = "file://target/poll/?initialDelay=0&delay=10&"
             + "maxMessagesPerPoll=2&eagerMaxMessagesPerPoll=false&sortBy=file:name";
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/poll");
         super.setUp();
-        template.sendBodyAndHeader(fileUrl, "CCC", Exchange.FILE_NAME, "ccc.txt");
-        template.sendBodyAndHeader(fileUrl, "AAA", Exchange.FILE_NAME, "aaa.txt");
-        template.sendBodyAndHeader(fileUrl, "BBB", Exchange.FILE_NAME, "bbb.txt");
     }
 
+    @Test
     public void testMaxMessagesPerPoll() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodiesReceived("AAA", "BBB");
-        mock.setResultWaitTime(4000);
+
+        template.sendBodyAndHeader(fileUrl, "CCC", Exchange.FILE_NAME, "ccc.txt");
+        template.sendBodyAndHeader(fileUrl, "AAA", Exchange.FILE_NAME, "aaa.txt");
+        template.sendBodyAndHeader(fileUrl, "BBB", Exchange.FILE_NAME, "bbb.txt");
+
+        // start route
+        context.startRoute("foo");
+
         mock.expectedPropertyReceived(Exchange.BATCH_SIZE, 2);
 
         assertMockEndpointsSatisfied();
@@ -57,7 +64,8 @@ public class FileConsumeNotEagerMaxMessagesPerPollTest extends ContextTestSuppor
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() throws Exception {
-                from(fileUrl).convertBodyTo(String.class).to("mock:result");
+                from(fileUrl).routeId("foo").noAutoStartup()
+                    .convertBodyTo(String.class).to("mock:result");
             }
         };
     }

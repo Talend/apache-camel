@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import java.io.File;
 
 import org.apache.camel.ContextTestSupport;
@@ -23,6 +22,8 @@ import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.impl.JndiRegistry;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link AntPathMatcherGenericFileFilter}.
@@ -30,14 +31,15 @@ import org.apache.camel.impl.JndiRegistry;
 public class AntPathMatcherGenericFileFilterTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/files");
         super.setUp();
     }
 
     @Override
     protected JndiRegistry createRegistry() throws Exception {
-        AntPathMatcherGenericFileFilter<File> filterNotCaseSensitive = new AntPathMatcherGenericFileFilter<File>("**/c*");
+        AntPathMatcherGenericFileFilter<File> filterNotCaseSensitive = new AntPathMatcherGenericFileFilter<>("**/c*");
         filterNotCaseSensitive.setCaseSensitive(false);
 
         JndiRegistry jndi = super.createRegistry();
@@ -46,6 +48,7 @@ public class AntPathMatcherGenericFileFilterTest extends ContextTestSupport {
         return jndi;
     }
 
+    @Test
     public void testInclude() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result1");
         mock.expectedBodiesReceivedInAnyOrder("Hello World");
@@ -56,6 +59,7 @@ public class AntPathMatcherGenericFileFilterTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testExclude() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result2");
         mock.expectedBodiesReceivedInAnyOrder("Hello World 2", "Hello World 3", "Hello World 4");
@@ -68,6 +72,7 @@ public class AntPathMatcherGenericFileFilterTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testIncludesAndExcludes() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result3");
         mock.expectedBodiesReceivedInAnyOrder("Hello World 2", "Hello World 4");
@@ -88,6 +93,7 @@ public class AntPathMatcherGenericFileFilterTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testIncludesAndExcludesAndFilter() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result4");
         mock.expectedBodiesReceivedInAnyOrder("Hello World 3");
@@ -101,6 +107,7 @@ public class AntPathMatcherGenericFileFilterTest extends ContextTestSupport {
     }
 
 
+    @Test
     public void testIncludeAndAntFilterNotCaseSensitive() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result5");
         mock.expectedBodiesReceivedInAnyOrder("Hello World");
@@ -110,6 +117,7 @@ public class AntPathMatcherGenericFileFilterTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testExcludeAndAntFilterNotCaseSensitive() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result6");
         mock.expectedBodiesReceivedInAnyOrder("Hello World 2", "Hello World 4");
@@ -122,6 +130,7 @@ public class AntPathMatcherGenericFileFilterTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testIncludesAndExcludesAndAntFilterNotCaseSensitive() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result7");
         mock.expectedBodiesReceivedInAnyOrder("Hello World 2", "Hello World 4", "Hello World 8", "Hello World 10");
@@ -142,6 +151,7 @@ public class AntPathMatcherGenericFileFilterTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testIncludesAndExcludesAndFilterAndAntFilterNotCaseSensitive() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result8");
         mock.expectedBodiesReceivedInAnyOrder("Hello World 3", "Hello World 4");
@@ -158,17 +168,25 @@ public class AntPathMatcherGenericFileFilterTest extends ContextTestSupport {
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() throws Exception {
-                from("file://target/files/ant-path-1?recursive=true&antInclude=**/*.txt&antFilterCaseSensitive=true").convertBodyTo(String.class).to("mock:result1");
-                from("file://target/files/ant-path-5?recursive=true&antInclude=**/*.txt&antFilterCaseSensitive=false").convertBodyTo(String.class).to("mock:result5");
+                from("file://target/files/ant-path-1?initialDelay=0&delay=10&recursive=true&antInclude=**/*.txt&antFilterCaseSensitive=true")
+                    .convertBodyTo(String.class).to("mock:result1");
+                from("file://target/files/ant-path-5?initialDelay=0&delay=10&recursive=true&antInclude=**/*.txt&antFilterCaseSensitive=false")
+                    .convertBodyTo(String.class).to("mock:result5");
 
-                from("file://target/files/ant-path-2?recursive=true&antExclude=**/*.bak").convertBodyTo(String.class).to("mock:result2");
-                from("file://target/files/ant-path-6?recursive=true&antExclude=**/*.bak&antFilterCaseSensitive=false").convertBodyTo(String.class).to("mock:result6");
+                from("file://target/files/ant-path-2?initialDelay=0&delay=10&recursive=true&antExclude=**/*.bak")
+                    .convertBodyTo(String.class).to("mock:result2");
+                from("file://target/files/ant-path-6?initialDelay=0&delay=10&recursive=true&antExclude=**/*.bak&antFilterCaseSensitive=false")
+                    .convertBodyTo(String.class).to("mock:result6");
 
-                from("file://target/files/ant-path-3?recursive=true&antInclude=**/*.pdf,**/*.txt&antExclude=**/a*,**/b*").convertBodyTo(String.class).to("mock:result3");
-                from("file://target/files/ant-path-7?recursive=true&antInclude=**/*.Pdf,**/*.txt&antExclude=**/a*,**/b*&antFilterCaseSensitive=false").convertBodyTo(String.class).to("mock:result7");
+                from("file://target/files/ant-path-3?initialDelay=0&delay=10&recursive=true&antInclude=**/*.pdf,**/*.txt&antExclude=**/a*,**/b*")
+                    .convertBodyTo(String.class).to("mock:result3");
+                from("file://target/files/ant-path-7?initialDelay=0&delay=10&recursive=true&antInclude=**/*.Pdf,**/*.txt&antExclude=**/a*,**/b*&antFilterCaseSensitive=false")
+                    .convertBodyTo(String.class).to("mock:result7");
 
-                from("file://target/files/ant-path-4?recursive=true&antInclude=**/*.txt&antExclude=**/a*&filter=#filter").convertBodyTo(String.class).to("mock:result4");
-                from("file://target/files/ant-path-8?recursive=true&antInclude=**/*.txt&antExclude=**/a*&filter=#caseInsensitiveFilter").convertBodyTo(String.class).to("mock:result8");
+                from("file://target/files/ant-path-4?initialDelay=0&delay=10&recursive=true&antInclude=**/*.txt&antExclude=**/a*&filter=#filter")
+                    .convertBodyTo(String.class).to("mock:result4");
+                from("file://target/files/ant-path-8?initialDelay=0&delay=10&recursive=true&antInclude=**/*.txt&antExclude=**/a*&filter=#caseInsensitiveFilter")
+                    .convertBodyTo(String.class).to("mock:result8");
             }
         };
     }

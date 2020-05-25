@@ -44,8 +44,8 @@ import org.slf4j.LoggerFactory;
 public class DefaultInflightRepository extends ServiceSupport implements InflightRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultInflightRepository.class);
-    private final ConcurrentMap<String, Exchange> inflight = new ConcurrentHashMap<String, Exchange>();
-    private final ConcurrentMap<String, AtomicInteger> routeCount = new ConcurrentHashMap<String, AtomicInteger>();
+    private final ConcurrentMap<String, Exchange> inflight = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, AtomicInteger> routeCount = new ConcurrentHashMap<>();
 
     public void add(Exchange exchange) {
         inflight.put(exchange.getExchangeId(), exchange);
@@ -56,7 +56,7 @@ public class DefaultInflightRepository extends ServiceSupport implements Infligh
     }
 
     public void add(Exchange exchange, String routeId) {
-        AtomicInteger existing = routeCount.putIfAbsent(routeId, new AtomicInteger(1));
+        AtomicInteger existing = routeCount.get(routeId);
         if (existing != null) {
             existing.incrementAndGet();
         }
@@ -76,6 +76,11 @@ public class DefaultInflightRepository extends ServiceSupport implements Infligh
     @Deprecated
     public int size(Endpoint endpoint) {
         return 0;
+    }
+
+    @Override
+    public void addRoute(String routeId) {
+        routeCount.putIfAbsent(routeId, new AtomicInteger(0));
     }
 
     @Override
@@ -173,7 +178,7 @@ public class DefaultInflightRepository extends ServiceSupport implements Infligh
     protected void doStop() throws Exception {
         int count = size();
         if (count > 0) {
-            LOG.warn("Shutting down while there are still " + count + " inflight exchanges.");
+            LOG.warn("Shutting down while there are still {} inflight exchanges.", count);
         } else {
             LOG.debug("Shutting down with no inflight exchanges.");
         }
@@ -218,7 +223,12 @@ public class DefaultInflightRepository extends ServiceSupport implements Infligh
             // get latest entry
             MessageHistory history = list.getLast();
             if (history != null) {
-                return history.getElapsed();
+                long elapsed = history.getElapsed();
+                if (elapsed == 0 && history.getTime() > 0) {
+                    // still in progress, so lets compute it via the start time
+                    elapsed = System.currentTimeMillis() - history.getTime();
+                }
+                return elapsed;
             } else {
                 return 0;
             }

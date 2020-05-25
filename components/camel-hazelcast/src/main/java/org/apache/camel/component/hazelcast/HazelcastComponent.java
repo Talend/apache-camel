@@ -16,25 +16,16 @@
  */
 package org.apache.camel.component.hazelcast;
 
-import java.io.InputStream;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
-import com.hazelcast.client.HazelcastClient;
-import com.hazelcast.client.config.ClientConfig;
-import com.hazelcast.client.config.XmlClientConfigBuilder;
-import com.hazelcast.config.Config;
-import com.hazelcast.config.XmlConfigBuilder;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.apache.camel.CamelContext;
-import org.apache.camel.Endpoint;
 import org.apache.camel.component.hazelcast.atomicnumber.HazelcastAtomicnumberEndpoint;
 import org.apache.camel.component.hazelcast.instance.HazelcastInstanceEndpoint;
 import org.apache.camel.component.hazelcast.list.HazelcastListEndpoint;
 import org.apache.camel.component.hazelcast.map.HazelcastMapEndpoint;
 import org.apache.camel.component.hazelcast.multimap.HazelcastMultimapEndpoint;
+import org.apache.camel.component.hazelcast.queue.HazelcastQueueConfiguration;
 import org.apache.camel.component.hazelcast.queue.HazelcastQueueEndpoint;
 import org.apache.camel.component.hazelcast.replicatedmap.HazelcastReplicatedmapEndpoint;
 import org.apache.camel.component.hazelcast.ringbuffer.HazelcastRingbufferEndpoint;
@@ -43,18 +34,9 @@ import org.apache.camel.component.hazelcast.seda.HazelcastSedaEndpoint;
 import org.apache.camel.component.hazelcast.set.HazelcastSetEndpoint;
 import org.apache.camel.component.hazelcast.topic.HazelcastTopicConfiguration;
 import org.apache.camel.component.hazelcast.topic.HazelcastTopicEndpoint;
-import org.apache.camel.impl.DefaultComponent;
-import org.apache.camel.spi.Metadata;
-import org.apache.camel.util.ObjectHelper;
-import org.apache.camel.util.ResourceHelper;
 import org.apache.camel.util.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.apache.camel.component.hazelcast.HazelcastConstants.HAZELCAST_CONFIGU_PARAM;
-import static org.apache.camel.component.hazelcast.HazelcastConstants.HAZELCAST_CONFIGU_URI_PARAM;
-import static org.apache.camel.component.hazelcast.HazelcastConstants.HAZELCAST_INSTANCE_NAME_PARAM;
-import static org.apache.camel.component.hazelcast.HazelcastConstants.HAZELCAST_INSTANCE_PARAM;
 
 /**
  * @deprecated
@@ -112,7 +94,9 @@ public class HazelcastComponent extends HazelcastDefaultComponent {
         if (remaining.startsWith(HazelcastConstants.QUEUE_PREFIX)) {
             // remaining is anything (name it foo ;)
             remaining = StringHelper.removeStartingCharacters(remaining.substring(HazelcastConstants.QUEUE_PREFIX.length()), '/');
-            endpoint = new HazelcastQueueEndpoint(hzInstance, uri, this, remaining);
+            final HazelcastQueueConfiguration config = new HazelcastQueueConfiguration();
+            setProperties(config, parameters);
+            endpoint = new HazelcastQueueEndpoint(hzInstance, uri, this, remaining, config);
             endpoint.setCommand(HazelcastCommand.queue);
         }
 

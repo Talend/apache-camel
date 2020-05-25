@@ -24,6 +24,7 @@ import org.w3c.dom.Node;
 
 import org.apache.camel.model.DataFormatDefinition;
 import org.apache.camel.model.ProcessorDefinition;
+import org.apache.camel.model.dataformat.ASN1DataFormat;
 import org.apache.camel.model.dataformat.AvroDataFormat;
 import org.apache.camel.model.dataformat.Base64DataFormat;
 import org.apache.camel.model.dataformat.BeanioDataFormat;
@@ -33,6 +34,8 @@ import org.apache.camel.model.dataformat.BoonDataFormat;
 import org.apache.camel.model.dataformat.CastorDataFormat;
 import org.apache.camel.model.dataformat.CsvDataFormat;
 import org.apache.camel.model.dataformat.CustomDataFormat;
+import org.apache.camel.model.dataformat.FhirJsonDataFormat;
+import org.apache.camel.model.dataformat.FhirXmlDataFormat;
 import org.apache.camel.model.dataformat.GzipDataFormat;
 import org.apache.camel.model.dataformat.HL7DataFormat;
 import org.apache.camel.model.dataformat.HessianDataFormat;
@@ -52,6 +55,7 @@ import org.apache.camel.model.dataformat.SoapJaxbDataFormat;
 import org.apache.camel.model.dataformat.StringDataFormat;
 import org.apache.camel.model.dataformat.SyslogDataFormat;
 import org.apache.camel.model.dataformat.TarFileDataFormat;
+import org.apache.camel.model.dataformat.ThriftDataFormat;
 import org.apache.camel.model.dataformat.TidyMarkupDataFormat;
 import org.apache.camel.model.dataformat.XMLBeansDataFormat;
 import org.apache.camel.model.dataformat.XMLSecurityDataFormat;
@@ -180,6 +184,21 @@ public class DataFormatClause<T extends ProcessorDefinition<?>> {
         BindyDataFormat bindy = new BindyDataFormat();
         bindy.setType(type);
         bindy.setClassType(classType);
+        return dataFormat(bindy);
+    }
+
+    /**
+     * Uses the Bindy data format
+     *
+     * @param type      the type of bindy data format to use
+     * @param classType the POJO class type
+     * @param unwrapSingleInstance whether unmarshal should unwrap if there is a single instance in the result
+     */
+    public T bindy(BindyType type, Class<?> classType, boolean unwrapSingleInstance) {
+        BindyDataFormat bindy = new BindyDataFormat();
+        bindy.setType(type);
+        bindy.setClassType(classType);
+        bindy.setUnwrapSingleInstance(unwrapSingleInstance);
         return dataFormat(bindy);
     }
 
@@ -740,6 +759,7 @@ public class DataFormatClause<T extends ProcessorDefinition<?>> {
     /**
      * Uses the Java Serialization data format
      */
+    @Deprecated
     public T serialization() {
         return dataFormat(new SerializationDataFormat());
     }
@@ -811,6 +831,7 @@ public class DataFormatClause<T extends ProcessorDefinition<?>> {
     /**
      * Uses the String data format
      */
+    @Deprecated
     public T string() {
         return string(null);
     }
@@ -818,6 +839,7 @@ public class DataFormatClause<T extends ProcessorDefinition<?>> {
     /**
      * Uses the String data format supporting encoding using given charset
      */
+    @Deprecated
     public T string(String charset) {
         StringDataFormat sdf = new StringDataFormat();
         sdf.setCharset(charset);
@@ -829,6 +851,34 @@ public class DataFormatClause<T extends ProcessorDefinition<?>> {
      */
     public T syslog() {
         return dataFormat(new SyslogDataFormat());
+    }
+    
+    /**
+     * Uses the Thrift data format
+     */
+    public T thrift() {
+        return dataFormat(new ThriftDataFormat());
+    }
+
+    public T thrift(Object defaultInstance) {
+        ThriftDataFormat dataFormat = new ThriftDataFormat();
+        dataFormat.setDefaultInstance(defaultInstance);
+        return dataFormat(dataFormat);
+    }
+    
+    public T thrift(Object defaultInstance, String contentTypeFormat) {
+        ThriftDataFormat dataFormat = new ThriftDataFormat();
+        dataFormat.setDefaultInstance(defaultInstance);
+        dataFormat.setContentTypeFormat(contentTypeFormat);
+        return dataFormat(dataFormat);
+    }
+
+    public T thrift(String instanceClassName) {
+        return dataFormat(new ThriftDataFormat(instanceClassName));
+    }
+    
+    public T thrift(String instanceClassName, String contentTypeFormat) {
+        return dataFormat(new ThriftDataFormat(instanceClassName, contentTypeFormat));
     }
 
     /**
@@ -980,6 +1030,56 @@ public class DataFormatClause<T extends ProcessorDefinition<?>> {
         return dataFormat(xsdf);
     }
     
+    
+    /**
+     * Uses the XML Security data format
+     */
+    public T secureXML(String secureTag, boolean secureTagContents, byte[] passPhraseByte) {
+        XMLSecurityDataFormat xsdf = new XMLSecurityDataFormat();
+        xsdf.setSecureTag(secureTag);
+        xsdf.setSecureTagContents(secureTagContents);
+        xsdf.setPassPhraseByte(passPhraseByte);
+        return dataFormat(xsdf);
+    }
+    
+    /**
+     * Uses the XML Security data format
+     */
+    public T secureXML(String secureTag, Map<String, String> namespaces, boolean secureTagContents, byte[] passPhraseByte) {
+        XMLSecurityDataFormat xsdf = new XMLSecurityDataFormat();
+        xsdf.setSecureTag(secureTag);
+        xsdf.setNamespaces(namespaces);
+        xsdf.setSecureTagContents(secureTagContents);
+        xsdf.setPassPhraseByte(passPhraseByte);
+        return dataFormat(xsdf);
+    }
+    
+    /**
+     * Uses the XML Security data format
+     */
+    public T secureXML(String secureTag, boolean secureTagContents, byte[] passPhraseByte, String xmlCipherAlgorithm) {
+        XMLSecurityDataFormat xsdf = new XMLSecurityDataFormat();
+        xsdf.setSecureTag(secureTag);
+        xsdf.setSecureTagContents(secureTagContents);
+        xsdf.setPassPhraseByte(passPhraseByte);
+        xsdf.setXmlCipherAlgorithm(xmlCipherAlgorithm);
+        return dataFormat(xsdf);
+    }
+    
+    
+    /**
+     * Uses the XML Security data format
+     */
+    public T secureXML(String secureTag, Map<String, String> namespaces, boolean secureTagContents, byte[] passPhraseByte, String xmlCipherAlgorithm) {
+        XMLSecurityDataFormat xsdf = new XMLSecurityDataFormat();
+        xsdf.setSecureTag(secureTag);
+        xsdf.setNamespaces(namespaces);
+        xsdf.setSecureTagContents(secureTagContents);
+        xsdf.setPassPhraseByte(passPhraseByte);
+        xsdf.setXmlCipherAlgorithm(xmlCipherAlgorithm);
+        return dataFormat(xsdf);
+    }
+    
     /**
      * @deprecated Use {@link #secureXML(String, Map, boolean, String, String, String, String)} instead.
      * Uses the XML Security data format
@@ -1100,6 +1200,7 @@ public class DataFormatClause<T extends ProcessorDefinition<?>> {
     /**
      * Uses the xmljson dataformat, based on json-lib
      */
+    @Deprecated
     public T xmljson() {
         return dataFormat(new XmlJsonDataFormat());
     }
@@ -1107,6 +1208,7 @@ public class DataFormatClause<T extends ProcessorDefinition<?>> {
     /**
      * Uses the xmljson dataformat, based on json-lib, initializing custom options with a Map
      */
+    @Deprecated
     public T xmljson(Map<String, String> options) {
         return dataFormat(new XmlJsonDataFormat(options));
     }
@@ -1133,6 +1235,76 @@ public class DataFormatClause<T extends ProcessorDefinition<?>> {
     public T zipFile() {
         ZipFileDataFormat zfdf = new ZipFileDataFormat();
         return dataFormat(zfdf);
+    }
+    
+    /**
+     * Uses the ASN.1 file data format
+     */
+    public T asn1() {
+        ASN1DataFormat asn1Df = new ASN1DataFormat();
+        return dataFormat(asn1Df);
+    }
+    
+    public T asn1(String clazzName) {
+        return dataFormat(new ASN1DataFormat(clazzName));
+    }
+    
+    public T asn1(Boolean usingIterator) {
+        return dataFormat(new ASN1DataFormat(usingIterator));
+    }
+
+    /**
+     * Uses the FHIR JSON data format
+     */
+    public T fhirJson() {
+        FhirJsonDataFormat jsonDataFormat = new FhirJsonDataFormat();
+        return dataFormat(jsonDataFormat);
+    }
+
+    public T fhirJson(String version) {
+        FhirJsonDataFormat jsonDataFormat = new FhirJsonDataFormat();
+        jsonDataFormat.setFhirVersion(version);
+        return dataFormat(jsonDataFormat);
+    }
+
+    public T fhirJson(boolean prettyPrint) {
+        FhirJsonDataFormat jsonDataFormat = new FhirJsonDataFormat();
+        jsonDataFormat.setPrettyPrint(prettyPrint);
+        return dataFormat(jsonDataFormat);
+    }
+
+    public T fhirJson(String version, boolean prettyPrint) {
+        FhirJsonDataFormat jsonDataFormat = new FhirJsonDataFormat();
+        jsonDataFormat.setPrettyPrint(prettyPrint);
+        jsonDataFormat.setFhirVersion(version);
+        return dataFormat(jsonDataFormat);
+    }
+
+    /**
+     * Uses the FHIR XML data format
+     */
+    public T fhirXml() {
+        FhirXmlDataFormat fhirXmlDataFormat = new FhirXmlDataFormat();
+        return dataFormat(fhirXmlDataFormat);
+    }
+
+    public T fhirXml(String version) {
+        FhirXmlDataFormat fhirXmlDataFormat = new FhirXmlDataFormat();
+        fhirXmlDataFormat.setFhirVersion(version);
+        return dataFormat(fhirXmlDataFormat);
+    }
+
+    public T fhirXml(boolean prettyPrint) {
+        FhirXmlDataFormat fhirXmlDataFormat = new FhirXmlDataFormat();
+        fhirXmlDataFormat.setPrettyPrint(prettyPrint);
+        return dataFormat(fhirXmlDataFormat);
+    }
+
+    public T fhirXml(String version, boolean prettyPrint) {
+        FhirXmlDataFormat fhirXmlDataFormat = new FhirXmlDataFormat();
+        fhirXmlDataFormat.setFhirVersion(version);
+        fhirXmlDataFormat.setPrettyPrint(prettyPrint);
+        return dataFormat(fhirXmlDataFormat);
     }
 
     @SuppressWarnings("unchecked")

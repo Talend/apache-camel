@@ -30,6 +30,7 @@ import org.apache.camel.api.management.mbean.ManagedCamelContextMBean;
 import org.apache.camel.api.management.mbean.ManagedProcessorMBean;
 import org.apache.camel.api.management.mbean.ManagedRouteMBean;
 import org.apache.camel.builder.ErrorHandlerBuilder;
+import org.apache.camel.health.HealthCheckRegistry;
 import org.apache.camel.model.DataFormatDefinition;
 import org.apache.camel.model.HystrixConfigurationDefinition;
 import org.apache.camel.model.ProcessorDefinition;
@@ -72,6 +73,7 @@ import org.apache.camel.spi.Registry;
 import org.apache.camel.spi.ReloadStrategy;
 import org.apache.camel.spi.RestConfiguration;
 import org.apache.camel.spi.RestRegistry;
+import org.apache.camel.spi.RouteController;
 import org.apache.camel.spi.RoutePolicyFactory;
 import org.apache.camel.spi.RouteStartupOrder;
 import org.apache.camel.spi.RuntimeEndpointRegistry;
@@ -86,6 +88,7 @@ import org.apache.camel.spi.UuidGenerator;
 import org.apache.camel.spi.Validator;
 import org.apache.camel.spi.ValidatorRegistry;
 import org.apache.camel.util.LoadPropertiesException;
+import org.apache.camel.util.ValueHolder;
 import org.apache.camel.util.jsse.SSLContextParameters;
 
 /**
@@ -305,6 +308,14 @@ public interface CamelContext extends SuspendableService, RuntimeConfiguration {
     <T> T hasService(Class<T> type);
 
     /**
+     * Has the given service type already been added to this CamelContext?
+     *
+     * @param type the class type
+     * @return the services instance or empty set.
+     */
+    <T> Set<T> hasServices(Class<T> type);
+
+    /**
      * Defers starting the service until {@link CamelContext} is (almost started) or started and has initialized all its prior services and routes.
      * <p/>
      * If {@link CamelContext} is already started then the service is started immediately.
@@ -395,7 +406,7 @@ public interface CamelContext extends SuspendableService, RuntimeConfiguration {
     /**
      * Gets a readonly list of names of the components currently registered
      *
-     * @return a readonly list with the names of the the components
+     * @return a readonly list with the names of the components
      */
     List<String> getComponentNames();
 
@@ -415,7 +426,7 @@ public interface CamelContext extends SuspendableService, RuntimeConfiguration {
     /**
      * Gets the {@link org.apache.camel.spi.EndpointRegistry}
      */
-    EndpointRegistry<String> getEndpointRegistry();
+    EndpointRegistry<? extends ValueHolder<String>> getEndpointRegistry();
 
     /**
      * Resolves the given name to an {@link Endpoint} of the specified type.
@@ -504,6 +515,20 @@ public interface CamelContext extends SuspendableService, RuntimeConfiguration {
 
     // Route Management Methods
     //-----------------------------------------------------------------------
+
+    /**
+     * NOTE: experimental api
+     *
+     * @param routeController the route controller
+     */
+    void setRouteController(RouteController routeController);
+
+    /**
+     * NOTE: experimental api
+     *
+     * @return the route controller or null if not set.
+     */
+    RouteController getRouteController();
 
     /**
      * Method to signal to {@link CamelContext} that the process to initialize setup routes is in progress.
@@ -1081,7 +1106,7 @@ public interface CamelContext extends SuspendableService, RuntimeConfiguration {
     /**
      * Gets a readonly list with the names of the languages currently registered.
      *
-     * @return a readonly list with the names of the the languages
+     * @return a readonly list with the names of the languages
      */
     List<String> getLanguageNames();
 
@@ -1310,7 +1335,7 @@ public interface CamelContext extends SuspendableService, RuntimeConfiguration {
      * Gets the {@link org.apache.camel.spi.TransformerRegistry}
      * @return the TransformerRegistry
      */
-    TransformerRegistry getTransformerRegistry();
+    TransformerRegistry<? extends ValueHolder<String>> getTransformerRegistry();
 
     /**
      * Sets the validators that can be referenced in the routes.
@@ -1338,7 +1363,7 @@ public interface CamelContext extends SuspendableService, RuntimeConfiguration {
      * Gets the {@link org.apache.camel.spi.ValidatorRegistry}
      * @return the ValidatorRegistry
      */
-    ValidatorRegistry getValidatorRegistry();
+    ValidatorRegistry<? extends ValueHolder<String>> getValidatorRegistry();
 
     /**
      * @deprecated use {@link #setGlobalOptions(Map) setGlobalOptions(Map<String,String>) instead}.
@@ -1379,6 +1404,7 @@ public interface CamelContext extends SuspendableService, RuntimeConfiguration {
     /**
      * @deprecated use {@link #getGlobalOption(String)} instead.
      */
+    @Deprecated
     String getProperty(String key);
 
     /**
@@ -1589,7 +1615,7 @@ public interface CamelContext extends SuspendableService, RuntimeConfiguration {
     void setAsyncProcessorAwaitManager(AsyncProcessorAwaitManager manager);
 
     /**
-     * Gets the the application CamelContext class loader which may be helpful for running camel in other containers
+     * Gets the application CamelContext class loader which may be helpful for running camel in other containers
      *
      * @return the application CamelContext class loader
      */
@@ -1714,6 +1740,26 @@ public interface CamelContext extends SuspendableService, RuntimeConfiguration {
     void setLazyLoadTypeConverters(Boolean lazyLoadTypeConverters);
 
     /**
+     * Sets whether to load custom type converters by scanning classpath.
+     * This can be turned off if you are only using Camel components
+     * that does not provide type converters which is needed at runtime.
+     * In such situations setting this option to false, can speedup starting
+     * Camel.
+     */
+    Boolean isLoadTypeConverters();
+
+    /**
+     * Sets whether to load custom type converters by scanning classpath.
+     * This can be turned off if you are only using Camel components
+     * that does not provide type converters which is needed at runtime.
+     * In such situations setting this option to false, can speedup starting
+     * Camel.
+     *
+     * @param loadTypeConverters whether to load custom type converters.
+     */
+    void setLoadTypeConverters(Boolean loadTypeConverters);
+
+    /**
      * Whether or not type converter statistics is enabled.
      * <p/>
      * By default the type converter utilization statistics is disabled.
@@ -1750,6 +1796,26 @@ public interface CamelContext extends SuspendableService, RuntimeConfiguration {
      * @param useMDCLogging <tt>true</tt> to enable MDC logging, <tt>false</tt> to disable
      */
     void setUseMDCLogging(Boolean useMDCLogging);
+
+    /**
+     * Whether to enable using data type on Camel messages.
+     * <p/>
+     * Data type are automatic turned on if one ore more routes has been explicit configured with input and output types.
+     * Otherwise data type is default off.
+     *
+     * @return <tt>true</tt> if data type is enabled
+     */
+    Boolean isUseDataType();
+
+    /**
+     * Whether to enable using data type on Camel messages.
+     * <p/>
+     * Data type are automatic turned on if one ore more routes has been explicit configured with input and output types.
+     * Otherwise data type is default off.
+     *
+     * @param  useDataType <tt>true</tt> to enable data type on Camel messages.
+     */
+    void setUseDataType(Boolean useDataType);
 
     /**
      * Whether or not breadcrumb is enabled.
@@ -1999,4 +2065,23 @@ public interface CamelContext extends SuspendableService, RuntimeConfiguration {
      */
     void setHeadersMapFactory(HeadersMapFactory factory);
 
+    /**
+     * Returns an optional {@link HealthCheckRegistry}, by default no registry is
+     * present and it must be explicit activated. Components can register/unregister
+     * health checks in response to life-cycle events (i.e. start/stop).
+     *
+     * This registry is not used by the camel context but it is up to the impl to
+     * properly use it, i.e.
+     *
+     * - a RouteController could use the registry to decide to restart a route
+     *   with failing health checks
+     * - spring boot could integrate such checks within its health endpoint or
+     *   make it available only as separate endpoint.
+     */
+    HealthCheckRegistry getHealthCheckRegistry();
+
+    /**
+     * Sets a {@link HealthCheckRegistry}.
+     */
+    void setHealthCheckRegistry(HealthCheckRegistry healthCheckRegistry);
 }

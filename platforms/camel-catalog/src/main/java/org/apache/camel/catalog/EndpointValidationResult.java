@@ -47,6 +47,7 @@ public class EndpointValidationResult implements Serializable {
     private Set<String> notConsumerOnly;
     private Set<String> notProducerOnly;
     private Set<String> required;
+    private Set<String> deprecated;
     private Map<String, String> invalidEnum;
     private Map<String, String[]> invalidEnumChoices;
     private Map<String, String[]> invalidEnumSuggestions;
@@ -106,7 +107,7 @@ public class EndpointValidationResult implements Serializable {
 
     public void addUnknown(String name) {
         if (unknown == null) {
-            unknown = new LinkedHashSet<String>();
+            unknown = new LinkedHashSet<>();
         }
         if (!unknown.contains(name)) {
             unknown.add(name);
@@ -116,14 +117,14 @@ public class EndpointValidationResult implements Serializable {
 
     public void addUnknownSuggestions(String name, String[] suggestions) {
         if (unknownSuggestions == null) {
-            unknownSuggestions = new LinkedHashMap<String, String[]>();
+            unknownSuggestions = new LinkedHashMap<>();
         }
         unknownSuggestions.put(name, suggestions);
     }
 
     public void addLenient(String name) {
         if (lenient == null) {
-            lenient = new LinkedHashSet<String>();
+            lenient = new LinkedHashSet<>();
         }
         if (!lenient.contains(name)) {
             lenient.add(name);
@@ -132,7 +133,7 @@ public class EndpointValidationResult implements Serializable {
 
     public void addRequired(String name) {
         if (required == null) {
-            required = new LinkedHashSet<String>();
+            required = new LinkedHashSet<>();
         }
         if (!required.contains(name)) {
             required.add(name);
@@ -140,9 +141,18 @@ public class EndpointValidationResult implements Serializable {
         }
     }
 
+    public void addDeprecated(String name) {
+        if (deprecated == null) {
+            deprecated = new LinkedHashSet<>();
+        }
+        if (!deprecated.contains(name)) {
+            deprecated.add(name);
+        }
+    }
+
     public void addInvalidEnum(String name, String value) {
         if (invalidEnum == null) {
-            invalidEnum = new LinkedHashMap<String, String>();
+            invalidEnum = new LinkedHashMap<>();
         }
         if (!invalidEnum.containsKey(name)) {
             invalidEnum.put(name, value);
@@ -152,21 +162,21 @@ public class EndpointValidationResult implements Serializable {
 
     public void addInvalidEnumChoices(String name, String[] choices) {
         if (invalidEnumChoices == null) {
-            invalidEnumChoices = new LinkedHashMap<String, String[]>();
+            invalidEnumChoices = new LinkedHashMap<>();
         }
         invalidEnumChoices.put(name, choices);
     }
 
     public void addInvalidEnumSuggestions(String name, String[] suggestions) {
         if (invalidEnumSuggestions == null) {
-            invalidEnumSuggestions = new LinkedHashMap<String, String[]>();
+            invalidEnumSuggestions = new LinkedHashMap<>();
         }
         invalidEnumSuggestions.put(name, suggestions);
     }
 
     public void addInvalidReference(String name, String value) {
         if (invalidReference == null) {
-            invalidReference = new LinkedHashMap<String, String>();
+            invalidReference = new LinkedHashMap<>();
         }
         if (!invalidReference.containsKey(name)) {
             invalidReference.put(name, value);
@@ -176,7 +186,7 @@ public class EndpointValidationResult implements Serializable {
 
     public void addInvalidBoolean(String name, String value) {
         if (invalidBoolean == null) {
-            invalidBoolean = new LinkedHashMap<String, String>();
+            invalidBoolean = new LinkedHashMap<>();
         }
         if (!invalidBoolean.containsKey(name)) {
             invalidBoolean.put(name, value);
@@ -186,7 +196,7 @@ public class EndpointValidationResult implements Serializable {
 
     public void addInvalidInteger(String name, String value) {
         if (invalidInteger == null) {
-            invalidInteger = new LinkedHashMap<String, String>();
+            invalidInteger = new LinkedHashMap<>();
         }
         if (!invalidInteger.containsKey(name)) {
             invalidInteger.put(name, value);
@@ -196,7 +206,7 @@ public class EndpointValidationResult implements Serializable {
 
     public void addInvalidNumber(String name, String value) {
         if (invalidNumber == null) {
-            invalidNumber = new LinkedHashMap<String, String>();
+            invalidNumber = new LinkedHashMap<>();
         }
         if (!invalidNumber.containsKey(name)) {
             invalidNumber.put(name, value);
@@ -206,14 +216,14 @@ public class EndpointValidationResult implements Serializable {
 
     public void addDefaultValue(String name, String value)  {
         if (defaultValues == null) {
-            defaultValues = new LinkedHashMap<String, String>();
+            defaultValues = new LinkedHashMap<>();
         }
         defaultValues.put(name, value);
     }
 
     public void addNotConsumerOnly(String name) {
         if (notConsumerOnly == null) {
-            notConsumerOnly = new LinkedHashSet<String>();
+            notConsumerOnly = new LinkedHashSet<>();
         }
         if (!notConsumerOnly.contains(name)) {
             notConsumerOnly.add(name);
@@ -223,7 +233,7 @@ public class EndpointValidationResult implements Serializable {
 
     public void addNotProducerOnly(String name) {
         if (notProducerOnly == null) {
-            notProducerOnly = new LinkedHashSet<String>();
+            notProducerOnly = new LinkedHashSet<>();
         }
         if (!notProducerOnly.contains(name)) {
             notProducerOnly.add(name);
@@ -257,6 +267,10 @@ public class EndpointValidationResult implements Serializable {
 
     public Set<String> getRequired() {
         return required;
+    }
+
+    public Set<String> getDeprecated() {
+        return deprecated;
     }
 
     public Map<String, String> getInvalidEnum() {
@@ -309,11 +323,29 @@ public class EndpointValidationResult implements Serializable {
     /**
      * A human readable summary of the validation errors.
      *
-     * @param includeHeader whether to include a header
+     * @param includeHeader    whether to include a header
      * @return the summary, or <tt>null</tt> if no validation errors
      */
     public String summaryErrorMessage(boolean includeHeader) {
-        if (isSuccess()) {
+        return summaryErrorMessage(includeHeader, true);
+    }
+
+    /**
+     * A human readable summary of the validation errors.
+     *
+     * @param includeHeader    whether to include a header
+     * @param ignoreDeprecated whether to ignore deprecated options in use as an error or not
+     * @return the summary, or <tt>null</tt> if no validation errors
+     */
+    public String summaryErrorMessage(boolean includeHeader, boolean ignoreDeprecated) {
+        boolean ok = isSuccess();
+
+        // special check if we should ignore deprecated options being used
+        if (ok && !ignoreDeprecated) {
+            ok = deprecated == null;
+        }
+
+        if (ok) {
             return null;
         }
 
@@ -326,7 +358,7 @@ public class EndpointValidationResult implements Serializable {
         }
 
         // for each invalid option build a reason message
-        Map<String, String> options = new LinkedHashMap<String, String>();
+        Map<String, String> options = new LinkedHashMap<>();
         if (unknown != null) {
             for (String name : unknown) {
                 if (unknownSuggestions != null && unknownSuggestions.containsKey(name)) {
@@ -355,6 +387,11 @@ public class EndpointValidationResult implements Serializable {
         if (required != null) {
             for (String name : required) {
                 options.put(name, "Missing required option");
+            }
+        }
+        if (deprecated != null) {
+            for (String name : deprecated) {
+                options.put(name, "Deprecated option");
             }
         }
         if (invalidEnum != null) {

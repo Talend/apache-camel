@@ -17,20 +17,16 @@
 package org.apache.camel.component.dropbox.validator;
 
 import java.io.File;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.camel.component.dropbox.DropboxConfiguration;
 import org.apache.camel.component.dropbox.util.DropboxConstants;
 import org.apache.camel.component.dropbox.util.DropboxException;
 import org.apache.camel.component.dropbox.util.DropboxUploadMode;
+import org.apache.camel.util.ObjectHelper;
 
 public final class DropboxConfigurationValidator {
 
-    private static final Pattern PATTERN = Pattern.compile("/*?(\\S+)/*?", Pattern.CASE_INSENSITIVE);
-
     private DropboxConfigurationValidator() { }
-
 
     public static void validateCommonProperties(DropboxConfiguration configuration) throws DropboxException {
         if (configuration.getAccessToken() == null || configuration.getAccessToken().equals("")) {
@@ -72,17 +68,15 @@ public final class DropboxConfigurationValidator {
     }
 
     private static void validateLocalPath(String localPath) throws DropboxException {
-        if (localPath == null || localPath.equals("")) {
-            throw new DropboxException("option <localPath> is not present or not valid!");
-        }
-        File file = new File(localPath);
-        if (!file.exists()) {
-            throw new DropboxException("option <localPath> is not an existing file or directory!");
+        if (ObjectHelper.isNotEmpty(localPath)) {
+            File file = new File(localPath);
+            if (!file.exists()) {
+                throw new DropboxException("option <localPath> is not an existing file or directory!");
+            }
         }
     }
 
     private static void validateRemotePath(String remotePath) throws DropboxException {
-
         if (remotePath == null || !remotePath.startsWith(DropboxConstants.DROPBOX_FILE_SEPARATOR)) {
             throw new DropboxException("option <remotePath> is not valid!");
         }
@@ -97,9 +91,8 @@ public final class DropboxConfigurationValidator {
     }
 
     private static void validatePathInUnix(String path) throws DropboxException {
-        Matcher matcher = PATTERN.matcher(path);
-        if (!matcher.matches()) {
-            throw new DropboxException(path + " is not a valid path, must be in UNIX form!");
+        if (path.indexOf('\\') != -1) {
+            throw new DropboxException(path + " must not contain Windows path separator, use UNIX path separator!");
         }
     }
 

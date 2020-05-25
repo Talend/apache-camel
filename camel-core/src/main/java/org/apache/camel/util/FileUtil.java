@@ -17,10 +17,9 @@
 package org.apache.camel.util;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
@@ -301,7 +300,14 @@ public final class FileUtil {
         boolean endsWithSlash = path.endsWith("/") || path.endsWith("\\");
 
         // preserve starting slash if given in input path
-        boolean startsWithSlash = path.startsWith("/") || path.startsWith("\\");
+        int cntSlashsAtStart = 0;
+        if (path.startsWith("/") || path.startsWith("\\")) {
+            cntSlashsAtStart++;
+            // for Windows, preserve up to 2 starting slashes, which is necessary for UNC paths.
+            if (isWindows() && path.length() > 1 && (path.charAt(1) == '/' || path.charAt(1) == '\\')) {
+                cntSlashsAtStart++;
+            }
+        }
         
         Deque<String> stack = new ArrayDeque<>();
 
@@ -322,7 +328,7 @@ public final class FileUtil {
         // build path based on stack
         StringBuilder sb = new StringBuilder();
         
-        if (startsWithSlash) {
+        for (int i = 0; i < cntSlashsAtStart; i++) {
             sb.append(separator);
         }
 
@@ -471,7 +477,7 @@ public final class FileUtil {
         int count = 0;
         while (!renamed && count < 3) {
             if (LOG.isDebugEnabled() && count > 0) {
-                LOG.debug("Retrying attempt {} to rename file from: {} to: {}", new Object[]{count, from, to});
+                LOG.debug("Retrying attempt {} to rename file from: {} to: {}", count, from, to);
             }
 
             renamed = from.renameTo(to);
@@ -494,7 +500,7 @@ public final class FileUtil {
         }
 
         if (LOG.isDebugEnabled() && count > 0) {
-            LOG.debug("Tried {} to rename file: {} to: {} with result: {}", new Object[]{count, from, to, renamed});
+            LOG.debug("Tried {} to rename file: {} to: {} with result: {}", count, from, to, renamed);
         }
         return renamed;
     }
@@ -532,24 +538,7 @@ public final class FileUtil {
      * @throws IOException If an I/O error occurs during copy operation
      */
     public static void copyFile(File from, File to) throws IOException {
-        FileChannel in = null;
-        FileChannel out = null;
-        try {
-            in = new FileInputStream(from).getChannel();
-            out = new FileOutputStream(to).getChannel();
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Using FileChannel to copy from: " + in + " to: " + out);
-            }
-
-            long size = in.size();
-            long position = 0;
-            while (position < size) {
-                position += in.transferTo(position, BUFFER_SIZE, out);
-            }
-        } finally {
-            IOHelper.close(in, from.getName(), LOG);
-            IOHelper.close(out, to.getName(), LOG);
-        }
+        Files.copy(from.toPath(), to.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
     /**
@@ -586,7 +575,7 @@ public final class FileUtil {
 
 
         if (LOG.isDebugEnabled() && count > 0) {
-            LOG.debug("Tried {} to delete file: {} with result: {}", new Object[]{count, file, deleted});
+            LOG.debug("Tried {} to delete file: {} with result: {}", count, file, deleted);
         }
         return deleted;
     }

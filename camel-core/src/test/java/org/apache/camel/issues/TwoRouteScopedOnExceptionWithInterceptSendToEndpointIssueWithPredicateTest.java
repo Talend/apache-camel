@@ -27,6 +27,7 @@ import org.apache.camel.Processor;
 import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.RouteDefinition;
+import org.junit.Test;
 
 /**
  * Based on user forum issue
@@ -37,6 +38,7 @@ public class TwoRouteScopedOnExceptionWithInterceptSendToEndpointIssueWithPredic
 
     private final AtomicInteger invoked = new AtomicInteger();
 
+    @Test
     public void testIssue() throws Exception {
         final Predicate fail = PredicateBuilder.or(
             header(Exchange.REDELIVERY_COUNTER).isNull(),
@@ -79,7 +81,7 @@ public class TwoRouteScopedOnExceptionWithInterceptSendToEndpointIssueWithPredic
             public void configure() throws Exception {
                 errorHandler(deadLetterChannel("mock:global")
                         .maximumRedeliveries(2)
-                        .redeliveryDelay(5000));
+                        .redeliveryDelay(500));
 
                 from("direct:start")
                         // no redelivery delay for faster unit tests

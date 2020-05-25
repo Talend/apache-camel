@@ -36,12 +36,14 @@ import org.apache.camel.component.log.LogComponent;
 import org.apache.camel.spi.UuidGenerator;
 import org.apache.camel.support.ServiceSupport;
 import org.apache.camel.util.CamelContextHelper;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class DefaultCamelContextTest extends TestSupport {
 
+    @Test
     public void testAutoCreateComponentsOn() {
         DefaultCamelContext ctx = new DefaultCamelContext();
         ctx.disableJMX();
@@ -50,6 +52,7 @@ public class DefaultCamelContextTest extends TestSupport {
         assertEquals(component.getClass(), BeanComponent.class);
     }
 
+    @Test
     public void testAutoCreateComponentsOff() {
         DefaultCamelContext ctx = new DefaultCamelContext();
         ctx.disableJMX();
@@ -58,6 +61,7 @@ public class DefaultCamelContextTest extends TestSupport {
         assertNull(component);
     }
     
+    @Test
     public void testAutoStartComponentsOff() throws Exception {
         DefaultCamelContext ctx = new DefaultCamelContext();
         ctx.disableJMX();
@@ -68,6 +72,7 @@ public class DefaultCamelContextTest extends TestSupport {
         assertTrue(component.getStatus().isStopped());
     }
 
+    @Test
     public void testAutoStartComponentsOn() throws Exception {
         DefaultCamelContext ctx = new DefaultCamelContext();
         ctx.disableJMX();
@@ -78,14 +83,16 @@ public class DefaultCamelContextTest extends TestSupport {
         assertTrue(component.getStatus().isStarted());
     }
 
+    @Test
     public void testCreateDefaultUuidGenerator() {
         DefaultCamelContext ctx = new DefaultCamelContext();
         ctx.disableJMX();
         UuidGenerator uuidGenerator = ctx.getUuidGenerator();
         assertNotNull(uuidGenerator);
-        assertEquals(uuidGenerator.getClass(), ActiveMQUuidGenerator.class);
+        assertEquals(uuidGenerator.getClass(), DefaultUuidGenerator.class);
     }
 
+    @Test
     public void testGetComponents() throws Exception {
         DefaultCamelContext ctx = new DefaultCamelContext();
         ctx.disableJMX();
@@ -97,6 +104,7 @@ public class DefaultCamelContextTest extends TestSupport {
         assertEquals("bean", list.get(0));
     }
 
+    @Test
     public void testGetEndpoint() throws Exception {
         DefaultCamelContext ctx = new DefaultCamelContext();
         ctx.disableJMX();
@@ -111,6 +119,7 @@ public class DefaultCamelContextTest extends TestSupport {
         }
     }
     
+    @Test
     public void testGetEndpointNoScheme() throws Exception {
         DefaultCamelContext ctx = new DefaultCamelContext();
         ctx.disableJMX();
@@ -118,6 +127,7 @@ public class DefaultCamelContextTest extends TestSupport {
         assertNotNull(endpoint);
     }
 
+    @Test
     public void testGetEndPointByTypeUnknown() {
         DefaultCamelContext camelContext = new DefaultCamelContext();
         try {
@@ -128,11 +138,13 @@ public class DefaultCamelContextTest extends TestSupport {
         }
     }
 
+    @Test
     public void testRemoveEndpoint() throws Exception {
         DefaultCamelContext ctx = new DefaultCamelContext();
         ctx.disableJMX();
         ctx.getEndpoint("log:foo");
         ctx.getEndpoint("log:bar");
+        ctx.start();
 
         Collection<Endpoint> list = ctx.removeEndpoints("log:foo");
         assertEquals(1, list.size());
@@ -155,6 +167,7 @@ public class DefaultCamelContextTest extends TestSupport {
         assertEquals(1, ctx.getEndpoints().size());
     }
 
+    @Test
     public void testGetEndpointNotFound() throws Exception {
         DefaultCamelContext ctx = new DefaultCamelContext();
         ctx.disableJMX();
@@ -166,6 +179,7 @@ public class DefaultCamelContextTest extends TestSupport {
         }
     }
 
+    @Test
     public void testGetEndpointUnknownComponentNoScheme() throws Exception {
         DefaultCamelContext ctx = new DefaultCamelContext();
         ctx.disableJMX();
@@ -177,6 +191,7 @@ public class DefaultCamelContextTest extends TestSupport {
         }
     }
 
+    @Test
     public void testRestartCamelContext() throws Exception {
         DefaultCamelContext ctx = new DefaultCamelContext();
         ctx.disableJMX();
@@ -198,6 +213,7 @@ public class DefaultCamelContextTest extends TestSupport {
         assertEquals("The RouteService should NOT be removed even when we stop", 1, ctx.getRouteServices().size());
     }
 
+    @Test
     public void testName() {
         DefaultCamelContext ctx = new DefaultCamelContext();
         ctx.disableJMX();
@@ -209,12 +225,14 @@ public class DefaultCamelContextTest extends TestSupport {
         assertTrue(ctx.isAutoStartup());
     }
 
+    @Test
     public void testVersion() {
         DefaultCamelContext ctx = new DefaultCamelContext();
         ctx.disableJMX();
         assertNotNull("Should have a version", ctx.getVersion());
     }
 
+    @Test
     public void testHasComponent() {
         DefaultCamelContext ctx = new DefaultCamelContext();
         ctx.disableJMX();
@@ -224,6 +242,7 @@ public class DefaultCamelContextTest extends TestSupport {
         assertNotNull(ctx.hasComponent("log"));
     }
 
+    @Test
     public void testGetComponent() {
         DefaultCamelContext ctx = new DefaultCamelContext();
         ctx.disableJMX();
@@ -240,6 +259,7 @@ public class DefaultCamelContextTest extends TestSupport {
         }
     }
 
+    @Test
     public void testHasEndpoint() throws Exception {
         DefaultCamelContext ctx = new DefaultCamelContext();
         ctx.disableJMX();
@@ -259,6 +279,7 @@ public class DefaultCamelContextTest extends TestSupport {
         }
     }
 
+    @Test
     public void testGetRouteById() throws Exception {
         DefaultCamelContext ctx = new DefaultCamelContext();
         ctx.disableJMX();
@@ -284,6 +305,7 @@ public class DefaultCamelContextTest extends TestSupport {
         ctx.stop();
     }
 
+    @Test
     public void testSuspend() throws Exception {
         DefaultCamelContext ctx = new DefaultCamelContext();
 
@@ -307,6 +329,7 @@ public class DefaultCamelContextTest extends TestSupport {
         assertEquals(false, ctx.isSuspended());
     }
 
+    @Test
     public void testResume() throws Exception {
         DefaultCamelContext ctx = new DefaultCamelContext();
 
@@ -330,6 +353,7 @@ public class DefaultCamelContextTest extends TestSupport {
         assertEquals(false, ctx.isSuspended());
     }
 
+    @Test
     public void testSuspendResume() throws Exception {
         DefaultCamelContext ctx = new DefaultCamelContext();
 
@@ -353,6 +377,7 @@ public class DefaultCamelContextTest extends TestSupport {
         assertEquals(false, ctx.isSuspended());
     }
 
+    @Test
     public void testAddServiceInjectCamelContext() throws Exception {
         MyService my = new MyService();
 
@@ -367,6 +392,7 @@ public class DefaultCamelContextTest extends TestSupport {
         assertEquals("Stopped", my.getStatus().name());
     }
 
+    @Test
     public void testAddServiceType() throws Exception {
         MyService my = new MyService();
 

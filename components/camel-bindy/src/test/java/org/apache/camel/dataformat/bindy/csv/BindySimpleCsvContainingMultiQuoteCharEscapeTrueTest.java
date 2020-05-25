@@ -25,8 +25,6 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.dataformat.bindy.annotation.CsvRecord;
 import org.apache.camel.dataformat.bindy.annotation.DataField;
-import org.apache.camel.dataformat.bindy.csv.BindySimpleCsvContainingMultiQuoteCharEscapeFalseTest.BindyCsvRowFormat75191;
-import org.apache.camel.dataformat.bindy.csv.BindySimpleCsvContainingMultiQuoteCharEscapeFalseTest.BindyCsvRowFormat75192;
 import org.apache.camel.dataformat.bindy.util.ConverterUtils;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
@@ -122,6 +120,7 @@ public class BindySimpleCsvContainingMultiQuoteCharEscapeTrueTest extends CamelT
     //from https://issues.apache.org/jira/browse/CAMEL-7519
     @CsvRecord(separator = ",", quote = "\"", quoting = true, quotingEscaped = true)
     public static class BindyCsvRowFormat75191 implements Serializable {
+        private static final long serialVersionUID = 1L;
 
         @DataField(pos = 1)
         private String firstField;
@@ -159,6 +158,7 @@ public class BindySimpleCsvContainingMultiQuoteCharEscapeTrueTest extends CamelT
     
     @CsvRecord(separator = ",", quote = "'", quoting = true, quotingEscaped = true)
     public static class BindyCsvRowFormat75192 implements Serializable {
+        private static final long serialVersionUID = 1L;
 
         @DataField(pos = 1)
         private String firstField;
@@ -193,6 +193,4 @@ public class BindySimpleCsvContainingMultiQuoteCharEscapeTrueTest extends CamelT
             this.number = number;
         }
     }
-
-
 }

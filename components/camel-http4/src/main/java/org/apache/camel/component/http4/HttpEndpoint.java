@@ -26,13 +26,17 @@ import org.apache.camel.Consumer;
 import org.apache.camel.PollingConsumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
+import org.apache.camel.api.management.ManagedAttribute;
+import org.apache.camel.api.management.ManagedResource;
 import org.apache.camel.http.common.HttpCommonEndpoint;
 import org.apache.camel.http.common.HttpHelper;
 import org.apache.camel.http.common.cookie.CookieHandler;
+import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.util.IOHelper;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.jsse.SSLContextParameters;
 import org.apache.http.HttpHost;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
@@ -41,6 +45,8 @@ import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.pool.ConnPoolControl;
+import org.apache.http.pool.PoolStats;
 import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,11 +54,17 @@ import org.slf4j.LoggerFactory;
 /**
  * For calling out to external HTTP servers using Apache HTTP Client 4.x.
  */
-@UriEndpoint(firstVersion = "2.3.0", scheme = "http4,http4s", title = "HTTP4,HTTP4S", syntax = "http4:httpUri",
+@UriEndpoint(firstVersion = "2.3.0", scheme = "http4,https4", title = "HTTP4,HTTPS4", syntax = "http4:httpUri",
     producerOnly = true, label = "http", lenientProperties = true)
+@ManagedResource(description = "Managed HttpEndpoint")
 public class HttpEndpoint extends HttpCommonEndpoint {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpEndpoint.class);
+
+    @UriParam(label = "security", description = "To configure security using SSLContextParameters."
+        + " Important: Only one instance of org.apache.camel.util.jsse.SSLContextParameters is supported per HttpComponent."
+        + " If you need to use 2 or more different instances, you need to define a new HttpComponent per instance you need.")
+    protected SSLContextParameters sslContextParameters;
 
     @UriParam(label = "advanced", description = "To use a custom HttpContext instance")
     private HttpContext httpContext;
@@ -70,6 +82,23 @@ public class HttpEndpoint extends HttpCommonEndpoint {
     @UriParam(label = "advanced", defaultValue = "false", description = "To use System Properties as fallback for configuration")
     private boolean useSystemProperties;
 
+    // timeout
+    @Metadata(label = "timeout", defaultValue = "-1", description = "The timeout in milliseconds used when requesting a connection"
+        + " from the connection manager. A timeout value of zero is interpreted as an infinite timeout."
+        + " A timeout value of zero is interpreted as an infinite timeout."
+        + " A negative value is interpreted as undefined (system default).")
+    private int connectionRequestTimeout = -1;
+    @Metadata(label = "timeout", defaultValue = "-1", description = "Determines the timeout in milliseconds until a connection is established."
+        + " A timeout value of zero is interpreted as an infinite timeout."
+        + " A timeout value of zero is interpreted as an infinite timeout."
+        + " A negative value is interpreted as undefined (system default).")
+    private int connectTimeout = -1;
+    @Metadata(label = "timeout", defaultValue = "-1", description = "Defines the socket timeout in milliseconds,"
+        + " which is the timeout for waiting for data  or, put differently,"
+        + " a maximum period inactivity between two consecutive data packets)."
+        + " A timeout value of zero is interpreted as an infinite timeout."
+        + " A negative value is interpreted as undefined (system default).")
+    private int socketTimeout = -1;
     @UriParam(label = "producer", description = "To use a custom CookieStore."
         + " By default the BasicCookieStore is used which is an in-memory only cookie store."
         + " Notice if bridgeEndpoint=true then the cookie store is forced to be a noop cookie store as cookie shouldn't be stored as we are just bridging (eg acting as a proxy)."
@@ -101,7 +130,7 @@ public class HttpEndpoint extends HttpCommonEndpoint {
     public HttpEndpoint(String endPointURI, HttpComponent component, URI httpURI, HttpClientConnectionManager clientConnectionManager) throws URISyntaxException {
         this(endPointURI, component, httpURI, HttpClientBuilder.create(), clientConnectionManager, null);
     }
-    
+
     public HttpEndpoint(String endPointURI, HttpComponent component, HttpClientBuilder clientBuilder,
                         HttpClientConnectionManager clientConnectionManager, HttpClientConfigurer clientConfigurer) throws URISyntaxException {
         this(endPointURI, component, null, clientBuilder, clientConnectionManager, clientConfigurer);
@@ -163,22 +192,22 @@ public class HttpEndpoint extends HttpCommonEndpoint {
 
         if (!useSystemProperties) {
             // configure http proxy from camelContext
-            if (ObjectHelper.isNotEmpty(getCamelContext().getProperty("http.proxyHost")) && ObjectHelper.isNotEmpty(getCamelContext().getProperty("http.proxyPort"))) {
-                String host = getCamelContext().getProperty("http.proxyHost");
-                int port = Integer.parseInt(getCamelContext().getProperty("http.proxyPort"));
-                String scheme = getCamelContext().getProperty("http.proxyScheme");
+            if (ObjectHelper.isNotEmpty(getCamelContext().getGlobalOption("http.proxyHost")) && ObjectHelper.isNotEmpty(getCamelContext().getGlobalOption("http.proxyPort"))) {
+                String host = getCamelContext().getGlobalOption("http.proxyHost");
+                int port = Integer.parseInt(getCamelContext().getGlobalOption("http.proxyPort"));
+                String scheme = getCamelContext().getGlobalOption("http.proxyScheme");
                 // fallback and use either http or https depending on secure
                 if (scheme == null) {
                     scheme = HttpHelper.isSecureConnection(getEndpointUri()) ? "https" : "http";
                 }
-                LOG.debug("CamelContext properties http.proxyHost, http.proxyPort, and http.proxyScheme detected. Using http proxy host: {} port: {} scheme: {}", new Object[]{host, port, scheme});
+                LOG.debug("CamelContext properties http.proxyHost, http.proxyPort, and http.proxyScheme detected. Using http proxy host: {} port: {} scheme: {}", host, port, scheme);
                 HttpHost proxy = new HttpHost(host, port, scheme);
                 clientBuilder.setProxy(proxy);
             }
         } else {
             clientBuilder.useSystemProperties();
         }
-        
+
         if (isAuthenticationPreemptive()) {
             // setup the PreemptiveAuthInterceptor here
             clientBuilder.addInterceptorFirst(new PreemptiveAuthInterceptor());
@@ -209,7 +238,7 @@ public class HttpEndpoint extends HttpCommonEndpoint {
             // need to shutdown the ConnectionManager
             clientConnectionManager.shutdown();
         }
-        if (httpClient != null && httpClient instanceof Closeable) {
+        if (httpClient instanceof Closeable) {
             IOHelper.close((Closeable)httpClient);
         }
     }
@@ -232,7 +261,7 @@ public class HttpEndpoint extends HttpCommonEndpoint {
     public HttpClientConfigurer getHttpClientConfigurer() {
         return httpClientConfigurer;
     }
-    
+
     /**
      * Register a custom configuration strategy for new {@link HttpClient} instances
      * created by producers or consumers such as to configure authentication mechanisms etc
@@ -307,7 +336,7 @@ public class HttpEndpoint extends HttpCommonEndpoint {
 
     public void setCookieHandler(CookieHandler cookieHandler) {
         super.setCookieHandler(cookieHandler);
-        // if we set an explicit cookie handler 
+        // if we set an explicit cookie handler
         this.cookieStore = new NoopCookieStore();
     }
 
@@ -377,4 +406,138 @@ public class HttpEndpoint extends HttpCommonEndpoint {
     public void setX509HostnameVerifier(HostnameVerifier x509HostnameVerifier) {
         this.x509HostnameVerifier = x509HostnameVerifier;
     }
+
+    public SSLContextParameters getSslContextParameters() {
+        return sslContextParameters;
+    }
+
+    /**
+     * To configure security using SSLContextParameters.
+     * Important: Only one instance of org.apache.camel.util.jsse.SSLContextParameters is supported per HttpComponent.
+     * If you need to use 2 or more different instances, you need to define a new HttpComponent per instance you need.
+     */
+    public void setSslContextParameters(SSLContextParameters sslContextParameters) {
+        this.sslContextParameters = sslContextParameters;
+    }
+
+    public int getConnectionRequestTimeout() {
+        return connectionRequestTimeout;
+    }
+
+    /**
+     * The timeout in milliseconds used when requesting a connection
+     * from the connection manager. A timeout value of zero is interpreted
+     * as an infinite timeout.
+     * <p>
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * A negative value is interpreted as undefined (system default).
+     * </p>
+     * <p>
+     * Default: {@code -1}
+     * </p>
+     */
+    public void setConnectionRequestTimeout(int connectionRequestTimeout) {
+        this.connectionRequestTimeout = connectionRequestTimeout;
+    }
+
+    public int getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    /**
+     * Determines the timeout in milliseconds until a connection is established.
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * <p>
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * A negative value is interpreted as undefined (system default).
+     * </p>
+     * <p>
+     * Default: {@code -1}
+     * </p>
+     */
+    public void setConnectTimeout(int connectTimeout) {
+        this.connectTimeout = connectTimeout;
+    }
+
+    public int getSocketTimeout() {
+        return socketTimeout;
+    }
+
+    /**
+     * Defines the socket timeout ({@code SO_TIMEOUT}) in milliseconds,
+     * which is the timeout for waiting for data  or, put differently,
+     * a maximum period inactivity between two consecutive data packets).
+     * <p>
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * A negative value is interpreted as undefined (system default).
+     * </p>
+     * <p>
+     * Default: {@code -1}
+     * </p>
+     */
+    public void setSocketTimeout(int socketTimeout) {
+        this.socketTimeout = socketTimeout;
+    }
+
+    @ManagedAttribute(description = "Maximum number of allowed persistent connections")
+    public int getClientConnectionsPoolStatsMax() {
+        ConnPoolControl<?> pool = null;
+        if (clientConnectionManager instanceof ConnPoolControl) {
+            pool = (ConnPoolControl<?>) clientConnectionManager;
+        }
+        if (pool != null) {
+            PoolStats stats = pool.getTotalStats();
+            if (stats != null) {
+                return stats.getMax();
+            }
+        }
+        return -1;
+    }
+
+    @ManagedAttribute(description = "Number of available idle persistent connections")
+    public int getClientConnectionsPoolStatsAvailable() {
+        ConnPoolControl<?> pool = null;
+        if (clientConnectionManager instanceof ConnPoolControl) {
+            pool = (ConnPoolControl<?>) clientConnectionManager;
+        }
+        if (pool != null) {
+            PoolStats stats = pool.getTotalStats();
+            if (stats != null) {
+                return stats.getAvailable();
+            }
+        }
+        return -1;
+    }
+
+    @ManagedAttribute(description = "Number of persistent connections tracked by the connection manager currently being used to execute requests")
+    public int getClientConnectionsPoolStatsLeased() {
+        ConnPoolControl<?> pool = null;
+        if (clientConnectionManager instanceof ConnPoolControl) {
+            pool = (ConnPoolControl<?>) clientConnectionManager;
+        }
+        if (pool != null) {
+            PoolStats stats = pool.getTotalStats();
+            if (stats != null) {
+                return stats.getLeased();
+            }
+        }
+        return -1;
+    }
+
+    @ManagedAttribute(description = "Number of connection requests being blocked awaiting a free connection."
+        + " This can happen only if there are more worker threads contending for fewer connections.")
+    public int getClientConnectionsPoolStatsPending() {
+        ConnPoolControl<?> pool = null;
+        if (clientConnectionManager instanceof ConnPoolControl) {
+            pool = (ConnPoolControl<?>) clientConnectionManager;
+        }
+        if (pool != null) {
+            PoolStats stats = pool.getTotalStats();
+            if (stats != null) {
+                return stats.getPending();
+            }
+        }
+        return -1;
+    }
+
 }

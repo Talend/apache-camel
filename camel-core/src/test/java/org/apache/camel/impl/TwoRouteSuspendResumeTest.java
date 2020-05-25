@@ -16,15 +16,22 @@
  */
 package org.apache.camel.impl;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.component.seda.SedaEndpoint;
+import org.junit.Test;
+
+import static org.awaitility.Awaitility.await;
 
 /**
  * @version 
  */
 public class TwoRouteSuspendResumeTest extends ContextTestSupport {
 
+    @Test
     public void testSuspendResume() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodiesReceived("A");
@@ -45,7 +52,9 @@ public class TwoRouteSuspendResumeTest extends ContextTestSupport {
         context.suspendRoute("foo");
 
         // need to give seda consumer thread time to idle
-        Thread.sleep(500);
+        await().atMost(1, TimeUnit.SECONDS).until(() -> {
+            return context.getEndpoint("seda:bar", SedaEndpoint.class).getQueue().size() == 0;
+        });
 
         template.sendBody("seda:foo", "B");
         template.sendBody("direct:bar", "C");

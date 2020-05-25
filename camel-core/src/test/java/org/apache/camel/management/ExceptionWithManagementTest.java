@@ -22,6 +22,7 @@ import org.apache.camel.ExchangePattern;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 
 /**
  * A testcase for exception handler when management is enabled (by default).
@@ -35,6 +36,7 @@ public class ExceptionWithManagementTest extends ContextTestSupport {
         return true;
     }
 
+    @Test
     public void testExceptionHandler() throws Exception {
         MockEndpoint error = this.resolveMandatoryEndpoint("mock:error", MockEndpoint.class);
         error.expectedMessageCount(1);
@@ -59,7 +61,7 @@ public class ExceptionWithManagementTest extends ContextTestSupport {
             public void configure() throws Exception {
                 errorHandler(deadLetterChannel("mock:error").redeliveryDelay(0).maximumRedeliveries(3));
 
-                onException(IllegalArgumentException.class).maximumRedeliveries(1).to("mock:error");
+                onException(IllegalArgumentException.class).redeliveryDelay(0).maximumRedeliveries(1).to("mock:error");
 
                 from("direct:start").process(new Processor() {
                     public void process(Exchange exchange) throws Exception {

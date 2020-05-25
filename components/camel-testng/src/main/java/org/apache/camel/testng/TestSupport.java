@@ -48,7 +48,7 @@ import org.testng.Assert;
  * A bunch of useful testing methods
  */
 public abstract class TestSupport extends Assert {
-    protected static final String LS = System.getProperty("line.separator");
+    protected static final String LS = System.lineSeparator();
     private static final Logger LOG = LoggerFactory.getLogger(TestSupport.class);
     protected Logger log = LoggerFactory.getLogger(getClass());
 
@@ -259,7 +259,7 @@ public abstract class TestSupport extends Assert {
         try {
             PredicateAssertHelper.assertMatches(predicate, "Predicate should match: ", exchange);
         } catch (AssertionError e) {
-            LOG.debug("Caught expected assertion error: " + e);
+            LOG.debug("Caught expected assertion error: {}", e);
         }
         assertPredicate(predicate, exchange, false);
     }
@@ -451,7 +451,7 @@ public abstract class TestSupport extends Assert {
         }
         boolean success = file.delete();
         if (!success) {
-            LOG.warn("Deletion of file: " + file.getAbsolutePath() + " failed");
+            LOG.warn("Deletion of file: {} failed", file.getAbsolutePath());
         }
     }
 

@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 package org.apache.camel.processor;
-
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  *
@@ -27,11 +28,13 @@ import org.apache.camel.component.mock.MockEndpoint;
 public class SplitGroupMultiXmlTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/pair");
         super.setUp();
     }
 
+    @Test
     public void testTokenXMLPairGroup() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:split");
         mock.expectedMessageCount(3);
@@ -63,7 +66,7 @@ public class SplitGroupMultiXmlTest extends ContextTestSupport {
             @Override
             public void configure() throws Exception {
                 // START SNIPPET: e1
-                from("file:target/pair")
+                from("file:target/pair?initialDelay=0&delay=10")
                         // split the order child tags, and inherit namespaces from the orders root tag
                         .split().tokenizeXML("order", "orders", 2)
                         .to("log:split")

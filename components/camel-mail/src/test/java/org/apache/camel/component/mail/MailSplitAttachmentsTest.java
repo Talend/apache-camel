@@ -45,7 +45,6 @@ public class MailSplitAttachmentsTest extends CamelTestSupport {
         Mailbox.clearAll();
     }
 
-
     @Before
     public void setup() {
         // create the exchange with the mail message that is multipart with a file and a Hello World text/plain message.
@@ -65,8 +64,6 @@ public class MailSplitAttachmentsTest extends CamelTestSupport {
         Producer producer = endpoint.createProducer();
         producer.start();
         producer.process(exchange);
-
-        Thread.sleep(2000);
 
         mock.assertIsSatisfied();
 
@@ -98,8 +95,6 @@ public class MailSplitAttachmentsTest extends CamelTestSupport {
         producer.start();
         producer.process(exchange);
 
-        Thread.sleep(2000);
-
         mock.assertIsSatisfied();
 
         Message first = mock.getReceivedExchanges().get(0).getIn();
@@ -128,7 +123,7 @@ public class MailSplitAttachmentsTest extends CamelTestSupport {
             @Override
             public void configure() throws Exception {
                 // START SNIPPET: e1
-                from("pop3://james@mymailserver.com?password=secret&consumer.delay=1000")
+                from("pop3://james@mymailserver.com?password=secret&consumer.initialDelay=100&consumer.delay=100")
                     .to("log:email")
                     // use the SplitAttachmentsExpression which will split the message per attachment
                     .split(splitAttachmentsExpression)

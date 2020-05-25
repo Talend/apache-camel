@@ -15,12 +15,17 @@
  * limitations under the License.
  */
 package org.apache.camel.processor.resequencer;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.camel.TestSupport;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.awaitility.Awaitility.await;
 
 public class ResequencerEngineTest extends TestSupport {
 
@@ -30,9 +35,11 @@ public class ResequencerEngineTest extends TestSupport {
     private ResequencerRunner<Integer> runner;
     private SequenceBuffer<Integer> buffer;
     
+    @Before
     public void setUp() throws Exception {
     }
 
+    @After
     public void tearDown() throws Exception {
         if (runner != null) {
             runner.cancel();
@@ -42,6 +49,7 @@ public class ResequencerEngineTest extends TestSupport {
         }
     }
 
+    @Test
     public void testTimeout1() throws Exception {
         initResequencer(500, 10);
         resequencer.insert(4);
@@ -50,6 +58,7 @@ public class ResequencerEngineTest extends TestSupport {
         assertEquals((Integer)4, resequencer.getLastDelivered());
     }
     
+    @Test
     public void testTimeout2() throws Exception {
         initResequencer(500, 10);
         resequencer.setLastDelivered(2);
@@ -59,6 +68,7 @@ public class ResequencerEngineTest extends TestSupport {
         assertEquals((Integer)4, resequencer.getLastDelivered());
     }
     
+    @Test
     public void testTimeout3() throws Exception {
         initResequencer(500, 10);
         resequencer.setLastDelivered(3);
@@ -67,6 +77,7 @@ public class ResequencerEngineTest extends TestSupport {
         assertEquals((Integer)4, resequencer.getLastDelivered());
     }
     
+    @Test
     public void testTimeout4() throws Exception {
         initResequencer(500, 10);
         resequencer.setLastDelivered(2);
@@ -77,13 +88,14 @@ public class ResequencerEngineTest extends TestSupport {
         assertEquals((Integer)4, resequencer.getLastDelivered());
     }
     
+    @Test
     public void testRandom() throws Exception {
         if (IGNORE_LOAD_TESTS) {
             return;
         }
         int input = 1000;
         initResequencer(1000, 1000);
-        List<Integer> list = new LinkedList<Integer>();
+        List<Integer> list = new LinkedList<>();
         for (int i = 0; i < input; i++) {
             list.add(i);
         }
@@ -111,6 +123,7 @@ public class ResequencerEngineTest extends TestSupport {
         log.info("Duration = " + millis + " ms");
     }
     
+    @Test
     public void testReverse1() throws Exception {
         if (IGNORE_LOAD_TESTS) {
             return;
@@ -118,6 +131,7 @@ public class ResequencerEngineTest extends TestSupport {
         testReverse(10);
     }
     
+    @Test
     public void testReverse2() throws Exception {
         if (IGNORE_LOAD_TESTS) {
             return;
@@ -140,21 +154,17 @@ public class ResequencerEngineTest extends TestSupport {
     
     private void initResequencer(long timeout, int capacity) {
         ResequencerEngine<Integer> engine;
-        buffer = new SequenceBuffer<Integer>();
-        engine = new ResequencerEngine<Integer>(new IntegerComparator());
+        buffer = new SequenceBuffer<>();
+        engine = new ResequencerEngine<>(new IntegerComparator());
         engine.setSequenceSender(buffer);
         engine.setTimeout(timeout);
         engine.start();
-        resequencer = new ResequencerEngineSync<Integer>(engine);
-        runner = new ResequencerRunner<Integer>(resequencer, 50);
+        resequencer = new ResequencerEngineSync<>(engine);
+        runner = new ResequencerRunner<>(resequencer, 50);
         runner.start();
 
-        // give the runner time to start
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            // ignore
-        }
+        // wait for runner to run
+        await().atMost(1, TimeUnit.SECONDS).until(runner::isRunning);
     }
     
 }

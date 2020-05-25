@@ -21,6 +21,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.JndiRegistry;
+import org.junit.Test;
 
 /**
  * Unit test for the retry until predicate
@@ -36,6 +37,7 @@ public class DefaultErrorHandlerRetryWhileTest extends ContextTestSupport {
         return jndi;
     }
 
+    @Test
     public void testRetryUntil() throws Exception {
         Object out = template.requestBody("direct:start", "Hello World");
         assertEquals("Bye World", out);
@@ -47,7 +49,7 @@ public class DefaultErrorHandlerRetryWhileTest extends ContextTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                errorHandler(defaultErrorHandler().retryWhile(method("myRetryHandler")));
+                errorHandler(defaultErrorHandler().redeliveryDelay(0).retryWhile(method("myRetryHandler")));
 
                 from("direct:start").process(new MyProcessor());
             }

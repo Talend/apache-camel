@@ -38,6 +38,7 @@ import org.apache.camel.spi.RestApiConsumerFactory;
 import org.apache.camel.spi.RestConfiguration;
 import org.apache.camel.spi.RestConsumerFactory;
 import org.apache.camel.spi.RestProducerFactory;
+import org.apache.camel.spi.RestProducerFactoryHelper;
 import org.apache.camel.util.FileUtil;
 import org.apache.camel.util.HostUtils;
 import org.apache.camel.util.IntrospectionSupport;
@@ -56,8 +57,8 @@ public class NettyHttpComponent extends NettyComponent implements HeaderFilterSt
     private static final Logger LOG = LoggerFactory.getLogger(NettyHttpComponent.class);
 
     // factories which is created by this component and therefore manage their lifecycles
-    private final Map<Integer, HttpServerConsumerChannelFactory> multiplexChannelHandlers = new HashMap<Integer, HttpServerConsumerChannelFactory>();
-    private final Map<String, HttpServerBootstrapFactory> bootstrapFactories = new HashMap<String, HttpServerBootstrapFactory>();
+    private final Map<Integer, HttpServerConsumerChannelFactory> multiplexChannelHandlers = new HashMap<>();
+    private final Map<String, HttpServerBootstrapFactory> bootstrapFactories = new HashMap<>();
     @Metadata(label = "advanced")
     private NettyHttpBinding nettyHttpBinding;
     @Metadata(label = "advanced")
@@ -90,7 +91,7 @@ public class NettyHttpComponent extends NettyComponent implements HeaderFilterSt
         // merge any custom bootstrap configuration on the config
         NettyServerBootstrapConfiguration bootstrapConfiguration = resolveAndRemoveReferenceParameter(parameters, "bootstrapConfiguration", NettyServerBootstrapConfiguration.class);
         if (bootstrapConfiguration != null) {
-            Map<String, Object> options = new HashMap<String, Object>();
+            Map<String, Object> options = new HashMap<>();
             if (IntrospectionSupport.getProperties(bootstrapConfiguration, options, null, false)) {
                 IntrospectionSupport.setProperties(getCamelContext().getTypeConverter(), config, options);
             }
@@ -369,7 +370,7 @@ public class NettyHttpComponent extends NettyComponent implements HeaderFilterSt
             }
         }
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         // build query string, and append any endpoint configuration properties
         if (config.getComponent() == null || config.getComponent().equals("netty4-http")) {
             // setup endpoint options
@@ -416,7 +417,7 @@ public class NettyHttpComponent extends NettyComponent implements HeaderFilterSt
     @Override
     public Producer createProducer(CamelContext camelContext, String host,
                                    String verb, String basePath, String uriTemplate, String queryParameters,
-                                   String consumes, String produces, Map<String, Object> parameters) throws Exception {
+                                   String consumes, String produces, RestConfiguration configuration, Map<String, Object> parameters) throws Exception {
 
         // avoid leading slash
         basePath = FileUtil.stripLeadingSeparator(basePath);
@@ -430,6 +431,35 @@ public class NettyHttpComponent extends NettyComponent implements HeaderFilterSt
         if (!ObjectHelper.isEmpty(uriTemplate)) {
             url += "/" + uriTemplate;
         }
+        
+        RestConfiguration config = configuration;
+        if (config == null) {
+            config = camelContext.getRestConfiguration("netty4-http", true);
+        }
+
+        Map<String, Object> map = new HashMap<>();
+        // build query string, and append any endpoint configuration properties
+        if (config.getComponent() == null || config.getComponent().equals("netty4-http")) {
+            // setup endpoint options
+            if (config.getEndpointProperties() != null && !config.getEndpointProperties().isEmpty()) {
+                map.putAll(config.getEndpointProperties());
+            }
+        }
+
+        if (host.startsWith("https:")) {
+            map.put("ssl", true);
+        }
+
+        // get the endpoint
+        String query = URISupport.createQueryString(map);
+        if (!query.isEmpty()) {
+            url = url + "?" + query;
+        }
+
+        // there are cases where we might end up here without component being created beforehand
+        // we need to abide by the component properties specified in the parameters when creating
+        // the component
+        RestProducerFactoryHelper.setupComponentFor(url, camelContext, (Map<String, Object>) parameters.get("component"));
 
         NettyHttpEndpoint endpoint = camelContext.getEndpoint(url, NettyHttpEndpoint.class);
         if (parameters != null && !parameters.isEmpty()) {

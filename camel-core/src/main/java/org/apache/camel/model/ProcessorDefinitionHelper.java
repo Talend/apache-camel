@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
+
 import javax.xml.namespace.QName;
 
 import org.apache.camel.CamelContext;
@@ -34,6 +35,7 @@ import org.apache.camel.spi.RouteContext;
 import org.apache.camel.util.CamelContextHelper;
 import org.apache.camel.util.IntrospectionSupport;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +45,7 @@ import org.slf4j.LoggerFactory;
 public final class ProcessorDefinitionHelper {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProcessorDefinitionHelper.class);
-    private static final ThreadLocal<RestoreAction> CURRENT_RESTORE_ACTION = new ThreadLocal<RestoreAction>();
+    private static final ThreadLocal<RestoreAction> CURRENT_RESTORE_ACTION = new ThreadLocal<>();
 
     private ProcessorDefinitionHelper() {
     }
@@ -68,7 +70,7 @@ public final class ProcessorDefinitionHelper {
      * @return the found definitions, or <tt>null</tt> if not found
      */
     public static <T> Iterator<T> filterTypeInOutputs(List<ProcessorDefinition<?>> outputs, Class<T> type, int maxDeep) {
-        List<T> found = new ArrayList<T>();
+        List<T> found = new ArrayList<>();
         doFindType(outputs, type, found, maxDeep);
         return found.iterator();
     }
@@ -82,7 +84,7 @@ public final class ProcessorDefinitionHelper {
      * @return the first found type, or <tt>null</tt> if not found
      */
     public static <T> T findFirstTypeInOutputs(List<ProcessorDefinition<?>> outputs, Class<T> type) {
-        List<T> found = new ArrayList<T>();
+        List<T> found = new ArrayList<>();
         doFindType(outputs, type, found, -1);
         if (found.isEmpty()) {
             return null;
@@ -194,7 +196,7 @@ public final class ProcessorDefinitionHelper {
         }
 
         if (set == null) {
-            set = new LinkedHashSet<String>();
+            set = new LinkedHashSet<>();
         }
 
         // add ourselves
@@ -355,7 +357,7 @@ public final class ProcessorDefinitionHelper {
             return !outputs.isEmpty();
         }
         for (ProcessorDefinition output : outputs) {
-            if (output instanceof TransactedDefinition || output instanceof PolicyDefinition) {
+            if (output.isWrappingEntireOutput()) {
                 // special for those as they wrap entire output, so we should just check its output
                 return hasOutputs(output.getOutputs(), excludeAbstract);
             }
@@ -567,7 +569,7 @@ public final class ProcessorDefinitionHelper {
     private static final class RestoreAction implements Runnable {
 
         private final RestoreAction prevChange;
-        private final ArrayList<Runnable> actions = new ArrayList<Runnable>();
+        private final ArrayList<Runnable> actions = new ArrayList<>();
 
         private RestoreAction(RestoreAction prevChange) {
             this.prevChange = prevChange;
@@ -682,7 +684,7 @@ public final class ProcessorDefinitionHelper {
         LOG.trace("Resolving property placeholders for: {}", definition);
 
         // find all getter/setter which we can use for property placeholders
-        Map<String, Object> properties = new HashMap<String, Object>();
+        Map<String, Object> properties = new HashMap<>();
         IntrospectionSupport.getProperties(definition, properties, null);
 
         OtherAttributesAware other = null;
@@ -696,7 +698,7 @@ public final class ProcessorDefinitionHelper {
                 if (Constants.PLACEHOLDER_QNAME.equals(key.getNamespaceURI())) {
                     String local = key.getLocalPart();
                     Object value = other.getOtherAttributes().get(key);
-                    if (value != null && value instanceof String) {
+                    if (value instanceof String) {
                         // enforce a properties component to be created if none existed
                         CamelContextHelper.lookupPropertiesComponent(camelContext, true);
 
@@ -721,7 +723,7 @@ public final class ProcessorDefinitionHelper {
             }
         }
 
-        Map<String, Object> changedProperties = new HashMap<String, Object>();
+        Map<String, Object> changedProperties = new HashMap<>();
         if (!properties.isEmpty()) {
             LOG.trace("There are {} properties on: {}", properties.size(), definition);
             // lookup and resolve properties for String based properties
@@ -741,7 +743,7 @@ public final class ProcessorDefinitionHelper {
                         }
                         changedProperties.put(name, value);
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("Changed property [{}] from: {} to: {}", new Object[]{name, value, text});
+                            LOG.debug("Changed property [{}] from: {} to: {}", name, value, text);
                         }
                     }
                 }
@@ -762,10 +764,10 @@ public final class ProcessorDefinitionHelper {
         LOG.trace("Resolving known fields for: {}", definition);
 
         // find all String getter/setter
-        Map<String, Object> properties = new HashMap<String, Object>();
+        Map<String, Object> properties = new HashMap<>();
         IntrospectionSupport.getProperties(definition, properties, null);
 
-        Map<String, Object> changedProperties = new HashMap<String, Object>();
+        Map<String, Object> changedProperties = new HashMap<>();
         if (!properties.isEmpty()) {
             LOG.trace("There are {} properties on: {}", properties.size(), definition);
 
@@ -779,14 +781,14 @@ public final class ProcessorDefinitionHelper {
 
                     // is the value a known field (currently we only support constants from Exchange.class)
                     if (text.startsWith("Exchange.")) {
-                        String field = ObjectHelper.after(text, "Exchange.");
+                        String field = StringHelper.after(text, "Exchange.");
                         String constant = ObjectHelper.lookupConstantFieldValue(Exchange.class, field);
                         if (constant != null) {
                             // invoke setter as the text has changed
                             IntrospectionSupport.setProperty(definition, name, constant);
                             changedProperties.put(name, value);
                             if (LOG.isDebugEnabled()) {
-                                LOG.debug("Changed property [{}] from: {} to: {}", new Object[]{name, value, constant});
+                                LOG.debug("Changed property [{}] from: {} to: {}", name, value, constant);
                             }
                         } else {
                             throw new IllegalArgumentException("Constant field with name: " + field + " not found on Exchange.class");

@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
@@ -44,6 +45,7 @@ public class XmppRouteTest extends TestCase {
     protected CountDownLatch latch = new CountDownLatch(1);
     protected Endpoint endpoint;
     protected ProducerCache client;
+    private EmbeddedXmppTestServer embeddedXmppTestServer;
 
     public static void main(String[] args) {
         enabled = true;
@@ -117,15 +119,17 @@ public class XmppRouteTest extends TestCase {
         });
 
         container.start();
+        embeddedXmppTestServer = new EmbeddedXmppTestServer();
     }
 
     protected String getUriPrefix() {
-        return "xmpp://localhost:" + EmbeddedXmppTestServer.instance().getXmppPort() + "/camel?login=false&room=camel-anon";
+        return "xmpp://localhost:" + embeddedXmppTestServer.getXmppPort() + "/camel?login=false&room=camel-anon";
     }
-    
+
     @Override
     protected void tearDown() throws Exception {
         client.stop();
         container.stop();
+        embeddedXmppTestServer.stop();
     }
 }

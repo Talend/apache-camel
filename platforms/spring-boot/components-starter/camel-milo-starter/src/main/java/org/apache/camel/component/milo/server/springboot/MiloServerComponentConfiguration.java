@@ -19,16 +19,10 @@ package org.apache.camel.component.milo.server.springboot;
 import java.io.File;
 import java.util.Collection;
 import java.util.Set;
-import java.util.function.Supplier;
 import javax.annotation.Generated;
-import org.apache.camel.component.milo.KeyStoreLoader.Result;
 import org.apache.camel.spring.boot.ComponentConfigurationPropertiesCommon;
-import org.eclipse.milo.opcua.stack.core.application.CertificateManager;
-import org.eclipse.milo.opcua.stack.core.application.CertificateValidator;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
-import org.eclipse.milo.opcua.stack.core.types.structured.BuildInfo;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 /**
  * Make telemetry data available as an OPC UA server
@@ -42,7 +36,12 @@ public class MiloServerComponentConfiguration
             ComponentConfigurationPropertiesCommon {
 
     /**
-     * The URI of the namespace defaults to urn:org:apache:camel
+     * Whether to enable auto configuration of the milo-server component. This
+     * is enabled by default.
+     */
+    private Boolean enabled;
+    /**
+     * The URI of the namespace, defaults to urn:org:apache:camel
      */
     private String namespaceUri;
     /**
@@ -82,37 +81,44 @@ public class MiloServerComponentConfiguration
      */
     private Collection<String> securityPoliciesById;
     /**
-     * Set user password combinations in the form of user1:pwd1user2:pwd2
+     * Set user password combinations in the form of user1:pwd1,user2:pwd2
      * Usernames and passwords will be URL decoded
      */
     private String userAuthenticationCredentials;
     /**
-     * Enable anonymous authentication disabled by default
+     * Enable anonymous authentication, disabled by default
      */
     private Boolean enableAnonymousAuthentication = false;
+    /**
+     * Set the UserTokenPolicy used when
+     */
+    private SecurityPolicy usernameSecurityPolicyUri;
     /**
      * Set the addresses of the local addresses the server should bind to
      */
     private String bindAddresses;
     /**
-     * Server build info
+     * Server build info. The option is a
+     * org.eclipse.milo.opcua.stack.core.types.structured.BuildInfo type.
      */
-    @NestedConfigurationProperty
-    private BuildInfo buildInfo;
+    private String buildInfo;
     /**
-     * Server certificate
+     * Server certificate. The option is a
+     * org.apache.camel.component.milo.KeyStoreLoader.Result type.
      */
-    @NestedConfigurationProperty
-    private Result serverCertificate;
+    private String serverCertificate;
     /**
-     * Server certificate manager
+     * Server certificate manager. The option is a
+     * org.eclipse.milo.opcua.stack.core.application.CertificateManager type.
      */
-    @NestedConfigurationProperty
-    private CertificateManager certificateManager;
+    private String certificateManager;
     /**
-     * Validator for client certificates
+     * Validator for client certificates. The option is a
+     * java.util.function.Supplier
+     * <org.eclipse.milo.opcua.stack.core.application.CertificateValidator>
+     * type.
      */
-    private Supplier<CertificateValidator> certificateValidator;
+    private String certificateValidator;
     /**
      * Validator for client certificates using default file based approach
      */
@@ -222,6 +228,15 @@ public class MiloServerComponentConfiguration
         this.enableAnonymousAuthentication = enableAnonymousAuthentication;
     }
 
+    public SecurityPolicy getUsernameSecurityPolicyUri() {
+        return usernameSecurityPolicyUri;
+    }
+
+    public void setUsernameSecurityPolicyUri(
+            SecurityPolicy usernameSecurityPolicyUri) {
+        this.usernameSecurityPolicyUri = usernameSecurityPolicyUri;
+    }
+
     public String getBindAddresses() {
         return bindAddresses;
     }
@@ -230,36 +245,35 @@ public class MiloServerComponentConfiguration
         this.bindAddresses = bindAddresses;
     }
 
-    public BuildInfo getBuildInfo() {
+    public String getBuildInfo() {
         return buildInfo;
     }
 
-    public void setBuildInfo(BuildInfo buildInfo) {
+    public void setBuildInfo(String buildInfo) {
         this.buildInfo = buildInfo;
     }
 
-    public Result getServerCertificate() {
+    public String getServerCertificate() {
         return serverCertificate;
     }
 
-    public void setServerCertificate(Result serverCertificate) {
+    public void setServerCertificate(String serverCertificate) {
         this.serverCertificate = serverCertificate;
     }
 
-    public CertificateManager getCertificateManager() {
+    public String getCertificateManager() {
         return certificateManager;
     }
 
-    public void setCertificateManager(CertificateManager certificateManager) {
+    public void setCertificateManager(String certificateManager) {
         this.certificateManager = certificateManager;
     }
 
-    public Supplier<CertificateValidator> getCertificateValidator() {
+    public String getCertificateValidator() {
         return certificateValidator;
     }
 
-    public void setCertificateValidator(
-            Supplier<CertificateValidator> certificateValidator) {
+    public void setCertificateValidator(String certificateValidator) {
         this.certificateValidator = certificateValidator;
     }
 

@@ -16,16 +16,11 @@
  */
 package org.apache.camel.component.xslt.springboot;
 
-import java.util.List;
-import java.util.Map;
 import javax.annotation.Generated;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.URIResolver;
-import org.apache.camel.component.xslt.XsltUriResolverFactory;
 import org.apache.camel.spring.boot.ComponentConfigurationPropertiesCommon;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 /**
  * Transforms the message using a XSLT template.
@@ -39,24 +34,27 @@ public class XsltComponentConfiguration
             ComponentConfigurationPropertiesCommon {
 
     /**
+     * Whether to enable auto configuration of the xslt component. This is
+     * enabled by default.
+     */
+    private Boolean enabled;
+    /**
      * To use a custom implementation of
      * org.apache.camel.converter.jaxp.XmlConverter
      */
     private XmlConverterNestedConfiguration xmlConverter;
     /**
-     * To use a custom javax.xml.transform.URIResolver which depends on a
-     * dynamic endpoint resource URI or which is a subclass of XsltUriResolver.
-     * Do not use in combination with uriResolver. See also link
-     * setUriResolver(URIResolver).
+     * To use a custom UriResolver which depends on a dynamic endpoint resource
+     * URI. Should not be used together with the option 'uriResolver'. The
+     * option is a org.apache.camel.component.xslt.XsltUriResolverFactory type.
      */
-    @NestedConfigurationProperty
-    private XsltUriResolverFactory uriResolverFactory;
+    private String uriResolverFactory;
     /**
-     * To use a custom javax.xml.transform.URIResolver. Do not use in
-     * combination with uriResolverFactory. See also link
-     * setUriResolverFactory(XsltUriResolverFactory).
+     * To use a custom UriResolver. Should not be used together with the option
+     * 'uriResolverFactory'. The option is a javax.xml.transform.URIResolver
+     * type.
      */
-    private URIResolver uriResolver;
+    private String uriResolver;
     /**
      * Cache for the resource content (the stylesheet file) when it is loaded.
      * If set to false Camel will reload the stylesheet file on each message
@@ -64,7 +62,7 @@ public class XsltComponentConfiguration
      * forced to reload at runtime via JMX using the clearCachedStylesheet
      * operation.
      */
-    private Boolean contentCache = false;
+    private Boolean contentCache = true;
     /**
      * Whether to use Saxon as the transformerFactoryClass. If enabled then the
      * class net.sf.saxon.TransformerFactoryImpl. You would need to add Saxon to
@@ -74,18 +72,20 @@ public class XsltComponentConfiguration
     /**
      * Allows you to use a custom net.sf.saxon.lib.ExtensionFunctionDefinition.
      * You would need to add camel-saxon to the classpath. The function is
-     * looked up in the registry where you can comma to separate multiple values
-     * to lookup.
+     * looked up in the registry, where you can comma to separate multiple
+     * values to lookup.
      */
-    private List<Object> saxonExtensionFunctions;
+    private String saxonExtensionFunctions;
     /**
-     * To use a custom Saxon configuration
+     * To use a custom Saxon configuration. The option is a java.lang.Object
+     * type.
      */
-    private Object saxonConfiguration;
+    private String saxonConfiguration;
     /**
-     * To set custom Saxon configuration properties
+     * To set custom Saxon configuration properties. The option is a
+     * java.util.Map<java.lang.String,java.lang.Object> type.
      */
-    private Map<String, Object> saxonConfigurationProperties;
+    private String saxonConfigurationProperties;
     /**
      * Whether the component should resolve property placeholders on itself when
      * starting. Only properties which are of String type can use property
@@ -101,19 +101,19 @@ public class XsltComponentConfiguration
         this.xmlConverter = xmlConverter;
     }
 
-    public XsltUriResolverFactory getUriResolverFactory() {
+    public String getUriResolverFactory() {
         return uriResolverFactory;
     }
 
-    public void setUriResolverFactory(XsltUriResolverFactory uriResolverFactory) {
+    public void setUriResolverFactory(String uriResolverFactory) {
         this.uriResolverFactory = uriResolverFactory;
     }
 
-    public URIResolver getUriResolver() {
+    public String getUriResolver() {
         return uriResolver;
     }
 
-    public void setUriResolver(URIResolver uriResolver) {
+    public void setUriResolver(String uriResolver) {
         this.uriResolver = uriResolver;
     }
 
@@ -133,28 +133,28 @@ public class XsltComponentConfiguration
         this.saxon = saxon;
     }
 
-    public List<Object> getSaxonExtensionFunctions() {
+    public String getSaxonExtensionFunctions() {
         return saxonExtensionFunctions;
     }
 
-    public void setSaxonExtensionFunctions(List<Object> saxonExtensionFunctions) {
+    public void setSaxonExtensionFunctions(String saxonExtensionFunctions) {
         this.saxonExtensionFunctions = saxonExtensionFunctions;
     }
 
-    public Object getSaxonConfiguration() {
+    public String getSaxonConfiguration() {
         return saxonConfiguration;
     }
 
-    public void setSaxonConfiguration(Object saxonConfiguration) {
+    public void setSaxonConfiguration(String saxonConfiguration) {
         this.saxonConfiguration = saxonConfiguration;
     }
 
-    public Map<String, Object> getSaxonConfigurationProperties() {
+    public String getSaxonConfigurationProperties() {
         return saxonConfigurationProperties;
     }
 
     public void setSaxonConfigurationProperties(
-            Map<String, Object> saxonConfigurationProperties) {
+            String saxonConfigurationProperties) {
         this.saxonConfigurationProperties = saxonConfigurationProperties;
     }
 

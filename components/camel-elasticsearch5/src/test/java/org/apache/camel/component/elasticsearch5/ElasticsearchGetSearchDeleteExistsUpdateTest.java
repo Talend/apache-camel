@@ -86,17 +86,37 @@ public class ElasticsearchGetSearchDeleteExistsUpdateTest extends ElasticsearchB
         sendBody("direct:index", map);
 
         //now, verify GET succeeded
-        Map<String, Object> actualQuery = new HashMap<String, Object>();
+        Map<String, Object> actualQuery = new HashMap<>();
         actualQuery.put("content", "searchtest");
-        Map<String, Object> match = new HashMap<String, Object>();
+        Map<String, Object> match = new HashMap<>();
         match.put("match", actualQuery);
-        Map<String, Object> query = new HashMap<String, Object>();
+        Map<String, Object> query = new HashMap<>();
         query.put("query", match);
         SearchResponse response = template.requestBody("direct:search", query, SearchResponse.class);
         assertNotNull("response should not be null", response);
         assertNotNull("response hits should be == 1", response.getHits().totalHits());
     }
         
+    @Test
+    public void testSearchWithMapQueryFromAndSize() throws Exception {
+        //first, INDEX a value
+        Map<String, String> map = createIndexedData();
+        sendBody("direct:index", map);
+
+        //now, verify GET succeeded
+        Map<String, Object> actualQuery = new HashMap<>();
+        actualQuery.put("content", "searchtest");
+        Map<String, Object> match = new HashMap<>();
+        match.put("match", actualQuery);
+        Map<String, Object> query = new HashMap<>();
+        query.put("query", match);
+        query.put("size", "5");
+        query.put("from", "0");
+        SearchResponse response = template.requestBody("direct:search", query, SearchResponse.class);
+        assertNotNull("response should not be null", response);
+        assertNotNull("response hits should be == 1", response.getHits().totalHits());
+    }
+
     @Test
     public void testSearchWithStringQuery() throws Exception {
         //first, INDEX a value
@@ -110,6 +130,19 @@ public class ElasticsearchGetSearchDeleteExistsUpdateTest extends ElasticsearchB
         assertNotNull("response hits should be == 1", response.getHits().totalHits());
     }
     
+    @Test
+    public void testSearchWithStringQueryFromAndSize() throws Exception {
+        //first, INDEX a value
+        Map<String, String> map = createIndexedData();
+        sendBody("direct:index", map);
+
+        //now, verify GET succeeded
+        String query = "{\"query\":{\"match\":{\"content\":\"searchtest\"}},\"from\": 0,\"size\": 10}";
+        SearchResponse response = template.requestBody("direct:search", query, SearchResponse.class);
+        assertNotNull("response should not be null", response);
+        assertNotNull("response hits should be == 1", response.getHits().totalHits());
+    }
+
     @Test
     public void testUpdate() throws Exception {
         Map<String, String> map = createIndexedData();
@@ -128,7 +161,7 @@ public class ElasticsearchGetSearchDeleteExistsUpdateTest extends ElasticsearchB
     public void testGetWithHeaders() throws Exception {
         //first, INDEX a value
         Map<String, String> map = createIndexedData();
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put(ElasticsearchConstants.PARAM_OPERATION, ElasticsearchOperation.INDEX);
         headers.put(ElasticsearchConstants.PARAM_INDEX_NAME, "twitter");
         headers.put(ElasticsearchConstants.PARAM_INDEX_TYPE, "tweet");
@@ -146,12 +179,12 @@ public class ElasticsearchGetSearchDeleteExistsUpdateTest extends ElasticsearchB
     public void testExistsWithHeaders() throws Exception {
         //first, INDEX a value
         Map<String, String> map = createIndexedData();
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put(ElasticsearchConstants.PARAM_OPERATION, ElasticsearchOperation.INDEX);
         headers.put(ElasticsearchConstants.PARAM_INDEX_NAME, "twitter");
         headers.put(ElasticsearchConstants.PARAM_INDEX_TYPE, "tweet");
 
-        String indexId = template.requestBodyAndHeaders("direct:start", map, headers, String.class);
+        template.requestBodyAndHeaders("direct:start", map, headers, String.class);
 
         //now, verify GET
         headers.put(ElasticsearchConstants.PARAM_OPERATION, ElasticsearchOperation.EXISTS);
@@ -165,12 +198,12 @@ public class ElasticsearchGetSearchDeleteExistsUpdateTest extends ElasticsearchB
     public void testNotExistsWithHeaders() throws Exception {
         //first, INDEX a value
         Map<String, String> map = createIndexedData();
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put(ElasticsearchConstants.PARAM_OPERATION, ElasticsearchOperation.INDEX);
         headers.put(ElasticsearchConstants.PARAM_INDEX_NAME, "twitter");
         headers.put(ElasticsearchConstants.PARAM_INDEX_TYPE, "tweet");
 
-        String indexId = template.requestBodyAndHeaders("direct:start", map, headers, String.class);
+        template.requestBodyAndHeaders("direct:start", map, headers, String.class);
 
         //now, verify GET
         headers.put(ElasticsearchConstants.PARAM_OPERATION, ElasticsearchOperation.EXISTS);
@@ -184,7 +217,7 @@ public class ElasticsearchGetSearchDeleteExistsUpdateTest extends ElasticsearchB
     public void testMultiGet() throws Exception {
         //first, INDEX two values
         Map<String, String> map = createIndexedData();
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put(ElasticsearchConstants.PARAM_OPERATION, ElasticsearchOperation.INDEX);
         headers.put(ElasticsearchConstants.PARAM_INDEX_NAME, "twitter");
         headers.put(ElasticsearchConstants.PARAM_INDEX_TYPE, "tweet");
@@ -206,7 +239,7 @@ public class ElasticsearchGetSearchDeleteExistsUpdateTest extends ElasticsearchB
         Item item1 = new Item("twitter", "tweet", "1");
         Item item2 = new Item("facebook", "status", "2");
         Item item3 = new Item("instagram", "latest", "3");
-        List<Item> list = new ArrayList<Item>();
+        List<Item> list = new ArrayList<>();
         list.add(item1);
         list.add(item2);
         list.add(item3);
@@ -224,7 +257,7 @@ public class ElasticsearchGetSearchDeleteExistsUpdateTest extends ElasticsearchB
     @Test
     public void testMultiSearch() throws Exception {
         //first, INDEX two values
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         
         node.client().prepareIndex("test", "type", "1").setSource("field", "xxx").execute().actionGet();
         node.client().prepareIndex("test", "type", "2").setSource("field", "yyy").execute().actionGet();
@@ -252,7 +285,7 @@ public class ElasticsearchGetSearchDeleteExistsUpdateTest extends ElasticsearchB
     public void testDeleteWithHeaders() throws Exception {
         //first, INDEX a value
         Map<String, String> map = createIndexedData();
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put(ElasticsearchConstants.PARAM_OPERATION, ElasticsearchOperation.INDEX);
         headers.put(ElasticsearchConstants.PARAM_INDEX_NAME, "twitter");
         headers.put(ElasticsearchConstants.PARAM_INDEX_TYPE, "tweet");
@@ -280,7 +313,7 @@ public class ElasticsearchGetSearchDeleteExistsUpdateTest extends ElasticsearchB
     @Test
     public void testUpdateWithIDInHeader() throws Exception {
         Map<String, String> map = createIndexedData();
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put(ElasticsearchConstants.PARAM_OPERATION, ElasticsearchOperation.INDEX);
         headers.put(ElasticsearchConstants.PARAM_INDEX_NAME, "twitter");
         headers.put(ElasticsearchConstants.PARAM_INDEX_TYPE, "tweet");

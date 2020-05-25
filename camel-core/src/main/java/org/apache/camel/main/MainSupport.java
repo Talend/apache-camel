@@ -38,6 +38,7 @@ import org.apache.camel.spi.ModelJAXBContextFactory;
 import org.apache.camel.spi.ReloadStrategy;
 import org.apache.camel.support.ServiceSupport;
 import org.apache.camel.util.ServiceHelper;
+import org.apache.camel.util.concurrent.ThreadHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,8 +51,8 @@ public abstract class MainSupport extends ServiceSupport {
     protected static final Logger LOG = LoggerFactory.getLogger(MainSupport.class);
     protected static final int UNINITIALIZED_EXIT_CODE = Integer.MIN_VALUE;
     protected static final int DEFAULT_EXIT_CODE = 0;
-    protected final List<MainListener> listeners = new ArrayList<MainListener>();
-    protected final List<Option> options = new ArrayList<Option>();
+    protected final List<MainListener> listeners = new ArrayList<>();
+    protected final List<Option> options = new ArrayList<>();
     protected final CountDownLatch latch = new CountDownLatch(1);
     protected final AtomicBoolean completed = new AtomicBoolean(false);
     protected final AtomicInteger exitCode = new AtomicInteger(UNINITIALIZED_EXIT_CODE);
@@ -60,10 +61,11 @@ public abstract class MainSupport extends ServiceSupport {
     protected int durationMaxMessages;
     protected TimeUnit timeUnit = TimeUnit.SECONDS;
     protected boolean trace;
-    protected List<RouteBuilder> routeBuilders = new ArrayList<RouteBuilder>();
+    protected List<RouteBuilder> routeBuilders = new ArrayList<>();
     protected String routeBuilderClasses;
     protected String fileWatchDirectory;
-    protected final List<CamelContext> camelContexts = new ArrayList<CamelContext>();
+    protected boolean fileWatchDirectoryRecursively;
+    protected final List<CamelContext> camelContexts = new ArrayList<>();
     protected ProducerTemplate camelTemplate;
     protected boolean hangupInterceptorEnabled = true;
     protected int durationHitExitCode = DEFAULT_EXIT_CODE;
@@ -175,7 +177,7 @@ public abstract class MainSupport extends ServiceSupport {
                 afterStop();
             } catch (Exception e) {
                 // however while running then just log errors
-                LOG.error("Failed: " + e, e);
+                LOG.error("Failed: {}", e, e);
             }
         }
     }
@@ -240,7 +242,11 @@ public abstract class MainSupport extends ServiceSupport {
 
     private void internalBeforeStart() {
         if (hangupInterceptorEnabled) {
-            Runtime.getRuntime().addShutdownHook(new HangupInterceptor(this));
+            String threadName = ThreadHelper.resolveThreadName(null, "CamelHangupInterceptor");
+
+            Thread task = new HangupInterceptor(this);
+            task.setName(threadName);
+            Runtime.getRuntime().addShutdownHook(task);
         }
     }
 
@@ -301,7 +307,7 @@ public abstract class MainSupport extends ServiceSupport {
      * Parses the command line arguments.
      */
     public void parseArguments(String[] arguments) {
-        LinkedList<String> args = new LinkedList<String>(Arrays.asList(arguments));
+        LinkedList<String> args = new LinkedList<>(Arrays.asList(arguments));
 
         boolean valid = true;
         while (!args.isEmpty()) {
@@ -411,6 +417,19 @@ public abstract class MainSupport extends ServiceSupport {
     public void setFileWatchDirectory(String fileWatchDirectory) {
         this.fileWatchDirectory = fileWatchDirectory;
     }
+    
+    public boolean isFileWatchDirectoryRecursively() {
+        return fileWatchDirectoryRecursively;
+    }
+    
+    /**
+     * Sets the flag to watch directory of XML file changes recursively to trigger live reload of Camel routes.
+     * <p/>
+     * Notice you cannot set this value and a custom {@link ReloadStrategy} as well.
+     */
+    public void setFileWatchDirectoryRecursively(boolean fileWatchDirectoryRecursively) {
+        this.fileWatchDirectoryRecursively = fileWatchDirectoryRecursively;
+    }
 
     public String getRouteBuilderClasses() {
         return routeBuilderClasses;
@@ -450,18 +469,18 @@ public abstract class MainSupport extends ServiceSupport {
             try {
                 if (duration > 0) {
                     TimeUnit unit = getTimeUnit();
-                    LOG.info("Waiting for: " + duration + " " + unit);
+                    LOG.info("Waiting for: {} {}", duration, unit);
                     latch.await(duration, unit);
                     exitCode.compareAndSet(UNINITIALIZED_EXIT_CODE, durationHitExitCode);
                     completed.set(true);
                 } else if (durationIdle > 0) {
                     TimeUnit unit = getTimeUnit();
-                    LOG.info("Waiting to be idle for: " + duration + " " + unit);
+                    LOG.info("Waiting to be idle for: {} {}", duration, unit);
                     exitCode.compareAndSet(UNINITIALIZED_EXIT_CODE, durationHitExitCode);
                     latch.await();
                     completed.set(true);
                 } else if (durationMaxMessages > 0) {
-                    LOG.info("Waiting until: " + durationMaxMessages + " messages has been processed");
+                    LOG.info("Waiting until: {} messages has been processed", durationMaxMessages);
                     exitCode.compareAndSet(UNINITIALIZED_EXIT_CODE, durationHitExitCode);
                     latch.await();
                     completed.set(true);
@@ -504,7 +523,7 @@ public abstract class MainSupport extends ServiceSupport {
     }
 
     public List<RouteDefinition> getRouteDefinitions() {
-        List<RouteDefinition> answer = new ArrayList<RouteDefinition>();
+        List<RouteDefinition> answer = new ArrayList<>();
         for (CamelContext camelContext : camelContexts) {
             answer.addAll(camelContext.getRouteDefinitions());
         }
@@ -553,7 +572,7 @@ public abstract class MainSupport extends ServiceSupport {
             camelContext.setTracing(true);
         }
         if (fileWatchDirectory != null) {
-            ReloadStrategy reload = new FileWatcherReloadStrategy(fileWatchDirectory);
+            ReloadStrategy reload = new FileWatcherReloadStrategy(fileWatchDirectory, fileWatchDirectoryRecursively);
             camelContext.setReloadStrategy(reload);
             // ensure reload is added as service and started
             camelContext.addService(reload);

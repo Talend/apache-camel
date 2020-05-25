@@ -19,6 +19,8 @@ package org.apache.camel.maven.packaging.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.camel.maven.packaging.StringHelper;
+
 import static org.apache.camel.maven.packaging.StringHelper.cutLastZeroDigit;
 
 public class OtherModel {
@@ -30,6 +32,7 @@ public class OtherModel {
     private String firstVersion;
     private String label;
     private String deprecated;
+    private String deprecationNote;
     private String groupId;
     private String artifactId;
     private String version;
@@ -100,6 +103,14 @@ public class OtherModel {
         this.deprecated = deprecated;
     }
 
+    public String getDeprecationNote() {
+        return deprecationNote;
+    }
+
+    public void setDeprecationNote(String deprecationNote) {
+        this.deprecationNote = deprecationNote;
+    }
+
     public String getGroupId() {
         return groupId;
     }
@@ -141,18 +152,6 @@ public class OtherModel {
     }
 
     public String getShortJavaType() {
-        if (javaType.startsWith("java.util.Map")) {
-            return "Map";
-        } else if (javaType.startsWith("java.util.Set")) {
-            return "Set";
-        } else if (javaType.startsWith("java.util.List")) {
-            return "List";
-        }
-        int pos = javaType.lastIndexOf(".");
-        if (pos != -1) {
-            return javaType.substring(pos + 1);
-        } else {
-            return javaType;
-        }
+        return StringHelper.getClassShortName(javaType);
     }
 }

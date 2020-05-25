@@ -29,6 +29,7 @@ import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.Route;
 import org.apache.camel.Service;
+import org.apache.camel.cluster.CamelClusterService;
 import org.apache.camel.component.bean.BeanProcessor;
 import org.apache.camel.component.log.LogEndpoint;
 import org.apache.camel.impl.ScheduledPollConsumer;
@@ -36,8 +37,11 @@ import org.apache.camel.management.mbean.ManagedAggregateProcessor;
 import org.apache.camel.management.mbean.ManagedBeanProcessor;
 import org.apache.camel.management.mbean.ManagedBrowsableEndpoint;
 import org.apache.camel.management.mbean.ManagedCamelContext;
+import org.apache.camel.management.mbean.ManagedCamelHealth;
 import org.apache.camel.management.mbean.ManagedChoice;
 import org.apache.camel.management.mbean.ManagedCircuitBreakerLoadBalancer;
+import org.apache.camel.management.mbean.ManagedClaimCheck;
+import org.apache.camel.management.mbean.ManagedClusterService;
 import org.apache.camel.management.mbean.ManagedComponent;
 import org.apache.camel.management.mbean.ManagedConsumer;
 import org.apache.camel.management.mbean.ManagedConvertBody;
@@ -70,6 +74,7 @@ import org.apache.camel.management.mbean.ManagedResequencer;
 import org.apache.camel.management.mbean.ManagedRollback;
 import org.apache.camel.management.mbean.ManagedRoundRobinLoadBalancer;
 import org.apache.camel.management.mbean.ManagedRoute;
+import org.apache.camel.management.mbean.ManagedRouteController;
 import org.apache.camel.management.mbean.ManagedRoutingSlip;
 import org.apache.camel.management.mbean.ManagedSamplingThrottler;
 import org.apache.camel.management.mbean.ManagedScheduledPollConsumer;
@@ -105,6 +110,7 @@ import org.apache.camel.model.RecipientListDefinition;
 import org.apache.camel.model.ThreadsDefinition;
 import org.apache.camel.model.loadbalancer.CustomLoadBalancerDefinition;
 import org.apache.camel.processor.ChoiceProcessor;
+import org.apache.camel.processor.ClaimCheckProcessor;
 import org.apache.camel.processor.ConvertBodyProcessor;
 import org.apache.camel.processor.Delayer;
 import org.apache.camel.processor.DynamicRouter;
@@ -171,6 +177,12 @@ public class DefaultManagementObjectStrategy implements ManagementObjectStrategy
         return mc;
     }
 
+    public Object getManagedObjectForCamelHealth(CamelContext context) {
+        ManagedCamelHealth mch = new ManagedCamelHealth(context);
+        mch.init(context.getManagementStrategy());
+        return mch;
+    }
+
     @SuppressWarnings({"deprecation", "unchecked"})
     public Object getManagedObjectForComponent(CamelContext context, Component component, String name) {
         if (component instanceof org.apache.camel.spi.ManagementAware) {
@@ -220,6 +232,12 @@ public class DefaultManagementObjectStrategy implements ManagementObjectStrategy
         return me;
     }
 
+    public Object getManagedObjectForRouteController(CamelContext context) {
+        ManagedRouteController mrc = new ManagedRouteController((ModelCamelContext)context);
+        mrc.init(context.getManagementStrategy());
+        return mrc;
+    }
+
     public Object getManagedObjectForRoute(CamelContext context, Route route) {
         ManagedRoute mr;
         if (route.supportsSuspension()) {
@@ -267,6 +285,12 @@ public class DefaultManagementObjectStrategy implements ManagementObjectStrategy
         return mc;
     }
 
+    public Object getManagedObjectForClusterService(CamelContext context, CamelClusterService service) {
+        ManagedClusterService mcs = new ManagedClusterService(context, service);
+        mcs.init(context.getManagementStrategy());
+        return mcs;
+    }
+
     @SuppressWarnings({"deprecation", "unchecked"})
     public Object getManagedObjectForProcessor(CamelContext context, Processor processor,
                                                ProcessorDefinition<?> definition, Route route) {
@@ -299,6 +323,8 @@ public class DefaultManagementObjectStrategy implements ManagementObjectStrategy
                 answer = new ManagedConvertBody(context, (ConvertBodyProcessor) target, definition);
             } else if (target instanceof ChoiceProcessor) {
                 answer = new ManagedChoice(context, (ChoiceProcessor) target, definition);
+            } else if (target instanceof ClaimCheckProcessor) {
+                answer = new ManagedClaimCheck(context, (ClaimCheckProcessor) target, definition);
             } else if (target instanceof Delayer) {
                 answer = new ManagedDelayer(context, (Delayer) target, definition);
             } else if (target instanceof Throttler) {

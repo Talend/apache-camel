@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @version 
@@ -26,7 +27,8 @@ import org.apache.camel.component.mock.MockEndpoint;
 public class FileContentBasedRouterTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/cbr");
         super.setUp();
     }
@@ -37,32 +39,34 @@ public class FileContentBasedRouterTest extends ContextTestSupport {
         template.sendBodyAndHeader("file://target/cbr", "Hello Copenhagen", "CamelFileName", "copenhagen.txt");
     }
 
+    @Test
     public void testRouteLondon() throws Exception {
-        sendFiles();
-
         MockEndpoint mock = getMockEndpoint("mock:london");
         mock.expectedMessageCount(1);
         // should not load the content of the body into memory unless demand for it
         // so the type received should be a GenericFile (holder for the file)
         mock.message(0).body().isInstanceOf(GenericFile.class);
 
+        sendFiles();
+
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testRouteParis() throws Exception {
-        sendFiles();
-
         MockEndpoint mock = getMockEndpoint("mock:paris");
         mock.expectedMessageCount(1);
         // should not load the content of the body into memory unless demand for it
         // so the type received should be a GenericFile (holder for the file)
         mock.message(0).body().isInstanceOf(GenericFile.class);
 
+        sendFiles();
+
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testRouteOther() throws Exception {
-        sendFiles();
 
         MockEndpoint mock = getMockEndpoint("mock:other");
         mock.expectedMessageCount(1);
@@ -70,6 +74,8 @@ public class FileContentBasedRouterTest extends ContextTestSupport {
         // should not load the content of the body into memory unless demand for it
         // so the type received should be a GenericFile (holder for the file)
         mock.message(0).body().isInstanceOf(GenericFile.class);
+
+        sendFiles();
 
         assertMockEndpointsSatisfied();
     }
@@ -79,7 +85,7 @@ public class FileContentBasedRouterTest extends ContextTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("file://target/cbr?noop=true")
+                from("file://target/cbr?noop=true&initialDelay=0&delay=10")
                     .choice()
                         .when(header("CamelFileName").isEqualTo("london.txt")).to("mock:london")
                         .when(header("CamelFileName").isEqualTo("paris.txt")).to("mock:paris")

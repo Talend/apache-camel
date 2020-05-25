@@ -43,15 +43,19 @@ public class RestConfiguration {
     private String producerApiDoc;
     private String scheme;
     private String host;
+    private String apiHost;
+    private boolean useXForwardHeaders = true;
     private int port;
     private String contextPath;
     private String apiContextPath;
     private String apiContextRouteId;
     private String apiContextIdPattern;
     private boolean apiContextListing;
-    private RestHostNameResolver restHostNameResolver = RestHostNameResolver.allLocalIp;
+    private boolean apiVendorExtension;
+    private RestHostNameResolver hostNameResolver = RestHostNameResolver.allLocalIp;
     private RestBindingMode bindingMode = RestBindingMode.off;
     private boolean skipBindingOnErrorCode = true;
+    private boolean clientRequestValidation;
     private boolean enableCORS;
     private String jsonDataFormat;
     private String xmlDataFormat;
@@ -153,6 +157,19 @@ public class RestConfiguration {
      */
     public void setHost(String host) {
         this.host = host;
+    }
+
+    public String getApiHost() {
+        return apiHost;
+    }
+
+    /**
+     * To use an specific hostname for the API documentation (eg swagger)
+     * <p/>
+     * This can be used to override the generated host with this configured hostname
+     */
+    public void setApiHost(String apiHost) {
+        this.apiHost = apiHost;
     }
 
     /**
@@ -272,31 +289,77 @@ public class RestConfiguration {
         this.apiContextListing = apiContextListing;
     }
 
+    public boolean isApiVendorExtension() {
+        return apiVendorExtension;
+    }
+
+    /**
+     * Whether vendor extension is enabled in the Rest APIs. If enabled then Camel will include additional information
+     * as vendor extension (eg keys starting with x-) such as route ids, class names etc.
+     * Not all 3rd party API gateways and tools supports vendor-extensions when importing your API docs.
+     */
+    public void setApiVendorExtension(boolean apiVendorExtension) {
+        this.apiVendorExtension = apiVendorExtension;
+    }
+
+    /**
+     * Gets the resolver to use for resolving hostname
+     *
+     * @return the resolver
+     * @deprecated use getHostNameResolver
+     */
+    @Deprecated
+    public RestHostNameResolver getRestHostNameResolver() {
+        return getHostNameResolver();
+    }
+
+    /**
+     * Sets the resolver to use for resolving hostname
+     *
+     * @param restHostNameResolver the resolver
+     * @deprecated use setHostNameResolver
+     */
+    @Deprecated
+    public void setRestHostNameResolver(RestHostNameResolver restHostNameResolver) {
+        setHostNameResolver(restHostNameResolver);
+    }
+
+    /**
+     * Sets the resolver to use for resolving hostname
+     *
+     * @param restHostNameResolver the resolver
+     * @deprecated use setHostNameResolver
+     */
+    @Deprecated
+    public void setRestHostNameResolver(String restHostNameResolver) {
+        settHostNameResolver(restHostNameResolver);
+    }
+
     /**
      * Gets the resolver to use for resolving hostname
      *
      * @return the resolver
      */
-    public RestHostNameResolver getRestHostNameResolver() {
-        return restHostNameResolver;
+    public RestHostNameResolver getHostNameResolver() {
+        return hostNameResolver;
     }
 
     /**
      * Sets the resolver to use for resolving hostname
      *
-     * @param restHostNameResolver the resolver
+     * @param hostNameResolver the resolver
      */
-    public void setRestHostNameResolver(RestHostNameResolver restHostNameResolver) {
-        this.restHostNameResolver = restHostNameResolver;
+    public void setHostNameResolver(RestHostNameResolver hostNameResolver) {
+        this.hostNameResolver = hostNameResolver;
     }
 
     /**
      * Sets the resolver to use for resolving hostname
      *
-     * @param restHostNameResolver the resolver
+     * @param hostNameResolver the resolver
      */
-    public void setRestHostNameResolver(String restHostNameResolver) {
-        this.restHostNameResolver = RestHostNameResolver.valueOf(restHostNameResolver);
+    public void settHostNameResolver(String hostNameResolver) {
+        this.hostNameResolver = RestHostNameResolver.valueOf(hostNameResolver);
     }
 
     /**
@@ -346,6 +409,22 @@ public class RestConfiguration {
      */
     public void setSkipBindingOnErrorCode(boolean skipBindingOnErrorCode) {
         this.skipBindingOnErrorCode = skipBindingOnErrorCode;
+    }
+
+    public boolean isClientRequestValidation() {
+        return clientRequestValidation;
+    }
+
+    /**
+     * Whether to enable validation of the client request to check whether the Content-Type and Accept headers from
+     * the client is supported by the Rest-DSL configuration of its consumes/produces settings.
+     * <p/>
+     * This can be turned on, to enable this check. In case of validation error, then HTTP Status codes 415 or 406 is returned.
+     * <p/>
+     * The default value is false.
+     */
+    public void setClientRequestValidation(boolean clientRequestValidation) {
+        this.clientRequestValidation = clientRequestValidation;
     }
 
     /**
@@ -515,5 +594,27 @@ public class RestConfiguration {
      */
     public void setCorsHeaders(Map<String, String> corsHeaders) {
         this.corsHeaders = corsHeaders;
+    }
+
+    /**
+     * Whether to use X-FOWARD headers to set host etc. for Swagger.
+     * <p/>
+     * This option is default <tt>true</tt>.
+     *
+     * @return whether to use X-FOWARD headers
+     */
+    public boolean isUseXForwardHeaders() {
+        return useXForwardHeaders;
+    }
+
+    /**
+     * WWhether to use X-FOWARD headers to set host etc. for Swagger.
+     * <p/>
+     * This option is default <tt>true</tt>.
+     *
+     * @param useXForwardHeaders whether to use X-FOWARD headers
+     */
+    public void setUseXForwardHeaders(boolean useXForwardHeaders) {
+        this.useXForwardHeaders = useXForwardHeaders;
     }
 }

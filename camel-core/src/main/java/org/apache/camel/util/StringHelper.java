@@ -20,8 +20,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.apache.camel.util.StringQuoteHelper.doubleQuote;
 
@@ -50,6 +53,18 @@ public final class StringHelper {
             .replace('.', '-')
             .replace('/', '-')
             .replace('\\', '-');
+    }
+
+    /**
+     * Remove carriage return and line feeds from a String, replacing them with an empty String.
+     * @param s String to be sanitized of carriage return / line feed characters
+     * @return sanitized version of <code>s</code>.
+     * @throws NullPointerException if <code>s</code> is <code>null</code>.
+     */
+    public static String removeCRLF(String s) {
+        return s
+            .replaceAll("\r", "")
+            .replaceAll("\n", "");
     }
 
     /**
@@ -383,6 +398,20 @@ public final class StringHelper {
      * @return the string capitalized (upper case first character)
      */
     public static String capitalize(String text) {
+        return capitalize(text, false);
+    }
+
+    /**
+     * Capitalize the string (upper case first character)
+     *
+     * @param text  the string
+     * @param dashToCamelCase whether to also convert dash format into camel case (hello-great-world -> helloGreatWorld)
+     * @return the string capitalized (upper case first character)
+     */
+    public static String capitalize(String text, boolean dashToCamelCase) {
+        if (dashToCamelCase) {
+            text = dashToCamelCase(text);
+        }
         if (text == null) {
             return null;
         }
@@ -395,6 +424,38 @@ public final class StringHelper {
             answer += text.substring(1, length);
         }
         return answer;
+    }
+
+    /**
+     * Converts the string from dash format into camel case (hello-great-world -> helloGreatWorld)
+     *
+     * @param text  the string
+     * @return the string camel cased
+     */
+    public static String dashToCamelCase(String text) {
+        if (text == null) {
+            return null;
+        }
+        int length = text.length();
+        if (length == 0) {
+            return text;
+        }
+        if (text.indexOf('-') == -1) {
+            return text;
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c == '-') {
+                i++;
+                sb.append(Character.toUpperCase(text.charAt(i)));
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 
     /**
@@ -671,6 +732,109 @@ public final class StringHelper {
         }
 
         return trimmed;
+    }
+    
+    /**
+     * Checks if the src string contains what
+     *
+     * @param src  is the source string to be checked
+     * @param what is the string which will be looked up in the src argument 
+     * @return true/false
+     */
+    public static boolean containsIgnoreCase(String src, String what) {
+        if (src == null || what == null) {
+            return false;
+        }
+        
+        final int length = what.length();
+        if (length == 0) {
+            return true; // Empty string is contained
+        }
+
+        final char firstLo = Character.toLowerCase(what.charAt(0));
+        final char firstUp = Character.toUpperCase(what.charAt(0));
+
+        for (int i = src.length() - length; i >= 0; i--) {
+            // Quick check before calling the more expensive regionMatches() method:
+            final char ch = src.charAt(i);
+            if (ch != firstLo && ch != firstUp) {
+                continue;
+            }
+
+            if (src.regionMatches(true, i, what, 0, length)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Outputs the bytes in human readable format in units of KB,MB,GB etc.
+     *
+     * @param locale The locale to apply during formatting. If l is {@code null} then no localization is applied.
+     * @param bytes number of bytes
+     * @return human readable output
+     * @see java.lang.String#format(Locale, String, Object...)
+     */
+    public static String humanReadableBytes(Locale locale, long bytes) {
+        int unit = 1024;
+        if (bytes < unit) {
+            return bytes + " B";
+        }
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = "KMGTPE".charAt(exp - 1) + "";
+        return String.format(locale, "%.1f %sB", bytes / Math.pow(unit, exp), pre);
+    }
+
+    /**
+     * Outputs the bytes in human readable format in units of KB,MB,GB etc.
+     *
+     * The locale always used is the one returned by {@link java.util.Locale#getDefault()}. 
+     *
+     * @param bytes number of bytes
+     * @return human readable output
+     * @see org.apache.camel.util.StringHelper#humanReadableBytes(Locale, long)
+     */
+    public static String humanReadableBytes(long bytes) {
+        return humanReadableBytes(Locale.getDefault(), bytes);
+    }
+
+    /**
+     * Check for string pattern matching with a number of strategies in the
+     * following order:
+     *
+     * - equals
+     * - null pattern always matches
+     * - * always matches
+     * - Ant style matching
+     * - Regexp
+     *
+     * @param patter the pattern
+     * @param target the string to test
+     * @return true if target matches the pattern
+     */
+    public static boolean matches(String patter, String target) {
+        if (Objects.equals(patter, target)) {
+            return true;
+        }
+
+        if (Objects.isNull(patter)) {
+            return true;
+        }
+
+        if (Objects.equals("*", patter)) {
+            return true;
+        }
+
+        if (AntPathMatcher.INSTANCE.match(patter, target)) {
+            return true;
+        }
+
+        Pattern p = Pattern.compile(patter);
+        Matcher m = p.matcher(target);
+
+        return m.matches();
     }
 
 }

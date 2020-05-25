@@ -17,6 +17,7 @@
 package org.apache.camel.component.jetty;
 
 import java.io.File;
+
 import javax.activation.DataHandler;
 
 import org.apache.camel.Exchange;
@@ -34,6 +35,7 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.junit.Test;
 
 public class MultiPartFormTest extends BaseJettyTest {
+
     private RequestEntity createMultipartRequestEntity() throws Exception {
         File file = new File("src/main/resources/META-INF/NOTICE.txt");
 
@@ -41,7 +43,6 @@ public class MultiPartFormTest extends BaseJettyTest {
                         new FilePart(file.getName(), file)};
 
         return new MultipartRequestEntity(parts, new HttpMethodParams());
-
     }
 
     @Test

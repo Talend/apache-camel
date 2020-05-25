@@ -36,6 +36,7 @@ import org.apache.camel.component.infinispan.InfinispanUtil;
 import org.apache.camel.support.RoutePolicySupport;
 import org.apache.camel.support.ServiceSupport;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.ReferenceCount;
 import org.apache.camel.util.StringHelper;
 import org.infinispan.Cache;
 import org.infinispan.client.hotrod.RemoteCache;
@@ -58,13 +59,14 @@ public class InfinispanRoutePolicy extends RoutePolicySupport implements CamelCo
     private static final Logger LOGGER = LoggerFactory.getLogger(InfinispanRoutePolicy.class);
 
     private final AtomicBoolean leader;
-    private final Set<Route> suspendedRoutes;
+    private final Set<Route> startedRoutes;
+    private final Set<Route> stoppeddRoutes;
     private final InfinispanManager manager;
+    private final ReferenceCount refCount;
 
-    private Route route;
     private CamelContext camelContext;
     private ScheduledExecutorService executorService;
-    private boolean shouldStopConsumer;
+    private boolean shouldStopRoute;
     private String lockMapName;
     private String lockKey;
     private String lockValue;
@@ -83,14 +85,16 @@ public class InfinispanRoutePolicy extends RoutePolicySupport implements CamelCo
 
     public InfinispanRoutePolicy(InfinispanManager manager, String lockKey, String lockValue) {
         this.manager = manager;
-        this.suspendedRoutes =  new HashSet<>();
+        this.stoppeddRoutes = new HashSet<>();
+        this.startedRoutes = new HashSet<>();
         this.leader = new AtomicBoolean(false);
-        this.shouldStopConsumer = true;
+        this.shouldStopRoute = true;
         this.lockKey = lockKey;
         this.lockValue = lockValue;
         this.lifespan = 30;
         this.lifespanTimeUnit = TimeUnit.SECONDS;
         this.service = null;
+        this.refCount = ReferenceCount.on(this::startService, this::stopService);
     }
 
     @Override
@@ -104,159 +108,121 @@ public class InfinispanRoutePolicy extends RoutePolicySupport implements CamelCo
     }
 
     @Override
-    public void onInit(Route route) {
+    public synchronized void onInit(Route route) {
         super.onInit(route);
-        this.route = route;
+
+        LOGGER.info("Route managed by {}. Setting route {} AutoStartup flag to false.", getClass(), route.getId());
+        route.getRouteContext().getRoute().setAutoStartup("false");
+
+        stoppeddRoutes.add(route);
+
+        this.refCount.retain();
+
+        startManagedRoutes();
     }
 
     @Override
-    public void onStart(Route route) {
-        try {
-            startService();
-        } catch (Exception e) {
-            throw new RuntimeCamelException(e);
-        }
-
-        if (!leader.get() && shouldStopConsumer) {
-            stopConsumer(route);
-        }
+    public synchronized void doShutdown() {
+        this.refCount.release();
     }
 
-    @Override
-    public synchronized void onStop(Route route) {
-        try {
-            stopService();
-        } catch (Exception e) {
-            throw new RuntimeCamelException(e);
-        }
+    // ****************************************
+    // Helpers
+    // ****************************************
 
-        suspendedRoutes.remove(route);
-    }
-
-    @Override
-    public synchronized void onSuspend(Route route) {
-        try {
-            stopService();
-        } catch (Exception e) {
-            throw new RuntimeCamelException(e);
-        }
-
-        suspendedRoutes.remove(route);
-    }
-
-    @Override
-    protected void doStart() throws Exception {
+    private void startService() {
         // validate
         StringHelper.notEmpty(lockMapName, "lockMapName", this);
         StringHelper.notEmpty(lockKey, "lockKey", this);
         StringHelper.notEmpty(lockValue, "lockValue", this);
         ObjectHelper.notNull(camelContext, "camelContext", this);
 
-        if (this.lockValue == null) {
-            this.lockValue = camelContext.getUuidGenerator().generateUuid();
+        try {
+            this.manager.start();
+            this.executorService = getCamelContext().getExecutorServiceManager().newSingleThreadScheduledExecutor(this, "InfinispanRoutePolicy");
+
+            if (lifespanTimeUnit.convert(lifespan, TimeUnit.SECONDS) < 2) {
+                throw new IllegalArgumentException("Lock lifespan can not be less that 2 seconds");
+            }
+
+            if (manager.isCacheContainerEmbedded()) {
+                BasicCache<String, String> cache = manager.getCache(lockMapName);
+                this.service = new EmbeddedCacheService(InfinispanUtil.asEmbedded(cache));
+            } else {
+                // By default, previously existing values for java.util.Map operations
+                // are not returned for remote caches but policy needs it so force it.
+                BasicCache<String, String> cache = manager.getCache(lockMapName, true);
+                this.service = new RemoteCacheService(InfinispanUtil.asRemote(cache));
+            }
+
+            service.start();
+        } catch (Exception e) {
+            throw new RuntimeCamelException(e);
         }
-
-        this.manager.start();
-        this.executorService = getCamelContext().getExecutorServiceManager().newSingleThreadScheduledExecutor(this, "InfinispanRoutePolicy");
-
-        if (lifespanTimeUnit.convert(lifespan, TimeUnit.SECONDS) < 2) {
-            throw new IllegalArgumentException("Lock lifespan can not be less that 2 seconds");
-        }
-
-        BasicCache<String, String> cache = manager.getCache(lockMapName);
-        if (manager.isCacheContainerEmbedded()) {
-            this.service = new EmbeddedCacheService(InfinispanUtil.asEmbedded(cache));
-        } else {
-            this.service = new RemoteCacheService(InfinispanUtil.asRemote(cache));
-        }
-
-        super.doStart();
     }
 
-    @Override
-    protected void doStop() throws Exception {
-        if (future != null) {
-            future.cancel(true);
-            future = null;
-        }
-
-        if (this.service != null) {
-            this.service.stop();
-        }
-
-        getCamelContext().getExecutorServiceManager().shutdownGraceful(executorService);
-
-        leader.set(false);
-        manager.stop();
-
-        super.doStop();
-    }
-
-    private void startService() throws Exception {
-        if (service == null) {
-            throw new IllegalStateException("An Infinispan CacheService should be configured");
-        }
-
-        service.start();
-    }
-
-    private void stopService() throws Exception {
+    private void stopService() {
         leader.set(false);
 
-        if (this.service != null) {
-            this.service.stop();
+        try {
+            if (future != null) {
+                future.cancel(true);
+                future = null;
+            }
+
+            manager.stop();
+
+            if (this.service != null) {
+                this.service.stop();
+            }
+
+            getCamelContext().getExecutorServiceManager().shutdownGraceful(executorService);
+        } catch (Exception e) {
+            throw new RuntimeCamelException(e);
         }
     }
 
-    // *************************************************************************
-    //
-    // *************************************************************************
-
-    protected void setLeader(boolean isLeader) {
+    private void setLeader(boolean isLeader) {
         if (isLeader && leader.compareAndSet(false, isLeader)) {
             LOGGER.info("Leadership taken (map={}, key={}, val={})", lockMapName, lockKey, lockValue);
-
-            startAllStoppedConsumers();
+            startManagedRoutes();
         } else if (!isLeader && leader.getAndSet(isLeader)) {
             LOGGER.info("Leadership lost (map={}, key={} val={})", lockMapName, lockKey, lockValue);
-        }
-
-        if (!isLeader && this.route != null) {
-            stopConsumer(route);
+            stopManagedRoutes();
         }
     }
 
-    private synchronized void startConsumer(Route route) {
+    private synchronized void startManagedRoutes() {
+        if (!isLeader()) {
+            return;
+        }
+
         try {
-            if (suspendedRoutes.contains(route)) {
-                startConsumer(route.getConsumer());
-                suspendedRoutes.remove(route);
+            for (Route route : stoppeddRoutes) {
+                LOGGER.debug("Starting route {}", route.getId());
+                startRoute(route);
+                startedRoutes.add(route);
             }
+
+            stoppeddRoutes.removeAll(startedRoutes);
         } catch (Exception e) {
             handleException(e);
         }
     }
 
-    private synchronized void stopConsumer(Route route) {
-        try {
-            if (!suspendedRoutes.contains(route)) {
-                LOGGER.debug("Stopping consumer for {} ({})", route.getId(), route.getConsumer());
-                stopConsumer(route.getConsumer());
-                suspendedRoutes.add(route);
-            }
-        } catch (Exception e) {
-            handleException(e);
+    private synchronized void stopManagedRoutes() {
+        if (isLeader()) {
+            return;
         }
-    }
 
-    private synchronized void startAllStoppedConsumers() {
         try {
-            for (Route route : suspendedRoutes) {
-                LOGGER.debug("Starting consumer for {} ({})", route.getId(), route.getConsumer());
-                startConsumer(route.getConsumer());
+            for (Route route : startedRoutes) {
+                LOGGER.debug("Stopping route {}", route.getId());
+                stopRoute(route);
+                stoppeddRoutes.add(route);
             }
 
-            suspendedRoutes.clear();
+            startedRoutes.removeAll(stoppeddRoutes);
         } catch (Exception e) {
             handleException(e);
         }
@@ -266,29 +232,13 @@ public class InfinispanRoutePolicy extends RoutePolicySupport implements CamelCo
     // Getter/Setters
     // *************************************************************************
 
-    @ManagedAttribute(description = "The route id")
-    public String getRouteId() {
-        if (route != null) {
-            return route.getId();
-        }
-        return null;
+    @ManagedAttribute(description = "Whether to stop route when starting up and failed to become master")
+    public boolean isShouldStopRoute() {
+        return shouldStopRoute;
     }
 
-    @ManagedAttribute(description = "The consumer endpoint", mask = true)
-    public String getEndpointUrl() {
-        if (route != null && route.getConsumer() != null && route.getConsumer().getEndpoint() != null) {
-            return route.getConsumer().getEndpoint().toString();
-        }
-        return null;
-    }
-
-    @ManagedAttribute(description = "Whether to stop consumer when starting up and failed to become master")
-    public boolean isShouldStopConsumer() {
-        return shouldStopConsumer;
-    }
-
-    public void setShouldStopConsumer(boolean shouldStopConsumer) {
-        this.shouldStopConsumer = shouldStopConsumer;
+    public void setShouldStopRoute(boolean shouldStopRoute) {
+        this.shouldStopRoute = shouldStopRoute;
     }
 
     @ManagedAttribute(description = "The lock map name")
@@ -380,7 +330,7 @@ public class InfinispanRoutePolicy extends RoutePolicySupport implements CamelCo
 
         @Override
         public void run() {
-            if (!isRunAllowed() || !InfinispanRoutePolicy.this.isRunAllowed()) {
+            if (!isRunAllowed()) {
                 return;
             }
 
@@ -455,7 +405,7 @@ public class InfinispanRoutePolicy extends RoutePolicySupport implements CamelCo
 
         @Override
         public void run() {
-            if (!isRunAllowed() || !InfinispanRoutePolicy.this.isRunAllowed()) {
+            if (!isRunAllowed()) {
                 return;
             }
 
@@ -464,8 +414,10 @@ public class InfinispanRoutePolicy extends RoutePolicySupport implements CamelCo
 
                 // I'm still the leader, so refresh the key so it does not expire.
                 if (!cache.replaceWithVersion(lockKey, lockValue, version, (int)lifespanTimeUnit.toSeconds(lifespan))) {
-                    // Looks like I've lost the leadership.
                     setLeader(false);
+                } else {
+                    version = cache.getWithMetadata(lockKey).getVersion();
+                    LOGGER.debug("Lock refreshed key={} with new version={}", lockKey, version);
                 }
             }
 
@@ -495,14 +447,14 @@ public class InfinispanRoutePolicy extends RoutePolicySupport implements CamelCo
         }
 
         @ClientCacheEntryRemoved
-        public void onCacheEntryRemoved(ClientCacheEntryRemovedEvent<Object> event) {
+        public void onCacheEntryRemoved(ClientCacheEntryRemovedEvent<String> event) {
             if (ObjectHelper.equal(lockKey, event.getKey())) {
                 run();
             }
         }
 
         @ClientCacheEntryExpired
-        public void onCacheEntryExpired(ClientCacheEntryExpiredEvent<Object> event) {
+        public void onCacheEntryExpired(ClientCacheEntryExpiredEvent<String> event) {
             if (ObjectHelper.equal(lockKey, event.getKey())) {
                 run();
             }

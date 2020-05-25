@@ -18,9 +18,12 @@ package org.apache.camel.component.aws.cw;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
-import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatchClientBuilder;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Component;
@@ -68,13 +71,18 @@ public class CwEndpoint extends DefaultEndpoint {
     @Override
     public void doStart() throws Exception {
         super.doStart();
-        
-        cloudWatchClient = configuration.getAmazonCwClient() != null
-            ? configuration.getAmazonCwClient() : createCloudWatchClient();
-            
-        if (ObjectHelper.isNotEmpty(configuration.getAmazonCwEndpoint())) {
-            cloudWatchClient.setEndpoint(configuration.getAmazonCwEndpoint());
+
+        cloudWatchClient = configuration.getAmazonCwClient() != null ? configuration.getAmazonCwClient() : createCloudWatchClient();
+    }
+    
+    @Override
+    public void doStop() throws Exception {
+        if (ObjectHelper.isEmpty(configuration.getAmazonCwClient())) {
+            if (cloudWatchClient != null) {
+                cloudWatchClient.shutdown();
+            }
         }
+        super.doStop();
     }
 
     public CwConfiguration getConfiguration() {
@@ -95,6 +103,7 @@ public class CwEndpoint extends DefaultEndpoint {
 
     AmazonCloudWatch createCloudWatchClient() {
         AmazonCloudWatch client = null;
+        AmazonCloudWatchClientBuilder clientBuilder = null;
         ClientConfiguration clientConfiguration = null;
         boolean isClientConfigFound = false;
         if (ObjectHelper.isNotEmpty(configuration.getProxyHost()) && ObjectHelper.isNotEmpty(configuration.getProxyPort())) {
@@ -105,18 +114,23 @@ public class CwEndpoint extends DefaultEndpoint {
         }
         if (configuration.getAccessKey() != null && configuration.getSecretKey() != null) {
             AWSCredentials credentials = new BasicAWSCredentials(configuration.getAccessKey(), configuration.getSecretKey());
+            AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials);
             if (isClientConfigFound) {
-                client = new AmazonCloudWatchClient(credentials, clientConfiguration);
+                clientBuilder = AmazonCloudWatchClientBuilder.standard().withClientConfiguration(clientConfiguration).withCredentials(credentialsProvider);
             } else {
-                client = new AmazonCloudWatchClient(credentials);
+                clientBuilder = AmazonCloudWatchClientBuilder.standard().withCredentials(credentialsProvider);
             }
         } else {
             if (isClientConfigFound) {
-                client = new AmazonCloudWatchClient();
+                clientBuilder = AmazonCloudWatchClientBuilder.standard();
             } else {
-                client = new AmazonCloudWatchClient(clientConfiguration);
+                clientBuilder = AmazonCloudWatchClientBuilder.standard().withClientConfiguration(clientConfiguration);
             }
         }
+        if (ObjectHelper.isNotEmpty(configuration.getRegion())) {
+            clientBuilder = clientBuilder.withRegion(Regions.valueOf(configuration.getRegion()));
+        }
+        client = clientBuilder.build();
         return client;
     }
 }

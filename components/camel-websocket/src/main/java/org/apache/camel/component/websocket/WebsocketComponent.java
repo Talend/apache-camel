@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.DispatcherType;
 
 import org.apache.camel.Endpoint;
@@ -31,6 +32,7 @@ import org.apache.camel.SSLContextParametersAware;
 import org.apache.camel.impl.UriEndpointComponent;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.StringHelper;
 import org.apache.camel.util.jsse.SSLContextParameters;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.Connector;
@@ -58,7 +60,7 @@ import org.slf4j.LoggerFactory;
 public class WebsocketComponent extends UriEndpointComponent implements SSLContextParametersAware {
 
     protected static final Logger LOG = LoggerFactory.getLogger(WebsocketComponent.class);
-    protected static final HashMap<String, ConnectorRef> CONNECTORS = new HashMap<String, ConnectorRef>();
+    protected static final HashMap<String, ConnectorRef> CONNECTORS = new HashMap<>();
 
     protected Map<String, WebSocketFactory> socketFactory;
     protected Server staticResourcesServer;
@@ -92,7 +94,7 @@ public class WebsocketComponent extends UriEndpointComponent implements SSLConte
     /**
      * Map for storing servlets. {@link WebsocketComponentServlet} is identified by pathSpec {@link String}.
      */
-    private Map<String, WebsocketComponentServlet> servlets = new HashMap<String, WebsocketComponentServlet>();
+    private Map<String, WebsocketComponentServlet> servlets = new HashMap<>();
 
     class ConnectorRef {
         Server server;
@@ -126,7 +128,7 @@ public class WebsocketComponent extends UriEndpointComponent implements SSLConte
         super(WebsocketEndpoint.class);
 
         if (this.socketFactory == null) {
-            this.socketFactory = new HashMap<String, WebSocketFactory>();
+            this.socketFactory = new HashMap<>();
             this.socketFactory.put("default", new DefaultWebsocketFactory());
         }
     }
@@ -174,7 +176,7 @@ public class WebsocketComponent extends UriEndpointComponent implements SSLConte
 
                 // Create ServletContextHandler
                 ServletContextHandler context = createContext(server, connector, endpoint.getHandlers());
-                // setup the WebSocketComponentServlet initial parameters 
+                // setup the WebSocketComponentServlet initial parameters
                 setWebSocketComponentServletInitialParameter(context, endpoint);
                 server.setHandler(context);
 
@@ -187,7 +189,7 @@ public class WebsocketComponent extends UriEndpointComponent implements SSLConte
                 }
 
                 MemoryWebsocketStore memoryStore = new MemoryWebsocketStore();
-                
+
                 // Don't provide a Servlet object as Producer/Consumer will create them later on
                 connectorRef = new ConnectorRef(server, connector, null, memoryStore);
 
@@ -224,7 +226,7 @@ public class WebsocketComponent extends UriEndpointComponent implements SSLConte
                 WebsocketProducer producer = WebsocketProducer.class.cast(prodcon);
                 producer.setStore(connectorRef.memoryStore);
             }
-            
+
         }
     }
 
@@ -320,7 +322,7 @@ public class WebsocketComponent extends UriEndpointComponent implements SSLConte
         setProperties(endpoint, parameters);
         return endpoint;
     }
-    
+
     protected void setWebSocketComponentServletInitialParameter(ServletContextHandler context, WebsocketEndpoint endpoint) {
         if (endpoint.getBufferSize() != null) {
             context.setInitParameter("bufferSize", endpoint.getBufferSize().toString());
@@ -495,10 +497,12 @@ public class WebsocketComponent extends UriEndpointComponent implements SSLConte
         ServerConnector sslSocketConnector = null;
         if (sslContextParameters != null) {
             SslContextFactory sslContextFactory = new WebSocketComponentSslContextFactory();
+            sslContextFactory.setEndpointIdentificationAlgorithm(null);
             sslContextFactory.setSslContext(sslContextParameters.createSSLContext(getCamelContext()));
             sslSocketConnector = new ServerConnector(server, sslContextFactory);
         } else {
             SslContextFactory sslContextFactory = new SslContextFactory();
+            sslContextFactory.setEndpointIdentificationAlgorithm(null);
             sslContextFactory.setKeyStorePassword(sslKeyPassword);
             sslContextFactory.setKeyManagerPassword(sslPassword);
             if (sslKeystore != null) {
@@ -774,10 +778,10 @@ public class WebsocketComponent extends UriEndpointComponent implements SSLConte
 
         if (staticResources != null) {
             // host and port must be configured
-            ObjectHelper.notEmpty(host, "host", this);
+            StringHelper.notEmpty(host, "host", this);
             ObjectHelper.notNull(port, "port", this);
 
-            LOG.info("Starting static resources server {}:{} with static resource: {}", new Object[]{host, port, staticResources});
+            LOG.info("Starting static resources server {}:{} with static resource: {}", host, port, staticResources);
             ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
             staticResourcesServer = createStaticResourcesServer(context, host, port, staticResources);
             staticResourcesServer.start();
@@ -811,7 +815,7 @@ public class WebsocketComponent extends UriEndpointComponent implements SSLConte
         CONNECTORS.clear();
 
         if (staticResourcesServer != null) {
-            LOG.info("Stopping static resources server {}:{} with static resource: {}", new Object[]{host, port, staticResources});
+            LOG.info("Stopping static resources server {}:{} with static resource: {}", host, port, staticResources);
             staticResourcesServer.stop();
             staticResourcesServer.destroy();
             staticResourcesServer = null;

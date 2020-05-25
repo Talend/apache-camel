@@ -24,6 +24,12 @@ import java.util.stream.Collectors;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.RuntimeCamelException;
+import org.apache.camel.component.kafka.serde.DefaultKafkaHeaderDeserializer;
+import org.apache.camel.component.kafka.serde.DefaultKafkaHeaderSerializer;
+import org.apache.camel.component.kafka.serde.KafkaHeaderDeserializer;
+import org.apache.camel.component.kafka.serde.KafkaHeaderSerializer;
+import org.apache.camel.spi.HeaderFilterStrategy;
+import org.apache.camel.spi.HeaderFilterStrategyAware;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.StateRepository;
 import org.apache.camel.spi.UriParam;
@@ -43,22 +49,29 @@ import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.config.SslConfigs;
 
 @UriParams
-public class KafkaConfiguration implements Cloneable {
+public class KafkaConfiguration implements Cloneable, HeaderFilterStrategyAware {
 
     //Common configuration properties
-    @UriPath(label = "common") @Metadata(required = "true")
+    @UriPath(label = "common")
+    @Metadata(required = "true")
     private String topic;
     @UriParam(label = "common")
     private String brokers;
     @UriParam(label = "common")
     private String clientId;
+    @UriParam(label = "common", description = "To use a custom HeaderFilterStrategy to filter header to and from Camel message.")
+    private HeaderFilterStrategy headerFilterStrategy = new KafkaHeaderFilterStrategy();
 
+    @UriParam(label = "consumer")
+    private boolean topicIsPattern;
     @UriParam(label = "consumer")
     private String groupId;
     @UriParam(label = "consumer", defaultValue = "10")
     private int consumerStreams = 10;
     @UriParam(label = "consumer", defaultValue = "1")
     private int consumersCount = 1;
+    @UriParam(label = "consumer", description = "To use a custom KafkaHeaderDeserializer to deserialize kafka headers values")
+    private KafkaHeaderDeserializer kafkaHeaderDeserializer = new DefaultKafkaHeaderDeserializer();
 
     //interceptor.classes
     @UriParam(label = "common,monitoring")
@@ -89,6 +102,8 @@ public class KafkaConfiguration implements Cloneable {
     private Integer maxPollRecords;
     @UriParam(label = "consumer", defaultValue = "5000")
     private Long pollTimeoutMs = 5000L;
+    @UriParam(label = "consumer")
+    private Long maxPollIntervalMs;
     //auto.offset.reset1
     @UriParam(label = "consumer", defaultValue = "latest", enums = "latest,earliest,none")
     private String autoOffsetReset = "latest";
@@ -113,6 +128,8 @@ public class KafkaConfiguration implements Cloneable {
     //Consumer configuration properties
     @UriParam(label = "consumer", defaultValue = "true")
     private Boolean autoCommitEnable = true;
+    @UriParam(label = "consumer")
+    private boolean allowManualCommit;
     @UriParam(label = "consumer", defaultValue = "sync", enums = "sync,async,none")
     private String autoCommitOnStop = "sync";
     @UriParam(label = "consumer")
@@ -206,6 +223,16 @@ public class KafkaConfiguration implements Cloneable {
     //reconnect.backoff.ms
     @UriParam(label = "producer", defaultValue = "50")
     private Integer reconnectBackoffMs = 50;
+    //enable.idempotence
+    //reconnect.backoff.ms
+    @UriParam(label = "producer", defaultValue = "false")
+    private boolean enableIdempotence;
+    @UriParam(label = "producer", description = "To use a custom KafkaHeaderSerializer to serialize kafka headers values")
+    private KafkaHeaderSerializer kafkaHeaderSerializer = new DefaultKafkaHeaderSerializer();
+
+    //reconnect.backoff.max.ms
+    @UriParam(label = "common", defaultValue = "1000")
+    private Integer reconnectBackoffMaxMs = 1000;
 
     // SSL
     @UriParam(label = "common,security")
@@ -282,6 +309,9 @@ public class KafkaConfiguration implements Cloneable {
     @UriParam(label = "common,security", defaultValue = "DEFAULT")
     //sasl.kerberos.principal.to.local.rules
     private String kerberosPrincipalToLocalRules;
+    @UriParam(label = "common,security", secret = true)
+    //sasl.jaas.config
+    private String saslJaasConfig;
 
     public KafkaConfiguration() {
     }
@@ -307,13 +337,6 @@ public class KafkaConfiguration implements Cloneable {
         addPropertyIfNotNull(props, ProducerConfig.COMPRESSION_TYPE_CONFIG, getCompressionCodec());
         addPropertyIfNotNull(props, ProducerConfig.RETRIES_CONFIG, getRetries());
         addPropertyIfNotNull(props, ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, getInterceptorClasses());
-        // SSL
-        applySslConfiguration(props, getSslContextParameters());
-        addPropertyIfNotNull(props, SslConfigs.SSL_KEY_PASSWORD_CONFIG, getSslKeyPassword());
-        addPropertyIfNotNull(props, SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, getSslKeystoreLocation());
-        addPropertyIfNotNull(props, SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, getSslKeystorePassword());
-        addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, getSslTruststoreLocation());
-        addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, getSslTruststorePassword());
         addPropertyIfNotNull(props, ProducerConfig.SEND_BUFFER_CONFIG, getRetries());
         addPropertyIfNotNull(props, ProducerConfig.BATCH_SIZE_CONFIG, getProducerBatchSize());
         addPropertyIfNotNull(props, ProducerConfig.CLIENT_ID_CONFIG, getClientId());
@@ -324,15 +347,7 @@ public class KafkaConfiguration implements Cloneable {
         addPropertyIfNotNull(props, ProducerConfig.PARTITIONER_CLASS_CONFIG, getPartitioner());
         addPropertyIfNotNull(props, ProducerConfig.RECEIVE_BUFFER_CONFIG, getReceiveBufferBytes());
         addPropertyIfNotNull(props, ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, getRequestTimeoutMs());
-        // Security protocol
-        addPropertyIfNotNull(props, CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, getSecurityProtocol());
         addPropertyIfNotNull(props, ProducerConfig.SEND_BUFFER_CONFIG, getSendBufferBytes());
-        //SSL
-        addPropertyIfNotNull(props, SslConfigs.SSL_ENABLED_PROTOCOLS_CONFIG, getSslEnabledProtocols());
-        addPropertyIfNotNull(props, SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, getSslKeystoreType());
-        addPropertyIfNotNull(props, SslConfigs.SSL_PROTOCOL_CONFIG, getSslProtocol());
-        addPropertyIfNotNull(props, SslConfigs.SSL_PROVIDER_CONFIG, getSslProvider());
-        addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, getSslTruststoreType());
         addPropertyIfNotNull(props, ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, getMaxInFlightRequest());
         addPropertyIfNotNull(props, ProducerConfig.METADATA_MAX_AGE_CONFIG, getMetadataMaxAgeMs());
         addPropertyIfNotNull(props, ProducerConfig.METRIC_REPORTER_CLASSES_CONFIG, getMetricReporters());
@@ -340,6 +355,26 @@ public class KafkaConfiguration implements Cloneable {
         addPropertyIfNotNull(props, ProducerConfig.METRICS_SAMPLE_WINDOW_MS_CONFIG, getMetricsSampleWindowMs());
         addPropertyIfNotNull(props, ProducerConfig.RECONNECT_BACKOFF_MS_CONFIG, getReconnectBackoffMs());
         addPropertyIfNotNull(props, ProducerConfig.RETRY_BACKOFF_MS_CONFIG, getRetryBackoffMs());
+        addPropertyIfNotNull(props, ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, isEnableIdempotence());
+        addPropertyIfNotNull(props, ProducerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, getReconnectBackoffMaxMs());
+
+        // SSL
+        applySslConfiguration(props, getSslContextParameters());
+        addPropertyIfNotNull(props, CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, getSecurityProtocol());
+        addPropertyIfNotNull(props, SslConfigs.SSL_KEY_PASSWORD_CONFIG, getSslKeyPassword());
+        addPropertyIfNotNull(props, SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, getSslKeystoreLocation());
+        addPropertyIfNotNull(props, SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, getSslKeystorePassword());
+        addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, getSslTruststoreLocation());
+        addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, getSslTruststorePassword());
+        addPropertyIfNotNull(props, SslConfigs.SSL_ENABLED_PROTOCOLS_CONFIG, getSslEnabledProtocols());
+        addPropertyIfNotNull(props, SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, getSslKeystoreType());
+        addPropertyIfNotNull(props, SslConfigs.SSL_PROTOCOL_CONFIG, getSslProtocol());
+        addPropertyIfNotNull(props, SslConfigs.SSL_PROVIDER_CONFIG, getSslProvider());
+        addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, getSslTruststoreType());
+        addPropertyIfNotNull(props, SslConfigs.SSL_CIPHER_SUITES_CONFIG, getSslCipherSuites());
+        addPropertyIfNotNull(props, SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, getSslEndpointAlgorithm());
+        addPropertyIfNotNull(props, SslConfigs.SSL_KEYMANAGER_ALGORITHM_CONFIG, getSslKeymanagerAlgorithm());
+        addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTMANAGER_ALGORITHM_CONFIG, getSslTrustmanagerAlgorithm());
         //SASL
         addPropertyIfNotNull(props, SaslConfigs.SASL_KERBEROS_SERVICE_NAME, getSaslKerberosServiceName());
         addPropertyIfNotNull(props, SaslConfigs.SASL_KERBEROS_KINIT_CMD, getKerberosInitCmd());
@@ -348,11 +383,7 @@ public class KafkaConfiguration implements Cloneable {
         addPropertyIfNotNull(props, SaslConfigs.SASL_KERBEROS_TICKET_RENEW_WINDOW_FACTOR, getKerberosRenewWindowFactor());
         addListPropertyIfNotNull(props, SaslConfigs.SASL_KERBEROS_PRINCIPAL_TO_LOCAL_RULES, getKerberosPrincipalToLocalRules());
         addPropertyIfNotNull(props, SaslConfigs.SASL_MECHANISM, getSaslMechanism());
-        //SSL
-        addPropertyIfNotNull(props, SslConfigs.SSL_CIPHER_SUITES_CONFIG, getSslCipherSuites());
-        addPropertyIfNotNull(props, SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, getSslEndpointAlgorithm());
-        addPropertyIfNotNull(props, SslConfigs.SSL_KEYMANAGER_ALGORITHM_CONFIG, getSslKeymanagerAlgorithm());
-        addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTMANAGER_ALGORITHM_CONFIG, getSslTrustmanagerAlgorithm());
+        addPropertyIfNotNull(props, SaslConfigs.SASL_JAAS_CONFIG, getSaslJaasConfig());
 
         return props;
     }
@@ -366,30 +397,15 @@ public class KafkaConfiguration implements Cloneable {
         addPropertyIfNotNull(props, ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, getHeartbeatIntervalMs());
         addPropertyIfNotNull(props, ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, getMaxPartitionFetchBytes());
         addPropertyIfNotNull(props, ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, getSessionTimeoutMs());
+        addPropertyIfNotNull(props, ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, getMaxPollIntervalMs());
         addPropertyIfNotNull(props, ConsumerConfig.MAX_POLL_RECORDS_CONFIG, getMaxPollRecords());
         addPropertyIfNotNull(props, ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG, getInterceptorClasses());
-        // SSL
-        applySslConfiguration(props, getSslContextParameters());
-        addPropertyIfNotNull(props, SslConfigs.SSL_KEY_PASSWORD_CONFIG, getSslKeyPassword());
-        addPropertyIfNotNull(props, SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, getSslKeystoreLocation());
-        addPropertyIfNotNull(props, SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, getSslKeystorePassword());
-        addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, getSslTruststoreLocation());
-        addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, getSslTruststorePassword());
         addPropertyIfNotNull(props, ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, getAutoOffsetReset());
         addPropertyIfNotNull(props, ConsumerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG, getConnectionMaxIdleMs());
         addPropertyIfNotNull(props, ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, isAutoCommitEnable());
         addPropertyIfNotNull(props, ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, getPartitionAssignor());
         addPropertyIfNotNull(props, ConsumerConfig.RECEIVE_BUFFER_CONFIG, getReceiveBufferBytes());
         addPropertyIfNotNull(props, ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, getConsumerRequestTimeoutMs());
-        // Security protocol
-        addPropertyIfNotNull(props, CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, getSecurityProtocol());
-        addPropertyIfNotNull(props, ProducerConfig.SEND_BUFFER_CONFIG, getSendBufferBytes());
-        //SSL
-        addPropertyIfNotNull(props, SslConfigs.SSL_ENABLED_PROTOCOLS_CONFIG, getSslEnabledProtocols());
-        addPropertyIfNotNull(props, SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, getSslKeystoreType());
-        addPropertyIfNotNull(props, SslConfigs.SSL_PROTOCOL_CONFIG, getSslProtocol());
-        addPropertyIfNotNull(props, SslConfigs.SSL_PROVIDER_CONFIG, getSslProvider());
-        addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, getSslTruststoreType());
         addPropertyIfNotNull(props, ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, getAutoCommitIntervalMs());
         addPropertyIfNotNull(props, ConsumerConfig.CHECK_CRCS_CONFIG, getCheckCrcs());
         addPropertyIfNotNull(props, ConsumerConfig.CLIENT_ID_CONFIG, getClientId());
@@ -400,6 +416,27 @@ public class KafkaConfiguration implements Cloneable {
         addPropertyIfNotNull(props, ConsumerConfig.METRICS_SAMPLE_WINDOW_MS_CONFIG, getMetricsSampleWindowMs());
         addPropertyIfNotNull(props, ConsumerConfig.RECONNECT_BACKOFF_MS_CONFIG, getReconnectBackoffMs());
         addPropertyIfNotNull(props, ConsumerConfig.RETRY_BACKOFF_MS_CONFIG, getRetryBackoffMs());
+        addPropertyIfNotNull(props, ConsumerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, getReconnectBackoffMaxMs());
+
+        // SSL
+        applySslConfiguration(props, getSslContextParameters());
+        addPropertyIfNotNull(props, SslConfigs.SSL_KEY_PASSWORD_CONFIG, getSslKeyPassword());
+        addPropertyIfNotNull(props, SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, getSslKeystoreLocation());
+        addPropertyIfNotNull(props, SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, getSslKeystorePassword());
+        addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, getSslTruststoreLocation());
+        addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, getSslTruststorePassword());
+        addPropertyIfNotNull(props, SslConfigs.SSL_CIPHER_SUITES_CONFIG, getSslCipherSuites());
+        addPropertyIfNotNull(props, SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, getSslEndpointAlgorithm());
+        addPropertyIfNotNull(props, SslConfigs.SSL_KEYMANAGER_ALGORITHM_CONFIG, getSslKeymanagerAlgorithm());
+        addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTMANAGER_ALGORITHM_CONFIG, getSslTrustmanagerAlgorithm());
+        addPropertyIfNotNull(props, SslConfigs.SSL_ENABLED_PROTOCOLS_CONFIG, getSslEnabledProtocols());
+        addPropertyIfNotNull(props, SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, getSslKeystoreType());
+        addPropertyIfNotNull(props, SslConfigs.SSL_PROTOCOL_CONFIG, getSslProtocol());
+        addPropertyIfNotNull(props, SslConfigs.SSL_PROVIDER_CONFIG, getSslProvider());
+        addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, getSslTruststoreType());
+        // Security protocol
+        addPropertyIfNotNull(props, CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, getSecurityProtocol());
+        addPropertyIfNotNull(props, ProducerConfig.SEND_BUFFER_CONFIG, getSendBufferBytes());
         //SASL
         addPropertyIfNotNull(props, SaslConfigs.SASL_KERBEROS_SERVICE_NAME, getSaslKerberosServiceName());
         addPropertyIfNotNull(props, SaslConfigs.SASL_KERBEROS_KINIT_CMD, getKerberosInitCmd());
@@ -408,11 +445,7 @@ public class KafkaConfiguration implements Cloneable {
         addPropertyIfNotNull(props, SaslConfigs.SASL_KERBEROS_TICKET_RENEW_WINDOW_FACTOR, getKerberosRenewWindowFactor());
         addListPropertyIfNotNull(props, SaslConfigs.SASL_KERBEROS_PRINCIPAL_TO_LOCAL_RULES, getKerberosPrincipalToLocalRules());
         addPropertyIfNotNull(props, SaslConfigs.SASL_MECHANISM, getSaslMechanism());
-        //SSL
-        addPropertyIfNotNull(props, SslConfigs.SSL_CIPHER_SUITES_CONFIG, getSslCipherSuites());
-        addPropertyIfNotNull(props, SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, getSslEndpointAlgorithm());
-        addPropertyIfNotNull(props, SslConfigs.SSL_KEYMANAGER_ALGORITHM_CONFIG, getSslKeymanagerAlgorithm());
-        addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTMANAGER_ALGORITHM_CONFIG, getSslTrustmanagerAlgorithm());
+        addPropertyIfNotNull(props, SaslConfigs.SASL_JAAS_CONFIG, getSaslJaasConfig());
         return props;
     }
 
@@ -459,7 +492,7 @@ public class KafkaConfiguration implements Cloneable {
                 if (keyStore != null) {
                     addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, keyStore.getType());
                     addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, keyStore.getResource());
-                    addPropertyIfNotNull(props, SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, keyStore.getPassword());
+                    addPropertyIfNotNull(props, SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, keyStore.getPassword());
                 }
             }
         }
@@ -485,6 +518,18 @@ public class KafkaConfiguration implements Cloneable {
         if (values != null && !values.isEmpty()) {
             props.put(key, values.stream().collect(Collectors.joining(",")));
         }
+    }
+
+    public boolean isTopicIsPattern() {
+        return topicIsPattern;
+    }
+
+    /**
+     * Whether the topic is a pattern (regular expression).
+     * This can be used to subscribe to dynamic number of topics matching the pattern.
+     */
+    public void setTopicIsPattern(boolean topicIsPattern) {
+        this.topicIsPattern = topicIsPattern;
     }
 
     public String getGroupId() {
@@ -598,6 +643,20 @@ public class KafkaConfiguration implements Cloneable {
         this.autoCommitEnable = autoCommitEnable;
     }
 
+    public boolean isAllowManualCommit() {
+        return allowManualCommit;
+    }
+
+    /**
+     * Whether to allow doing manual commits via {@link KafkaManualCommit}.
+     * <p/>
+     * If this option is enabled then an instance of {@link KafkaManualCommit} is stored on the {@link Exchange} message header,
+     * which allows end users to access this API and perform manual offset commits via the Kafka consumer.
+     */
+    public void setAllowManualCommit(boolean allowManualCommit) {
+        this.allowManualCommit = allowManualCommit;
+    }
+
     public StateRepository<String, String> getOffsetRepository() {
         return offsetRepository;
     }
@@ -665,8 +724,8 @@ public class KafkaConfiguration implements Cloneable {
 
     /**
      * What to do when there is no initial offset in ZooKeeper or if an offset is out of range:
-     * smallest : automatically reset the offset to the smallest offset
-     * largest : automatically reset the offset to the largest offset
+     * earliest : automatically reset the offset to the earliest offset
+     * latest : automatically reset the offset to the latest offset
      * fail: throw exception to the consumer
      */
     public void setAutoOffsetReset(String autoOffsetReset) {
@@ -983,6 +1042,20 @@ public class KafkaConfiguration implements Cloneable {
      */
     public void setSaslMechanism(String saslMechanism) {
         this.saslMechanism = saslMechanism;
+    }
+
+    public String getSaslJaasConfig() {
+        return saslJaasConfig;
+    }
+
+    /**
+     * Expose the kafka sasl.jaas.config parameter
+     *
+     * Example:
+     * org.apache.kafka.common.security.plain.PlainLoginModule required username="USERNAME" password="PASSWORD";
+     */
+    public void setSaslJaasConfig(String saslMechanism) {
+        this.saslJaasConfig = saslMechanism;
     }
 
     public String getSecurityProtocol() {
@@ -1357,6 +1430,20 @@ public class KafkaConfiguration implements Cloneable {
         this.pollTimeoutMs = pollTimeoutMs;
     }
 
+    public Long getMaxPollIntervalMs() {
+        return maxPollIntervalMs;
+    }
+
+    /**
+     * The maximum delay between invocations of poll() when using consumer group management.
+     * This places an upper bound on the amount of time that the consumer can be idle before fetching more records.
+     * If poll() is not called before expiration of this timeout, then the consumer is considered failed and the group
+     * will rebalance in order to reassign the partitions to another member.
+     */
+    public void setMaxPollIntervalMs(Long maxPollIntervalMs) {
+        this.maxPollIntervalMs = maxPollIntervalMs;
+    }
+
     public String getPartitionAssignor() {
         return partitionAssignor;
     }
@@ -1425,7 +1512,7 @@ public class KafkaConfiguration implements Cloneable {
      * Set if KafkaConsumer will read from beginning or end on startup:
      * beginning : read from beginning
      * end : read from end
-     * 
+     *
      * This is replacing the earlier property seekToBeginning
      */
     public void setSeekTo(String seekTo) {
@@ -1486,6 +1573,7 @@ public class KafkaConfiguration implements Cloneable {
     public String getInterceptorClasses() {
         return interceptorClasses;
     }
+
     /**
      * Sets interceptors for producer or consumers.
      * Producer interceptors have to be classes implementing {@link org.apache.kafka.clients.producer.ProducerInterceptor}
@@ -1495,4 +1583,70 @@ public class KafkaConfiguration implements Cloneable {
     public void setInterceptorClasses(String interceptorClasses) {
         this.interceptorClasses = interceptorClasses;
     }
+
+    public boolean isEnableIdempotence() {
+        return enableIdempotence;
+    }
+
+    /**
+     * If set to 'true' the producer will ensure that exactly one copy of each message is written in the stream. If 'false', producer 
+     * retries may write duplicates of the retried message in the stream. If set to true this option will require max.in.flight.requests.per.connection to be set to 1 and 
+     * retries cannot be zero and additionally acks must be set to 'all'. 
+     */
+    public void setEnableIdempotence(boolean enableIdempotence) {
+        this.enableIdempotence = enableIdempotence;
+    }
+
+    public Integer getReconnectBackoffMaxMs() {
+        return reconnectBackoffMaxMs;
+    }
+
+    /**
+     * The maximum amount of time in milliseconds to wait when reconnecting to a
+     * broker that has repeatedly failed to connect. If provided, the backoff
+     * per host will increase exponentially for each consecutive connection
+     * failure, up to this maximum. After calculating the backoff increase, 20%
+     * random jitter is added to avoid connection storms.
+     */
+    public void setReconnectBackoffMaxMs(Integer reconnectBackoffMaxMs) {
+        this.reconnectBackoffMaxMs = reconnectBackoffMaxMs;
+    }
+
+    public HeaderFilterStrategy getHeaderFilterStrategy() {
+        return headerFilterStrategy;
+    }
+
+    /**
+     * To use a custom HeaderFilterStrategy to filter header to and from Camel message.
+     */
+    public void setHeaderFilterStrategy(HeaderFilterStrategy headerFilterStrategy) {
+        this.headerFilterStrategy = headerFilterStrategy;
+    }
+
+    public KafkaHeaderDeserializer getKafkaHeaderDeserializer() {
+        return kafkaHeaderDeserializer;
+    }
+
+    /**
+     * Sets custom KafkaHeaderDeserializer for deserialization kafka headers values to camel headers values.
+     *
+     * @param kafkaHeaderDeserializer custom kafka header deserializer to be used
+     */
+    public void setKafkaHeaderDeserializer(final KafkaHeaderDeserializer kafkaHeaderDeserializer) {
+        this.kafkaHeaderDeserializer = kafkaHeaderDeserializer;
+    }
+
+    public KafkaHeaderSerializer getKafkaHeaderSerializer() {
+        return kafkaHeaderSerializer;
+    }
+
+    /**
+     * Sets custom KafkaHeaderDeserializer for serialization camel headers values to kafka headers values.
+     *
+     * @param kafkaHeaderSerializer custom kafka header serializer to be used
+     */
+    public void setKafkaHeaderSerializer(final KafkaHeaderSerializer kafkaHeaderSerializer) {
+        this.kafkaHeaderSerializer = kafkaHeaderSerializer;
+    }
+
 }

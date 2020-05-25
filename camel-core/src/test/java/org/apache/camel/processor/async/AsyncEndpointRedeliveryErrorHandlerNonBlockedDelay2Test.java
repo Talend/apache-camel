@@ -21,6 +21,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,7 @@ public class AsyncEndpointRedeliveryErrorHandlerNonBlockedDelay2Test extends Con
     private static String beforeThreadName;
     private static String afterThreadName;
 
+    @Test
     public void testRedelivery() throws Exception {
         MockEndpoint before = getMockEndpoint("mock:result");
         before.expectedBodiesReceived("World");
@@ -69,7 +71,7 @@ public class AsyncEndpointRedeliveryErrorHandlerNonBlockedDelay2Test extends Con
                     .to("async:camel")
                     .process(new Processor() {
                         public void process(Exchange exchange) throws Exception {
-                            LOG.info("Processing at attempt " + attempt + " " + exchange);
+                            LOG.info("Processing at attempt {} {}", attempt, exchange);
 
                             String body = exchange.getIn().getBody(String.class);
                             if (body.contains("Camel")) {
@@ -80,7 +82,7 @@ public class AsyncEndpointRedeliveryErrorHandlerNonBlockedDelay2Test extends Con
                             }
 
                             exchange.getIn().setBody("Hello " + body);
-                            LOG.info("Processing at attempt " + attempt + " complete " + exchange);
+                            LOG.info("Processing at attempt {} complete {}", attempt, exchange);
                         }
                     })
                     .to("log:after")

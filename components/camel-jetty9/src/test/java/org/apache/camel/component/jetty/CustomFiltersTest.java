@@ -19,6 +19,7 @@ package org.apache.camel.component.jetty;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -88,7 +89,7 @@ public class CustomFiltersTest extends BaseJettyTest {
     @Override
     protected JndiRegistry createRegistry() throws Exception {
         JndiRegistry jndi = super.createRegistry();
-        List<Filter> filters = new ArrayList<Filter>();
+        List<Filter> filters = new ArrayList<>();
         filters.add(new MyTestFilter());
         jndi.bind("myFilters", filters);
         return jndi;

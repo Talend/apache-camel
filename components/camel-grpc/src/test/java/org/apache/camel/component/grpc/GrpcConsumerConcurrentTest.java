@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.googlecode.junittoolbox.MultithreadingTester;
 import com.googlecode.junittoolbox.RunnableAssert;
-
 import io.grpc.ManagedChannel;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
@@ -63,7 +62,7 @@ public class GrpcConsumerConcurrentTest extends CamelTestSupport {
             @Override
             public void run() {
                 final CountDownLatch latch = new CountDownLatch(1);
-                ManagedChannel asyncRequestChannel = NettyChannelBuilder.forAddress("localhost", GRPC_ASYNC_REQUEST_TEST_PORT).usePlaintext(true).build();
+                ManagedChannel asyncRequestChannel = NettyChannelBuilder.forAddress("localhost", GRPC_ASYNC_REQUEST_TEST_PORT).usePlaintext().build();
                 PingPongGrpc.PingPongStub asyncNonBlockingStub = PingPongGrpc.newStub(asyncRequestChannel);
 
                 PongResponseStreamObserver responseObserver = new PongResponseStreamObserver(latch);
@@ -102,7 +101,7 @@ public class GrpcConsumerConcurrentTest extends CamelTestSupport {
                 int instanceId = createId();
                 final CountDownLatch latch = new CountDownLatch(1);
                 ManagedChannel asyncRequestChannel = NettyChannelBuilder.forAddress("localhost", GRPC_HEADERS_TEST_PORT).userAgent(GRPC_USER_AGENT_PREFIX + instanceId)
-                    .usePlaintext(true).build();
+                    .usePlaintext().build();
                 PingPongGrpc.PingPongStub asyncNonBlockingStub = PingPongGrpc.newStub(asyncRequestChannel);
 
                 PongResponseStreamObserver responseObserver = new PongResponseStreamObserver(latch);
@@ -136,10 +135,10 @@ public class GrpcConsumerConcurrentTest extends CamelTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() {
-                from("grpc://org.apache.camel.component.grpc.PingPong?synchronous=true&processingStrategy=AGGREGATION&host=localhost&port=" + GRPC_ASYNC_REQUEST_TEST_PORT)
+                from("grpc://localhost:" + GRPC_ASYNC_REQUEST_TEST_PORT + "/org.apache.camel.component.grpc.PingPong?synchronous=true&consumerStrategy=AGGREGATION")
                     .bean(new GrpcMessageBuilder(), "buildAsyncPongResponse");
                 
-                from("grpc://org.apache.camel.component.grpc.PingPong?synchronous=true&processingStrategy=AGGREGATION&host=localhost&port=" + GRPC_HEADERS_TEST_PORT)
+                from("grpc://localhost:" + GRPC_HEADERS_TEST_PORT + "/org.apache.camel.component.grpc.PingPong?synchronous=true&consumerStrategy=AGGREGATION")
                     .process(new HeaderExchangeProcessor());
             }
         };

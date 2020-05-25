@@ -23,6 +23,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBIntrospector;
 import javax.xml.namespace.QName;
@@ -74,9 +75,9 @@ public class Soap11DataFormatAdapter implements SoapDataFormatAdapter {
         }
 
         final List<Object> bodyContent;
-        List<Object> headerContent = new ArrayList<Object>();
+        List<Object> headerContent = new ArrayList<>();
         if (exception != null) {
-            bodyContent = new ArrayList<Object>();
+            bodyContent = new ArrayList<>();
             bodyContent.add(createFaultFromException(exception));
         } else {
             if (!dataFormat.isIgnoreUnmarshalledHeaders()) {
@@ -150,7 +151,7 @@ public class Soap11DataFormatAdapter implements SoapDataFormatAdapter {
             List<Object> anyHeaderElements = envelope.getHeader().getAny();
             if (null != anyHeaderElements && !(getDataFormat().isIgnoreUnmarshalledHeaders())) {
                 if (getDataFormat().isIgnoreJAXBElement()) {
-                    returnHeaders = new ArrayList<Object>();
+                    returnHeaders = new ArrayList<>();
                     for (Object headerEl : anyHeaderElements) {
                         returnHeaders.add(JAXBIntrospector.getValue(headerEl));
                     }

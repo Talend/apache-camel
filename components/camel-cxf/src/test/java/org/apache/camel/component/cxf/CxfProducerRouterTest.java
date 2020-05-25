@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.cxf;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +88,7 @@ public class CxfProducerRouterTest extends CamelTestSupport {
         error.expectedMessageCount(1);
     
         Exchange senderExchange = new DefaultExchange(context, ExchangePattern.InOut);
-        final List<String> params = new ArrayList<String>();
+        final List<String> params = new ArrayList<>();
         // Prepare the request message for the camel-cxf procedure
         params.add(TEST_MESSAGE);
         senderExchange.getIn().setBody(params);
@@ -112,7 +111,7 @@ public class CxfProducerRouterTest extends CamelTestSupport {
     public void testInvokingSimpleServerWithParams() throws Exception {
      // START SNIPPET: sending
         Exchange senderExchange = new DefaultExchange(context, ExchangePattern.InOut);
-        final List<String> params = new ArrayList<String>();
+        final List<String> params = new ArrayList<>();
         // Prepare the request message for the camel-cxf procedure
         params.add(TEST_MESSAGE);
         senderExchange.getIn().setBody(params);

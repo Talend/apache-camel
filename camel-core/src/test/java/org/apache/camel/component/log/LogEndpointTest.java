@@ -16,11 +16,13 @@
  */
 package org.apache.camel.component.log;
 
+import org.apache.camel.AsyncCallback;
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.processor.CamelLogProcessor;
+import org.junit.Test;
 
 /**
  * @version 
@@ -32,9 +34,9 @@ public class LogEndpointTest extends ContextTestSupport {
     private static class MyLogger extends CamelLogProcessor {
 
         @Override
-        public void process(Exchange exchange) throws Exception {
-            super.process(exchange);
+        public boolean process(Exchange exchange, AsyncCallback callback) {
             logged = exchange;
+            return super.process(exchange, callback);
         }
 
         @Override
@@ -43,6 +45,7 @@ public class LogEndpointTest extends ContextTestSupport {
         }
     }
 
+    @Test
     public void testLogEndpoint() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
@@ -55,6 +58,7 @@ public class LogEndpointTest extends ContextTestSupport {
     }
     
     
+    @Test
     public void testLogEndpointGroupSize() throws InterruptedException {
         MockEndpoint out = getMockEndpoint("mock:result");
         int expectedCount = 50;

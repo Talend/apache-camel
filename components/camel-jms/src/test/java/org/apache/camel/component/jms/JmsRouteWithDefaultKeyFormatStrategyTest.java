@@ -18,6 +18,7 @@ package org.apache.camel.component.jms;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.jms.ConnectionFactory;
 
 import org.apache.camel.CamelContext;
@@ -26,6 +27,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
+
 import static org.apache.camel.component.jms.JmsComponent.jmsComponentAutoAcknowledge;
 
 /**
@@ -76,7 +78,7 @@ public class JmsRouteWithDefaultKeyFormatStrategyTest extends CamelTestSupport {
         mock.expectedHeaderReceived("Content-Type", "text/plain");
         mock.expectedHeaderReceived("org.apache.camel.MyKey", "foo");
 
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put("foo", "cheese");
         headers.put("Content-Type", "text/plain");
         headers.put("org.apache.camel.MyKey", "foo");

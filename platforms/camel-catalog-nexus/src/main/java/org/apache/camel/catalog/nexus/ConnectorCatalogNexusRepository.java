@@ -125,7 +125,7 @@ public class ConnectorCatalogNexusRepository extends BaseNexusRepository {
                 addConnector(dto, name, scheme, javaType, description, csb.toString(), json[0], json[1], json[2]);
             }
         } catch (IOException e) {
-            logger.warn("Error scanning JAR for custom Camel components", e);
+            logger.warn("Error scanning JAR for custom Camel connectors", e);
         }
     }
 
@@ -140,6 +140,7 @@ public class ConnectorCatalogNexusRepository extends BaseNexusRepository {
             }
         } catch (Throwable e) {
             logger.warn("Error loading " + path + " file", e);
+            return null;
         }
 
         path = "camel-connector-schema.json";
@@ -150,6 +151,7 @@ public class ConnectorCatalogNexusRepository extends BaseNexusRepository {
             }
         } catch (Throwable e) {
             logger.warn("Error loading " + path + " file", e);
+            return null;
         }
 
         path = "camel-component-schema.json";
@@ -160,6 +162,7 @@ public class ConnectorCatalogNexusRepository extends BaseNexusRepository {
             }
         } catch (Throwable e) {
             logger.warn("Error loading " + path + " file", e);
+            return null;
         }
 
         return answer;

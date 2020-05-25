@@ -43,7 +43,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.Invocation;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
@@ -60,12 +60,12 @@ public class AbstractCamelContextFactoryBeanTest {
 
     TypeConverter typeConverter = new DefaultTypeConverter(new DefaultPackageScanClassResolver(),
         new ReflectionInjector(),
-        new DefaultFactoryFinder(new DefaultClassResolver(), "META-INF/services/org/apache/camel/"));
+        new DefaultFactoryFinder(new DefaultClassResolver(), "META-INF/services/org/apache/camel/"), false);
 
     // properties that should return value that can be converted to boolean
     Set<String> valuesThatReturnBoolean = new HashSet<>(asList("{{getStreamCache}}", "{{getTrace}}",
         "{{getMessageHistory}}", "{{getLogMask}}", "{{getLogExhaustedMessageBody}}", "{{getHandleFault}}",
-        "{{getAutoStartup}}", "{{getUseMDCLogging}}", "{{getUseBreadcrumb}}", "{{getAllowUseOriginalMessage}}"));
+        "{{getAutoStartup}}", "{{getUseMDCLogging}}", "{{getUseDataType}}", "{{getUseBreadcrumb}}", "{{getAllowUseOriginalMessage}}"));
 
     // properties that should return value that can be converted to long
     Set<String> valuesThatReturnLong = new HashSet<>(asList("{{getDelayer}}"));
@@ -83,7 +83,7 @@ public class AbstractCamelContextFactoryBeanTest {
 
         // program the property resolution in context mock
         when(context.resolvePropertyPlaceholders(anyString())).thenAnswer(invocation -> {
-            final String placeholder = invocation.getArgumentAt(0, String.class);
+            final String placeholder = invocation.getArgument(0);
 
             // we receive the argument and check if the method should return a
             // value that can be converted to boolean

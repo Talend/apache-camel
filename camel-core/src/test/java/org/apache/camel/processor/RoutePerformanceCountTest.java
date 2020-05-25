@@ -23,6 +23,7 @@ import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Test;
 
 /**
  * @version 
@@ -33,6 +34,7 @@ public class RoutePerformanceCountTest extends ContextTestSupport {
     private int size = 500;
     private String url = "direct:start";
 
+    @Test
     public void testSendMessages() throws Exception {
         long start = System.currentTimeMillis();
 
@@ -42,7 +44,7 @@ public class RoutePerformanceCountTest extends ContextTestSupport {
         assertEquals(size, processor.getCounter());
 
         long delta = System.currentTimeMillis() - start;
-        log.info("RoutePerformanceCountTest: Sent: " + size + " Took: " + delta + " ms");
+        log.info("RoutePerformanceCountTest: Sent: {} Took: {} ms", size, delta);
     }
 
     @Override

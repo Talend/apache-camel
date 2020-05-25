@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.impl;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -28,6 +27,9 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.Producer;
 import org.apache.camel.ServicePoolAware;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @version 
@@ -68,19 +70,22 @@ public class ServicePoolTest extends ContextTestSupport {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
         pool = new DefaultProducerServicePool(5);
         pool.start();
     }
 
     @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         pool.stop();
         super.tearDown();
         assertEquals("Should have stopped the producers", true, cleanup);
     }
 
+    @Test
     public void testSingleEntry() throws Exception {
         Endpoint endpoint = context.getEndpoint("mock:foo");
 
@@ -102,6 +107,7 @@ public class ServicePoolTest extends ContextTestSupport {
         assertEquals(1, pool.size());
     }
 
+    @Test
     public void testTwoEntries() throws Exception {
         Endpoint endpoint = context.getEndpoint("mock:foo");
 
@@ -118,6 +124,7 @@ public class ServicePoolTest extends ContextTestSupport {
         assertEquals(2, pool.size());
     }
 
+    @Test
     public void testThreeEntries() throws Exception {
         Endpoint endpoint = context.getEndpoint("mock:foo");
 
@@ -138,6 +145,7 @@ public class ServicePoolTest extends ContextTestSupport {
         assertEquals(3, pool.size());
     }
 
+    @Test
     public void testAcquireAddRelease() throws Exception {
         Endpoint endpoint = context.getEndpoint("mock:foo");
         for (int i = 0; i < 10; i++) {
@@ -150,9 +158,10 @@ public class ServicePoolTest extends ContextTestSupport {
         }
     }
 
+    @Test
     public void testAcquireAdd() throws Exception {
         Endpoint endpoint = context.getEndpoint("mock:foo");
-        List<Producer> producers = new ArrayList<Producer>();
+        List<Producer> producers = new ArrayList<>();
 
         for (int i = 0; i < 5; i++) {
             Producer producer = pool.acquire(endpoint);
@@ -169,6 +178,7 @@ public class ServicePoolTest extends ContextTestSupport {
         }
     }
 
+    @Test
     public void testAcquireAddQueueFull() throws Exception {
         Endpoint endpoint = context.getEndpoint("mock:foo");
 
@@ -188,11 +198,12 @@ public class ServicePoolTest extends ContextTestSupport {
         assertEquals(5, pool.size());
     }
 
+    @Test
     public void testConcurrent() throws Exception {
         final Endpoint endpoint = context.getEndpoint("mock:foo");
 
         ExecutorService executor = Executors.newFixedThreadPool(5);
-        List<Future<Integer>> response = new ArrayList<Future<Integer>>();
+        List<Future<Integer>> response = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             final int index = i;
             Future<Integer> out = executor.submit(new Callable<Integer>() {
@@ -216,11 +227,12 @@ public class ServicePoolTest extends ContextTestSupport {
         executor.shutdownNow();
     }
 
+    @Test
     public void testConcurrentStress() throws Exception {
         final Endpoint endpoint = context.getEndpoint("mock:foo");
 
         ExecutorService executor = Executors.newFixedThreadPool(5);
-        List<Future<Integer>> response = new ArrayList<Future<Integer>>();
+        List<Future<Integer>> response = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             final int index = i;
             Future<Integer> out = executor.submit(new Callable<Integer>() {

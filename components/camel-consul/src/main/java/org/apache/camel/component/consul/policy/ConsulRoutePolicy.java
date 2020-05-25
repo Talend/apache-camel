@@ -18,12 +18,12 @@ package org.apache.camel.component.consul.policy;
 
 import java.math.BigInteger;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.google.common.base.Optional;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.KeyValueClient;
 import com.orbitz.consul.SessionClient;
@@ -44,6 +44,10 @@ import org.apache.camel.util.ObjectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @deprecated use {@link org.apache.camel.component.consul.cluster.ConsulClusterService} and {@link org.apache.camel.impl.cluster.ClusteredRoutePolicy} instead.
+ */
+@Deprecated
 @ManagedResource(description = "Route policy using Consul as clustered lock")
 public final class ConsulRoutePolicy extends RoutePolicySupport implements CamelContextAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsulRoutePolicy.class);
@@ -79,7 +83,7 @@ public final class ConsulRoutePolicy extends RoutePolicySupport implements Camel
 
     public ConsulRoutePolicy(ConsulConfiguration configuration) throws Exception {
         this.consulUrl = configuration.getUrl();
-        this.consul = configuration.createConsulClient();
+        this.consul = configuration.createConsulClient(camelContext);
     }
 
     @Override

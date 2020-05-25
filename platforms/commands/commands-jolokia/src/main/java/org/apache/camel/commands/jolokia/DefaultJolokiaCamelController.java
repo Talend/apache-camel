@@ -48,7 +48,7 @@ import org.json.simple.JSONObject;
  */
 public class DefaultJolokiaCamelController extends AbstractCamelController implements JolokiaCamelController {
 
-    private Map<String, ObjectName> cache = new HashMap<String, ObjectName>(100);
+    private Map<String, ObjectName> cache = new HashMap<>(100);
 
     private J4pClient jolokia;
     private String url;
@@ -109,7 +109,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
             throw new IllegalStateException("Need to connect to remote jolokia first");
         }
 
-        Map<String, Object> answer = new LinkedHashMap<String, Object>();
+        Map<String, Object> answer = new LinkedHashMap<>();
 
         ObjectName found = lookupCamelContext(camelContextName);
         if (found != null) {
@@ -120,7 +120,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
             String pattern2 = String.format("%s:context=%s,type=services,name=DefaultAsyncProcessorAwaitManager", found.getDomain(), found.getKeyProperty("context"));
             ObjectName am = ObjectName.getInstance(pattern2);
 
-            List<J4pReadRequest> list = new ArrayList<J4pReadRequest>();
+            List<J4pReadRequest> list = new ArrayList<>();
             list.add(new J4pReadRequest(found));
             list.add(new J4pReadRequest(tc));
             list.add(new J4pReadRequest(am));
@@ -181,6 +181,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
             long timeout = (Long) answer.get("timeout");
             answer.put("shutdownTimeout", "" + unit.toSeconds(timeout));
             answer.put("applicationContextClassLoader", answer.get("applicationContextClassName"));
+            answer.put("HeadersMapFactory", answer.get("headersMapFactoryClassName"));
         }
 
         return answer;
@@ -192,18 +193,18 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
             throw new IllegalStateException("Need to connect to remote jolokia first");
         }
 
-        List<Map<String, String>> answer = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> answer = new ArrayList<>();
 
         J4pSearchResponse sr = jolokia.execute(new J4pSearchRequest("*:type=context,*"));
 
-        List<J4pReadRequest> list = new ArrayList<J4pReadRequest>();
+        List<J4pReadRequest> list = new ArrayList<>();
         for (ObjectName on : sr.getObjectNames()) {
             list.add(new J4pReadRequest(on, "CamelId", "State", "Uptime", "ExchangesTotal", "ExchangesInflight", "ExchangesFailed"));
         }
 
         List<J4pReadResponse> lrr = jolokia.execute(list);
         for (J4pReadResponse rr : lrr) {
-            Map<String, String> row = new LinkedHashMap<String, String>();
+            Map<String, String> row = new LinkedHashMap<>();
             row.put("name", rr.getValue("CamelId").toString());
             row.put("state", rr.getValue("State").toString());
             row.put("uptime", rr.getValue("Uptime").toString());
@@ -240,7 +241,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
             throw new IllegalStateException("Need to connect to remote jolokia first");
         }
 
-        List<Map<String, Object>> answer = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> answer = new ArrayList<>();
 
         ObjectName found = lookupCamelContext(camelContextName);
         if (found != null) {
@@ -253,7 +254,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
                     for (Object obj : data.values()) {
                         JSONObject inflight = (JSONObject) obj;
 
-                        Map<String, Object> row = new LinkedHashMap<String, Object>();
+                        Map<String, Object> row = new LinkedHashMap<>();
                         row.put("exchangeId", asString(inflight.get("exchangeId")));
                         row.put("fromRouteId", asString(inflight.get("fromRouteId")));
                         row.put("routeId", asString(inflight.get("routeId")));
@@ -328,7 +329,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
             throw new IllegalStateException("Need to connect to remote jolokia first");
         }
 
-        List<Map<String, String>> answer = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> answer = new ArrayList<>();
 
         ObjectName found = camelContextName != null ? lookupCamelContext(camelContextName) : null;
         if (found != null) {
@@ -336,7 +337,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
             String pattern = String.format("%s:context=%s,type=routes,*", found.getDomain(), found.getKeyProperty("context"));
             J4pSearchResponse sr = jolokia.execute(new J4pSearchRequest(pattern));
 
-            List<J4pReadRequest> list = new ArrayList<J4pReadRequest>();
+            List<J4pReadRequest> list = new ArrayList<>();
             for (ObjectName on : sr.getObjectNames()) {
                 list.add(new J4pReadRequest(on, "CamelId", "RouteId", "State", "Uptime", "ExchangesTotal", "ExchangesInflight", "ExchangesFailed"));
             }
@@ -345,7 +346,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
             for (J4pReadResponse rr : lrr) {
                 String routeId = rr.getValue("RouteId").toString();
                 if (filter == null || routeId.matches(filter)) {
-                    Map<String, String> row = new LinkedHashMap<String, String>();
+                    Map<String, String> row = new LinkedHashMap<>();
                     row.put("camelContextName", rr.getValue("CamelId").toString());
                     row.put("routeId", routeId);
                     row.put("state", rr.getValue("State").toString());
@@ -396,7 +397,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
             String pattern = String.format("%s:context=%s,type=routes,name=*", found.getDomain(), found.getKeyProperty("context"));
             J4pSearchResponse sr = jolokia.execute(new J4pSearchRequest(pattern));
 
-            List<J4pExecRequest> list = new ArrayList<J4pExecRequest>();
+            List<J4pExecRequest> list = new ArrayList<>();
             for (ObjectName on : sr.getObjectNames()) {
                 list.add(new J4pExecRequest(on, "reset(boolean)", true));
             }
@@ -546,21 +547,21 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
             throw new IllegalStateException("Need to connect to remote jolokia first");
         }
 
-        List<Map<String, String>> answer = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> answer = new ArrayList<>();
 
         ObjectName found = lookupCamelContext(camelContextName);
         if (found != null) {
             String pattern = String.format("%s:context=%s,type=endpoints,*", found.getDomain(), found.getKeyProperty("context"));
             J4pSearchResponse sr = jolokia.execute(new J4pSearchRequest(pattern));
 
-            List<J4pReadRequest> list = new ArrayList<J4pReadRequest>();
+            List<J4pReadRequest> list = new ArrayList<>();
             for (ObjectName on : sr.getObjectNames()) {
                 list.add(new J4pReadRequest(on, "CamelId", "EndpointUri", "State"));
             }
 
             List<J4pReadResponse> lrr = jolokia.execute(list);
             for (J4pReadResponse rr : lrr) {
-                Map<String, String> row = new LinkedHashMap<String, String>();
+                Map<String, String> row = new LinkedHashMap<>();
                 row.put("camelContextName", rr.getValue("CamelId").toString());
                 row.put("uri", rr.getValue("EndpointUri").toString());
                 row.put("state", rr.getValue("State").toString());
@@ -577,7 +578,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
             throw new IllegalStateException("Need to connect to remote jolokia first");
         }
 
-        List<Map<String, String>> answer = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> answer = new ArrayList<>();
 
         ObjectName found = lookupCamelContext(camelContextName);
         if (found != null) {
@@ -591,7 +592,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
                     JSONObject data2 = (JSONObject) obj;
                     JSONObject service = (JSONObject) data2.values().iterator().next();
 
-                    Map<String, String> row = new LinkedHashMap<String, String>();
+                    Map<String, String> row = new LinkedHashMap<>();
                     row.put("index", asString(service.get("index")));
                     row.put("url", asString(service.get("url")));
                     row.put("routeId", asString(service.get("routeId")));
@@ -632,7 +633,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
             throw new IllegalStateException("Need to connect to remote jolokia first");
         }
 
-        List<Map<String, String>> answer = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> answer = new ArrayList<>();
 
         ObjectName found = lookupCamelContext(camelContextName);
         if (found != null) {
@@ -647,7 +648,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
                         JSONObject data2 = (JSONObject) obj;
                         JSONObject service = (JSONObject) data2.values().iterator().next();
 
-                        Map<String, String> row = new LinkedHashMap<String, String>();
+                        Map<String, String> row = new LinkedHashMap<>();
                         row.put("basePath", asString(service.get("basePath")));
                         row.put("baseUrl", asString(service.get("baseUrl")));
                         row.put("consumes", asString(service.get("consumes")));
@@ -721,7 +722,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
             throw new IllegalStateException("Need to connect to remote jolokia first");
         }
 
-        List<Map<String, String>> answer = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> answer = new ArrayList<>();
 
         ObjectName found = lookupCamelContext(camelContextName);
         if (found != null) {
@@ -731,7 +732,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
                 for (Object obj : data.values()) {
                     JSONObject component = (JSONObject) obj;
 
-                    Map<String, String> row = new LinkedHashMap<String, String>();
+                    Map<String, String> row = new LinkedHashMap<>();
                     row.put("artifactId", asString(component.get("artifactId")));
                     row.put("title", asString(component.get("title")));
                     row.put("description", asString(component.get("description")));
@@ -765,7 +766,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
             throw new IllegalStateException("Need to connect to remote jolokia first");
         }
 
-        List<Map<String, String>> answer = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> answer = new ArrayList<>();
 
         ObjectName found = lookupCamelContext(camelContextName);
         if (found != null) {
@@ -780,7 +781,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
                         JSONObject data2 = (JSONObject) obj;
                         JSONObject service = (JSONObject) data2.values().iterator().next();
 
-                        Map<String, String> row = new LinkedHashMap<String, String>();
+                        Map<String, String> row = new LinkedHashMap<>();
                         row.put("scheme", asString(service.get("scheme")));
                         row.put("from", asString(service.get("from")));
                         row.put("to", asString(service.get("to")));
@@ -826,7 +827,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
             throw new IllegalStateException("Need to connect to remote jolokia first");
         }
 
-        List<Map<String, String>> answer = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> answer = new ArrayList<>();
 
         ObjectName found = lookupCamelContext(camelContextName);
         if (found != null) {
@@ -841,7 +842,7 @@ public class DefaultJolokiaCamelController extends AbstractCamelController imple
                         JSONObject data2 = (JSONObject) obj;
                         JSONObject service = (JSONObject) data2.values().iterator().next();
 
-                        Map<String, String> row = new LinkedHashMap<String, String>();
+                        Map<String, String> row = new LinkedHashMap<>();
                         row.put("type", asString(service.get("type")));
                         row.put("static", asString(service.get("static")));
                         row.put("dynamic", asString(service.get("dynamic")));

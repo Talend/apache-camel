@@ -22,6 +22,8 @@ import javax.annotation.Generated;
 import org.apache.camel.CamelContext;
 import org.apache.camel.model.rest.RestConstants;
 import org.apache.camel.spi.RestConfiguration;
+import org.apache.camel.spring.boot.util.CamelPropertiesHelper;
+import org.apache.camel.util.CollectionHelper;
 import org.apache.camel.util.IntrospectionSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -58,10 +60,44 @@ public class RestConfigurationDefinitionAutoConfiguration {
             throws Exception {
         Map<String, Object> properties = new HashMap<>();
         IntrospectionSupport.getProperties(config, properties, null, false);
+        properties.remove("enableCors");
+        properties.remove("apiProperty");
+        properties.remove("componentProperty");
+        properties.remove("consumerProperty");
+        properties.remove("dataFormatProperty");
+        properties.remove("endpointProperty");
+        properties.remove("corsHeaders");
         RestConfiguration definition = new RestConfiguration();
-        IntrospectionSupport.setProperties(camelContext,
-                camelContext.getTypeConverter(), definition, properties);
+        CamelPropertiesHelper.setCamelProperties(camelContext, definition,
+                properties, true);
         definition.setEnableCORS(config.getEnableCors());
+        if (config.getApiProperty() != null) {
+            definition.setApiProperties(new HashMap<>(CollectionHelper
+                    .flatternKeysInMap(config.getApiProperty(), ".")));
+        }
+        if (config.getComponentProperty() != null) {
+            definition.setComponentProperties(new HashMap<>(CollectionHelper
+                    .flatternKeysInMap(config.getComponentProperty(), ".")));
+        }
+        if (config.getConsumerProperty() != null) {
+            definition.setConsumerProperties(new HashMap<>(CollectionHelper
+                    .flatternKeysInMap(config.getConsumerProperty(), ".")));
+        }
+        if (config.getDataFormatProperty() != null) {
+            definition.setDataFormatProperties(new HashMap<>(CollectionHelper
+                    .flatternKeysInMap(config.getDataFormatProperty(), ".")));
+        }
+        if (config.getEndpointProperty() != null) {
+            definition.setEndpointProperties(new HashMap<>(CollectionHelper
+                    .flatternKeysInMap(config.getEndpointProperty(), ".")));
+        }
+        if (config.getCorsHeaders() != null) {
+            Map<String, Object> map = CollectionHelper.flatternKeysInMap(
+                    config.getCorsHeaders(), ".");
+            Map<String, String> target = new HashMap<>();
+            map.forEach((k, v) -> target.put(k, v.toString()));
+            definition.setCorsHeaders(target);
+        }
         return definition;
     }
 }

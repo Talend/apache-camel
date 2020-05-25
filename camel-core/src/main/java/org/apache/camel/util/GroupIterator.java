@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Scanner;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -77,17 +76,7 @@ public final class GroupIterator implements Iterator<Object>, Closeable {
     @Override
     public void close() throws IOException {
         try {
-            if (it instanceof Scanner) {
-                // special for Scanner which implement the Closeable since JDK7 
-                Scanner scanner = (Scanner) it;
-                scanner.close();
-                IOException ioException = scanner.ioException();
-                if (ioException != null) {
-                    throw ioException;
-                }
-            } else if (it instanceof Closeable) {
-                IOHelper.closeWithException((Closeable) it);
-            }
+            IOHelper.closeIterator(it);
         } finally {
             // we are now closed
             closed = true;
@@ -122,7 +111,7 @@ public final class GroupIterator implements Iterator<Object>, Closeable {
     }
 
     private Object doNext() throws IOException {
-        List<Object> list = new ArrayList<Object>();
+        List<Object> list = new ArrayList<>();
         int count = 0;
         while (count < group && it.hasNext()) {
             Object data = it.next();

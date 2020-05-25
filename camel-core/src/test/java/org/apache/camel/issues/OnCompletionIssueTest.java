@@ -21,9 +21,11 @@ import org.apache.camel.ContextTestSupport;
 import org.apache.camel.RollbackExchangeException;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 
 public class OnCompletionIssueTest extends ContextTestSupport {
 
+    @Test
     public void testOnCompletionIssue() throws Exception {
         MockEndpoint end = getMockEndpoint("mock:end");
         end.expectedMessageCount(1);
@@ -53,8 +55,6 @@ public class OnCompletionIssueTest extends ContextTestSupport {
         } catch (CamelExecutionException e) {
             assertIsInstanceOf(RollbackExchangeException.class, e.getCause());
         }
-
-        setAssertPeriod(2000);
 
         assertMockEndpointsSatisfied();
     }

@@ -25,6 +25,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.WrappedFile;
 import org.apache.camel.util.FileUtil;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,10 +114,23 @@ public class GenericFile<T> implements WrappedFile<T>  {
      * Bind this GenericFile to an Exchange
      */
     public void bindToExchange(Exchange exchange) {
+        GenericFileMessage<T> msg = commonBindToExchange(exchange);
+        populateHeaders(msg, false);
+    }
+    
+    /**
+     * Bind this GenericFile to an Exchange
+     */
+    public void bindToExchange(Exchange exchange, boolean isProbeContentTypeFromEndpoint) {
+        GenericFileMessage<T> msg = commonBindToExchange(exchange);
+        populateHeaders(msg, isProbeContentTypeFromEndpoint);
+    }
+
+    private GenericFileMessage<T> commonBindToExchange(Exchange exchange) {
         Map<String, Object> headers;
 
         exchange.setProperty(FileComponent.FILE_EXCHANGE_FILE, this);
-        GenericFileMessage<T> msg = new GenericFileMessage<T>(this);
+        GenericFileMessage<T> msg = new GenericFileMessage<>(this);
         if (exchange.hasOut()) {
             headers = exchange.getOut().hasHeaders() ? exchange.getOut().getHeaders() : null;
             exchange.setOut(msg);
@@ -131,7 +145,7 @@ public class GenericFile<T> implements WrappedFile<T>  {
             // remove any file related headers, as we will re-populate file headers
             msg.removeHeaders("CamelFile*");
         }
-        populateHeaders(msg);
+        return msg;
     }
 
     /**
@@ -139,7 +153,7 @@ public class GenericFile<T> implements WrappedFile<T>  {
      *
      * @param message the message to populate with headers
      */
-    public void populateHeaders(GenericFileMessage<T> message) {
+    public void populateHeaders(GenericFileMessage<T> message, boolean isProbeContentTypeFromEndpoint) {
         if (message != null) {
             message.setHeader(Exchange.FILE_NAME_ONLY, getFileNameOnly());
             message.setHeader(Exchange.FILE_NAME, getFileName());
@@ -151,7 +165,7 @@ public class GenericFile<T> implements WrappedFile<T>  {
                 message.setHeader("CamelFileExtendedAttributes", extendedAttributes);
             }
             
-            if (probeContentType && file instanceof File) {
+            if ((isProbeContentTypeFromEndpoint || probeContentType) && file instanceof File) {
                 File f = (File) file;
                 Path path = f.toPath();
                 try {
@@ -213,9 +227,9 @@ public class GenericFile<T> implements WrappedFile<T>  {
                 // use File.separatorChar as the normalizePath uses this as path separator so we should use the same
                 // in this logic here
                 if (newEndpointPath.endsWith("" + File.separatorChar)) {
-                    newFileName = ObjectHelper.after(newFileName, newEndpointPath);
+                    newFileName = StringHelper.after(newFileName, newEndpointPath);
                 } else {
-                    newFileName = ObjectHelper.after(newFileName, newEndpointPath + File.separatorChar);
+                    newFileName = StringHelper.after(newFileName, newEndpointPath + File.separatorChar);
                 }
 
                 // reconstruct file with clipped name
@@ -341,7 +355,7 @@ public class GenericFile<T> implements WrappedFile<T>  {
 
     public GenericFileBinding<T> getBinding() {
         if (binding == null) {
-            binding = new GenericFileDefaultBinding<T>();
+            binding = new GenericFileDefaultBinding<>();
         }
         return binding;
     }

@@ -58,11 +58,11 @@ public class DefaultStreamCachingStrategy extends org.apache.camel.support.Servi
     private long spoolThreshold = StreamCache.DEFAULT_SPOOL_THRESHOLD;
     private int spoolUsedHeapMemoryThreshold;
     private SpoolUsedHeapMemoryLimit spoolUsedHeapMemoryLimit;
-    private String spoolChiper;
+    private String spoolCihper;
     private int bufferSize = IOHelper.DEFAULT_BUFFER_SIZE;
     private boolean removeSpoolDirectoryWhenStopping = true;
     private final UtilizationStatistics statistics = new UtilizationStatistics();
-    private final Set<SpoolRule> spoolRules = new LinkedHashSet<SpoolRule>();
+    private final Set<SpoolRule> spoolRules = new LinkedHashSet<>();
     private boolean anySpoolRules;
 
     public CamelContext getCamelContext() {
@@ -118,11 +118,19 @@ public class DefaultStreamCachingStrategy extends org.apache.camel.support.Servi
     }
 
     public String getSpoolChiper() {
-        return spoolChiper;
+        return getSpoolCipher();
     }
 
     public void setSpoolChiper(String spoolChiper) {
-        this.spoolChiper = spoolChiper;
+        setSpoolCipher(spoolChiper);
+    }
+
+    public String getSpoolCipher() {
+        return spoolCihper;
+    }
+
+    public void setSpoolCipher(String spoolCipher) {
+        this.spoolCihper = spoolCipher;
     }
 
     public int getBufferSize() {
@@ -237,7 +245,7 @@ public class DefaultStreamCachingStrategy extends org.apache.camel.support.Servi
 
         String bufferSize = camelContext.getGlobalOption(BUFFER_SIZE);
         String hold = camelContext.getGlobalOption(THRESHOLD);
-        String chiper = camelContext.getGlobalOption(CIPHER_TRANSFORMATION);
+        String cipher = camelContext.getGlobalOption(CIPHER_TRANSFORMATION);
         String dir = camelContext.getGlobalOption(TEMP_DIR);
 
         boolean warn = false;
@@ -249,9 +257,9 @@ public class DefaultStreamCachingStrategy extends org.apache.camel.support.Servi
             warn = true;
             this.spoolThreshold = camelContext.getTypeConverter().convertTo(Long.class, hold);
         }
-        if (chiper != null) {
+        if (cipher != null) {
             warn = true;
-            this.spoolChiper = chiper;
+            this.spoolCihper = cipher;
         }
         if (dir != null) {
             warn = true;
@@ -310,12 +318,12 @@ public class DefaultStreamCachingStrategy extends org.apache.camel.support.Servi
             }
         }
 
-        LOG.debug("StreamCaching configuration {}", this.toString());
+        LOG.debug("StreamCaching configuration {}", this);
 
         if (spoolDirectory != null) {
-            LOG.info("StreamCaching in use with spool directory: {} and rules: {}", spoolDirectory.getPath(), spoolRules.toString());
+            LOG.info("StreamCaching in use with spool directory: {} and rules: {}", spoolDirectory.getPath(), spoolRules);
         } else {
-            LOG.info("StreamCaching in use with rules: {}", spoolRules.toString());
+            LOG.info("StreamCaching in use with rules: {}", spoolRules);
         }
     }
 
@@ -327,7 +335,7 @@ public class DefaultStreamCachingStrategy extends org.apache.camel.support.Servi
         }
 
         if (LOG.isDebugEnabled() && statistics.isStatisticsEnabled()) {
-            LOG.debug("Stopping StreamCachingStrategy with statistics: {}", statistics.toString());
+            LOG.debug("Stopping StreamCachingStrategy with statistics: {}", statistics);
         }
 
         statistics.reset();
@@ -337,7 +345,7 @@ public class DefaultStreamCachingStrategy extends org.apache.camel.support.Servi
     public String toString() {
         return "DefaultStreamCachingStrategy["
             + "spoolDirectory=" + spoolDirectory
-            + ", spoolChiper=" + spoolChiper
+            + ", spoolCihper=" + spoolCihper
             + ", spoolThreshold=" + spoolThreshold
             + ", spoolUsedHeapMemoryThreshold=" + spoolUsedHeapMemoryThreshold
             + ", bufferSize=" + bufferSize
@@ -386,7 +394,7 @@ public class DefaultStreamCachingStrategy extends org.apache.camel.support.Servi
                     long u = heapUsage.getHeapMemoryUsage().getUsed();
                     long c = heapUsage.getHeapMemoryUsage().getCommitted();
                     long m = heapUsage.getHeapMemoryUsage().getMax();
-                    LOG.trace("Heap memory: [used={}M ({}%), committed={}M, max={}M]", new Object[]{u >> 20, percentage, c >> 20, m >> 20});
+                    LOG.trace("Heap memory: [used={}M ({}%), committed={}M, max={}M]", u >> 20, percentage, c >> 20, m >> 20);
                 }
 
                 if (percentage > spoolUsedHeapMemoryThreshold) {

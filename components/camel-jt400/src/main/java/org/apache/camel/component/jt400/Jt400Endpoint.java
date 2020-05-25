@@ -18,12 +18,14 @@ package org.apache.camel.component.jt400;
 
 import java.net.URISyntaxException;
 import java.util.Arrays;
+
 import javax.naming.OperationNotSupportedException;
 
 import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400ConnectionPool;
 import org.apache.camel.CamelException;
 import org.apache.camel.Consumer;
+import org.apache.camel.MultipleConsumersSupport;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.impl.ScheduledPollEndpoint;
@@ -36,7 +38,7 @@ import org.apache.camel.util.URISupport;
  * The jt400 component allows you to exchanges messages with an AS/400 system using data queues or program call.
  */
 @UriEndpoint(firstVersion = "1.5.0", scheme = "jt400", title = "JT400", syntax = "jt400:userID:password/systemName/objectPath.type", consumerClass = Jt400DataQueueConsumer.class, label = "messaging")
-public class Jt400Endpoint extends ScheduledPollEndpoint {
+public class Jt400Endpoint extends ScheduledPollEndpoint implements MultipleConsumersSupport {
 
     public static final String KEY = "KEY";
     public static final String SENDER_INFORMATION = "SENDER_INFORMATION";
@@ -258,6 +260,19 @@ public class Jt400Endpoint extends ScheduledPollEndpoint {
 
     public void setReadTimeout(int readTimeout) {
         configuration.setReadTimeout(readTimeout);
+    }
+
+    public void setProcedureName(String procedureName) {
+        configuration.setProcedureName(procedureName);
+    }
+
+    public String getProcedureName() {
+        return configuration.getProcedureName();
+    }
+
+    @Override
+    public boolean isMultipleConsumersSupported() {
+        return true;
     }
 
 }

@@ -22,7 +22,6 @@ import java.util.Map;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.UriEndpointComponent;
-import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.URISupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,15 +52,13 @@ public class HipchatComponent extends UriEndpointComponent {
         if (endpoint.getConfiguration().getAuthToken() == null) {
             throw new HipchatException("OAuth 2 auth token must be specified");
         }
-        parseUri(uri, endpoint);
+        parseUri(remaining, endpoint);
         LOG.debug("Using Hipchat API URL: {}", endpoint.getConfiguration().hipChatUrl());
         return endpoint;
     }
 
-    private void parseUri(String uri, HipchatEndpoint endpoint) throws Exception {
-        // strip scheme
-        uri = ObjectHelper.after(uri, ":");
-        uri = URISupport.normalizeUri(uri);
+    private void parseUri(String remaining, HipchatEndpoint endpoint) throws Exception {
+        String uri = URISupport.normalizeUri(remaining);
 
         URI hipChatUri = new URI(uri);
         if (hipChatUri.getHost() != null) {

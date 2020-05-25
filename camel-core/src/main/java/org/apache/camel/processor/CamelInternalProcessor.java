@@ -83,7 +83,7 @@ import org.slf4j.LoggerFactory;
 public class CamelInternalProcessor extends DelegateAsyncProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(CamelInternalProcessor.class);
-    private final List<CamelInternalProcessorAdvice> advices = new ArrayList<CamelInternalProcessorAdvice>();
+    private final List<CamelInternalProcessorAdvice> advices = new ArrayList<>();
 
     public CamelInternalProcessor() {
     }
@@ -140,13 +140,14 @@ public class CamelInternalProcessor extends DelegateAsyncProcessor {
             return true;
         }
 
-        final List<Object> states = new ArrayList<Object>(advices.size());
+        // optimise to use object array for states
+        final Object[] states = new Object[advices.size()];
         // optimise for loop using index access to avoid creating iterator object
         for (int i = 0; i < advices.size(); i++) {
             CamelInternalProcessorAdvice task = advices.get(i);
             try {
                 Object state = task.before(exchange);
-                states.add(state);
+                states[i] = state;
             } catch (Throwable e) {
                 exchange.setException(e);
                 callback.done(true);
@@ -225,11 +226,11 @@ public class CamelInternalProcessor extends DelegateAsyncProcessor {
      */
     private final class InternalCallback implements AsyncCallback {
 
-        private final List<Object> states;
+        private final Object[] states;
         private final Exchange exchange;
         private final AsyncCallback callback;
 
-        private InternalCallback(List<Object> states, Exchange exchange, AsyncCallback callback) {
+        private InternalCallback(Object[] states, Exchange exchange, AsyncCallback callback) {
             this.states = states;
             this.exchange = exchange;
             this.callback = callback;
@@ -245,7 +246,7 @@ public class CamelInternalProcessor extends DelegateAsyncProcessor {
             try {
                 for (int i = advices.size() - 1; i >= 0; i--) {
                     CamelInternalProcessorAdvice task = advices.get(i);
-                    Object state = states.get(i);
+                    Object state = states[i];
                     try {
                         task.after(exchange, state);
                     } catch (Throwable e) {
@@ -361,7 +362,7 @@ public class CamelInternalProcessor extends DelegateAsyncProcessor {
 
         protected void recordTime(Exchange exchange, long duration) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("{}Recording duration: {} millis for exchange: {}", new Object[]{type != null ? type + ": " : "", duration, exchange});
+                LOG.trace("{}Recording duration: {} millis for exchange: {}", type != null ? type + ": " : "", duration, exchange);
             }
 
             if (!exchange.isFailed() && exchange.getException() == null) {
@@ -633,9 +634,13 @@ public class CamelInternalProcessor extends DelegateAsyncProcessor {
     public static class UnitOfWorkProcessorAdvice implements CamelInternalProcessorAdvice<UnitOfWork> {
 
         private final RouteContext routeContext;
+        private String routeId;
 
         public UnitOfWorkProcessorAdvice(RouteContext routeContext) {
             this.routeContext = routeContext;
+            if (routeContext != null) {
+                this.routeId = routeContext.getRoute().idOrCreate(routeContext.getCamelContext().getNodeIdFactory());
+            }
         }
 
         @Override
@@ -643,7 +648,9 @@ public class CamelInternalProcessor extends DelegateAsyncProcessor {
             // if the exchange doesn't have from route id set, then set it if it originated
             // from this unit of work
             if (routeContext != null && exchange.getFromRouteId() == null) {
-                String routeId = routeContext.getRoute().idOrCreate(routeContext.getCamelContext().getNodeIdFactory());
+                if (routeId == null) {
+                    routeId = routeContext.getRoute().idOrCreate(routeContext.getCamelContext().getNodeIdFactory());
+                }
                 exchange.setFromRouteId(routeId);
             }
 
@@ -763,7 +770,7 @@ public class CamelInternalProcessor extends DelegateAsyncProcessor {
                 }
             }
 
-            MessageHistory history = factory.newMessageHistory(targetRouteId, definition, new Date());
+            MessageHistory history = factory.newMessageHistory(targetRouteId, definition, System.currentTimeMillis());
             list.add(history);
             return history;
         }
@@ -815,7 +822,7 @@ public class CamelInternalProcessor extends DelegateAsyncProcessor {
             } else {
                 body = exchange.getIn().getBody();
             }
-            if (body != null && body instanceof StreamCache) {
+            if (body instanceof StreamCache) {
                 // reset so the cache is ready to be reused after processing
                 ((StreamCache) body).reset();
             }

@@ -18,6 +18,7 @@ package org.apache.camel.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -96,6 +97,11 @@ public class AOPDefinition extends OutputDefinition<AOPDefinition> {
     }
 
     @Override
+    public String getShortName() {
+        return "aop";
+    }
+
+    @Override
     public String getLabel() {
         return "aop";
     }
@@ -109,7 +115,7 @@ public class AOPDefinition extends OutputDefinition<AOPDefinition> {
 
         // use a pipeline to assemble the before and target processor
         // and the after if not afterFinally
-        Collection<ProcessorDefinition<?>> pipe = new ArrayList<ProcessorDefinition<?>>();
+        Collection<ProcessorDefinition<?>> pipe = new ArrayList<>();
 
         Processor finallyProcessor = null;
 

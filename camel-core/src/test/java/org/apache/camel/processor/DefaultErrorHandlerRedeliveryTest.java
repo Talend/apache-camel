@@ -21,6 +21,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Test;
 
 /**
  * Unit test to verify that redelivery counters is working as expected.
@@ -29,6 +30,7 @@ public class DefaultErrorHandlerRedeliveryTest extends ContextTestSupport {
 
     private static int counter;
 
+    @Test
     public void testRedeliveryTest() throws Exception {
         counter = 0;
 
@@ -42,6 +44,7 @@ public class DefaultErrorHandlerRedeliveryTest extends ContextTestSupport {
         assertEquals(3, counter); // One call + 2 re-deliveries
     }
 
+    @Test
     public void testNoRedeliveriesTest() throws Exception {
         counter = 0;
 
@@ -55,6 +58,7 @@ public class DefaultErrorHandlerRedeliveryTest extends ContextTestSupport {
         assertEquals(1, counter); // One call
     }
 
+    @Test
     public void testOneRedeliveryTest() throws Exception {
         counter = 0;
         try {
@@ -72,7 +76,7 @@ public class DefaultErrorHandlerRedeliveryTest extends ContextTestSupport {
         return new RouteBuilder() {
             public void configure() throws Exception {
                 from("direct:start")
-                    .errorHandler(defaultErrorHandler().maximumRedeliveries(2))
+                    .errorHandler(defaultErrorHandler().redeliveryDelay(0).maximumRedeliveries(2))
                     .process(new Processor() {
                         public void process(Exchange exchange) throws Exception {
                             counter++;
@@ -89,7 +93,7 @@ public class DefaultErrorHandlerRedeliveryTest extends ContextTestSupport {
                     });
 
                 from("direct:one")
-                    .errorHandler(defaultErrorHandler().maximumRedeliveries(1))
+                    .errorHandler(defaultErrorHandler().redeliveryDelay(0).maximumRedeliveries(1))
                     .process(new Processor() {
                         public void process(Exchange exchange) throws Exception {
                             counter++;

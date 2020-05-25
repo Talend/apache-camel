@@ -28,7 +28,10 @@ import org.apache.camel.AsyncCallback;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.ExchangeTimedOutException;
 import org.apache.camel.Processor;
+import org.apache.camel.Suspendable;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
+import org.apache.camel.component.cxf.interceptors.UnitOfWorkCloserInterceptor;
+import org.apache.camel.component.cxf.util.CxfUtils;
 import org.apache.camel.impl.DefaultConsumer;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.cxf.continuations.Continuation;
@@ -39,23 +42,24 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.ws.addressing.ContextUtils;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * A Consumer of exchanges for a service in CXF.  CxfConsumer acts a CXF
- * service to receive requests, convert them, and forward them to Camel 
+ * service to receive requests, convert them, and forward them to Camel
  * route for processing. It is also responsible for converting and sending
  * back responses to CXF client.
  *
- * @version 
+ * @version
  */
-public class CxfConsumer extends DefaultConsumer {
+public class CxfConsumer extends DefaultConsumer implements Suspendable {
     private static final Logger LOG = LoggerFactory.getLogger(CxfConsumer.class);
     private Server server;
     private CxfEndpoint cxfEndpoint;
@@ -74,11 +78,25 @@ public class CxfConsumer extends DefaultConsumer {
         if (cxfEndpoint.getCxfEndpointConfigurer() != null) {
             cxfEndpoint.getCxfEndpointConfigurer().configureServer(server);
         }
+        server.getEndpoint().getEndpointInfo().setProperty("serviceClass", cxfEndpoint.getServiceClass());
         if (ObjectHelper.isNotEmpty(cxfEndpoint.getPublishedEndpointUrl())) {
             server.getEndpoint().getEndpointInfo().setProperty("publishedEndpointUrl", cxfEndpoint.getPublishedEndpointUrl());
         }
+
+        final MessageObserver originalOutFaultObserver = server.getEndpoint().getOutFaultObserver();
+        server.getEndpoint().setOutFaultObserver(message -> {
+            originalOutFaultObserver.onMessage(message);
+            CxfUtils.closeCamelUnitOfWork(message);
+        });
+
+        // setup the UnitOfWorkCloserInterceptor for OneWayMessageProcessor
+        server.getEndpoint().getInInterceptors().add(new UnitOfWorkCloserInterceptor(Phase.POST_INVOKE, true));
+        // close the UnitOfWork normally
+        server.getEndpoint().getOutInterceptors().add(new UnitOfWorkCloserInterceptor());
+
         return server;
     }
+
 
     public Server getServer() {
         return server;
@@ -114,20 +132,20 @@ public class CxfConsumer extends DefaultConsumer {
     protected boolean isAsyncInvocationSupported(Exchange cxfExchange) {
         Message cxfMessage = cxfExchange.getInMessage();
         Object addressingProperties = cxfMessage.get(CxfConstants.WSA_HEADERS_INBOUND);
-        if (addressingProperties != null 
+        if (addressingProperties != null
                && !ContextUtils.isGenericAddress(getReplyTo(addressingProperties))) {
             //it's decoupled endpoint, so already switch thread and
-            //use executors, which means underlying transport won't 
-            //be block, so we shouldn't rely on continuation in 
-            //this case, as the SuspendedInvocationException can't be 
+            //use executors, which means underlying transport won't
+            //be block, so we shouldn't rely on continuation in
+            //this case, as the SuspendedInvocationException can't be
             //caught by underlying transport. So we should use the SyncInvocation this time
             return false;
         }
         // we assume it should support AsyncInvocation out of box
         return true;
     }
-    
     private class CxfConsumerInvoker implements Invoker {
+
         private final CxfEndpoint endpoint;
 
         CxfConsumerInvoker(CxfEndpoint endpoint) {
@@ -151,6 +169,7 @@ public class CxfConsumer extends DefaultConsumer {
         // NOTE this code cannot work with CXF 2.2.x and JMSContinuation
         // as it doesn't break out the interceptor chain when we call it
         private Object asyncInvoke(Exchange cxfExchange, final Continuation continuation) {
+            log.trace("asyncInvoke continuation: {}", continuation);
             synchronized (continuation) {
                 if (continuation.isNew()) {
                     final org.apache.camel.Exchange camelExchange = prepareCamelExchange(cxfExchange);
@@ -160,7 +179,7 @@ public class CxfConsumer extends DefaultConsumer {
 
                     // The continuation could be called before the suspend is called
                     continuation.suspend(cxfEndpoint.getContinuationTimeout());
-                    
+
                     continuation.setObject(camelExchange);
 
                     // use the asynchronous API to process the exchange
@@ -175,23 +194,25 @@ public class CxfConsumer extends DefaultConsumer {
                         }
                     });
 
-                } else if (continuation.isResumed()) {
+                } else if (!continuation.isTimeout() && continuation.isResumed()) {
                     org.apache.camel.Exchange camelExchange = (org.apache.camel.Exchange)continuation.getObject();
                     try {
                         setResponseBack(cxfExchange, camelExchange);
-                    } finally {
+                    } catch (Exception ex) {
                         CxfConsumer.this.doneUoW(camelExchange);
+                        throw ex;
                     }
 
-                } else if (!continuation.isResumed() && !continuation.isPending()) {
+                } else if (continuation.isTimeout() || (!continuation.isResumed() && !continuation.isPending())) {
                     org.apache.camel.Exchange camelExchange = (org.apache.camel.Exchange)continuation.getObject();
                     try {
                         if (!continuation.isPending()) {
                             camelExchange.setException(new ExchangeTimedOutException(camelExchange, cxfEndpoint.getContinuationTimeout()));
                         }
                         setResponseBack(cxfExchange, camelExchange);
-                    } finally {
+                    } catch (Exception ex) {
                         CxfConsumer.this.doneUoW(camelExchange);
+                        throw ex;
                     }
                 }
             }
@@ -224,8 +245,9 @@ public class CxfConsumer extends DefaultConsumer {
 
                 LOG.trace("Processing +++ END +++");
                 setResponseBack(cxfExchange, camelExchange);
-            } finally {
+            }  catch (Exception ex) {
                 doneUoW(camelExchange);
+                throw ex;
             }
             // response should have been set in outMessage's content
             return null;
@@ -238,6 +260,8 @@ public class CxfConsumer extends DefaultConsumer {
 
             // create a Camel exchange, the default MEP is InOut
             org.apache.camel.Exchange camelExchange = endpoint.createExchange();
+            //needs access in MessageObserver/Interceptor to close the UnitOfWork
+            cxfExchange.put(org.apache.camel.Exchange.class, camelExchange);
 
             DataFormat dataFormat = endpoint.getDataFormat();
 
@@ -274,7 +298,7 @@ public class CxfConsumer extends DefaultConsumer {
             // bind the CXF request into a Camel exchange
             binding.populateExchangeFromCxfRequest(cxfExchange, camelExchange);
             // extract the javax.xml.ws header
-            Map<String, Object> context = new HashMap<String, Object>();
+            Map<String, Object> context = new HashMap<>();
             binding.extractJaxWsContext(cxfExchange, context);
             // put the context into camelExchange
             camelExchange.setProperty(CxfConstants.JAXWS_CONTEXT, context);
@@ -294,6 +318,7 @@ public class CxfConsumer extends DefaultConsumer {
             CxfEndpoint endpoint = (CxfEndpoint)getEndpoint();
             CxfBinding binding = endpoint.getCxfBinding();
 
+            ((DefaultCxfBinding)binding).populateCxfHeaderFromCamelExchangeBeforeCheckError(camelExchange, cxfExchange);
             checkFailure(camelExchange, cxfExchange);
 
             binding.populateCxfResponseFromExchange(camelExchange, cxfExchange);

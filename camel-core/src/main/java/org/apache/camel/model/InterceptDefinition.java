@@ -18,6 +18,7 @@ package org.apache.camel.model;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -44,7 +45,7 @@ public class InterceptDefinition extends OutputDefinition<InterceptDefinition> {
     @XmlTransient
     protected Processor output;
     @XmlTransient
-    protected final List<Processor> intercepted = new ArrayList<Processor>();
+    protected final List<Processor> intercepted = new ArrayList<>();
 
     public InterceptDefinition() {
     }
@@ -52,6 +53,11 @@ public class InterceptDefinition extends OutputDefinition<InterceptDefinition> {
     @Override
     public String toString() {
         return "Intercept[" + getOutputs() + "]";
+    }
+
+    @Override
+    public String getShortName() {
+        return "intercept";
     }
 
     @Override
@@ -88,10 +94,7 @@ public class InterceptDefinition extends OutputDefinition<InterceptDefinition> {
 
                 if (interceptedTarget != null) {
                     // wrap in a pipeline so we continue routing to the next
-                    List<Processor> list = new ArrayList<Processor>(2);
-                    list.add(output);
-                    list.add(interceptedTarget);
-                    return new Pipeline(context, list);
+                    return Pipeline.newInstance(context, output, interceptedTarget);
                 } else {
                     return output;
                 }

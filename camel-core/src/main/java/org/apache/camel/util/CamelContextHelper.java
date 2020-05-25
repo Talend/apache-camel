@@ -103,6 +103,14 @@ public final class CamelContextHelper {
     }
 
     /**
+     * Tried to convert the given value to the requested type
+     */
+    public static <T> T tryConvertTo(CamelContext context, Class<T> type, Object value) {
+        notNull(context, "camelContext");
+        return context.getTypeConverter().tryConvertTo(type, value);
+    }
+
+    /**
      * Converts the given value to the specified type throwing an {@link IllegalArgumentException}
      * if the value could not be converted to a non null value
      */
@@ -136,6 +144,14 @@ public final class CamelContextHelper {
      */
     public static <T> T lookup(CamelContext context, String name, Class<T> beanType) {
         return context.getRegistry().lookupByNameAndType(name, beanType);
+    }
+
+    /**
+     * Look up the given named bean in the {@link org.apache.camel.spi.Registry} on the
+     * {@link CamelContext} and try to convert it to the given type.
+     */
+    public static <T> T lookupAndConvert(CamelContext context, String name, Class<T> beanType) {
+        return tryConvertTo(context, beanType, lookup(context, name));
     }
 
     /**
@@ -173,6 +189,18 @@ public final class CamelContextHelper {
             throw new NoSuchBeanException(name, beanType.getName());
         }
         return answer;
+    }
+
+    /**
+     * Look up the given named bean in the {@link org.apache.camel.spi.Registry} on the
+     * {@link CamelContext} and convert it to the given type or throws NoSuchBeanException if not found.
+     */
+    public static <T> T mandatoryLookupAndConvert(CamelContext context, String name, Class<T> beanType) {
+        Object value = lookup(context, name);
+        if (value == null) {
+            throw new NoSuchBeanException(name, beanType.getName());
+        }
+        return convertTo(context, beanType, value);
     }
 
     /**
@@ -259,6 +287,37 @@ public final class CamelContextHelper {
                     return size;
                 } catch (NumberFormatException e) {
                     throw new IllegalArgumentException("Property " + Exchange.MAXIMUM_ENDPOINT_CACHE_SIZE + " must be a positive number, was: " + s, e);
+                }
+            }
+        }
+
+        // 1000 is the default fallback
+        return 1000;
+    }
+
+    /**
+     * Gets the maximum simple cache size.
+     * <p/>
+     * Will use the property set on CamelContext with the key {@link Exchange#MAXIMUM_SIMPLE_CACHE_SIZE}.
+     * If no property has been set, then it will fallback to return a size of 1000.
+     *
+     * @param camelContext the camel context
+     * @return the maximum cache size
+     * @throws IllegalArgumentException is thrown if the property is illegal
+     */
+    public static int getMaximumSimpleCacheSize(CamelContext camelContext) throws IllegalArgumentException {
+        if (camelContext != null) {
+            String s = camelContext.getGlobalOption(Exchange.MAXIMUM_SIMPLE_CACHE_SIZE);
+            if (s != null) {
+                // we cannot use Camel type converters as they may not be ready this early
+                try {
+                    Integer size = Integer.valueOf(s);
+                    if (size == null || size <= 0) {
+                        throw new IllegalArgumentException("Property " + Exchange.MAXIMUM_SIMPLE_CACHE_SIZE + " must be a positive number, was: " + s);
+                    }
+                    return size;
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Property " + Exchange.MAXIMUM_SIMPLE_CACHE_SIZE + " must be a positive number, was: " + s, e);
                 }
             }
         }
@@ -449,7 +508,7 @@ public final class CamelContextHelper {
      */
     public static SortedMap<String, Properties> findComponents(CamelContext camelContext) throws LoadPropertiesException {
         ClassResolver resolver = camelContext.getClassResolver();
-        LOG.debug("Finding all components using class resolver: {} -> {}", new Object[]{resolver});
+        LOG.debug("Finding all components using class resolver: {} -> {}", resolver);
         Enumeration<URL> iter = resolver.loadAllResourcesAsURL(COMPONENT_DESCRIPTOR);
         return findComponents(camelContext, iter);
     }
@@ -457,7 +516,7 @@ public final class CamelContextHelper {
     public static SortedMap<String, Properties> findComponents(CamelContext camelContext, Enumeration<URL> componentDescriptionIter)
         throws LoadPropertiesException {
 
-        SortedMap<String, Properties> map = new TreeMap<String, Properties>();
+        SortedMap<String, Properties> map = new TreeMap<>();
         while (componentDescriptionIter != null && componentDescriptionIter.hasMoreElements()) {
             URL url = componentDescriptionIter.nextElement();
             LOG.trace("Finding components in url: {}", url);
@@ -549,10 +608,10 @@ public final class CamelContextHelper {
      * Find information about all the EIPs from camel-core.
      */
     public static SortedMap<String, Properties> findEips(CamelContext camelContext) throws LoadPropertiesException {
-        SortedMap<String, Properties> answer = new TreeMap<String, Properties>();
+        SortedMap<String, Properties> answer = new TreeMap<>();
 
         ClassResolver resolver = camelContext.getClassResolver();
-        LOG.debug("Finding all EIPs using class resolver: {} -> {}", new Object[]{resolver});
+        LOG.debug("Finding all EIPs using class resolver: {} -> {}", resolver);
         URL url = resolver.loadResourceAsURL(MODEL_DESCRIPTOR);
         if (url != null) {
             InputStream is = null;
@@ -643,13 +702,13 @@ public final class CamelContextHelper {
      *                   has been configured.
      * @return the properties component, or <tt>null</tt> if none has been defined, and auto create is <tt>false</tt>.
      */
-    public static Component lookupPropertiesComponent(CamelContext camelContext, boolean autoCreate) {
+    public static PropertiesComponent lookupPropertiesComponent(CamelContext camelContext, boolean autoCreate) {
         // no existing properties component so lookup and add as component if possible
         PropertiesComponent answer = (PropertiesComponent) camelContext.hasComponent("properties");
         if (answer == null) {
             // lookup what is stored under properties, as it may not be the Camel properties component
             Object found = camelContext.getRegistry().lookupByName("properties");
-            if (found != null && found instanceof PropertiesComponent) {
+            if (found instanceof PropertiesComponent) {
                 answer = (PropertiesComponent) found;
                 camelContext.addComponent("properties", answer);
             }
@@ -705,10 +764,10 @@ public final class CamelContextHelper {
         LOG.trace("Resolving property placeholders for: {}", target);
 
         // find all getter/setter which we can use for property placeholders
-        Map<String, Object> properties = new HashMap<String, Object>();
+        Map<String, Object> properties = new HashMap<>();
         IntrospectionSupport.getProperties(target, properties, null);
 
-        Map<String, Object> changedProperties = new HashMap<String, Object>();
+        Map<String, Object> changedProperties = new HashMap<>();
         if (!properties.isEmpty()) {
             LOG.trace("There are {} properties on: {}", properties.size(), target);
             // lookup and resolve properties for String based properties
@@ -728,12 +787,11 @@ public final class CamelContextHelper {
                         }
                         changedProperties.put(name, value);
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("Changed property [{}] from: {} to: {}", new Object[]{name, value, text});
+                            LOG.debug("Changed property [{}] from: {} to: {}", name, value, text);
                         }
                     }
                 }
             }
         }
     }
-
 }

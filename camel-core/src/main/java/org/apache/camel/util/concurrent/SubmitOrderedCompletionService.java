@@ -39,7 +39,7 @@ public class SubmitOrderedCompletionService<V> implements CompletionService<V> {
     // the idea to order the completed task in the same order as they where submitted is to leverage
     // the delay queue. With the delay queue we can control the order by the getDelay and compareTo methods
     // where we can order the tasks in the same order as they where submitted.
-    private final DelayQueue<SubmitOrderFutureTask> completionQueue = new DelayQueue<SubmitOrderFutureTask>();
+    private final DelayQueue<SubmitOrderFutureTask> completionQueue = new DelayQueue<>();
 
     // id is the unique id that determines the order in which tasks was submitted (incrementing)
     private final AtomicInteger id = new AtomicInteger();
@@ -63,7 +63,19 @@ public class SubmitOrderedCompletionService<V> implements CompletionService<V> {
 
         public long getDelay(TimeUnit unit) {
             // if the answer is 0 then this task is ready to be taken
-            return id - index.get();
+            long answer = id - index.get();
+            if (answer <= 0) {
+                return answer;
+            }
+            // okay this task is not ready yet, and we don't really know when it would be
+            // so we have to return a delay value of one time unit
+            if (TimeUnit.NANOSECONDS == unit) {
+                // okay this is too fast so use a little more delay to avoid CPU burning cycles
+                answer = unit.convert(1, TimeUnit.MICROSECONDS);
+            } else {
+                answer = unit.convert(1, unit);
+            }
+            return answer;
         }
 
         @SuppressWarnings("unchecked")

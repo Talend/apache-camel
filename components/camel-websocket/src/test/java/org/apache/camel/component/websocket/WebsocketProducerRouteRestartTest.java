@@ -37,7 +37,7 @@ import org.junit.Test;
 public class WebsocketProducerRouteRestartTest extends CamelTestSupport {
 
     private static final String ROUTE_ID = WebsocketProducerRouteRestartTest.class.getSimpleName();
-    private static List<Object> received = new ArrayList<Object>();
+    private static List<Object> received = new ArrayList<>();
     private static CountDownLatch latch;
     protected int port;
 
@@ -122,7 +122,7 @@ public class WebsocketProducerRouteRestartTest extends CamelTestSupport {
         return new RouteBuilder() {
             public void configure() {
                 WebsocketComponent websocketComponent = (WebsocketComponent) context.getComponent("websocket");
-                websocketComponent.setMaxThreads(20);
+                websocketComponent.setMaxThreads(25);
                 websocketComponent.setMinThreads(1);
                 from("direct:shop")
                     .id(ROUTE_ID)

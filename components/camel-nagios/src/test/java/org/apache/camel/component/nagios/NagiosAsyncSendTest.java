@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 package org.apache.camel.component.nagios;
-
-import com.googlecode.jsendnsca.core.NonBlockingNagiosPassiveCheckSender;
-import org.apache.camel.Producer;
+import com.googlecode.jsendnsca.NonBlockingNagiosPassiveCheckSender;
 import org.apache.camel.builder.RouteBuilder;
 import org.junit.BeforeClass;
 import org.mockito.Mockito;
@@ -41,12 +39,12 @@ public class NagiosAsyncSendTest extends NagiosTest {
 
                 NagiosComponent nagiosComponent = new NagiosComponent();
                 nagiosComponent.setCamelContext(context);
-                NagiosEndpoint nagiousEndpoint = (NagiosEndpoint) nagiosComponent.createEndpoint(uri);
-                nagiousEndpoint.setSender(nagiosPassiveCheckSender);
-                Producer nagiosProducer = nagiousEndpoint.createProducer();
+                NagiosEndpoint nagiosEndpoint = (NagiosEndpoint) nagiosComponent.createEndpoint(uri);
+                nagiosEndpoint.setSender(nagiosPassiveCheckSender);
+                nagiosEndpoint.createProducer();
 
                 from("direct:start")
-                        .to(nagiousEndpoint)
+                        .to(nagiosEndpoint)
                         .to("mock:result");
             }
         };

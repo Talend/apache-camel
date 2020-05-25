@@ -185,6 +185,11 @@ public class DefaultErrorHandlerBuilder extends ErrorHandlerBuilderSupport {
         return this;
     }
 
+    public DefaultErrorHandlerBuilder retryAttemptedLogInterval(int retryAttemptedLogInterval) {
+        getRedeliveryPolicy().setRetryAttemptedLogInterval(retryAttemptedLogInterval);
+        return this;
+    }
+
     public DefaultErrorHandlerBuilder logStackTrace(boolean logStackTrace) {
         getRedeliveryPolicy().setLogStackTrace(logStackTrace);
         return this;
@@ -210,6 +215,11 @@ public class DefaultErrorHandlerBuilder extends ErrorHandlerBuilderSupport {
         return this;
     }
 
+    public DefaultErrorHandlerBuilder logRetryAttempted(boolean logRetryAttempted) {
+        getRedeliveryPolicy().setLogRetryAttempted(logRetryAttempted);
+        return this;
+    }
+
     public DefaultErrorHandlerBuilder logExhaustedMessageHistory(boolean logExhaustedMessageHistory) {
         getRedeliveryPolicy().setLogExhaustedMessageHistory(logExhaustedMessageHistory);
         return this;
@@ -226,7 +236,8 @@ public class DefaultErrorHandlerBuilder extends ErrorHandlerBuilderSupport {
     }
 
     /**
-     * Will allow asynchronous delayed redeliveries.
+     * Will allow asynchronous delayed redeliveries. The route, in particular the consumer's component,
+     * must support the Asynchronous Routing Engine (e.g. seda)
      *
      * @see org.apache.camel.processor.RedeliveryPolicy#setAsyncDelayedRedelivery(boolean)
      * @return the builder

@@ -44,7 +44,7 @@ public class IrcConfiguration implements Cloneable {
     private static final Logger LOG = LoggerFactory.getLogger(IrcConfiguration.class);
 
     private boolean usingSSL;
-    private List<IrcChannel> channels = new ArrayList<IrcChannel>();
+    private List<IrcChannel> channels = new ArrayList<>();
 
     @UriPath @Metadata(required = "true")
     private String hostname;
@@ -92,6 +92,8 @@ public class IrcConfiguration implements Cloneable {
     private SSLContextParameters sslContextParameters;
     @UriParam(label = "security", secret = true)
     private String nickPassword;
+    @UriParam(defaultValue = "5000")
+    private long commandTimeout = 5000L;
 
     public IrcConfiguration() {
     }
@@ -125,11 +127,11 @@ public class IrcConfiguration implements Cloneable {
      * Return space separated list of channel names without pwd
      */
     public String getListOfChannels() {
-        String retval = "";
+        StringBuilder retval = new StringBuilder();
         for (IrcChannel channel : channels) {
-            retval += (retval.isEmpty() ? "" : " ") + channel.getName();
+            retval.append(retval.length() == 0 ? "" : " ").append(channel.getName());
         }
-        return retval;
+        return retval.toString();
     }
 
     public void configure(String uriStr) throws URISyntaxException, UnsupportedEncodingException  {
@@ -459,7 +461,19 @@ public class IrcConfiguration implements Cloneable {
     public void setNickPassword(String nickPassword) {
         this.nickPassword = nickPassword;
     }
-    
+
+    /**
+     * Delay in milliseconds before sending commands after the connection is established.
+     * @param timeout timeout value in milliseconds
+     */
+    public void setCommandTimeout(long timeout) {
+        this.commandTimeout = timeout;
+    }
+
+    public long getCommandTimeout() {
+        return commandTimeout;
+    }
+
     public boolean isNamesOnJoin() {
         return namesOnJoin;
     }
@@ -539,7 +553,7 @@ public class IrcConfiguration implements Cloneable {
             
             // Remove unneeded '#' channel prefixes per convention
             // and replace ',' separators and merge channel and key using convention "channel!key"
-            List<String> cl = new ArrayList<String>();
+            List<String> cl = new ArrayList<>();
             String channels = (String)parameters.get("channels");
             String keys =  (String)parameters.get("keys");
             keys = keys == null ? keys : keys + " ";    // if @keys ends with a ',' it will miss the last empty key after split(",")

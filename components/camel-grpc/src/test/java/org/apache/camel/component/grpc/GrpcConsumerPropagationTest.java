@@ -48,8 +48,8 @@ public class GrpcConsumerPropagationTest extends CamelTestSupport {
 
     @Before
     public void startGrpcChannels() {
-        asyncOnNextChannel = ManagedChannelBuilder.forAddress("localhost", GRPC_ASYNC_NEXT_REQUEST_TEST_PORT).usePlaintext(true).build();
-        asyncOnCompletedChannel = ManagedChannelBuilder.forAddress("localhost", GRPC_ASYNC_COMPLETED_REQUEST_TEST_PORT).usePlaintext(true).build();
+        asyncOnNextChannel = ManagedChannelBuilder.forAddress("localhost", GRPC_ASYNC_NEXT_REQUEST_TEST_PORT).usePlaintext().build();
+        asyncOnCompletedChannel = ManagedChannelBuilder.forAddress("localhost", GRPC_ASYNC_COMPLETED_REQUEST_TEST_PORT).usePlaintext().build();
         asyncOnNextStub = PingPongGrpc.newStub(asyncOnNextChannel);
         asyncOnCompletedStub = PingPongGrpc.newStub(asyncOnCompletedChannel);
     }
@@ -57,6 +57,7 @@ public class GrpcConsumerPropagationTest extends CamelTestSupport {
     @After
     public void stopGrpcChannels() throws Exception {
         asyncOnNextChannel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+        asyncOnCompletedChannel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
     @Test
@@ -108,13 +109,12 @@ public class GrpcConsumerPropagationTest extends CamelTestSupport {
             @Override
             public void configure() {
                 
-                from("grpc://org.apache.camel.component.grpc.PingPong?processingStrategy=PROPAGATION&host=localhost&port=" + GRPC_ASYNC_NEXT_REQUEST_TEST_PORT)
+                from("grpc://localhost:" + GRPC_ASYNC_NEXT_REQUEST_TEST_PORT + "/org.apache.camel.component.grpc.PingPong?consumerStrategy=PROPAGATION")
                     .to("mock:async-on-next-propagation")
                     .bean(new GrpcMessageBuilder(), "buildAsyncPongResponse");
                 
-                from("grpc://org.apache.camel.component.grpc.PingPong?processingStrategy=PROPAGATION&forwardOnCompleted=true&host=localhost&port=" + GRPC_ASYNC_COMPLETED_REQUEST_TEST_PORT)
-                    .to("mock:async-on-completed-propagation")
-                    .bean(new GrpcMessageBuilder(), "buildAsyncPongResponse");
+                from("grpc://localhost:" + GRPC_ASYNC_COMPLETED_REQUEST_TEST_PORT + "/org.apache.camel.component.grpc.PingPong?consumerStrategy=PROPAGATION&forwardOnCompleted=true")
+                    .to("mock:async-on-completed-propagation");
             }
         };
     }

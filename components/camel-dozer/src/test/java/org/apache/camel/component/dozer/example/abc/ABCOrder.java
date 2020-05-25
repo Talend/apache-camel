@@ -18,6 +18,7 @@ package org.apache.camel.component.dozer.example.abc;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -316,7 +317,7 @@ public class ABCOrder {
          */
         public List<ABCOrder.OrderItems.Item> getItem() {
             if (item == null) {
-                item = new ArrayList<ABCOrder.OrderItems.Item>();
+                item = new ArrayList<>();
             }
             return this.item;
         }

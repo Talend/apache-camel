@@ -28,6 +28,7 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.SimpleRegistry;
 import org.apache.camel.model.rest.CollectionFormat;
 import org.apache.camel.model.rest.RestParamType;
+import org.junit.Test;
 
 public class ManagedFromRestGetTest extends ManagementTestSupport {
 
@@ -38,6 +39,7 @@ public class ManagedFromRestGetTest extends ManagementTestSupport {
         return new DefaultCamelContext(registry);
     }
 
+    @Test
     public void testFromRestModel() throws Exception {
         // JMX tests dont work well on AIX CI servers (hangs them)
         if (isPlatform("aix")) {
@@ -75,6 +77,10 @@ public class ManagedFromRestGetTest extends ManagementTestSupport {
         log.info(xml2);
         // and we should have rest in the routes that indicate its from a rest dsl
         assertTrue(xml2.contains("rest=\"true\""));
+
+        assertTrue(xml2.contains(" <to id=\"to1\" uri=\"direct:hello\"/>"));
+        assertTrue(xml2.contains("<to id=\"to2\" uri=\"direct:bye\"/>"));
+        assertTrue(xml2.contains("<to id=\"to3\" uri=\"mock:update\"/>"));
 
         // there should be 3 + 2 routes
         assertEquals(3 + 2, context.getRouteDefinitions().size());

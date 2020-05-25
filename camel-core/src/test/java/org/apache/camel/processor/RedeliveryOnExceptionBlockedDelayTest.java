@@ -21,6 +21,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,7 @@ public class RedeliveryOnExceptionBlockedDelayTest extends ContextTestSupport {
 
     private static volatile int attempt;
 
+    @Test
     public void testRedelivery() throws Exception {
         MockEndpoint before = getMockEndpoint("mock:result");
         before.expectedBodiesReceived("Hello World", "Hello Camel");
@@ -54,14 +56,14 @@ public class RedeliveryOnExceptionBlockedDelayTest extends ContextTestSupport {
             public void configure() throws Exception {
                 // will by default block
                 onException(IllegalArgumentException.class)
-                    .maximumRedeliveries(5).redeliveryDelay(2000);
+                    .maximumRedeliveries(5).redeliveryDelay(0);
 
                 from("seda:start")
                     .to("log:before")
                     .to("mock:before")
                     .process(new Processor() {
                         public void process(Exchange exchange) throws Exception {
-                            LOG.info("Processing at attempt " + attempt + " " + exchange);
+                            LOG.info("Processing at attempt {} {}", attempt, exchange);
 
                             String body = exchange.getIn().getBody(String.class);
                             if (body.contains("World")) {
@@ -72,7 +74,7 @@ public class RedeliveryOnExceptionBlockedDelayTest extends ContextTestSupport {
                             }
 
                             exchange.getIn().setBody("Hello " + body);
-                            LOG.info("Processing at attempt " + attempt + " complete " + exchange);
+                            LOG.info("Processing at attempt {} complete {}", attempt, exchange);
                         }
                     })
                     .to("log:after")

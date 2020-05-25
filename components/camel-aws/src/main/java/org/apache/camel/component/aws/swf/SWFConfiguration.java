@@ -24,24 +24,29 @@ import com.amazonaws.services.simpleworkflow.flow.DataConverter;
 import com.amazonaws.services.simpleworkflow.flow.WorkflowTypeRegistrationOptions;
 import com.amazonaws.services.simpleworkflow.flow.worker.ActivityTypeExecutionOptions;
 import com.amazonaws.services.simpleworkflow.flow.worker.ActivityTypeRegistrationOptions;
+
+import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriParams;
 import org.apache.camel.spi.UriPath;
 
 @UriParams
-public class SWFConfiguration {
+public class SWFConfiguration implements Cloneable {
 
-    @UriPath(enums = "activity,workflow") @Metadata(required = "true")
+    @UriPath(enums = "activity,workflow")
+    @Metadata(required = "true")
     private String type;
     @UriParam
     private AmazonSimpleWorkflowClient amazonSWClient;
-    @UriParam
+    @UriParam(label = "security", secret = true)
     private String accessKey;
-    @UriParam
+    @UriParam(label = "security", secret = true)
     private String secretKey;
     @UriParam(label = "producer,workflow", defaultValue = "START", enums = "SIGNAL,CANCEL,TERMINATE,GET_STATE,START,DESCRIBE,GET_HISTORY")
     private String operation = "START";
+    @UriParam(label = "common")
+    private String region;
     @UriParam
     private String domainName;
     @UriParam(label = "consumer,activity")
@@ -106,6 +111,17 @@ public class SWFConfiguration {
      */
     public void setSecretKey(String secretKey) {
         this.secretKey = secretKey;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    /**
+     * Amazon AWS Region.
+     */
+    public void setRegion(String region) {
+        this.region = region;
     }
 
     public String getDomainName() {
@@ -190,7 +206,8 @@ public class SWFConfiguration {
     }
 
     /**
-     * To configure the AmazonSimpleWorkflowClient using the key/values from the Map.
+     * To configure the AmazonSimpleWorkflowClient using the key/values from the
+     * Map.
      */
     public void setSWClientParameters(Map<String, Object> sWClientParameters) {
         this.sWClientParameters = sWClientParameters;
@@ -213,6 +230,7 @@ public class SWFConfiguration {
 
     /**
      * To configure the StartWorkflowOptions using the key/values from the Map.
+     * 
      * @param startWorkflowOptionsParameters
      */
     public void setStartWorkflowOptionsParameters(Map<String, Object> startWorkflowOptionsParameters) {
@@ -312,7 +330,8 @@ public class SWFConfiguration {
     }
 
     /**
-     * An instance of com.amazonaws.services.simpleworkflow.flow.DataConverter to use for serializing/deserializing the data.
+     * An instance of com.amazonaws.services.simpleworkflow.flow.DataConverter
+     * to use for serializing/deserializing the data.
      */
     public void setDataConverter(DataConverter dataConverter) {
         this.dataConverter = dataConverter;
@@ -351,25 +370,37 @@ public class SWFConfiguration {
         this.activityThreadPoolSize = activityThreadPoolSize;
     }
 
-    /**
-     * Set the execution start to close timeout.
-     */
     public String getExecutionStartToCloseTimeout() {
         return executionStartToCloseTimeout;
     }
 
+    /**
+     * Set the execution start to close timeout.
+     */
     public void setExecutionStartToCloseTimeout(String executionStartToCloseTimeout) {
         this.executionStartToCloseTimeout = executionStartToCloseTimeout;
+    }
+
+    public String getTaskStartToCloseTimeout() {
+        return taskStartToCloseTimeout;
     }
 
     /**
      * Set the task start to close timeout.
      */
-    public String getTaskStartToCloseTimeout() {
-        return taskStartToCloseTimeout;
-    }
-
     public void setTaskStartToCloseTimeout(String taskStartToCloseTimeout) {
         this.taskStartToCloseTimeout = taskStartToCloseTimeout;
+    }
+    
+    // *************************************************
+    //
+    // *************************************************
+
+    public SWFConfiguration copy() {
+        try {
+            return (SWFConfiguration)super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeCamelException(e);
+        }
     }
 }

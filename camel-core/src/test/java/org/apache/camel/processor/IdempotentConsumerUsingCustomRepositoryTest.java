@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.processor;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +26,8 @@ import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.spi.IdempotentRepository;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @version 
@@ -48,6 +49,7 @@ public class IdempotentConsumerUsingCustomRepositoryTest extends ContextTestSupp
         };
     }
 
+    @Test
     public void testDuplicateMessagesAreFilteredOut() throws Exception {
         resultEndpoint.expectedBodiesReceived("one", "two", "three");
 
@@ -90,14 +92,15 @@ public class IdempotentConsumerUsingCustomRepositoryTest extends ContextTestSupp
     }
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
         startEndpoint = resolveMandatoryEndpoint("direct:start");
         resultEndpoint = getMockEndpoint("mock:result");
     }
 
     private static final class MyRepo implements IdempotentRepository<String> {
-        private final Map<String, String> cache = new HashMap<String, String>();
+        private final Map<String, String> cache = new HashMap<>();
 
         private MyRepo() {
             // pre start with 4 already in there

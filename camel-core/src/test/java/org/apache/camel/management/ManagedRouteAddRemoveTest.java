@@ -25,6 +25,8 @@ import javax.management.ObjectName;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Assume;
+import org.junit.Test;
 
 /**
  * Tests mbeans is registered when adding a 2nd route after CamelContext has been started.
@@ -45,11 +47,10 @@ public class ManagedRouteAddRemoveTest extends ManagementTestSupport {
         };
     }
 
+    @Test
     public void testRouteAddRemoteRouteWithTo() throws Exception {
         // JMX tests dont work well on AIX CI servers (hangs them)
-        if (isPlatform("aix")) {
-            return;
-        }
+        Assume.assumeFalse(isPlatform("aix"));
 
         MockEndpoint result = getMockEndpoint("mock:result");
         result.expectedMessageCount(1);
@@ -110,6 +111,7 @@ public class ManagedRouteAddRemoveTest extends ManagementTestSupport {
         log.info("Shutting down...");
     }
 
+    @Test
     public void testRouteAddRemoteRouteWithRecipientList() throws Exception {
         MockEndpoint result = getMockEndpoint("mock:result");
         result.expectedMessageCount(1);
@@ -170,6 +172,7 @@ public class ManagedRouteAddRemoveTest extends ManagementTestSupport {
         log.info("Shutting down...");
     }
 
+    @Test
     public void testRouteAddRemoteRouteWithRoutingSlip() throws Exception {
         MockEndpoint result = getMockEndpoint("mock:result");
         result.expectedMessageCount(1);
@@ -230,6 +233,7 @@ public class ManagedRouteAddRemoveTest extends ManagementTestSupport {
         log.info("Shutting down...");
     }
 
+    @Test
     public void testRouteAddRemoteRouteWithRecipientListAndRouteScopedOnException() throws Exception {
         MockEndpoint result = getMockEndpoint("mock:result");
         result.expectedMessageCount(1);
@@ -262,7 +266,7 @@ public class ManagedRouteAddRemoveTest extends ManagementTestSupport {
         getMockEndpoint("mock:bar").expectedMessageCount(1);
         getMockEndpoint("mock:error").expectedMessageCount(1);
 
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put("error", "mock:error");
         headers.put("bar", "mock:bar");
         template.sendBodyAndHeaders("direct:bar", "Hello World", headers);
@@ -288,6 +292,7 @@ public class ManagedRouteAddRemoveTest extends ManagementTestSupport {
         log.info("Shutting down...");
     }
 
+    @Test
     public void testRouteAddRemoteRouteWithRecipientListAndContextScopedOnException() throws Exception {
         MockEndpoint result = getMockEndpoint("mock:result");
         result.expectedMessageCount(1);
@@ -321,7 +326,7 @@ public class ManagedRouteAddRemoveTest extends ManagementTestSupport {
         getMockEndpoint("mock:bar").expectedMessageCount(1);
         getMockEndpoint("mock:error").expectedMessageCount(1);
 
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put("error", "mock:error");
         headers.put("bar", "mock:bar");
         template.sendBodyAndHeaders("direct:bar", "Hello World", headers);
@@ -347,6 +352,7 @@ public class ManagedRouteAddRemoveTest extends ManagementTestSupport {
         log.info("Shutting down...");
     }
 
+    @Test
     public void testRouteAddRemoteRouteWithRecipientListAndRouteScopedOnCompletion() throws Exception {
         MockEndpoint result = getMockEndpoint("mock:result");
         result.expectedMessageCount(1);
@@ -378,7 +384,7 @@ public class ManagedRouteAddRemoveTest extends ManagementTestSupport {
         getMockEndpoint("mock:bar").expectedMessageCount(1);
         getMockEndpoint("mock:done").expectedMessageCount(1);
 
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put("done", "mock:done");
         headers.put("bar", "mock:bar");
         template.sendBodyAndHeaders("direct:bar", "Hello World", headers);
@@ -404,6 +410,7 @@ public class ManagedRouteAddRemoveTest extends ManagementTestSupport {
         log.info("Shutting down...");
     }
 
+    @Test
     public void testRouteAddRemoteRouteWithRecipientListAndContextScopedOnCompletion() throws Exception {
         MockEndpoint result = getMockEndpoint("mock:result");
         result.expectedMessageCount(1);
@@ -436,7 +443,7 @@ public class ManagedRouteAddRemoveTest extends ManagementTestSupport {
         getMockEndpoint("mock:bar").expectedMessageCount(1);
         getMockEndpoint("mock:done").expectedMessageCount(1);
 
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put("done", "mock:done");
         headers.put("bar", "mock:bar");
         template.sendBodyAndHeaders("direct:bar", "Hello World", headers);

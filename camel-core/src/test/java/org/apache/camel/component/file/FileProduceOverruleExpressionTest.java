@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,12 +22,15 @@ import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit test to verify the writeFileName option
  */
 public class FileProduceOverruleExpressionTest extends ContextTestSupport {
 
+    @Test
     public void testNoOverrule() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
@@ -40,6 +42,7 @@ public class FileProduceOverruleExpressionTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testOverrule() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
@@ -47,7 +50,7 @@ public class FileProduceOverruleExpressionTest extends ContextTestSupport {
         mock.message(0).header(Exchange.OVERRULE_FILE_NAME).isNull();
         mock.expectedFileExists("target/write/copy-of-overruled.txt", "Hello World");
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put(Exchange.FILE_NAME, "hello.txt");
         // this header should overrule the endpoint configuration
         map.put(Exchange.OVERRULE_FILE_NAME, "overruled.txt");
@@ -58,7 +61,8 @@ public class FileProduceOverruleExpressionTest extends ContextTestSupport {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/write");
         super.setUp();
     }

@@ -43,9 +43,12 @@ public class Olingo4Endpoint extends AbstractApiEndpoint<Olingo4ApiName, Olingo4
 
     protected static final String RESOURCE_PATH_PROPERTY = "resourcePath";
     protected static final String RESPONSE_HANDLER_PROPERTY = "responseHandler";
+    protected static final String SERVICE_URI_PROPERTY = "serviceUri";
+    protected static final String FILTER_ALREADY_SEEN = "filterAlreadySeen";
 
     private static final String KEY_PREDICATE_PROPERTY = "keyPredicate";
     private static final String QUERY_PARAMS_PROPERTY = "queryParams";
+    private static final String ENDPOINT_HTTP_HEADERS_PROPERTY = "endpointHttpHeaders";
 
     private static final String READ_METHOD = "read";
     private static final String EDM_PROPERTY = "edm";
@@ -68,9 +71,12 @@ public class Olingo4Endpoint extends AbstractApiEndpoint<Olingo4ApiName, Olingo4
         this.configuration = endpointConfiguration;
 
         // get all endpoint property names
-        endpointPropertyNames = new HashSet<String>(getPropertiesHelper().getValidEndpointProperties(configuration));
+        endpointPropertyNames = new HashSet<>(getPropertiesHelper().getValidEndpointProperties(configuration));
         // avoid adding edm as queryParam
         endpointPropertyNames.add(EDM_PROPERTY);
+        endpointPropertyNames.add(ENDPOINT_HTTP_HEADERS_PROPERTY);
+        endpointPropertyNames.add(SERVICE_URI_PROPERTY);
+        endpointPropertyNames.add(FILTER_ALREADY_SEEN);
     }
 
     public Producer createProducer() throws Exception {
@@ -157,9 +163,13 @@ public class Olingo4Endpoint extends AbstractApiEndpoint<Olingo4ApiName, Olingo4
 
     @Override
     public void interceptProperties(Map<String, Object> properties) {
+        Map<String, String> endpointHttpHeaders = (Map<String, String>) properties.get(ENDPOINT_HTTP_HEADERS_PROPERTY);
 
         // read Edm if not set yet
-        properties.put(EDM_PROPERTY, apiProxy.getEdm());
+        properties.put(EDM_PROPERTY, apiProxy.getEdm(endpointHttpHeaders));
+
+        // handle filterAlreadySeen property
+        properties.put(FILTER_ALREADY_SEEN, configuration.getFilterAlreadySeen());
 
         // handle keyPredicate
         final String keyPredicate = (String)properties.get(KEY_PREDICATE_PROPERTY);
@@ -186,11 +196,19 @@ public class Olingo4Endpoint extends AbstractApiEndpoint<Olingo4ApiName, Olingo4
 
     private void parseQueryParams(Map<String, Object> options) {
         // extract non-endpoint properties as query params
-        final Map<String, String> queryParams = new HashMap<String, String>();
+        final Map<String, String> queryParams = new HashMap<>();
         for (Iterator<Map.Entry<String, Object>> it = options.entrySet().iterator(); it.hasNext();) {
 
             final Map.Entry<String, Object> entry = it.next();
             final String paramName = entry.getKey();
+
+            /**
+             * Avoid swallowing consumer scheduler properties, which
+             * get processed in configureProperties()
+             */
+            if (paramName.startsWith("consumer.")) {
+                continue;
+            }
 
             if (!endpointPropertyNames.contains(paramName)) {
 

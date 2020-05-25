@@ -29,6 +29,7 @@ import org.apache.camel.builder.xml.XPathBuilder;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.language.ExchangePropertyExpression;
 import org.apache.camel.model.language.HeaderExpression;
+import org.apache.camel.model.language.JsonPathExpression;
 import org.apache.camel.util.ObjectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -169,6 +170,26 @@ public abstract class BuilderSupport {
     }
 
     /**
+     * Returns a JSonPath expression value builder
+     */
+    public ValueBuilder jsonpath(String value) {
+        JsonPathExpression exp = new JsonPathExpression(value);
+        return new ValueBuilder(exp);
+    }
+
+    /**
+     * Returns a JSonPath expression value builder
+     *
+     * @param value      The JSonPath expression
+     * @param resultType The result type that the JSonPath expression will return.
+     */
+    public ValueBuilder jsonpath(String value, Class<?> resultType) {
+        JsonPathExpression exp = new JsonPathExpression(value);
+        exp.setResultType(resultType);
+        return new ValueBuilder(exp);
+    }
+
+    /**
      * Returns a language expression value builder
      */
     public ValueBuilder language(String language, String expression) {
@@ -205,20 +226,28 @@ public abstract class BuilderSupport {
 
     /**
      * Returns a xpath expression value builder
-     * @param value The XPath expression
-     * @return A new XPathBuilder object
+     *
+     * @param value the XPath expression
+     * @return the builder
      */
     public XPathBuilder xpath(String value) {
-        return XPathBuilder.xpath(value);
+        return xpath(value, null);
     }
 
     /**
      * Returns a xpath expression value builder
-     * @param value The XPath expression
-     * @param resultType The result type that the XPath expression will return.
-     * @return A new XPathBuilder object
+     *
+     * @param value      the XPath expression
+     * @param resultType the result type that the XPath expression will return.
+     * @return the builder
      */
-    public static XPathBuilder xpath(String value, Class<?> resultType) {
+    public XPathBuilder xpath(String value, Class<?> resultType) {
+        // the value may contain property placeholders as it may be used directly from Java DSL
+        try {
+            value = getContext().resolvePropertyPlaceholders(value);
+        } catch (Exception e) {
+            throw ObjectHelper.wrapRuntimeCamelException(e);
+        }
         return XPathBuilder.xpath(value, resultType);
     }
 
@@ -406,7 +435,7 @@ public abstract class BuilderSupport {
      * @return list of endpoints
      */
     public List<Endpoint> endpoints(String... uris) throws NoSuchEndpointException {
-        List<Endpoint> endpoints = new ArrayList<Endpoint>();
+        List<Endpoint> endpoints = new ArrayList<>();
         for (String uri : uris) {
             endpoints.add(endpoint(uri));
         }
@@ -420,7 +449,7 @@ public abstract class BuilderSupport {
      * @return list of the given endpoints
      */
     public List<Endpoint> endpoints(Endpoint... endpoints) {
-        List<Endpoint> answer = new ArrayList<Endpoint>();
+        List<Endpoint> answer = new ArrayList<>();
         answer.addAll(Arrays.asList(endpoints));
         return answer;
     }

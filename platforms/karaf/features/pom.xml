@@ -17,14 +17,13 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>karaf</artifactId>
-    <version>2.20.0-SNAPSHOT</version>
+    <version>2.24.2</version>
   </parent>
 
   <groupId>org.apache.camel.karaf</groupId>
@@ -185,11 +184,9 @@
                 <!-- camel-cxf uses blueprint but its feature name is different in karaf 3.x vs 4.x -->
                 <!-- camel-ignite requires to install apache ignite first -->
                 <!-- camel-guice does not work in OSGi currently -->
-                <!-- camel-leveldb uses some wrap magic to install which validator fails but it works -->
-                <!-- camel-spring-dm cannot be validated -->
-                <feature>camel|camel-(?!(blueprint|cdi|cxf|ignite|guice|leveldb|spring-dm))*</feature>
+                <feature>camel|camel-(?!(blueprint|cdi|cxf|ignite|guice))*</feature>
               </features>
-			        <configuration>file://${project.build.directory}/classes/config.properties</configuration>
+            <configuration>file://${project.build.directory}/classes/config.properties</configuration>
             </configuration>
             <executions>
               <execution>
@@ -204,7 +201,7 @@
               <dependency>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-http-lightweight</artifactId>
-                <version>2.10</version>
+                <version>3.0.0</version>
               </dependency>
             </dependencies>
           </plugin>
@@ -214,16 +211,4 @@
 
   </profiles>
 
-  <repositories>
-    <repository>
-      <id>com.springsource.repository.bundles.release</id>
-      <name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
-      <url>http://repository.springsource.com/maven/bundles/release</url>
-    </repository>
-    <repository>
-      <id>com.springsource.repository.bundles.external</id>
-      <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
-      <url>http://repository.springsource.com/maven/bundles/external</url>
-    </repository>
-  </repositories>
 </project>

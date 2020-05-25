@@ -133,9 +133,9 @@ public abstract class ScheduledPollConsumer extends DefaultConsumer implements R
             if (backoffCounter++ < backoffMultiplier) {
                 // yes we should backoff
                 if (idleCounter > 0) {
-                    LOG.debug("doRun() backoff due subsequent {} idles (backoff at {}/{})", new Object[]{idleCounter, backoffCounter, backoffMultiplier});
+                    LOG.debug("doRun() backoff due subsequent {} idles (backoff at {}/{})", idleCounter, backoffCounter, backoffMultiplier);
                 } else {
-                    LOG.debug("doRun() backoff due subsequent {} errors (backoff at {}/{})", new Object[]{errorCounter, backoffCounter, backoffMultiplier});
+                    LOG.debug("doRun() backoff due subsequent {} errors (backoff at {}/{})", errorCounter, backoffCounter, backoffMultiplier);
                 }
                 return;
             } else {
@@ -411,7 +411,7 @@ public abstract class ScheduledPollConsumer extends DefaultConsumer implements R
             if (backoffIdleThreshold <= 0 && backoffErrorThreshold <= 0) {
                 throw new IllegalArgumentException("backoffIdleThreshold and/or backoffErrorThreshold must be configured to a positive value when using backoffMultiplier");
             }
-            LOG.debug("Using backoff[multiplier={}, idleThreshold={}, errorThreshold={}] on {}", new Object[]{backoffMultiplier, backoffIdleThreshold, backoffErrorThreshold, getEndpoint()});
+            LOG.debug("Using backoff[multiplier={}, idleThreshold={}, errorThreshold={}] on {}", backoffMultiplier, backoffIdleThreshold, backoffErrorThreshold, getEndpoint());
         }
 
         if (scheduler == null) {
@@ -422,12 +422,12 @@ public abstract class ScheduledPollConsumer extends DefaultConsumer implements R
         scheduler.scheduleTask(this);
 
         // configure scheduler with options from this consumer
-        Map<String, Object> properties = new HashMap<String, Object>();
+        Map<String, Object> properties = new HashMap<>();
         IntrospectionSupport.getProperties(this, properties, null);
         IntrospectionSupport.setProperties(getEndpoint().getCamelContext().getTypeConverter(), scheduler, properties);
         if (schedulerProperties != null && !schedulerProperties.isEmpty()) {
             // need to use a copy in case the consumer is restarted so we keep the properties
-            Map<String, Object> copy = new HashMap<String, Object>(schedulerProperties);
+            Map<String, Object> copy = new HashMap<>(schedulerProperties);
             IntrospectionSupport.setProperties(getEndpoint().getCamelContext().getTypeConverter(), scheduler, copy);
             if (copy.size() > 0) {
                 throw new FailedToCreateConsumerException(getEndpoint(), "There are " + copy.size()

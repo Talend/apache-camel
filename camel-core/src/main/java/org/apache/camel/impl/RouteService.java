@@ -69,7 +69,7 @@ public class RouteService extends ChildServiceSupport {
     private final List<Route> routes;
     private final String id;
     private boolean removingRoutes;
-    private final Map<Route, Consumer> inputs = new HashMap<Route, Consumer>();
+    private final Map<Route, Consumer> inputs = new HashMap<>();
     private final AtomicBoolean warmUpDone = new AtomicBoolean(false);
     private final AtomicBoolean endpointDone = new AtomicBoolean(false);
 
@@ -108,7 +108,7 @@ public class RouteService extends ChildServiceSupport {
      * for {@link org.apache.camel.EndpointAware} processors which uses an endpoint.
      */
     public Set<Endpoint> gatherEndpoints() {
-        Set<Endpoint> answer = new LinkedHashSet<Endpoint>();
+        Set<Endpoint> answer = new LinkedHashSet<>();
         for (Route route : routes) {
             Set<Service> services = gatherChildServices(route, true);
             for (Service service : services) {
@@ -172,14 +172,14 @@ public class RouteService extends ChildServiceSupport {
                     route.onStartingServices(services);
 
                     // gather list of services to start as we need to start child services as well
-                    Set<Service> list = new LinkedHashSet<Service>();
+                    Set<Service> list = new LinkedHashSet<>();
                     for (Service service : services) {
                         list.addAll(ServiceHelper.getChildServices(service));
                     }
 
                     // split into consumers and child services as we need to start the consumers
                     // afterwards to avoid them being active while the others start
-                    List<Service> childServices = new ArrayList<Service>();
+                    List<Service> childServices = new ArrayList<>();
                     for (Service service : list) {
 
                         // inject the route
@@ -207,6 +207,11 @@ public class RouteService extends ChildServiceSupport {
 
             // add routes to camel context
             camelContext.addRouteCollection(routes);
+
+            // add the routes to the inflight registry so they are pre-installed
+            for (Route route : routes) {
+                camelContext.getInflightRepository().addRoute(route.getId());
+            }
         }
     }
 
@@ -301,6 +306,7 @@ public class RouteService extends ChildServiceSupport {
                         routePolicy.onRemove(route);
                     }
                 }
+
                 // fire event
                 EventHelper.notifyRouteRemoved(camelContext, route);
             }
@@ -368,7 +374,7 @@ public class RouteService extends ChildServiceSupport {
 
     protected void stopChildService(Route route, Set<Service> services, boolean shutdown) throws Exception {
         for (Service service : services) {
-            LOG.debug("{} child service on route: {} -> {}", new Object[]{shutdown ? "Shutting down" : "Stopping", route.getId(), service});
+            LOG.debug("{} child service on route: {} -> {}", shutdown ? "Shutting down" : "Stopping", route.getId(), service);
             if (service instanceof ErrorHandler) {
                 // special for error handlers
                 for (LifecycleStrategy strategy : camelContext.getLifecycleStrategies()) {
@@ -393,11 +399,11 @@ public class RouteService extends ChildServiceSupport {
      */
     private Set<Service> gatherChildServices(Route route, boolean includeErrorHandler) {
         // gather list of services to stop as we need to start child services as well
-        List<Service> services = new ArrayList<Service>();
+        List<Service> services = new ArrayList<>();
         services.addAll(route.getServices());
         // also get route scoped services
         doGetRouteScopedServices(services, route);
-        Set<Service> list = new LinkedHashSet<Service>();
+        Set<Service> list = new LinkedHashSet<>();
         for (Service service : services) {
             list.addAll(ServiceHelper.getChildServices(service));
         }
@@ -405,7 +411,7 @@ public class RouteService extends ChildServiceSupport {
             // also get route scoped error handler (which must be done last)
             doGetRouteScopedErrorHandler(list, route);
         }
-        Set<Service> answer = new LinkedHashSet<Service>();
+        Set<Service> answer = new LinkedHashSet<>();
         answer.addAll(list);
         return answer;
     }
@@ -416,12 +422,12 @@ public class RouteService extends ChildServiceSupport {
     private void doGetRouteScopedErrorHandler(Set<Service> services, Route route) {
         // only include error handlers if they are route scoped
         boolean includeErrorHandler = !routeDefinition.isContextScopedErrorHandler(route.getRouteContext().getCamelContext());
-        List<Service> extra = new ArrayList<Service>();
+        List<Service> extra = new ArrayList<>();
         if (includeErrorHandler) {
             for (Service service : services) {
                 if (service instanceof Channel) {
                     Processor eh = ((Channel) service).getErrorHandler();
-                    if (eh != null && eh instanceof Service) {
+                    if (eh instanceof Service) {
                         extra.add((Service) eh);
                     }
                 }
@@ -441,7 +447,7 @@ public class RouteService extends ChildServiceSupport {
                 OnExceptionDefinition onExceptionDefinition = (OnExceptionDefinition) output;
                 if (onExceptionDefinition.isRouteScoped()) {
                     Processor errorHandler = onExceptionDefinition.getErrorHandler(route.getId());
-                    if (errorHandler != null && errorHandler instanceof Service) {
+                    if (errorHandler instanceof Service) {
                         services.add((Service) errorHandler);
                     }
                 }
@@ -449,7 +455,7 @@ public class RouteService extends ChildServiceSupport {
                 OnCompletionDefinition onCompletionDefinition = (OnCompletionDefinition) output;
                 if (onCompletionDefinition.isRouteScoped()) {
                     Processor onCompletionProcessor = onCompletionDefinition.getOnCompletion(route.getId());
-                    if (onCompletionProcessor != null && onCompletionProcessor instanceof Service) {
+                    if (onCompletionProcessor instanceof Service) {
                         services.add((Service) onCompletionProcessor);
                     }
                 }

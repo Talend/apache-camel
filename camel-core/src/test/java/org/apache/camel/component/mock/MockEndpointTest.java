@@ -33,12 +33,14 @@ import org.apache.camel.builder.ExpressionBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.XPathBuilder;
 import org.apache.camel.impl.JndiRegistry;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class MockEndpointTest extends ContextTestSupport {
 
+    @Test
     public void testAscendingMessagesPass() throws Exception {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
         resultEndpoint.expectsAscending(header("counter").convertTo(Number.class));
@@ -48,6 +50,7 @@ public class MockEndpointTest extends ContextTestSupport {
         resultEndpoint.assertIsSatisfied();
     }
 
+    @Test
     public void testAscendingMessagesFail() throws Exception {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result"); 
         resultEndpoint.expectsAscending(header("counter").convertTo(Number.class));
@@ -57,6 +60,7 @@ public class MockEndpointTest extends ContextTestSupport {
         resultEndpoint.assertIsNotSatisfied();
     }
 
+    @Test
     public void testDescendingMessagesPass() throws Exception {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result"); 
         resultEndpoint.expectsDescending(header("counter").convertTo(Number.class));
@@ -66,6 +70,7 @@ public class MockEndpointTest extends ContextTestSupport {
         resultEndpoint.assertIsSatisfied();
     }
 
+    @Test
     public void testDescendingMessagesFail() throws Exception {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result"); 
         resultEndpoint.expectsDescending(header("counter").convertTo(Number.class));
@@ -75,6 +80,7 @@ public class MockEndpointTest extends ContextTestSupport {
         resultEndpoint.assertIsNotSatisfied();
     }
 
+    @Test
     public void testExpectsBodiesInOrder() throws Exception {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result"); 
         resultEndpoint.expectedBodiesReceived(listOfMessages(11, 12, 13, 14, 15));
@@ -84,6 +90,7 @@ public class MockEndpointTest extends ContextTestSupport {
         resultEndpoint.assertIsSatisfied();
     }    
 
+    @Test
     public void testExpectsBodiesInAnyOrder() throws Exception {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result"); 
         resultEndpoint.expectedBodiesReceivedInAnyOrder(listOfMessages(11, 12, 13, 14, 15));
@@ -93,6 +100,7 @@ public class MockEndpointTest extends ContextTestSupport {
         resultEndpoint.assertIsSatisfied();
     }       
 
+    @Test
     public void testExpectsBodiesInAnyOrderWithDuplicates() throws Exception {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
         resultEndpoint.expectedBodiesReceivedInAnyOrder(listOfMessages(11, 15, 12, 12, 13, 14, 15, 15));
@@ -102,6 +110,7 @@ public class MockEndpointTest extends ContextTestSupport {
         resultEndpoint.assertIsSatisfied();
     }
 
+    @Test
     public void testExpectsHeadersInAnyOrder() throws Exception {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
         resultEndpoint.expectedHeaderValuesReceivedInAnyOrder("counter", 11, 12, 13, 14, 15);
@@ -111,6 +120,7 @@ public class MockEndpointTest extends ContextTestSupport {
         resultEndpoint.assertIsSatisfied();
     }
 
+    @Test
     public void testExpectsHeadersInAnyOrderFail() throws Exception {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
         resultEndpoint.expectedHeaderValuesReceivedInAnyOrder("counter", 11, 12, 7, 14, 15);
@@ -125,6 +135,52 @@ public class MockEndpointTest extends ContextTestSupport {
         }
     }
 
+    @Test
+    public void testExpectsPropertiesInAnyOrder() throws Exception {
+        MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
+        resultEndpoint.expectedPropertyValuesReceivedInAnyOrder("foo", 123, 456);
+
+        template.send("direct:a", new Processor() {
+            public void process(Exchange exchange) throws Exception {
+                exchange.setProperty("foo", 456);
+            }
+        });
+
+        template.send("direct:a", new Processor() {
+            public void process(Exchange exchange) throws Exception {
+                exchange.setProperty("foo", 123);
+            }
+        });
+
+        resultEndpoint.assertIsSatisfied();
+    }
+
+    @Test
+    public void testExpectsPropertiesInAnyOrderFail() throws Exception {
+        MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
+        resultEndpoint.expectedPropertyValuesReceivedInAnyOrder("foo", 123, 456);
+
+        template.send("direct:a", new Processor() {
+            public void process(Exchange exchange) throws Exception {
+                exchange.setProperty("foo", 123);
+            }
+        });
+
+        template.send("direct:a", new Processor() {
+            public void process(Exchange exchange) throws Exception {
+                exchange.setProperty("foo", 789);
+            }
+        });
+
+        try {
+            resultEndpoint.assertIsSatisfied();
+            fail("Should fail");
+        } catch (AssertionError e) {
+            assertEquals("mock://result Expected 2 properties with key[foo], received 1 properties. Expected property values: [456]", e.getMessage());
+        }
+    }
+
+    @Test
     public void testNoDuplicateMessagesPass() throws Exception {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result"); 
         resultEndpoint.expectsNoDuplicates(header("counter"));
@@ -134,6 +190,7 @@ public class MockEndpointTest extends ContextTestSupport {
         resultEndpoint.assertIsSatisfied();
     }
 
+    @Test
     public void testDuplicateMessagesFail() throws Exception {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result"); 
         resultEndpoint.expectsNoDuplicates(header("counter"));
@@ -143,24 +200,28 @@ public class MockEndpointTest extends ContextTestSupport {
         resultEndpoint.assertIsNotSatisfied();
     }
 
+    @Test
     public void testExpectationsAfterMessagesArrivePass() throws Exception {
         sendMessages(11, 12, 13, 14, 12);
 
-        MockEndpoint resultEndpoint = getMockEndpoint("mock:result"); 
+        MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
         resultEndpoint.expectedMessageCount(5);
         resultEndpoint.assertIsSatisfied();
     }
 
+    @Test
     public void testExpectationsAfterMessagesArriveFail() throws Exception {
         sendMessages(11, 12, 13, 14, 12);
 
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
         resultEndpoint.expectedMessageCount(6);
-        // wait at most 2 sec to speedup unit testing 
-        resultEndpoint.setResultWaitTime(2000);
+        // wait at most 0.5 sec to speedup unit testing
+        resultEndpoint.setResultWaitTime(500);
+
         resultEndpoint.assertIsNotSatisfied();
     }
 
+    @Test
     public void testReset() throws Exception {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result"); 
         resultEndpoint.expectedMessageCount(2);
@@ -177,6 +238,7 @@ public class MockEndpointTest extends ContextTestSupport {
         resultEndpoint.assertIsSatisfied();
     }
 
+    @Test
     public void testExpectationOfHeader() throws InterruptedException {        
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
         resultEndpoint.reset();
@@ -207,6 +269,7 @@ public class MockEndpointTest extends ContextTestSupport {
         resultEndpoint.assertIsNotSatisfied();                       
     }
     
+    @Test
     public void testExpectationOfHeaderWithNumber() throws InterruptedException {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
         resultEndpoint.reset();
@@ -217,6 +280,7 @@ public class MockEndpointTest extends ContextTestSupport {
         resultEndpoint.assertIsSatisfied();
     }
 
+    @Test
     public void testExpressionExpectationOfHeader() throws InterruptedException {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
         resultEndpoint.reset();
@@ -226,6 +290,7 @@ public class MockEndpointTest extends ContextTestSupport {
         resultEndpoint.assertIsSatisfied();
     }    
     
+    @Test
     public void testExpressionExpectationOfProperty() throws InterruptedException {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
         resultEndpoint.reset();
@@ -235,6 +300,7 @@ public class MockEndpointTest extends ContextTestSupport {
         resultEndpoint.assertIsSatisfied();
     }
 
+    @Test
     public void testAscending() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectsAscending().body();
@@ -244,6 +310,7 @@ public class MockEndpointTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testAscendingFailed() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectsAscending().body();
@@ -253,6 +320,7 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.assertIsNotSatisfied();
     }
 
+    @Test
     public void testDescending() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectsDescending().body();
@@ -262,6 +330,7 @@ public class MockEndpointTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testDescendingFaied() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectsDescending().body();
@@ -271,6 +340,7 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.assertIsNotSatisfied();
     }
 
+    @Test
     public void testNoDuplicates() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectsNoDuplicates().body();
@@ -280,6 +350,7 @@ public class MockEndpointTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testNoDuplicatesFaied() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectsNoDuplicates().body();
@@ -289,6 +360,7 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.assertIsNotSatisfied();
     }
 
+    @Test
     public void testBody() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodyReceived().constant("<message>1</message>");
@@ -297,6 +369,7 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.assertIsSatisfied();
     }
 
+    @Test
     public void testBodyTransformed() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodyReceived().method("foo", "greet");
@@ -305,6 +378,7 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.assertIsSatisfied();
     }
 
+    @Test
     public void testBodyFailed() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodyReceived().constant("<message>2</message>");
@@ -313,6 +387,7 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.assertIsNotSatisfied();
     }
 
+    @Test
     public void testSimulateError() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.whenAnyExchangeReceived(new Processor() {
@@ -330,6 +405,7 @@ public class MockEndpointTest extends ContextTestSupport {
         }
     }
 
+    @Test
     public void testSimulateErrorByThrowingException() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.whenAnyExchangeReceived(new Processor() {
@@ -347,6 +423,7 @@ public class MockEndpointTest extends ContextTestSupport {
         }
     }
 
+    @Test
     public void testSimulateErrorWithIndex() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(2);
@@ -366,6 +443,7 @@ public class MockEndpointTest extends ContextTestSupport {
         }
     }
 
+    @Test
     public void testSimulateErrorWithIndexByThrowingException() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(2);
@@ -385,6 +463,7 @@ public class MockEndpointTest extends ContextTestSupport {
         }
     }
 
+    @Test
     public void testMinimumCount() throws Exception {
         MockEndpoint mock = MockEndpoint.resolve(context, "mock:result");
         mock.expectedMinimumMessageCount(2);
@@ -396,51 +475,56 @@ public class MockEndpointTest extends ContextTestSupport {
         assertEquals(2, mock.getExpectedMinimumCount());
     }
 
+    @Test
     public void testResolve() throws Exception {
         MockEndpoint mock = MockEndpoint.resolve(context, "mock:result");
         mock.expectedMessageCount(2);
-        mock.setResultWaitTime(500);
+        mock.setResultWaitTime(100);
 
         template.sendBody("direct:a", "Hello World");
 
         // should only be 1 message
         mock.assertIsNotSatisfied();
-        assertEquals(500, mock.getResultWaitTime());
+        assertEquals(100, mock.getResultWaitTime());
     }
 
+    @Test
     public void testResolveTimeout() throws Exception {
         MockEndpoint mock = MockEndpoint.resolve(context, "mock:result");
         mock.expectedMessageCount(2);
-        mock.setResultWaitTime(500);
+        mock.setResultWaitTime(100);
 
-        mock.assertIsNotSatisfied(1000);
+        mock.assertIsNotSatisfied(500);
 
         assertEquals(2, mock.getExpectedCount());
-        assertEquals(500, mock.getResultWaitTime());
+        assertEquals(100, mock.getResultWaitTime());
     }
 
+    @Test
     public void testSleepForEmptyTest() throws Exception {
         MockEndpoint mock = MockEndpoint.resolve(context, "mock:result");
         mock.expectedMessageCount(0);
-        mock.setSleepForEmptyTest(500);
+        mock.setSleepForEmptyTest(100);
         
         mock.assertIsSatisfied();
 
         assertEquals(0, mock.getExpectedCount());
-        assertEquals(500, mock.getSleepForEmptyTest());
+        assertEquals(100, mock.getSleepForEmptyTest());
     }
 
+    @Test
     public void testSleepForEmptyTestAssert() throws Exception {
         MockEndpoint mock = MockEndpoint.resolve(context, "mock:result");
         mock.expectedMessageCount(0);
 
-        mock.assertIsSatisfied(400);
+        mock.assertIsSatisfied(100);
 
         assertEquals(0, mock.getExpectedCount());
         assertEquals(0, mock.getSleepForEmptyTest());
         assertEquals(0, mock.getResultWaitTime());
     }
 
+    @Test
     public void testReporter() throws Exception {
         final AtomicBoolean reported = new AtomicBoolean(false);
 
@@ -460,6 +544,7 @@ public class MockEndpointTest extends ContextTestSupport {
         assertTrue(reported.get());
     }
 
+    @Test
     public void testNoArgCtr() {
         MockEndpoint mock = new MockEndpoint();
         mock.setCamelContext(context);
@@ -474,6 +559,7 @@ public class MockEndpointTest extends ContextTestSupport {
         assertEquals(0, mock.getFailures().size());
     }
 
+    @Test
     public void testHeaderMissing() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
@@ -490,6 +576,7 @@ public class MockEndpointTest extends ContextTestSupport {
         }
     }
 
+    @Test
     public void testHeaderInvalidValue() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
@@ -505,6 +592,7 @@ public class MockEndpointTest extends ContextTestSupport {
         }
     }
     
+    @Test
     public void testPropertyMissing() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
@@ -520,7 +608,43 @@ public class MockEndpointTest extends ContextTestSupport {
             assertEquals("mock://result No property with name bar found for message: 0", e.getMessage());
         }
     }
+    
+    @Test
+    public void testPropertyExpectedNull() throws Exception {
+        MockEndpoint mock = getMockEndpoint("mock:result");
+        mock.expectedMessageCount(1);
+        mock.expectedPropertyReceived("foo", null);
 
+        template.send("direct:a", new Processor() {
+            public void process(Exchange exchange) throws Exception {
+                exchange.setProperty("foo", 123);
+            }
+        });
+
+        mock.assertIsNotSatisfied();
+
+        resetMocks();
+
+        template.send("direct:a", new Processor() {
+            public void process(Exchange exchange) throws Exception {
+                exchange.setProperty("foo", null);
+            }
+        });
+
+        mock.assertIsSatisfied();
+
+        resetMocks();
+
+        template.send("direct:a", new Processor() {
+            public void process(Exchange exchange) throws Exception {
+                // no foo property
+            }
+        });
+
+        mock.assertIsSatisfied();
+    }
+
+    @Test
     public void testPropertyInvalidValue() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
@@ -536,6 +660,7 @@ public class MockEndpointTest extends ContextTestSupport {
         }
     }
 
+    @Test
     public void testMessageIndexIsEqualTo() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(2);
@@ -554,6 +679,7 @@ public class MockEndpointTest extends ContextTestSupport {
         }
     }
 
+    @Test
     public void testPredicateEvaluationIsNull() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(2);
@@ -572,6 +698,7 @@ public class MockEndpointTest extends ContextTestSupport {
         }
     }
 
+    @Test
     public void testPredicateEvaluationIsInstanceOf() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(2);
@@ -590,6 +717,7 @@ public class MockEndpointTest extends ContextTestSupport {
         }
     }
 
+    @Test
     public void testExchangePattern() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(2);
@@ -602,6 +730,72 @@ public class MockEndpointTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
+    public void testNotExchangePattern() throws Exception {
+        MockEndpoint mock = getMockEndpoint("mock:result");
+        mock.expectedMessageCount(2);
+        mock.message(0).exchangePattern().isEqualTo(ExchangePattern.InOnly);
+        mock.message(1).exchangePattern().isEqualTo(ExchangePattern.InOnly);
+
+        template.sendBody("direct:a", "Hello World");
+        template.requestBody("direct:a", "Bye World");
+
+        mock.assertIsNotSatisfied();
+    }
+
+    @Test
+    public void testBodyPredicate() throws Exception {
+        MockEndpoint mock = getMockEndpoint("mock:result");
+        mock.expectedMessageCount(2);
+        mock.message(0).body().matches().constant("Hello World");
+        mock.message(1).body().matches().constant("Bye World");
+
+        template.sendBodyAndHeader("direct:a", "Hello World", "foo", 123);
+        template.sendBodyAndHeader("direct:a", "Bye World", "bar", 234);
+
+        assertMockEndpointsSatisfied();
+    }
+
+    @Test
+    public void testNotBodyPredicate() throws Exception {
+        MockEndpoint mock = getMockEndpoint("mock:result");
+        mock.expectedMessageCount(2);
+        mock.message(0).body().matches().constant("Hello World");
+        mock.message(1).body().matches().constant("Hi World");
+
+        template.sendBodyAndHeader("direct:a", "Hello World", "foo", 123);
+        template.sendBodyAndHeader("direct:a", "Bye World", "bar", 234);
+
+        mock.assertIsNotSatisfied();
+    }
+
+    @Test
+    public void testHeaderPredicate() throws Exception {
+        MockEndpoint mock = getMockEndpoint("mock:result");
+        mock.expectedMessageCount(2);
+        mock.message(0).header("foo").matches().constant(123);
+        mock.message(1).header("bar").matches().constant(234);
+
+        template.sendBodyAndHeader("direct:a", "Hello World", "foo", 123);
+        template.sendBodyAndHeader("direct:a", "Bye World", "bar", 234);
+
+        assertMockEndpointsSatisfied();
+    }
+
+    @Test
+    public void testNotHeaderPredicate() throws Exception {
+        MockEndpoint mock = getMockEndpoint("mock:result");
+        mock.expectedMessageCount(2);
+        mock.message(0).header("foo").matches().constant(123);
+        mock.message(1).header("bar").matches().constant(666);
+
+        template.sendBodyAndHeader("direct:a", "Hello World", "foo", 123);
+        template.sendBodyAndHeader("direct:a", "Bye World", "bar", 234);
+
+        mock.assertIsNotSatisfied();
+    }
+
+    @Test
     public void testExpectedExchangePattern() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
@@ -621,13 +815,14 @@ public class MockEndpointTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testSetMultipleExpectedHeaders() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
         mock.expectedHeaderReceived("foo", 123);
         mock.expectedHeaderReceived("bar", "beer");
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("foo", 123);
         map.put("bar", "beer");
         template.sendBodyAndHeaders("direct:a", "Hello World", map);
@@ -635,13 +830,14 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.assertIsSatisfied();
     }
 
+    @Test
     public void testSetMultipleExpectedHeaders2() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(2);
         mock.expectedHeaderReceived("foo", 123);
         mock.expectedHeaderReceived("bar", "beer");
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("foo", 123);
         map.put("bar", "beer");
         template.sendBodyAndHeaders("direct:a", "Hello World", map);
@@ -650,19 +846,21 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.assertIsSatisfied();
     }
 
+    @Test
     public void testSetMultipleExpectedHeaders3() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
         mock.expectedHeaderReceived("foo", 123);
         mock.expectedHeaderReceived("bar", null);
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("foo", 123);
         template.sendBodyAndHeaders("direct:a", "Hello World", map);
 
         mock.assertIsSatisfied();
     }
     
+    @Test
     public void testSetMultipleExpectedHeaders4() throws Exception {
         // to test the header value with Stream which can only be consumed once
         InputStream is = new ByteArrayInputStream("Test".getBytes());
@@ -671,7 +869,7 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.expectedHeaderReceived("foo", 123);
         mock.expectedHeaderReceived("bar", "Test");
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("foo", 123);
         map.put("bar", is);
         template.sendBodyAndHeaders("direct:a", "Hello World", map);
@@ -679,13 +877,14 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.assertIsSatisfied();
     }
 
+    @Test
     public void testSetMultipleExpectedHeadersShouldFail() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
         mock.expectedHeaderReceived("foo", 123);
         mock.expectedHeaderReceived("bar", "beer");
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("foo", 456);
         map.put("bar", "beer");
         template.sendBodyAndHeaders("direct:a", "Hello World", map);
@@ -693,13 +892,14 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.assertIsNotSatisfied();
     }
 
+    @Test
     public void testSetMultipleExpectedHeadersShouldFail2() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
         mock.expectedHeaderReceived("foo", 123);
         mock.expectedHeaderReceived("bar", "beer");
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("foo", 123);
         map.put("bar", "wine");
         template.sendBodyAndHeaders("direct:a", "Hello World", map);
@@ -707,18 +907,19 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.assertIsNotSatisfied();
     }
 
+    @Test
     public void testSetMultipleExpectedHeadersShouldFail3() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(2);
         mock.expectedHeaderReceived("foo", 123);
         mock.expectedHeaderReceived("bar", "beer");
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("foo", 123);
         map.put("bar", "beer");
         template.sendBodyAndHeaders("direct:a", "Hello World", map);
 
-        map = new HashMap<String, Object>();
+        map = new HashMap<>();
         map.put("foo", 123);
         map.put("bar", "wine");
         template.sendBodyAndHeaders("direct:a", "Hello World", map);
@@ -726,6 +927,7 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.assertIsNotSatisfied();
     }
 
+    @Test
     public void testSetMultipleExpectedProperties() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
@@ -742,6 +944,7 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.assertIsSatisfied();
     }
 
+    @Test
     public void testSetMultipleExpectedProperties2() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(2);
@@ -765,6 +968,7 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.assertIsSatisfied();
     }
 
+    @Test
     public void testSetMultipleExpectedProperties3() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
@@ -780,6 +984,7 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.assertIsSatisfied();
     }
 
+    @Test
     public void testSetMultipleExpectedPropertiesShouldFail() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
@@ -796,6 +1001,7 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.assertIsNotSatisfied();
     }
 
+    @Test
     public void testSetMultipleExpectedPropertiesShouldFail2() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
@@ -812,6 +1018,7 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.assertIsNotSatisfied();
     }
 
+    @Test
     public void testSetMultipleExpectedPropertiesShouldFail3() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(2);
@@ -835,6 +1042,7 @@ public class MockEndpointTest extends ContextTestSupport {
         mock.assertIsNotSatisfied();
     }
 
+    @Test
     public void testExpectedBodyTypeCoerce() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodiesReceived(987);
@@ -845,6 +1053,7 @@ public class MockEndpointTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testExpectedBodyExpression() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodiesReceived(987);
@@ -856,6 +1065,7 @@ public class MockEndpointTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testResetDefaultProcessor() throws Exception {
         final AtomicInteger counter = new AtomicInteger();
 
@@ -879,6 +1089,7 @@ public class MockEndpointTest extends ContextTestSupport {
         assertEquals(1, counter.get());
     }
     
+    @Test
     public void testRetainFirst() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.setRetainFirst(5);
@@ -899,6 +1110,7 @@ public class MockEndpointTest extends ContextTestSupport {
         assertEquals("<message>4</message>", mock.getReceivedExchanges().get(4).getIn().getBody());
     }
 
+    @Test
     public void testRetainLast() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.setRetainLast(5);
@@ -919,6 +1131,7 @@ public class MockEndpointTest extends ContextTestSupport {
         assertEquals("<message>9</message>", mock.getReceivedExchanges().get(4).getIn().getBody());
     }
 
+    @Test
     public void testRetainFirstAndLast() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.setRetainFirst(5);
@@ -946,6 +1159,7 @@ public class MockEndpointTest extends ContextTestSupport {
         assertEquals("<message>19</message>", mock.getReceivedExchanges().get(9).getIn().getBody());
     }
 
+    @Test
     public void testRetainFirstAndLastOverlap() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.setRetainFirst(5);
@@ -970,6 +1184,7 @@ public class MockEndpointTest extends ContextTestSupport {
         assertEquals("<message>7</message>", mock.getReceivedExchanges().get(7).getIn().getBody());
     }
 
+    @Test
     public void testRetainFirstAndLastNoGap() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.setRetainFirst(5);
@@ -996,6 +1211,7 @@ public class MockEndpointTest extends ContextTestSupport {
         assertEquals("<message>9</message>", mock.getReceivedExchanges().get(9).getIn().getBody());
     }
 
+    @Test
     public void testRetainFirstAndLastSingleGap() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.setRetainFirst(5);
@@ -1033,7 +1249,7 @@ public class MockEndpointTest extends ContextTestSupport {
     }
 
     protected Object[] listOfMessages(int... counters) {
-        List<String> list = new ArrayList<String>(counters.length);
+        List<String> list = new ArrayList<>(counters.length);
         for (int counter : counters) {
             list.add(createTestMessage(counter));
         }

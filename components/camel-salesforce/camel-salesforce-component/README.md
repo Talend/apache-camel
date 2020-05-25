@@ -1,7 +1,7 @@
 # Camel Salesforce component #
 
 This component supports producer and consumer endpoints to communicate with Salesforce using Java DTOs. 
-There is a companion maven plugin [camel-salesforce-plugin](https://github.com/dhirajsb/camel-salesforce-maven-plugin) that generates these DTOs. 
+There is a companion maven plugin [camel-salesforce-plugin](https://github.com/apache/camel/tree/master/components/camel-salesforce/camel-salesforce-maven-plugin) that generates these DTOs. 
 
 The component supports the following Salesforce APIs
 
@@ -29,7 +29,7 @@ For example, the following producer endpoint uses the upsertSObject API, with th
 The request message body should be an SObject DTO generated using the maven plugin. 
 The response message will either be NULL if an existing record was updated, or [CreateSObjectResult] with an id of the new record, or a list of errors while creating the new object.
 
-	...to("force:upsertSObject?sObjectIdName=Name")...
+	...to("salesforce:upsertSObject?sObjectIdName=Name")...
 
 ## Bulk API ##
 
@@ -53,19 +53,19 @@ and the response may also be saved to a file to be correlated with the request.
 For example, the following producer endpoint uses the createBatch API to create a Job Batch. 
 The in message must contain a body that can be converted into an InputStream (usually UTF-8 CSV or XML content from a file, etc.) and header fields 'jobId' for the Job and 'contentType' for the Job content type, which can be XML, CSV, ZIP\_XML or ZIP\_CSV. The put message body will contain [BatchInfo] on success, or throw a [SalesforceException] on error.
 
-	...to("force:createBatchJob")..
+	...to("salesforce:createBatchJob")..
 
 ## Streaming API ##
 
-Consumer endpoints can use the following sytax for streaming endpoints to receive Salesforce notifications on create/update. 
+Consumer endpoints can use the following syntax for streaming endpoints to receive Salesforce notifications on create/update. 
 
 To create and subscribe to a topic
 
-	from("force:CamelTestTopic?notifyForFields=ALL&notifyForOperations=ALL&sObjectName=Merchandise__c&updateTopic=true&sObjectQuery=SELECT Id, Name FROM Merchandise__c")...
+	from("salesforce:CamelTestTopic?notifyForFields=ALL&notifyForOperations=ALL&sObjectName=Merchandise__c&updateTopic=true&sObjectQuery=SELECT Id, Name FROM Merchandise__c")...
 
 To subscribe to an existing topic
 
-	from("force:CamelTestTopic&sObjectName=Merchandise__c")...
+	from("salesforce:CamelTestTopic&sObjectName=Merchandise__c")...
 
 ## Developing the Camel Salesforce component
 
@@ -87,7 +87,7 @@ Before running the tests for the first time run the migration by invoking Maven 
 
     $ mvn -Pintegration antrun:run@setup-salesforce-instance
 
-This will create a _Connected App_ with predefined Consumer Key (the one mentioned in the comment one in `test-salesforce-login.properties.sample`) and a name of `CamelSalesforceIntegrationTests`. After running the migration access your Salesforce instance and provide _Consumer Secret_ (`clientSecret`) property to `test-salesforce-login.properties.sample`.
+This will create a _Connected App_ with predefined Consumer Key (the one mentioned in the comment one in `test-salesforce-login.properties.sample`) and _Consumer Secret_ (`clientSecret`) with the name of `CamelSalesforceIntegrationTests`.
 
 This however is run every time when you run the integration tests by issuing from the `camel-salesforce-component` Maven module directory:
 

@@ -18,6 +18,7 @@ package org.apache.camel.component.jetty;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.camel.Exchange;
@@ -44,7 +45,7 @@ public class JettyRouteWithSocketPropertiesTest extends BaseJettyTest {
             public void configure() throws Exception {
                 // START SNIPPET: e1
                 // define socket connector properties
-                Map<String, Object> properties = new HashMap<String, Object>();
+                Map<String, Object> properties = new HashMap<>();
                 properties.put("acceptors", 4);
                 properties.put("statsOn", "false");
                 properties.put("soLingerTime", "5000");

@@ -63,23 +63,18 @@ import org.testng.annotations.BeforeMethod;
  */
 public abstract class CamelTestSupport extends TestSupport {
     private static final Logger LOG = LoggerFactory.getLogger(TestSupport.class);
-    private static final ThreadLocal<Boolean> INIT = new ThreadLocal<Boolean>();
+    private static final ThreadLocal<Boolean> INIT = new ThreadLocal<>();
 
 
-    private static ThreadLocal<ModelCamelContext> threadCamelContext
-        = new ThreadLocal<ModelCamelContext>();
-    private static ThreadLocal<ProducerTemplate> threadTemplate
-        = new ThreadLocal<ProducerTemplate>();
-    private static ThreadLocal<ConsumerTemplate> threadConsumer
-        = new ThreadLocal<ConsumerTemplate>();
-    private static ThreadLocal<Service> threadService
-        = new ThreadLocal<Service>();
+    private static ThreadLocal<ModelCamelContext> threadCamelContext = new ThreadLocal<>();
+    private static ThreadLocal<ProducerTemplate> threadTemplate = new ThreadLocal<>();
+    private static ThreadLocal<ConsumerTemplate> threadConsumer = new ThreadLocal<>();
+    private static ThreadLocal<Service> threadService = new ThreadLocal<>();
 
     protected volatile ModelCamelContext context;
     protected volatile ProducerTemplate template;
     protected volatile ConsumerTemplate consumer;
     protected volatile Service camelContextService;
-
 
     private boolean useRouteBuilder = true;
     private final DebugBreakpoint breakpoint = new DebugBreakpoint();
@@ -290,7 +285,7 @@ public abstract class CamelTestSupport extends TestSupport {
         if (isUseRouteBuilder()) {
             RoutesBuilder[] builders = createRouteBuilders();
             for (RoutesBuilder builder : builders) {
-                log.debug("Using created route builder: " + builder);
+                log.debug("Using created route builder: {}", builder);
                 context.addRoutes(builder);
             }
             boolean skip = "true".equalsIgnoreCase(System.getProperty("skipStartingCamelContext"));
@@ -302,9 +297,9 @@ public abstract class CamelTestSupport extends TestSupport {
                 startCamelContext();
             }
         } else {
-            log.debug("Using route builder from the created context: " + context);
+            log.debug("Using route builder from the created context: {}", context);
         }
-        log.debug("Routing Rules are: " + context.getRoutes());
+        log.debug("Routing Rules are: {}", context.getRoutes());
 
         assertValidContext(context);
 
@@ -450,7 +445,7 @@ public abstract class CamelTestSupport extends TestSupport {
         } else {
             properties.put("java.naming.factory.initial", "org.apache.camel.util.jndi.CamelInitialContextFactory");
         }
-        return new InitialContext(new Hashtable<Object, Object>(properties));
+        return new InitialContext(new Hashtable<>(properties));
     }
 
     /**

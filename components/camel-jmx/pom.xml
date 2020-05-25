@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.camel</groupId>
         <artifactId>components</artifactId>
-        <version>2.20.0-SNAPSHOT</version>
+        <version>2.24.2</version>
     </parent>
 
     <artifactId>camel-jmx</artifactId>
@@ -69,8 +69,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>xmlunit</groupId>
-            <artifactId>xmlunit</artifactId>
+            <groupId>org.xmlunit</groupId>
+            <artifactId>xmlunit-core</artifactId>
             <version>${xmlunit-version}</version>
             <scope>test</scope>
         </dependency>
@@ -96,9 +96,9 @@
            (https://github.com/mojohaus/jaxb2-maven-plugin/issues/43). We need to add the plugin back
            once we are sure it works on both JDK8 and JDK9.
            See https://issues.apache.org/jira/browse/CAMEL-10141 for more info. -->
-            <id>jdk9-build</id>
+            <id>jdk9+-build</id>
             <activation>
-                <jdk>9</jdk>
+                <jdk>[9,)</jdk>
             </activation>
             <build>
                 <plugins>

@@ -19,9 +19,12 @@ package org.apache.camel.component.aws.ddb;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.DescribeTableRequest;
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
@@ -85,10 +88,6 @@ public class DdbEndpoint extends ScheduledPollEndpoint {
         ddbClient = configuration.getAmazonDDBClient() != null ? configuration.getAmazonDDBClient()
             : createDdbClient();
         
-        if (ObjectHelper.isNotEmpty(configuration.getAmazonDdbEndpoint())) {
-            ddbClient.setEndpoint(configuration.getAmazonDdbEndpoint());
-        }
-        
         String tableName = getConfiguration().getTableName();
         LOG.trace("Querying whether table [{}] already exists...", tableName);
 
@@ -111,6 +110,16 @@ public class DdbEndpoint extends ScheduledPollEndpoint {
 
             LOG.trace("Table [{}] created", tableName);
         }
+    }
+    
+    @Override
+    public void doStop() throws Exception {
+        if (ObjectHelper.isEmpty(configuration.getAmazonDDBClient())) {
+            if (ddbClient != null) {
+                ddbClient.shutdown();
+            }
+        }
+        super.doStop();
     }
 
     private TableDescription createTable(String tableName) {
@@ -136,6 +145,7 @@ public class DdbEndpoint extends ScheduledPollEndpoint {
     AmazonDynamoDB createDdbClient() {
         AmazonDynamoDB client = null;
         ClientConfiguration clientConfiguration = null;
+        AmazonDynamoDBClientBuilder clientBuilder = null;
         boolean isClientConfigFound = false;
         if (ObjectHelper.isNotEmpty(configuration.getProxyHost()) && ObjectHelper.isNotEmpty(configuration.getProxyPort())) {
             clientConfiguration = new ClientConfiguration();
@@ -145,18 +155,23 @@ public class DdbEndpoint extends ScheduledPollEndpoint {
         }
         if (configuration.getAccessKey() != null && configuration.getSecretKey() != null) {
             AWSCredentials credentials = new BasicAWSCredentials(configuration.getAccessKey(), configuration.getSecretKey());
+            AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials);
             if (isClientConfigFound) {
-                client = new AmazonDynamoDBClient(credentials, clientConfiguration);
+                clientBuilder = AmazonDynamoDBClientBuilder.standard().withClientConfiguration(clientConfiguration).withCredentials(credentialsProvider);
             } else {
-                client = new AmazonDynamoDBClient(credentials);
+                clientBuilder = AmazonDynamoDBClientBuilder.standard().withCredentials(credentialsProvider);
             }
         } else {
             if (isClientConfigFound) {
-                client = new AmazonDynamoDBClient();
+                clientBuilder = AmazonDynamoDBClientBuilder.standard();
             } else {
-                client = new AmazonDynamoDBClient(clientConfiguration);
+                clientBuilder = AmazonDynamoDBClientBuilder.standard().withClientConfiguration(clientConfiguration);
             }
         }
+        if (ObjectHelper.isNotEmpty(configuration.getRegion())) {
+            clientBuilder = clientBuilder.withRegion(Regions.valueOf(configuration.getRegion()));
+        }
+        client = clientBuilder.build();
         return client;
     }
 

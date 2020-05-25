@@ -18,16 +18,19 @@ package org.apache.camel.management;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class ManagedRegisterTwoRoutesTest extends ManagementTestSupport {
 
+    @Test
     public void testRoutes() throws Exception {
         // JMX tests dont work well on AIX CI servers (hangs them)
         if (isPlatform("aix")) {
@@ -39,7 +42,7 @@ public class ManagedRegisterTwoRoutesTest extends ManagementTestSupport {
         Set<ObjectName> set = mbeanServer.queryNames(new ObjectName("*:type=routes,*"), null);
         assertEquals(2, set.size());
 
-        Set<String> uris = new HashSet<String>();
+        Set<String> uris = new HashSet<>();
         for (ObjectName on : set) {
             String uri = (String) mbeanServer.getAttribute(on, "EndpointUri");
             uris.add(uri);

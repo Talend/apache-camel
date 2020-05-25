@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+
 import javax.management.openmbean.TabularData;
 
 import org.apache.camel.api.management.ManagedAttribute;
@@ -64,6 +65,9 @@ public interface ManagedCamelContextMBean extends ManagedPerformanceCounterMBean
 
     @ManagedAttribute(description = "ApplicationContext class name")
     String getApplicationContextClassName();
+
+    @ManagedAttribute(description = "HeadersMapFactory class name")
+    String getHeadersMapFactoryClassName();
 
     @Deprecated
     @ManagedOperation(description = "Gets the value of a Camel global option")
@@ -153,6 +157,9 @@ public interface ManagedCamelContextMBean extends ManagedPerformanceCounterMBean
 
     @ManagedAttribute(description = "Whether MDC logging is supported")
     boolean isUseMDCLogging();
+
+    @ManagedAttribute(description = "Whether Message DataType is enabled")
+    boolean isUseDataType();
 
     @ManagedOperation(description = "Start Camel")
     void start() throws Exception;

@@ -17,6 +17,7 @@
 package org.apache.camel.model;
 
 import java.util.concurrent.ExecutorService;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -92,6 +93,11 @@ public class SplitDefinition extends ExpressionNode implements ExecutorServiceAw
     }
 
     @Override
+    public String getShortName() {
+        return "split";
+    }
+
+    @Override
     public String getLabel() {
         return "split[" + getExpression() + "]";
     }
@@ -143,7 +149,7 @@ public class SplitDefinition extends ExpressionNode implements ExecutorServiceAw
             }
         }
 
-        if (strategy != null && strategy instanceof CamelContextAware) {
+        if (strategy instanceof CamelContextAware) {
             ((CamelContextAware) strategy).setCamelContext(routeContext.getCamelContext());
         }
 

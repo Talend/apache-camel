@@ -18,6 +18,7 @@ package org.apache.camel.component.cxf.converter;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.Map;
@@ -27,6 +28,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stax.StAXSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.StreamCache;
@@ -39,12 +41,11 @@ import org.apache.cxf.staxutils.StaxUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class CachedCxfPayload<T> extends CxfPayload<T> implements StreamCache {
     private static final Logger LOG = LoggerFactory.getLogger(CachedCxfPayload.class);
 
     public CachedCxfPayload(CxfPayload<T> orig, Exchange exchange, XmlConverter xml) {
-        super(orig.getHeaders(), new ArrayList<Source>(orig.getBodySources()), orig.getNsMap());
+        super(orig.getHeaders(), new ArrayList<>(orig.getBodySources()), orig.getNsMap());
         ListIterator<Source> li = getBodySources().listIterator();
         while (li.hasNext()) {
             Source source = li.next();
@@ -69,23 +70,41 @@ public class CachedCxfPayload<T> extends CxfPayload<T> implements StreamCache {
                 try {
                     StaxUtils.copy(reader, cos);
                     li.set(new StreamSourceCache(cos.newStreamCache()));
-                } catch (XMLStreamException e) {
-                    LOG.error("Transformation failed ", e);
-                } catch (IOException e) {
-                    LOG.error("Cannot Create StreamSourceCache ", e);
-                }
-
-            } else if (!(source instanceof DOMSource)) {
-                DOMSource document = exchange.getContext().getTypeConverter().convertTo(DOMSource.class, exchange, source);
-                if (document != null) {
-                    li.set(document);
+                    // this worked so continue
+                    continue;
+                } catch (Exception e) {
+                    // fallback to trying to read the reader using another way
+                    StreamResult sr = new StreamResult(cos);
+                    try {
+                        xml.toResult(source, sr);
+                        li.set(new StreamSourceCache(cos.newStreamCache()));
+                        // this worked so continue
+                        continue;
+                    } catch (Exception e2) {
+                        // ignore did not work so we will fallback to DOM mode
+                        // this can happens in some rare cases such as reported by CAMEL-11681
+                        LOG.debug("Error during parsing XMLStreamReader from StaxSource/StAXSource. Will fallback to using DOM mode. This exception is ignored", e2);
+                    }
                 }
             }
+            // fallback to using DOM
+            DOMSource document = exchange.getContext().getTypeConverter().tryConvertTo(DOMSource.class, exchange, source);
+            if (document != null) {
+                li.set(document);
+            }
+        }
+        try {
+            Field bodyField = getClass().getSuperclass().getDeclaredField("body");
+            bodyField.setAccessible(true);
+            bodyField.set(orig, getBodySources());
+            
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            LOG.debug("can't use reflection way to set body in CxfPayload", e);
         }
     }
 
     private CachedCxfPayload(CachedCxfPayload<T> orig, Exchange exchange) throws IOException {
-        super(orig.getHeaders(), new ArrayList<Source>(orig.getBodySources()), orig.getNsMap());
+        super(orig.getHeaders(), new ArrayList<>(orig.getBodySources()), orig.getNsMap());
         ListIterator<Source> li = getBodySources().listIterator();
         while (li.hasNext()) {
             Source source = li.next();
@@ -140,6 +159,6 @@ public class CachedCxfPayload<T> extends CxfPayload<T> implements StreamCache {
 
     @Override
     public StreamCache copy(Exchange exchange) throws IOException {
-        return new CachedCxfPayload<T>(this, exchange);
+        return new CachedCxfPayload<>(this, exchange);
     }
 }

@@ -40,10 +40,9 @@ import org.apache.camel.component.rabbitmq.testbeans.TestNonSerializableObject;
 import org.apache.camel.component.rabbitmq.testbeans.TestPartiallySerializableObject;
 import org.apache.camel.component.rabbitmq.testbeans.TestSerializableObject;
 import org.apache.camel.impl.JndiRegistry;
-import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 
-public class RabbitMQInOutIntTest extends CamelTestSupport {
+public class RabbitMQInOutIntTest extends AbstractRabbitMQIntTest {
 
     public static final String ROUTING_KEY = "rk5";
     public static final long TIMEOUT_MS = 2000;
@@ -142,7 +141,7 @@ public class RabbitMQInOutIntTest extends CamelTestSupport {
 
     @Test
     public void headerTest() throws InterruptedException, IOException {
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
 
         TestSerializableObject testObject = new TestSerializableObject();
         testObject.setName("header");
@@ -158,8 +157,8 @@ public class RabbitMQInOutIntTest extends CamelTestSupport {
         headers.put("CamelSerialize", true);
 
         // populate a map and an arrayList
-        Map<Object, Object> tmpMap = new HashMap<Object, Object>();
-        List<String> tmpList = new ArrayList<String>();
+        Map<Object, Object> tmpMap = new HashMap<>();
+        List<String> tmpList = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             String name = "header" + i;
             tmpList.add(name);
@@ -190,7 +189,7 @@ public class RabbitMQInOutIntTest extends CamelTestSupport {
         foo.setName("foobar");
 
         try {
-            TestPartiallySerializableObject reply = template.requestBodyAndHeader("direct:rabbitMQ", foo, RabbitMQConstants.EXCHANGE_NAME, EXCHANGE, TestPartiallySerializableObject.class);
+            template.requestBodyAndHeader("direct:rabbitMQ", foo, RabbitMQConstants.EXCHANGE_NAME, EXCHANGE, TestPartiallySerializableObject.class);
         } catch (CamelExecutionException e) {
             // expected
         }
@@ -256,7 +255,7 @@ public class RabbitMQInOutIntTest extends CamelTestSupport {
         resultEndpoint.expectedMessageCount(1);
 
         try {
-            String reply = template.requestBodyAndHeaders("direct:rabbitMQNoAutoAck", "testMessage", headers, String.class);
+            template.requestBodyAndHeaders("direct:rabbitMQNoAutoAck", "testMessage", headers, String.class);
             fail("This should have thrown an exception");
         } catch (CamelExecutionException e) {
             if (!(e.getCause() instanceof IllegalStateException)) {

@@ -25,20 +25,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
+import javax.tools.Diagnostic.Kind;
 
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
@@ -70,7 +72,6 @@ import static org.apache.camel.tools.apt.helper.Strings.isNullOrEmpty;
  * Processes all Camel {@link UriEndpoint}s and generate json schema documentation for the endpoint/component.
  */
 @SupportedAnnotationTypes({"org.apache.camel.spi.*"})
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class EndpointAnnotationProcessor extends AbstractProcessor {
 
     // CHECKSTYLE:OFF
@@ -89,9 +90,15 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
                 }
             }
         } catch (Throwable e) {
+            processingEnv.getMessager().printMessage(Kind.ERROR, "Unable to process elements annotated with @UriEndpoint: " + e.getMessage());
             dumpExceptionToErrorFile("camel-apt-error.log", "Error processing @UriEndpoint", e);
         }
         return true;
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latest();
     }
 
     private void processEndpointClass(final RoundEnvironment roundEnv, final TypeElement classElement) {
@@ -141,9 +148,9 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
         ComponentModel componentModel = findComponentProperties(roundEnv, uriEndpoint, classElement, title, scheme, extendsScheme, label);
 
         // get endpoint information which is divided into paths and options (though there should really only be one path)
-        Set<EndpointPath> endpointPaths = new LinkedHashSet<EndpointPath>();
-        Set<EndpointOption> endpointOptions = new LinkedHashSet<EndpointOption>();
-        Set<ComponentOption> componentOptions = new LinkedHashSet<ComponentOption>();
+        Set<EndpointPath> endpointPaths = new LinkedHashSet<>();
+        Set<EndpointOption> endpointOptions = new LinkedHashSet<>();
+        Set<ComponentOption> componentOptions = new LinkedHashSet<>();
 
         TypeElement componentClassElement = findTypeElement(processingEnv, roundEnv, componentModel.getJavaType());
         if (componentClassElement != null) {
@@ -182,6 +189,7 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
         buffer.append("\n    \"description\": \"").append(componentModel.getDescription()).append("\",");
         buffer.append("\n    \"label\": \"").append(getOrElse(componentModel.getLabel(), "")).append("\",");
         buffer.append("\n    \"deprecated\": ").append(componentModel.isDeprecated()).append(",");
+        buffer.append("\n    \"deprecationNote\": \"").append(getOrElse(componentModel.getDeprecationNode(), "")).append("\",");
         buffer.append("\n    \"async\": ").append(componentModel.isAsync()).append(",");
         buffer.append("\n    \"consumerOnly\": ").append(componentModel.isConsumerOnly()).append(",");
         buffer.append("\n    \"producerOnly\": ").append(componentModel.isProducerOnly()).append(",");
@@ -230,7 +238,7 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
             boolean asPredicate = false;
 
             buffer.append(JsonSchemaHelper.toJson(entry.getName(), entry.getDisplayName(), "property", required, entry.getType(), defaultValue, doc,
-                entry.isDeprecated(), entry.isSecret(), entry.getGroup(), entry.getLabel(), entry.isEnumType(), entry.getEnums(),
+                entry.isDeprecated(), entry.getDeprecationNode(), entry.isSecret(), entry.getGroup(), entry.getLabel(), entry.isEnumType(), entry.getEnums(),
                 false, null, asPredicate, optionalPrefix, prefix, multiValue));
         }
         buffer.append("\n  },");
@@ -239,7 +247,7 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
         first = true;
 
         // sort the endpoint options in the standard order we prefer
-        List<EndpointPath> paths = new ArrayList<EndpointPath>();
+        List<EndpointPath> paths = new ArrayList<>();
         paths.addAll(endpointPaths);
         Collections.sort(paths, EndpointHelper.createPathComparator(componentModel.getSyntax()));
 
@@ -282,12 +290,12 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
             boolean asPredicate = false;
 
             buffer.append(JsonSchemaHelper.toJson(entry.getName(), entry.getDisplayName(), "path", required, entry.getType(), defaultValue, doc,
-                entry.isDeprecated(), entry.isSecret(), entry.getGroup(), entry.getLabel(), entry.isEnumType(), entry.getEnums(),
+                entry.isDeprecated(), entry.getDeprecationNote(), entry.isSecret(), entry.getGroup(), entry.getLabel(), entry.isEnumType(), entry.getEnums(),
                 false, null, asPredicate, optionalPrefix, prefix, multiValue));
         }
 
         // sort the endpoint options in the standard order we prefer
-        List<EndpointOption> options = new ArrayList<EndpointOption>();
+        List<EndpointOption> options = new ArrayList<>();
         options.addAll(endpointOptions);
         Collections.sort(options, EndpointHelper.createGroupAndLabelComparator());
 
@@ -328,7 +336,7 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
             boolean asPredicate = false;
 
             buffer.append(JsonSchemaHelper.toJson(entry.getName(), entry.getDisplayName(), "parameter", required, entry.getType(), defaultValue,
-                doc, entry.isDeprecated(), entry.isSecret(), entry.getGroup(), entry.getLabel(), entry.isEnumType(), entry.getEnums(),
+                doc, entry.isDeprecated(), entry.getDeprecationNote(), entry.isSecret(), entry.getGroup(), entry.getLabel(), entry.isEnumType(), entry.getEnums(),
                 false, null, asPredicate, optionalPrefix, prefix, multiValue));
         }
         buffer.append("\n  }");
@@ -395,6 +403,12 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
             }
             model.setDeprecated(deprecated);
 
+            String deprecationNote = null;
+            if (endpointClassElement.getAnnotation(Metadata.class) != null) {
+                deprecationNote = endpointClassElement.getAnnotation(Metadata.class).deprecationNode();
+            }
+            model.setDeprecationNode(deprecationNote);
+
             if (map.containsKey("groupId")) {
                 model.setGroupId(map.get("groupId"));
             } else {
@@ -444,6 +458,10 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
                 String methodName = method.getSimpleName().toString();
                 boolean deprecated = method.getAnnotation(Deprecated.class) != null;
                 Metadata metadata = method.getAnnotation(Metadata.class);
+                String deprecationNote = null;
+                if (metadata != null) {
+                    deprecationNote = metadata.deprecationNode();
+                }
 
                 // must be the setter
                 boolean isSetter = methodName.startsWith("set") && method.getParameters().size() == 1 & method.getReturnType().getKind().equals(TypeKind.VOID);
@@ -454,6 +472,10 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
                 // skip unwanted methods as they are inherited from default component and are not intended for end users to configure
                 if ("setEndpointClass".equals(methodName) || "setCamelContext".equals(methodName)
                     || "setEndpointHeaderFilterStrategy".equals(methodName) || "setApplicationContext".equals(methodName)) {
+                    continue;
+                }
+
+                if (isGroovyMetaClassProperty(method)) {
                     continue;
                 }
 
@@ -498,7 +520,7 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
                 }
 
                 // gather enums
-                Set<String> enums = new LinkedHashSet<String>();
+                Set<String> enums = new LinkedHashSet<>();
 
                 boolean isEnum;
                 if (metadata != null && !Strings.isNullOrEmpty(metadata.enums())) {
@@ -524,9 +546,14 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
                     }
                 }
 
+                // the field type may be overloaded by another type
+                if (metadata != null && !Strings.isNullOrEmpty(metadata.javaType())) {
+                    fieldTypeName = metadata.javaType();
+                }
+
                 String group = EndpointHelper.labelAsGroupName(label, componentModel.isConsumerOnly(), componentModel.isProducerOnly());
                 ComponentOption option = new ComponentOption(name, displayName, fieldTypeName, required, defaultValue, defaultValueNote,
-                        docComment.trim(), deprecated, secret, group, label, isEnum, enums);
+                        docComment.trim(), deprecated, deprecationNote, secret, group, label, isEnum, enums);
                 componentOptions.add(option);
             }
 
@@ -555,6 +582,10 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
 
                 Metadata metadata = fieldElement.getAnnotation(Metadata.class);
                 boolean deprecated = fieldElement.getAnnotation(Deprecated.class) != null;
+                String deprecationNote = null;
+                if (metadata != null) {
+                    deprecationNote = metadata.deprecationNode();
+                }
                 Boolean secret = metadata != null ? metadata.secret() : null;
 
                 UriPath path = fieldElement.getAnnotation(UriPath.class);
@@ -575,7 +606,6 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
                     if (Strings.isNullOrEmpty(defaultValue) && metadata != null) {
                         defaultValue = metadata.defaultValue();
                     }
-                    String defaultValueNote = path.defaultValueNote();
                     String required = metadata != null ? metadata.required() : null;
                     String label = path.label();
                     if (Strings.isNullOrEmpty(label) && metadata != null) {
@@ -596,7 +626,7 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
                     }
 
                     // gather enums
-                    Set<String> enums = new LinkedHashSet<String>();
+                    Set<String> enums = new LinkedHashSet<>();
 
                     boolean isEnum;
                     if (!Strings.isNullOrEmpty(path.enums())) {
@@ -629,7 +659,8 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
 
                     String group = EndpointHelper.labelAsGroupName(label, componentModel.isConsumerOnly(), componentModel.isProducerOnly());
                     boolean isSecret = secret != null ? secret : false;
-                    EndpointPath ep = new EndpointPath(name, displayName, fieldTypeName, required, defaultValue, docComment, deprecated, isSecret, group, label, isEnum, enums);
+                    EndpointPath ep = new EndpointPath(name, displayName, fieldTypeName, required, defaultValue, docComment, deprecated, deprecationNote,
+                        isSecret, group, label, isEnum, enums);
                     endpointPaths.add(ep);
                 }
 
@@ -690,7 +721,7 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
                         }
 
                         // gather enums
-                        Set<String> enums = new LinkedHashSet<String>();
+                        Set<String> enums = new LinkedHashSet<>();
 
                         boolean isEnum;
                         if (!Strings.isNullOrEmpty(param.enums())) {
@@ -724,7 +755,7 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
                         boolean isSecret = secret != null ? secret : param.secret();
                         String group = EndpointHelper.labelAsGroupName(label, componentModel.isConsumerOnly(), componentModel.isProducerOnly());
                         EndpointOption option = new EndpointOption(name, displayName, fieldTypeName, required, defaultValue, defaultValueNote,
-                                docComment.trim(), paramOptionalPrefix, paramPrefix, multiValue, deprecated, isSecret, group, label, isEnum, enums);
+                                docComment.trim(), paramOptionalPrefix, paramPrefix, multiValue, deprecated, deprecationNote, isSecret, group, label, isEnum, enums);
                         endpointOptions.add(option);
                     }
                 }
@@ -756,7 +787,7 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
     }
 
     private static Map<String, String> parseAsMap(String data) {
-        Map<String, String> answer = new HashMap<String, String>();
+        Map<String, String> answer = new HashMap<>();
         String[] lines = data.split("\n");
         for (String line : lines) {
             if (!line.isEmpty()) {
@@ -785,5 +816,22 @@ public class EndpointAnnotationProcessor extends AbstractProcessor {
     }
 
     // CHECKSTYLE:ON
+
+    private static boolean isGroovyMetaClassProperty(final ExecutableElement method) {
+        final String methodName = method.getSimpleName().toString();
+        
+        if (!"setMetaClass".equals(methodName)) {
+            return false;
+        }
+
+        if (method.getReturnType() instanceof DeclaredType) {
+            final DeclaredType returnType = (DeclaredType) method.getReturnType();
+
+            return "groovy.lang.MetaClass".equals(returnType.asElement().getSimpleName());
+        } else {
+            // Eclipse (Groovy?) compiler returns javax.lang.model.type.NoType, no other way to check but to look at toString output
+            return method.toString().contains("(groovy.lang.MetaClass)");
+        }
+    }
 
 }

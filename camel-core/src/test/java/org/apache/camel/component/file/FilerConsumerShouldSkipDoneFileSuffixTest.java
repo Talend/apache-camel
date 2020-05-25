@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import java.io.File;
 
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit test for writing done files
@@ -28,11 +29,13 @@ import org.apache.camel.builder.RouteBuilder;
 public class FilerConsumerShouldSkipDoneFileSuffixTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/done");
         super.setUp();
     }
 
+    @Test
     public void testDoneFile() throws Exception {
         getMockEndpoint("mock:result").expectedMessageCount(0);
 
@@ -40,7 +43,7 @@ public class FilerConsumerShouldSkipDoneFileSuffixTest extends ContextTestSuppor
         template.sendBodyAndHeader("file:target/done", "", Exchange.FILE_NAME, "hello.txt.ready");
 
         // wait a bit and it should not pickup the written file as there are no target file
-        Thread.sleep(250);
+        Thread.sleep(100);
 
         assertMockEndpointsSatisfied();
         resetMocks();
@@ -67,7 +70,7 @@ public class FilerConsumerShouldSkipDoneFileSuffixTest extends ContextTestSuppor
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("file:target/done?doneFileName=${file:name}.ready&initialDelay=0")
+                from("file:target/done?doneFileName=${file:name}.ready&initialDelay=0&delay=50")
                     .convertBodyTo(String.class)
                     .to("mock:result");
             }

@@ -22,6 +22,7 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
+
 import static org.apache.camel.component.jms.JmsComponent.jmsComponentAutoAcknowledge;
 
 /**
@@ -48,7 +49,7 @@ public class JmsComponentTest extends CamelTestSupport {
         assertEquals(true, endpoint.isDeliveryPersistent());
         assertEquals(true, endpoint.isExplicitQosEnabled());
         assertEquals(20, endpoint.getIdleTaskExecutionLimit());
-        assertEquals(21, endpoint.getIdleConsumerLimit());        
+        assertEquals(21, endpoint.getIdleConsumerLimit());
         assertEquals(5, endpoint.getMaxConcurrentConsumers());
         assertEquals(90, endpoint.getMaxMessagesPerTask());
         assertEquals(3, endpoint.getPriority());

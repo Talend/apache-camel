@@ -22,7 +22,6 @@ import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
@@ -32,9 +31,7 @@ import org.apache.camel.ResolveEndpointFailedException;
 import org.apache.camel.ServiceStatus;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.test.junit4.CamelTestSupport;
-
 import org.junit.Test;
-
 import org.springframework.jms.connection.UserCredentialsConnectionFactoryAdapter;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.JmsTemplate;
@@ -354,6 +351,7 @@ public class JmsEndpointConfigurationTest extends CamelTestSupport {
         assertFalse(endpoint.isTransferException());
         assertFalse(endpoint.isTransactedInOut());
         assertFalse(endpoint.isTransferException());
+        assertFalse(endpoint.isFormatDateHeadersToIso8601());
     }
 
     @SuppressWarnings("deprecation")
@@ -491,6 +489,9 @@ public class JmsEndpointConfigurationTest extends CamelTestSupport {
 
         endpoint.setJmsMessageType(JmsMessageType.Text);
         assertEquals(JmsMessageType.Text, endpoint.getJmsMessageType());
+
+        endpoint.setFormatDateHeadersToIso8601(true);
+        assertTrue(endpoint.isFormatDateHeadersToIso8601());
     }
 
     protected void assertCacheLevel(JmsEndpoint endpoint, int expected) throws Exception {

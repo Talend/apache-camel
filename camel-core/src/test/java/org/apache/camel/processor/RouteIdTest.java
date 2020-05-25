@@ -20,12 +20,14 @@ import java.io.IOException;
 
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class RouteIdTest extends ContextTestSupport {
 
+    @Test
     public void testRouteId() throws Exception {
         getMockEndpoint("mock:error").expectedMessageCount(0);
         getMockEndpoint("mock:result").expectedMessageCount(1);
@@ -38,6 +40,7 @@ public class RouteIdTest extends ContextTestSupport {
         assertEquals("myCoolRoute", id);
     }
 
+    @Test
     public void testRouteIdFailed() throws Exception {
         getMockEndpoint("mock:error").expectedMessageCount(1);
         getMockEndpoint("mock:result").expectedMessageCount(0);
@@ -58,7 +61,7 @@ public class RouteIdTest extends ContextTestSupport {
                 onException(Exception.class).handled(true).to("mock:error").end();
 
                 from("direct:start")
-                    .onException(IOException.class).maximumRedeliveries(5).end()
+                    .onException(IOException.class).redeliveryDelay(0).maximumRedeliveries(5).end()
                     .routeId("myCoolRoute")
                     .choice()
                         .when(body().contains("Kabom")).throwException(new IllegalArgumentException("Damn"))

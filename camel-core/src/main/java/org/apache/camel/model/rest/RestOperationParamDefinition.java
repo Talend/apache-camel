@@ -19,6 +19,7 @@ package org.apache.camel.model.rest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -28,7 +29,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.camel.spi.Metadata;
-import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.StringHelper;
 
 /**
  * To specify the rest operation parameters using Swagger.
@@ -74,6 +75,9 @@ public class RestOperationParamDefinition {
     @Metadata(defaultValue = "string")
     private String dataType;
 
+    @XmlAttribute
+    private String dataFormat;
+
     @XmlElementWrapper(name = "allowableValues")
     @XmlElement(name = "value")
     private List<String> allowableValues;
@@ -81,6 +85,9 @@ public class RestOperationParamDefinition {
     @XmlAttribute
     @Metadata(defaultValue = "")
     private String access;
+
+    @XmlElement(name = "examples")
+    private List<RestPropertyDefinition> examples;
 
     public RestOperationParamDefinition() {
     }
@@ -178,12 +185,23 @@ public class RestOperationParamDefinition {
         this.dataType = dataType;
     }
 
+    public String getDataFormat() {
+        return dataFormat;
+    }
+
+    /**
+     * Sets the Swagger Parameter data format.
+     */
+    public void setDataFormat(String dataFormat) {
+        this.dataFormat = dataFormat;
+    }
+
     public List<String> getAllowableValues() {
         if (allowableValues != null) {
             return allowableValues;
         }
 
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     /**
@@ -211,6 +229,17 @@ public class RestOperationParamDefinition {
     @Deprecated
     public void setAccess(String access) {
         this.access = access;
+    }
+
+    public List<RestPropertyDefinition> getExamples() {
+        return examples;
+    }
+
+    /**
+     * Sets the Swagger Parameter examples.
+     */
+    public void setExamples(List<RestPropertyDefinition> examples) {
+        this.examples = examples;
     }
 
     /**
@@ -272,6 +301,16 @@ public class RestOperationParamDefinition {
     }
 
     /**
+     * The data format of the parameter such as <tt>binary</tt>, <tt>date</tt>, <tt>date-time</tt>, <tt>password</tt>.
+     * The format is usually derived from the dataType alone. However you can set this option for more fine grained control
+     * of the format in use.
+     */
+    public RestOperationParamDefinition dataFormat(String type) {
+        setDataFormat(type);
+        return this;
+    }
+
+    /**
      * Allowed values of the parameter when its an enum type
      */
     public RestOperationParamDefinition allowableValues(List<String> allowableValues) {
@@ -284,6 +323,14 @@ public class RestOperationParamDefinition {
      */
     public RestOperationParamDefinition allowableValues(String... allowableValues) {
         setAllowableValues(Arrays.asList(allowableValues));
+        return this;
+    }
+
+    /**
+     * Allowed values of the parameter when its an enum type
+     */
+    public RestOperationParamDefinition allowableValues(String allowableValues) {
+        setAllowableValues(Arrays.asList(allowableValues.split(",")));
         return this;
     }
 
@@ -308,11 +355,33 @@ public class RestOperationParamDefinition {
     }
 
     /**
+     * Adds a body example with the given content-type
+     */
+    public RestOperationParamDefinition example(String contentType, String example) {
+        if (examples == null) {
+            examples = new ArrayList<>();
+        }
+        examples.add(new RestPropertyDefinition(contentType, example));
+        return this;
+    }
+
+    /**
+     * Adds a single example
+     */
+    public RestOperationParamDefinition example(String example) {
+        if (examples == null) {
+            examples = new ArrayList<>();
+        }
+        examples.add(new RestPropertyDefinition("", example));
+        return this;
+    }
+
+    /**
      * Ends the configuration of this parameter
      */
     public RestDefinition endParam() {
         // name is mandatory
-        ObjectHelper.notEmpty(name, "name");
+        StringHelper.notEmpty(name, "name");
         verb.getParams().add(this);
         return verb.getRest();
     }

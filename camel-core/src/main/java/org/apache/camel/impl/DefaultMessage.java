@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+
 import javax.activation.DataHandler;
 
 import org.apache.camel.Attachment;
@@ -93,7 +94,7 @@ public class DefaultMessage extends MessageSupport {
         Object value = getHeader(name);
         if (value == null) {
             // lets avoid NullPointerException when converting to boolean for null values
-            if (boolean.class.isAssignableFrom(type)) {
+            if (boolean.class == type) {
                 return (T) Boolean.FALSE;
             }
             return null;
@@ -118,7 +119,7 @@ public class DefaultMessage extends MessageSupport {
         Object value = getHeader(name, defaultValue);
         if (value == null) {
             // lets avoid NullPointerException when converting to boolean for null values
-            if (boolean.class.isAssignableFrom(type)) {
+            if (boolean.class == type) {
                 return (T) Boolean.FALSE;
             }
             return null;
@@ -146,7 +147,7 @@ public class DefaultMessage extends MessageSupport {
         Object value = getHeader(name, defaultValueSupplier);
         if (value == null) {
             // lets avoid NullPointerException when converting to boolean for null values
-            if (boolean.class.isAssignableFrom(type)) {
+            if (boolean.class == type) {
                 return (T) Boolean.FALSE;
             }
             return null;
@@ -192,7 +193,7 @@ public class DefaultMessage extends MessageSupport {
         boolean matches = false;
         // must use a set to store the keys to remove as we cannot walk using entrySet and remove at the same time
         // due concurrent modification error
-        Set<String> toRemove = new HashSet<String>();
+        Set<String> toRemove = new HashSet<>();
         for (Map.Entry<String, Object> entry : headers.entrySet()) {
             String key = entry.getKey();
             if (EndpointHelper.matchPattern(key, pattern)) {
@@ -266,7 +267,7 @@ public class DefaultMessage extends MessageSupport {
      * @return return a newly constructed Map
      */
     protected Map<String, Attachment> createAttachments() {
-        Map<String, Attachment> map = new LinkedHashMap<String, Attachment>();
+        Map<String, Attachment> map = new LinkedHashMap<>();
         populateInitialAttachments(map);
         return map;
     }
@@ -365,7 +366,7 @@ public class DefaultMessage extends MessageSupport {
             // this way setAttachments(getAttachments()) will tunnel attachment headers
             this.attachmentObjects = ((AttachmentMap)attachments).getOriginalMap();
         } else {
-            this.attachmentObjects = new LinkedHashMap<String, Attachment>();
+            this.attachmentObjects = new LinkedHashMap<>();
             for (Map.Entry<String, DataHandler> entry : attachments.entrySet()) {
                 this.attachmentObjects.put(entry.getKey(), new DefaultAttachment(entry.getValue()));
             }

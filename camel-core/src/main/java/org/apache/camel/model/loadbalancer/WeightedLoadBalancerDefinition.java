@@ -18,6 +18,7 @@ package org.apache.camel.model.loadbalancer;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -56,7 +57,7 @@ public class WeightedLoadBalancerDefinition extends LoadBalancerDefinition {
     @Override
     protected LoadBalancer createLoadBalancer(RouteContext routeContext) {
         WeightedLoadBalancer loadBalancer;
-        List<Integer> distributionRatioList = new ArrayList<Integer>();
+        List<Integer> distributionRatioList = new ArrayList<>();
         
         try {
             String[] ratios = distributionRatio.split(getDistributionRatioDelimiter());

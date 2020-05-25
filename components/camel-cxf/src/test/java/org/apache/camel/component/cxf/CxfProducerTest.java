@@ -155,7 +155,7 @@ public class CxfProducerTest extends Assert {
         LOG.info("Received output text: " + result);
         Map<String, Object> responseContext = CastUtils.cast((Map<?, ?>)out.getHeader(Client.RESPONSE_CONTEXT));
         assertNotNull(responseContext);
-        assertEquals("Get the wrong wsdl opertion name", "{http://apache.org/hello_world_soap_http}greetMe", responseContext.get("javax.xml.ws.wsdl.operation").toString());
+        assertEquals("Get the wrong wsdl operation name", "{http://apache.org/hello_world_soap_http}greetMe", responseContext.get("javax.xml.ws.wsdl.operation").toString());
         assertEquals("reply body on Camel", "Hello " + TEST_MESSAGE, result);
         
         // check the other camel header copying
@@ -183,7 +183,7 @@ public class CxfProducerTest extends Assert {
     private Exchange sendSimpleMessage(String endpointUri) {
         Exchange exchange = template.request(endpointUri, new Processor() {
             public void process(final Exchange exchange) {
-                final List<String> params = new ArrayList<String>();
+                final List<String> params = new ArrayList<>();
                 params.add(TEST_MESSAGE);
                 exchange.getIn().setBody(params);
                 exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, ECHO_OPERATION);
@@ -224,7 +224,7 @@ public class CxfProducerTest extends Assert {
     protected Exchange sendJaxWsMessage() {
         Exchange exchange = template.request(getJaxwsEndpointUri(), new Processor() {
             public void process(final Exchange exchange) {
-                final List<String> params = new ArrayList<String>();
+                final List<String> params = new ArrayList<>();
                 params.add(TEST_MESSAGE);
                 exchange.getIn().setBody(params);
                 exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, GREET_ME_OPERATION);

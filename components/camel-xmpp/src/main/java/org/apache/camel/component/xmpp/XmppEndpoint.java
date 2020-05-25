@@ -40,10 +40,9 @@ import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.XMPPException.XMPPErrorException;
-import org.jivesoftware.smack.filter.StanzaFilter;
 import org.jivesoftware.smack.packet.Stanza;
-import org.jivesoftware.smack.packet.XMPPError;
-import org.jivesoftware.smack.packet.XMPPError.Condition;
+import org.jivesoftware.smack.packet.StanzaError;
+import org.jivesoftware.smack.packet.StanzaError.Condition;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.iqregister.AccountManager;
@@ -98,7 +97,7 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
     private int connectionPollDelay = 10;
     @UriParam(label = "filter")
     private HeaderFilterStrategy headerFilterStrategy = new DefaultHeaderFilterStrategy();
-    @UriParam(label = "advanced", description = "Currently XMPPTCPConnectionConfiguration is only supported (XMPP over TCP) but not BOSHConfiguration (XMPP over HTTP).")
+    @UriParam(label = "advanced")
     private ConnectionConfiguration connectionConfig;
 
     public XmppEndpoint() {
@@ -253,7 +252,7 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
         List<DomainBareJid> xmppServiceDomains = multiUserChatManager.getXMPPServiceDomains();
         if (xmppServiceDomains.isEmpty()) {
             throw new XMPPErrorException(null,
-                    XMPPError.from(Condition.item_not_found, "Cannot find any XMPPServiceDomain by MultiUserChatManager on connection: " + getConnectionMessage(connection)).build());
+                    StanzaError.from(Condition.item_not_found, "Cannot find any XMPPServiceDomain by MultiUserChatManager on connection: " + getConnectionMessage(connection)).build());
         }
 
         return room + "@" + xmppServiceDomains.iterator().next();
@@ -264,7 +263,7 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
     }
 
     public static String getConnectionMessage(XMPPConnection connection) {
-        return connection.getHost() + ":" + connection.getPort() + "/" + connection.getServiceName();
+        return connection.getHost() + ":" + connection.getPort() + "/" + connection.getXMPPServiceDomain();
     }
 
     public String getChatId() {
@@ -431,7 +430,7 @@ public class XmppEndpoint extends DefaultEndpoint implements HeaderFilterStrateg
     }
 
     /**
-     * To use an existing connection configuration
+     * To use an existing connection configuration. Currently {@link org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration} is only supported (XMPP over TCP).
      */
     public void setConnectionConfig(ConnectionConfiguration connectionConfig) {
         this.connectionConfig = connectionConfig;

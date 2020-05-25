@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
+
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.mail.BodyPart;
@@ -139,7 +140,7 @@ public class MimeMultipartDataFormat implements DataFormat {
             }
             mm.saveChanges();
             Enumeration<?> hl = mm.getAllHeaders();
-            List<String> headers = new ArrayList<String>();
+            List<String> headers = new ArrayList<>();
             if (!headersInline) {
                 while (hl.hasMoreElements()) {
                     Object ho = hl.nextElement();
@@ -218,7 +219,7 @@ public class MimeMultipartDataFormat implements DataFormat {
                     return stream;
                 }
             } catch (ParseException e) {
-                LOG.warn("Invalid Content-Type " + contentType + " ignored");
+                LOG.warn("Invalid Content-Type {} ignored", contentType);
                 return stream;
             }
             camelMessage = exchange.getOut();

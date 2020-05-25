@@ -16,7 +16,7 @@
  */
 package org.apache.camel.component.quickfixj.examples.trading;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -33,7 +33,6 @@ import org.apache.camel.component.quickfixj.examples.util.CountDownLatchDecremen
 import org.apache.camel.impl.DefaultCamelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import quickfix.field.ClOrdID;
 import quickfix.field.HandlInst;
 import quickfix.field.MsgType;
@@ -52,7 +51,7 @@ public class TradeExecutorExample {
         new TradeExecutorExample().sendMessage();
     }
     
-    public void sendMessage() throws Exception {        
+    public void sendMessage() throws Exception {
         DefaultCamelContext context = new DefaultCamelContext();
         context.addComponent("trade-executor", new TradeExecutorComponent());
         
@@ -128,7 +127,7 @@ public class TradeExecutorExample {
             new HandlInst('1'), 
             new Symbol("GOOG"), 
             new Side(Side.BUY), 
-            new TransactTime(new Date()), 
+            new TransactTime(LocalDateTime.now()), 
             new OrdType(OrdType.LIMIT));
         
         order.set(new OrderQty(10));

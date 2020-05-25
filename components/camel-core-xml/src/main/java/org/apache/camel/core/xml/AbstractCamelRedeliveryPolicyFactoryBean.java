@@ -67,6 +67,9 @@ public abstract class AbstractCamelRedeliveryPolicyFactoryBean extends AbstractC
     @Metadata(defaultValue = "DEBUG", description = "Sets the logging level to use for log messages when retries are attempted.")
     private LoggingLevel retryAttemptedLogLevel;
     @XmlAttribute
+    @Metadata(defaultValue = "0", description = "Sets the interval for log messages when retries are attempted.")
+    private String retryAttemptedLogInterval;
+    @XmlAttribute
     @Metadata(defaultValue = "true", description = "Sets whether to log retry attempts")
     private String logRetryAttempted;
     @XmlAttribute
@@ -79,6 +82,9 @@ public abstract class AbstractCamelRedeliveryPolicyFactoryBean extends AbstractC
     @Metadata(defaultValue = "false", description = "Sets whether errors should be logged even if its handled")
     private String logHandled;
     @XmlAttribute
+    @Metadata(defaultValue = "true", description = "Sets whether errors should be logged when a new exception occurred during handling a previous exception")
+    private String logNewException;
+    @XmlAttribute
     @Metadata(defaultValue = "false", description = "Sets whether errors should be logged even if its continued")
     private String logContinued;
     @XmlAttribute
@@ -87,6 +93,9 @@ public abstract class AbstractCamelRedeliveryPolicyFactoryBean extends AbstractC
     @XmlAttribute
     @Metadata(defaultValue = "false", description = "Sets whether to log exhausted errors including message history")
     private String logExhaustedMessageHistory;
+    @XmlAttribute
+    @Metadata(defaultValue = "false", description = "Sets whether exhausted message body/headers should be logged with message history included")
+    private String logExhaustedMessageBody;
     @XmlAttribute
     @Metadata(defaultValue = "false", description = "Disables redelivery by setting maximum redeliveries to 0.")
     private String disableRedelivery;
@@ -122,6 +131,9 @@ public abstract class AbstractCamelRedeliveryPolicyFactoryBean extends AbstractC
         if (retryAttemptedLogLevel != null) {
             answer.setRetryAttemptedLogLevel(retryAttemptedLogLevel);
         }
+        if (retryAttemptedLogInterval != null) {
+            answer.setRetryAttemptedLogInterval(CamelContextHelper.parseInteger(context, retryAttemptedLogInterval));
+        }
         if (backOffMultiplier != null) {
             answer.setBackOffMultiplier(CamelContextHelper.parseDouble(context, backOffMultiplier));
         }
@@ -146,6 +158,9 @@ public abstract class AbstractCamelRedeliveryPolicyFactoryBean extends AbstractC
         if (logHandled != null) {
             answer.setLogHandled(CamelContextHelper.parseBoolean(context, logHandled));
         }
+        if (logNewException != null) {
+            answer.setLogNewException(CamelContextHelper.parseBoolean(context, logNewException));
+        }
         if (logContinued != null) {
             answer.setLogContinued(CamelContextHelper.parseBoolean(context, logContinued));
         }
@@ -157,6 +172,9 @@ public abstract class AbstractCamelRedeliveryPolicyFactoryBean extends AbstractC
         }
         if (logExhaustedMessageHistory != null) {
             answer.setLogExhaustedMessageHistory(CamelContextHelper.parseBoolean(context, logExhaustedMessageHistory));
+        }
+        if (logExhaustedMessageBody != null) {
+            answer.setLogExhaustedMessageBody(CamelContextHelper.parseBoolean(context, logExhaustedMessageBody));
         }
         if (disableRedelivery != null) {
             if (CamelContextHelper.parseBoolean(context, disableRedelivery)) {
@@ -260,6 +278,14 @@ public abstract class AbstractCamelRedeliveryPolicyFactoryBean extends AbstractC
         this.retryAttemptedLogLevel = retryAttemptedLogLevel;
     }
 
+    public String getRetryAttemptedLogInterval() {
+        return retryAttemptedLogInterval;
+    }
+
+    public void setRetryAttemptedLogInterval(String retryAttemptedLogInterval) {
+        this.retryAttemptedLogInterval = retryAttemptedLogInterval;
+    }
+
     public String getLogRetryAttempted() {
         return logRetryAttempted;
     }
@@ -292,6 +318,14 @@ public abstract class AbstractCamelRedeliveryPolicyFactoryBean extends AbstractC
         this.logHandled = logHandled;
     }
 
+    public String getLogNewException() {
+        return logNewException;
+    }
+
+    public void setLogNewException(String logNewException) {
+        this.logNewException = logNewException;
+    }
+
     public String getLogContinued() {
         return logContinued;
     }
@@ -316,10 +350,21 @@ public abstract class AbstractCamelRedeliveryPolicyFactoryBean extends AbstractC
         this.logExhaustedMessageHistory = logExhaustedMessageHistory;
     }
 
+    public String getLogExhaustedMessageBody() {
+        return logExhaustedMessageBody;
+    }
+
+    public void setLogExhaustedMessageBody(String logExhaustedMessageBody) {
+        this.logExhaustedMessageBody = logExhaustedMessageBody;
+    }
+
     public String getDisableRedelivery() {
         return disableRedelivery;
     }
 
+    /**
+     * Disables redelivery (same as setting maximum redeliveries to 0)
+     */
     public void setDisableRedelivery(String disableRedelivery) {
         this.disableRedelivery = disableRedelivery;
     }

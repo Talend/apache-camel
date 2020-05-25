@@ -15,20 +15,23 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 public class FileRecursiveDepthTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/depth");
         super.setUp();
     }
 
+    @Test
     public void testDepth() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodiesReceivedInAnyOrder("a2", "b2");
@@ -44,6 +47,7 @@ public class FileRecursiveDepthTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testDepthMin2Max99() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
 
@@ -59,6 +63,7 @@ public class FileRecursiveDepthTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testMin1Max1() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
 
@@ -80,15 +85,15 @@ public class FileRecursiveDepthTest extends ContextTestSupport {
             @Override
             public void configure() throws Exception {
 
-                from("file:target/depth?recursive=true&minDepth=2&maxDepth=2")
+                from("file:target/depth?initialDelay=0&delay=10&recursive=true&minDepth=2&maxDepth=2")
                     .convertBodyTo(String.class)
                     .to("mock:result");
 
-                from("file:target/depth2?recursive=true&minDepth=2&maxDepth=99")
+                from("file:target/depth2?initialDelay=0&delay=10&recursive=true&minDepth=2&maxDepth=99")
                     .convertBodyTo(String.class)
                     .to("mock:result");
 
-                from("file:target/depth3?recursive=true&minDepth=1&maxDepth=1")
+                from("file:target/depth3?initialDelay=0&delay=10&recursive=true&minDepth=1&maxDepth=1")
                     .convertBodyTo(String.class)
                     .to("mock:result");
             }

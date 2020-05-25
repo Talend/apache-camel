@@ -169,7 +169,7 @@ public abstract class JettyHttpEndpoint extends HttpCommonEndpoint {
         // set optional http client parameters
         if (httpClientParameters != null) {
             // copy parameters as we need to re-use them again if creating a new producer later
-            Map<String, Object> params = new HashMap<String, Object>(httpClientParameters);
+            Map<String, Object> params = new HashMap<>(httpClientParameters);
             // Can not be set on httpClient for jetty 9
             params.remove("timeout");
             IntrospectionSupport.setProperties(httpClient, params);
@@ -186,7 +186,7 @@ public abstract class JettyHttpEndpoint extends HttpCommonEndpoint {
 
     @Override
     public Consumer createConsumer(Processor processor) throws Exception {
-        HttpConsumer answer = new HttpConsumer(this, processor);
+        JettyHttpConsumer answer = new JettyHttpConsumer(this, processor);
         configureConsumer(answer);
         return answer;
     }

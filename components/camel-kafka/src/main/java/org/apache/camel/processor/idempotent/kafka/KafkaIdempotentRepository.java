@@ -34,10 +34,9 @@ import org.apache.camel.api.management.ManagedResource;
 import org.apache.camel.spi.IdempotentRepository;
 import org.apache.camel.support.ServiceSupport;
 import org.apache.camel.util.IOHelper;
-import org.apache.camel.util.LRUCache;
+import org.apache.camel.util.LRUCacheFactory;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.StringHelper;
-
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -245,11 +244,12 @@ public class KafkaIdempotentRepository extends ServiceSupport implements Idempot
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void doStart() throws Exception {
         ObjectHelper.notNull(camelContext, "camelContext");
         StringHelper.notEmpty(topic, "topic");
 
-        this.cache = Collections.synchronizedMap(new LRUCache<>(maxCacheSize));
+        this.cache = LRUCacheFactory.newLRUCache(maxCacheSize);
 
         if (consumerConfig == null) {
             consumerConfig = new Properties();

@@ -18,11 +18,14 @@ package org.apache.camel.model;
 
 import java.util.Collections;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.camel.AsyncProcessor;
+import org.apache.camel.ErrorHandlerFactory;
 import org.apache.camel.Expression;
 import org.apache.camel.Processor;
 import org.apache.camel.model.language.ExpressionDefinition;
@@ -60,6 +63,11 @@ public class DynamicRouterDefinition<Type extends ProcessorDefinition<Type>> ext
     }
     
     @Override
+    public String getShortName() {
+        return "dynamicRouter";
+    }
+
+    @Override
     public String getLabel() {
         return "dynamicRouter[" + getExpression() + "]";
     }
@@ -81,6 +89,14 @@ public class DynamicRouterDefinition<Type extends ProcessorDefinition<Type>> ext
         if (getCacheSize() != null) {
             dynamicRouter.setCacheSize(getCacheSize());
         }
+
+        // and wrap this in an error handler
+        ErrorHandlerFactory builder = routeContext.getRoute().getErrorHandlerBuilder();
+        // create error handler (create error handler directly to keep it light weight,
+        // instead of using ProcessorDefinition.wrapInErrorHandler)
+        AsyncProcessor errorHandler = (AsyncProcessor) builder.createErrorHandler(routeContext, dynamicRouter.newRoutingSlipProcessorForErrorHandler());
+        dynamicRouter.setErrorHandler(errorHandler);
+
         return dynamicRouter;
     }
 
@@ -153,7 +169,7 @@ public class DynamicRouterDefinition<Type extends ProcessorDefinition<Type>> ext
     
     /**
      * Sets the maximum size used by the {@link org.apache.camel.impl.ProducerCache} which is used
-     * to cache and reuse producers when using this recipient list, when uris are reused.
+     * to cache and reuse producers when using this dynamic router, when uris are reused.
      *
      * @param cacheSize  the cache size, use <tt>0</tt> for default cache size, or <tt>-1</tt> to turn cache off.
      * @return the builder

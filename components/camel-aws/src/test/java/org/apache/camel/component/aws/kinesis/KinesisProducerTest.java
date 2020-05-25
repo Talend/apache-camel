@@ -30,10 +30,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -51,6 +51,8 @@ public class KinesisProducerTest {
     @Mock
     private KinesisEndpoint kinesisEndpoint;
     @Mock
+    private KinesisConfiguration kinesisConfiguration;
+    @Mock
     private Message outMessage;
     @Mock
     private Message inMessage;
@@ -63,8 +65,8 @@ public class KinesisProducerTest {
     @Before
     public void setup() throws Exception {
         when(kinesisEndpoint.getClient()).thenReturn(kinesisClient);
-        when(kinesisEndpoint.getEndpointUri()).thenReturn("kinesis://etl");
-        when(kinesisEndpoint.getStreamName()).thenReturn(STREAM_NAME);
+        when(kinesisEndpoint.getConfiguration()).thenReturn(kinesisConfiguration);
+        when(kinesisEndpoint.getConfiguration().getStreamName()).thenReturn(STREAM_NAME);
 
         when(exchange.getOut()).thenReturn(outMessage);
         when(exchange.getIn()).thenReturn(inMessage);

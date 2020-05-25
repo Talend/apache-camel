@@ -39,8 +39,6 @@ import org.apache.camel.component.salesforce.api.dto.GlobalObjects;
 import org.apache.camel.component.salesforce.api.dto.RestResources;
 import org.apache.camel.component.salesforce.api.dto.SObjectBasicInfo;
 import org.apache.camel.component.salesforce.api.dto.SObjectDescription;
-import org.apache.camel.component.salesforce.api.dto.SearchResult;
-import org.apache.camel.component.salesforce.api.dto.SearchResults;
 import org.apache.camel.component.salesforce.api.dto.Version;
 import org.apache.camel.component.salesforce.api.dto.Versions;
 import org.apache.camel.component.salesforce.dto.generated.Document;
@@ -134,6 +132,7 @@ public class RestApiIntegrationTest extends AbstractSalesforceTestBase {
         merchandise.setName("Test Merchandise");
         merchandise.setPrice__c(10.0);
         merchandise.setTotal_Inventory__c(100.0);
+        merchandise.setDescription__c("Test Merchandise!");
         final CreateSObjectResult result = template().requestBody("salesforce:createSObject", merchandise,
             CreateSObjectResult.class);
 
@@ -407,16 +406,7 @@ public class RestApiIntegrationTest extends AbstractSalesforceTestBase {
     public void testSearch() throws Exception {
 
         final Object obj = template().requestBody("direct:search", (Object) null);
-        List<SearchResult> searchResults = null;
-        if (obj instanceof SearchResults) {
-            final SearchResults results = (SearchResults) obj;
-            searchResults = results.getResults();
-        } else {
-            @SuppressWarnings("unchecked")
-            final List<SearchResult> tmp = (List<SearchResult>) obj;
-            searchResults = tmp;
-        }
-        assertNotNull(searchResults);
+        assertNotNull(obj);
     }
 
     @Test
@@ -503,6 +493,14 @@ public class RestApiIntegrationTest extends AbstractSalesforceTestBase {
             assertEquals(404, noSuchObject.getStatusCode());
             assertEquals(1, noSuchObject.getErrors().size());
         }
+    }
+
+    @Test
+    public void testFetchingGlobalObjects() {
+        final GlobalObjects globalObjects = template().requestBody("salesforce:getGlobalObjects", null, GlobalObjects.class);
+
+        assertNotNull(globalObjects);
+        assertFalse(globalObjects.getSobjects().isEmpty());
     }
 
     @Override

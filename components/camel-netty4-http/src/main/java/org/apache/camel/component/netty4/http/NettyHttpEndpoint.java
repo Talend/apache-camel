@@ -36,6 +36,7 @@ import org.apache.camel.spi.HeaderFilterStrategyAware;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ import org.slf4j.LoggerFactory;
 @UriEndpoint(firstVersion = "2.14.0", scheme = "netty4-http", extendsScheme = "netty4", title = "Netty4 HTTP",
         syntax = "netty4-http:protocol:host:port/path", consumerClass = NettyHttpConsumer.class, label = "http", lenientProperties = true,
         excludeProperties = "textline,delimiter,autoAppendDelimiter,decoderMaxLineLength,encoding,allowDefaultCodec,udpConnectionlessSending,networkInterface"
-                + ",clientMode,reconnect,reconnectInterval,useByteBuf,udpByteArrayCodec,broadcast")
+                + ",clientMode,reconnect,reconnectInterval,useByteBuf,udpByteArrayCodec,broadcast,correlationManager")
 public class NettyHttpEndpoint extends NettyEndpoint implements AsyncEndpoint, HeaderFilterStrategyAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(NettyHttpEndpoint.class);
@@ -249,8 +250,8 @@ public class NettyHttpEndpoint extends NettyEndpoint implements AsyncEndpoint, H
         ObjectHelper.notNull(headerFilterStrategy, "headerFilterStrategy", this);
 
         if (securityConfiguration != null) {
-            ObjectHelper.notEmpty(securityConfiguration.getRealm(), "realm", securityConfiguration);
-            ObjectHelper.notEmpty(securityConfiguration.getConstraint(), "restricted", securityConfiguration);
+            StringHelper.notEmpty(securityConfiguration.getRealm(), "realm", securityConfiguration);
+            StringHelper.notEmpty(securityConfiguration.getConstraint(), "restricted", securityConfiguration);
 
             if (securityConfiguration.getSecurityAuthenticator() == null) {
                 // setup default JAAS authenticator if none was configured

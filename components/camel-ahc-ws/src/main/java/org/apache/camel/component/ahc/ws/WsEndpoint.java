@@ -23,14 +23,15 @@ import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.component.ahc.AhcEndpoint;
+import org.apache.camel.spi.ExceptionHandler;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
-import org.asynchttpclient.ws.DefaultWebSocketListener;
 import org.asynchttpclient.ws.WebSocket;
+import org.asynchttpclient.ws.WebSocketListener;
 import org.asynchttpclient.ws.WebSocketUpgradeHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ import org.slf4j.LoggerFactory;
 public class WsEndpoint extends AhcEndpoint {
     private static final transient Logger LOG = LoggerFactory.getLogger(WsEndpoint.class);
 
-    private final Set<WsConsumer> consumers = new HashSet<WsConsumer>();
+    private final Set<WsConsumer> consumers = new HashSet<>();
     private final WsListener listener = new WsListener();
     private transient WebSocket websocket;
 
@@ -68,7 +69,9 @@ public class WsEndpoint extends AhcEndpoint {
 
     @Override
     public Consumer createConsumer(Processor processor) throws Exception {
-        return new WsConsumer(this, processor);
+        WsConsumer consumer = new WsConsumer(this, processor);
+        configureConsumer(consumer);
+        return consumer;
     }
 
     WebSocket getWebSocket() throws Exception {
@@ -133,7 +136,7 @@ public class WsEndpoint extends AhcEndpoint {
                 LOG.debug("Disconnecting from {}", getHttpUri().toASCIIString());
             }
             websocket.removeWebSocketListener(listener);
-            websocket.close();
+            websocket.sendCloseFrame();
             websocket = null;
         }
         super.doStop();
@@ -156,7 +159,7 @@ public class WsEndpoint extends AhcEndpoint {
         }
     }
 
-    class WsListener extends DefaultWebSocketListener {
+    class WsListener implements WebSocketListener {
 
         @Override
         public void onOpen(WebSocket websocket) {
@@ -164,12 +167,16 @@ public class WsEndpoint extends AhcEndpoint {
         }
 
         @Override
-        public void onClose(WebSocket websocket) {
+        public void onClose(WebSocket websocket, int code, String reason) {
             LOG.debug("websocket closed - reconnecting");
             try {
                 reConnect();
             } catch (Exception e) {
                 LOG.warn("Error re-connecting to websocket", e);
+                ExceptionHandler exceptionHandler = getExceptionHandler();
+                if (exceptionHandler != null) {
+                    exceptionHandler.handleException("Error re-connecting to websocket", e);
+                }
             }
         }
 
@@ -184,7 +191,7 @@ public class WsEndpoint extends AhcEndpoint {
         }
 
         @Override
-        public void onMessage(byte[] message) {
+        public void onBinaryFrame(byte[] message, boolean finalFragment, int rsv) {
             LOG.debug("Received message --> {}", message);
             for (WsConsumer consumer : consumers) {
                 consumer.sendMessage(message);
@@ -192,13 +199,17 @@ public class WsEndpoint extends AhcEndpoint {
         }
 
         @Override
-        public void onMessage(String message) {
+        public void onTextFrame(String message, boolean finalFragment, int rsv) {
             LOG.debug("Received message --> {}", message);
             for (WsConsumer consumer : consumers) {
                 consumer.sendMessage(message);
             }
         }
 
+        public void onPingFrame(byte[] payload) {
+            LOG.debug("Received ping --> {}", payload);
+            websocket.sendPongFrame(payload);
+        }
     }
 
 }

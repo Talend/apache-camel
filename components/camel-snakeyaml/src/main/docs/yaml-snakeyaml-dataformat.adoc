@@ -1,8 +1,9 @@
-## YAML SnakeYAML DataFormat
+[[yaml-snakeyaml-dataformat]]
+== YAML SnakeYAML DataFormat
 
 *Available as of Camel version 2.17*
 
-YAML is a link:data-format.html[Data Format] to marshal and unmarshal
+YAML is a Data Format to marshal and unmarshal
 Java objects to and from http://www.yaml.org/[YAML].
 
 For YAML to object marshalling, Camel provides integration with three
@@ -17,12 +18,12 @@ SnakeYAML library.
 ### YAML Options
 
 // dataformat options: START
-The YAML SnakeYAML dataformat supports 11 options which are listed below.
+The YAML SnakeYAML dataformat supports 11 options, which are listed below.
 
 
 
 [width="100%",cols="2s,1m,1m,6",options="header"]
-|=======================================================================
+|===
 | Name | Default | Java Type | Description
 | library | SnakeYAML | YAMLLibrary | Which yaml library to use. By default it is SnakeYAML
 | unmarshalTypeName |  | String | Class name of the java type to use when unarmshalling
@@ -34,9 +35,34 @@ The YAML SnakeYAML dataformat supports 11 options which are listed below.
 | prettyFlow | false | Boolean | Force the emitter to produce a pretty YAML document when using the flow style.
 | allowAnyType | false | Boolean | Allow any class to be un-marshaled
 | typeFilter |  | List | Set the types SnakeYAML is allowed to un-marshall
-| contentTypeHeader | false | Boolean | Whether the data format should set the Content-Type header with the type from the data format if the data format is capable of doing so. For example application/xml for data formats marshalling to XML or application/json for data formats marshalling to JSon etc.
-|=======================================================================
+| contentTypeHeader | false | Boolean | Whether the data format should set the Content-Type header with the type from the data format if the data format is capable of doing so. For example application/xml for data formats marshalling to XML, or application/json for data formats marshalling to JSon etc.
+|===
 // dataformat options: END
+// spring-boot-auto-configure options: START
+=== Spring Boot Auto-Configuration
+
+
+The component supports 12 options, which are listed below.
+
+
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Name | Description | Default | Type
+| *camel.dataformat.yaml-snakeyaml.allow-any-type* | Allow any class to be un-marshaled | false | Boolean
+| *camel.dataformat.yaml-snakeyaml.constructor* | BaseConstructor to construct incoming documents. |  | String
+| *camel.dataformat.yaml-snakeyaml.content-type-header* | Whether the data format should set the Content-Type header with the type from the data format if the data format is capable of doing so. For example application/xml for data formats marshalling to XML, or application/json for data formats marshalling to JSon etc. | false | Boolean
+| *camel.dataformat.yaml-snakeyaml.dumper-options* | DumperOptions to configure outgoing objects. |  | String
+| *camel.dataformat.yaml-snakeyaml.enabled* | Enable yaml-snakeyaml dataformat | true | Boolean
+| *camel.dataformat.yaml-snakeyaml.library* | Which yaml library to use. By default it is SnakeYAML |  | YAMLLibrary
+| *camel.dataformat.yaml-snakeyaml.pretty-flow* | Force the emitter to produce a pretty YAML document when using the flow style. | false | Boolean
+| *camel.dataformat.yaml-snakeyaml.representer* | Representer to emit outgoing objects. |  | String
+| *camel.dataformat.yaml-snakeyaml.resolver* | Resolver to detect implicit type |  | String
+| *camel.dataformat.yaml-snakeyaml.type-filter* | Set the types SnakeYAML is allowed to un-marshall |  | List
+| *camel.dataformat.yaml-snakeyaml.unmarshal-type-name* | Class name of the java type to use when unarmshalling |  | String
+| *camel.dataformat.yaml-snakeyaml.use-application-context-class-loader* | Use ApplicationContextClassLoader as custom ClassLoader | true | Boolean
+|===
+// spring-boot-auto-configure options: END
 
 WARNING: SnakeYAML can load any class from YAML definition which may lead to security breach so by default, SnakeYAML DataForma restrict the object it can load to standard Java objects like List or Long. If you want to load custom POJOs you need to add theirs type to SnakeYAML DataFormat type filter list. If your source is trusted, you can set the property allowAnyType to true so SnakeYAML DataForma won't perform any filter on the types.
 
@@ -75,7 +101,7 @@ from("activemq:My.Queue")
 
 ### Using YAML in Spring DSL
 
-When using link:data-format.html[Data Format] in Spring DSL you need to
+When using Data Format in Spring DSL you need to
 declare the data formats first. This is done in the *DataFormats* XML
 tag.
 
@@ -132,7 +158,7 @@ on *camel-snakeyaml* which implements this data format.
 
 If you use maven you could just add the following to your pom.xml,
 substituting the version number for the latest & greatest release
-(see link:download.html[the download page for the latest versions]).
+(see the download page for the latest versions).
 
 [source,xml]
 ------------------------------------------

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import javax.net.ssl.HostnameVerifier;
 
 import org.apache.camel.CamelContext;
@@ -46,8 +47,9 @@ import org.apache.camel.util.jsse.SSLContextParameters;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.util.ModCountCopyOnWriteArrayList;
+import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.feature.Feature;
-import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.AbstractJAXRSFactoryBean;
@@ -83,6 +85,8 @@ public class CxfRsEndpoint extends DefaultEndpoint implements HeaderFilterStrate
     private String address;
     @UriParam
     private List<Class<?>> resourceClasses;
+    @UriParam(label = "consumer,advanced")
+    private List<Object> serviceBeans;
     @UriParam
     private String modelRef;
     @UriParam(label = "consumer", defaultValue = "Default")
@@ -94,12 +98,12 @@ public class CxfRsEndpoint extends DefaultEndpoint implements HeaderFilterStrate
     @UriParam(label = "advanced")
     private CxfRsBinding binding;
     @UriParam(javaType = "java.lang.String")
-    private List<Object> providers = new LinkedList<Object>();
+    private List<Object> providers = new LinkedList<>();
     private String providersRef;
     @UriParam
     private List<String> schemaLocations;
     @UriParam
-    private List<Feature> features = new ModCountCopyOnWriteArrayList<Feature>();
+    private List<Feature> features = new ModCountCopyOnWriteArrayList<>();
     @UriParam(label = "producer,advanced", defaultValue = "true")
     private boolean httpClientAPI = true;
     @UriParam(label = "producer,advanced")
@@ -251,6 +255,9 @@ public class CxfRsEndpoint extends DefaultEndpoint implements HeaderFilterStrate
         if (getResourceClasses() != null) {
             sfb.setResourceClasses(getResourceClasses());
         }
+        if (serviceBeans != null && !serviceBeans.isEmpty()) {
+            sfb.setServiceBeans(serviceBeans);
+        }
 
         // setup the resource providers for interfaces
         List<ClassResourceInfo> cris = sfb.getServiceFactory().getClassResourceInfo();
@@ -265,7 +272,7 @@ public class CxfRsEndpoint extends DefaultEndpoint implements HeaderFilterStrate
         getNullSafeCxfRsEndpointConfigurer().configure(sfb);
     }
 
-    private CxfRsEndpointConfigurer getNullSafeCxfRsEndpointConfigurer() {
+    protected CxfRsEndpointConfigurer getNullSafeCxfRsEndpointConfigurer() {
         if (cxfRsEndpointConfigurer == null) {
             return new ChainedCxfRsEndpointConfigurer.NullCxfRsEndpointConfigurer();
         }
@@ -290,7 +297,7 @@ public class CxfRsEndpoint extends DefaultEndpoint implements HeaderFilterStrate
      */
     private void processUserResources(JAXRSServerFactoryBean sfb, List<UserResource> resources) {
         for (UserResource resource : resources) {
-            if (resource.getName() == null) {
+            if (StringUtils.isEmpty(resource.getName())) {
                 resource.setName(DefaultModelResource.class.getName());
             }
         }
@@ -303,10 +310,6 @@ public class CxfRsEndpoint extends DefaultEndpoint implements HeaderFilterStrate
     }
 
     protected void setupJAXRSClientFactoryBean(JAXRSClientFactoryBean cfb, String address) {
-        // address
-        if (address != null) {
-            cfb.setAddress(address);
-        }
         if (modelRef != null) {
             cfb.setModelRef(modelRef);
         }
@@ -317,6 +320,10 @@ public class CxfRsEndpoint extends DefaultEndpoint implements HeaderFilterStrate
         setupCommonFactoryProperties(cfb);
         cfb.setThreadSafe(true);
         getNullSafeCxfRsEndpointConfigurer().configure(cfb);
+        // Add the address could be override by message header
+        if (address != null) {
+            cfb.setAddress(address);
+        }
     }
 
     protected void setupCommonFactoryProperties(AbstractJAXRSFactoryBean factory) {
@@ -358,11 +365,11 @@ public class CxfRsEndpoint extends DefaultEndpoint implements HeaderFilterStrate
         }
 
         if (isLoggingFeatureEnabled()) {
+            LoggingFeature loggingFeature = new LoggingFeature();
             if (getLoggingSizeLimit() > 0) {
-                factory.getFeatures().add(new LoggingFeature(getLoggingSizeLimit()));
-            } else {
-                factory.getFeatures().add(new LoggingFeature());
+                loggingFeature.setLimit(getLoggingSizeLimit());
             }
+            factory.getFeatures().add(loggingFeature);
         }
         if (this.isSkipFaultLogging()) {
             if (factory.getProperties() == null) {
@@ -421,7 +428,7 @@ public class CxfRsEndpoint extends DefaultEndpoint implements HeaderFilterStrate
 
     public void addResourceClass(Class<?> resourceClass) {
         if (resourceClasses == null) {
-            resourceClasses = new ArrayList<Class<?>>();
+            resourceClasses = new ArrayList<>();
         }
         resourceClasses.add(resourceClass);
     }
@@ -436,6 +443,33 @@ public class CxfRsEndpoint extends DefaultEndpoint implements HeaderFilterStrate
     public void setResourceClasses(Class<?>... classes) {
         setResourceClasses(Arrays.asList(classes));
     }
+
+    public List<?> getServiceBeans() {
+        return serviceBeans;
+    }
+
+    public void addServiceBean(Object bean) {
+        if (serviceBeans == null) {
+            serviceBeans = new ArrayList<>();
+        }
+        serviceBeans.add(bean);
+    }
+
+    /**
+     * The service beans which you want to export as REST service. Multiple beans can be separated by comma.
+     */
+    public void setServiceBeans(List<?> beans) {
+        this.serviceBeans = new ArrayList<Object>(beans);
+    }
+
+    public void setServiceBeans(Object... beans) {
+        setServiceBeans(Arrays.asList(beans));
+    }
+
+    public void setServiceBeans(String beans) {
+        setServiceBeans(EndpointHelper.resolveReferenceListParameter(getCamelContext(), beans, Object.class));
+    }
+
 
     /**
      * The service publish address.

@@ -27,7 +27,6 @@ import krati.store.DynamicDataSet;
 import krati.store.DynamicDataStore;
 import krati.store.SerializableObjectStore;
 import krati.util.HashFunction;
-
 import org.apache.camel.RuntimeCamelException;
 
 public final class KratiHelper {
@@ -59,7 +58,7 @@ public final class KratiHelper {
             storeConfig.setHashFunction(hashFunction);
             storeConfig.setSegmentFileSizeMB(segmentFileSize);
             DataStore<byte[], byte[]> dynamicDataStore = new DynamicDataStore(storeConfig);
-            result = new SerializableObjectStore<K, V>(dynamicDataStore, keySerializer, valueSerializer);
+            result = new SerializableObjectStore<>(dynamicDataStore, keySerializer, valueSerializer);
         } catch (Exception e) {
             throw new RuntimeCamelException("Failed to create Krati DataStore.", e);
         }

@@ -18,8 +18,6 @@ package org.apache.camel.tools.apt.model;
 
 import java.util.Set;
 
-import org.apache.camel.tools.apt.helper.CollectionStringBuffer;
-
 import static org.apache.camel.tools.apt.helper.Strings.isNullOrEmpty;
 
 public final class ComponentOption {
@@ -32,6 +30,7 @@ public final class ComponentOption {
     private String defaultValueNote;
     private String documentation;
     private boolean deprecated;
+    private String deprecationNode;
     private boolean secret;
     private String group;
     private String label;
@@ -39,7 +38,7 @@ public final class ComponentOption {
     private Set<String> enums;
 
     public ComponentOption(String name, String displayName, String type, String required, String defaultValue, String defaultValueNote,
-                           String documentation, boolean deprecated, boolean secret, String group, String label,
+                           String documentation, boolean deprecated, String deprecationNode, boolean secret, String group, String label,
                            boolean enumType, Set<String> enums) {
         this.name = name;
         this.displayName = displayName;
@@ -49,6 +48,7 @@ public final class ComponentOption {
         this.defaultValueNote = defaultValueNote;
         this.documentation = documentation;
         this.deprecated = deprecated;
+        this.deprecationNode = deprecationNode;
         this.secret = secret;
         this.group = group;
         this.label = label;
@@ -84,6 +84,10 @@ public final class ComponentOption {
         return deprecated;
     }
 
+    public String getDeprecationNode() {
+        return deprecationNode;
+    }
+
     public boolean isSecret() {
         return secret;
     }
@@ -94,6 +98,10 @@ public final class ComponentOption {
 
         if (!isNullOrEmpty(defaultValueNote)) {
             sb.append(". Default value notice: ").append(defaultValueNote);
+        }
+
+        if (!isNullOrEmpty(deprecationNode)) {
+            sb.append(". Deprecation note: ").append(deprecationNode);
         }
 
         return sb.toString();

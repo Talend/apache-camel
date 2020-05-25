@@ -15,17 +15,21 @@
  * limitations under the License.
  */
 package org.apache.camel.impl.verifier;
-
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.camel.ComponentVerifier;
-import org.apache.camel.ComponentVerifier.VerificationError;
 import org.apache.camel.ContextTestSupport;
+import org.apache.camel.component.extension.ComponentVerifierExtension;
+import org.apache.camel.component.extension.ComponentVerifierExtension.Result;
+import org.apache.camel.component.extension.ComponentVerifierExtension.Scope;
+import org.apache.camel.component.extension.ComponentVerifierExtension.VerificationError;
+import org.apache.camel.component.extension.verifier.DefaultComponentVerifierExtension;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class DefaultComponentVerifierTest extends ContextTestSupport {
-    private ComponentVerifier verifier;
+    private ComponentVerifierExtension verifier;
 
     @Override
     public boolean isUseRouteBuilder() {
@@ -33,49 +37,59 @@ public class DefaultComponentVerifierTest extends ContextTestSupport {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
-        this.verifier = new DefaultComponentVerifier("timer", context);
+        this.verifier = new TestVerifier();
     }
 
     // *************************************
     // Tests
     // *************************************
 
+    @Test
     public void testParameters() throws Exception {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("timerName", "dummy");
         parameters.put("period", "1s");
 
-        ComponentVerifier.Result result = verifier.verify(ComponentVerifier.Scope.PARAMETERS, parameters);
-        Assert.assertEquals(ComponentVerifier.Result.Status.OK, result.getStatus());
+        Result result = verifier.verify(Scope.PARAMETERS, parameters);
+        Assert.assertEquals(Result.Status.OK, result.getStatus());
     }
 
+    @Test
     public void testParametersWithMissingMandatoryOptions() throws Exception {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("period", "1s");
 
-        ComponentVerifier.Result result = verifier.verify(ComponentVerifier.Scope.PARAMETERS, parameters);
-        Assert.assertEquals(ComponentVerifier.Result.Status.ERROR, result.getStatus());
+        Result result = verifier.verify(Scope.PARAMETERS, parameters);
+        Assert.assertEquals(Result.Status.ERROR, result.getStatus());
 
         Assert.assertEquals(1, result.getErrors().size());
         Assert.assertEquals(VerificationError.StandardCode.MISSING_PARAMETER, result.getErrors().get(0).getCode());
         Assert.assertTrue(result.getErrors().get(0).getParameterKeys().contains("timerName"));
     }
 
+    @Test
     public void testParametersWithWrongOptions() throws Exception {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("timerName", "dummy");
         parameters.put("period", "1s");
         parameters.put("fixedRate", "wrong");
 
-        ComponentVerifier.Result result = verifier.verify(ComponentVerifier.Scope.PARAMETERS, parameters);
-        Assert.assertEquals(ComponentVerifier.Result.Status.ERROR, result.getStatus());
+        Result result = verifier.verify(Scope.PARAMETERS, parameters);
+        Assert.assertEquals(Result.Status.ERROR, result.getStatus());
 
         Assert.assertEquals(1, result.getErrors().size());
         Assert.assertEquals(VerificationError.StandardCode.ILLEGAL_PARAMETER_VALUE, result.getErrors().get(0).getCode());
         Assert.assertEquals("fixedRate has wrong value (wrong)", result.getErrors().get(0).getDescription());
         Assert.assertTrue(result.getErrors().get(0).getParameterKeys().contains("fixedRate"));
+    }
+
+    private class TestVerifier extends DefaultComponentVerifierExtension {
+        public TestVerifier() {
+            super("timer", context);
+        }
     }
 }

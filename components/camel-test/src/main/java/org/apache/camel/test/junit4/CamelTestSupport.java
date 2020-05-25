@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,7 +32,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -78,7 +81,6 @@ import org.apache.camel.util.IOHelper;
 import org.apache.camel.util.StopWatch;
 import org.apache.camel.util.TimeUtils;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.slf4j.Logger;
@@ -87,17 +89,21 @@ import org.slf4j.LoggerFactory;
 /**
  * A useful base class which creates a {@link org.apache.camel.CamelContext} with some routes
  * along with a {@link org.apache.camel.ProducerTemplate} for use in the test case
- *
- * @version
+ * Do <tt>not</tt> use this class for Spring Boot testing, instead use <code>@RunWith(CamelSpringBootRunner.class)</code>.
  */
 public abstract class CamelTestSupport extends TestSupport {
+
+    /**
+     * JVM system property which can be set to true to turn on dumping route coverage statistics.
+     */
+    public static final String ROUTE_COVERAGE_ENABLED = "CamelTestRouteCoverage";
+
     private static final Logger LOG = LoggerFactory.getLogger(CamelTestSupport.class);
-    private static final ThreadLocal<Boolean> INIT = new ThreadLocal<Boolean>();
-    private static ThreadLocal<ModelCamelContext> threadCamelContext = new ThreadLocal<ModelCamelContext>();
-    private static ThreadLocal<ProducerTemplate> threadTemplate = new ThreadLocal<ProducerTemplate>();
-    private static ThreadLocal<FluentProducerTemplate> threadFluentTemplate = new ThreadLocal<FluentProducerTemplate>();
-    private static ThreadLocal<ConsumerTemplate> threadConsumer = new ThreadLocal<ConsumerTemplate>();
-    private static ThreadLocal<Service> threadService = new ThreadLocal<Service>();
+    private static ThreadLocal<ModelCamelContext> threadCamelContext = new ThreadLocal<>();
+    private static ThreadLocal<ProducerTemplate> threadTemplate = new ThreadLocal<>();
+    private static ThreadLocal<FluentProducerTemplate> threadFluentTemplate = new ThreadLocal<>();
+    private static ThreadLocal<ConsumerTemplate> threadConsumer = new ThreadLocal<>();
+    private static ThreadLocal<Service> threadService = new ThreadLocal<>();
     protected volatile ModelCamelContext context;
     protected volatile ProducerTemplate template;
     protected volatile FluentProducerTemplate fluentTemplate;
@@ -107,7 +113,8 @@ public abstract class CamelTestSupport extends TestSupport {
     private boolean useRouteBuilder = true;
     private final DebugBreakpoint breakpoint = new DebugBreakpoint();
     private final StopWatch watch = new StopWatch();
-    private final Map<String, String> fromEndpoints = new HashMap<String, String>();
+    private final Map<String, String> fromEndpoints = new HashMap<>();
+    private final AtomicInteger tests = new AtomicInteger(0);
     private CamelTestWatcher camelTestWatcher = new CamelTestWatcher();
 
     /**
@@ -128,6 +135,8 @@ public abstract class CamelTestSupport extends TestSupport {
      * <p/>
      * This allows tooling or manual inspection of the stats, so you can generate a route trace diagram of which EIPs
      * have been in use and which have not. Similar concepts as a code coverage report.
+     * <p/>
+     * You can also turn on route coverage globally via setting JVM system property <tt>CamelTestRouteCoverage=true</tt>.
      *
      * @return <tt>true</tt> to write route coverage status in an xml file in the <tt>target/camel-route-coverage</tt> directory after the test has finished.
      */
@@ -245,19 +254,29 @@ public abstract class CamelTestSupport extends TestSupport {
         log.info("********************************************************************************");
 
         if (isCreateCamelContextPerClass()) {
-            // test is per class, so only setup once (the first time)
-            boolean first = INIT.get() == null;
-            if (first) {
-                doPreSetup();
-                doSetUp();
-                doPostSetup();
-            } else {
-                // and in between tests we must do IoC and reset mocks
-                postProcessTest();
-                resetMocks();
+            while (true) {
+                int v = tests.get();
+                if (tests.compareAndSet(v, v + 1)) {
+                    if (v == 0) {
+                        // test is per class, so only setup once (the first time)
+                        doSpringBootCheck();
+                        setupResources();
+                        doPreSetup();
+                        doSetUp();
+                        doPostSetup();
+                    } else {
+                        // and in between tests we must do IoC and reset mocks
+                        postProcessTest();
+                        resetMocks();
+                    }
+
+                    break;
+                }
             }
         } else {
             // test is per test so always setup
+            doSpringBootCheck();
+            setupResources();
             doPreSetup();
             doSetUp();
             doPostSetup();
@@ -281,10 +300,22 @@ public abstract class CamelTestSupport extends TestSupport {
         // noop
     }
 
+    /**
+     * Detects if this is a Spring-Boot test and throws an exception, as these base classes is not intended
+     * for testing Camel on Spring Boot.
+     */
+    protected void doSpringBootCheck() {
+        boolean springBoot = hasClassAnnotation("org.springframework.boot.test.context.SpringBootTest");
+        if (springBoot) {
+            throw new RuntimeException("Spring Boot detected: The CamelTestSupport/CamelSpringTestSupport class is not intended for Camel testing with Spring Boot."
+                + " Prefer to not extend this class, but use @RunWith(CamelSpringBootRunner.class) instead.");
+        }
+    }
+
     private void doSetUp() throws Exception {
         log.debug("setUp test");
         // jmx is enabled if we have configured to use it, or if dump route coverage is enabled (it requires JMX)
-        boolean jmx = useJmx() || isDumpRouteCoverage();
+        boolean jmx = useJmx() || isRouteCoverageEnabled();
         if (jmx) {
             enableJMX();
         } else {
@@ -367,8 +398,6 @@ public abstract class CamelTestSupport extends TestSupport {
         log.debug("Routing Rules are: " + context.getRoutes());
 
         assertValidContext(context);
-
-        INIT.set(true);
     }
 
     private void replaceFromEndpoints() throws Exception {
@@ -382,21 +411,25 @@ public abstract class CamelTestSupport extends TestSupport {
         }
     }
 
+    private boolean isRouteCoverageEnabled() {
+        return System.getProperty(ROUTE_COVERAGE_ENABLED, "false").equalsIgnoreCase("true") || isDumpRouteCoverage();
+    }
+
     @After
     public void tearDown() throws Exception {
-        long time = watch.stop();
+        long time = watch.taken();
 
         log.info("********************************************************************************");
         log.info("Testing done: " + getTestMethodName() + "(" + getClass().getName() + ")");
         log.info("Took: " + TimeUtils.printDuration(time) + " (" + time + " millis)");
 
         // if we should dump route stats, then write that to a file
-        if (isDumpRouteCoverage()) {
+        if (isRouteCoverageEnabled()) {
             String className = this.getClass().getSimpleName();
             String dir = "target/camel-route-coverage";
             String name = className + "-" + getTestMethodName() + ".xml";
 
-            ManagedCamelContextMBean managedCamelContext = context.getManagedCamelContext();
+            ManagedCamelContextMBean managedCamelContext = context != null ? context.getManagedCamelContext() : null;
             if (managedCamelContext == null) {
                 log.warn("Cannot dump route coverage to file as JMX is not enabled. Override useJmx() method to enable JMX in the unit test classes.");
             } else {
@@ -410,7 +443,7 @@ public abstract class CamelTestSupport extends TestSupport {
                 file.mkdirs();
                 file = new File(dir, name);
 
-                log.info("Dumping route coverage to file: " + file);
+                log.info("Dumping route coverage to file: {}", file);
                 InputStream is = new ByteArrayInputStream(combined.getBytes());
                 OutputStream os = new FileOutputStream(file, false);
                 IOHelper.copyAndCloseInput(is, os);
@@ -420,13 +453,53 @@ public abstract class CamelTestSupport extends TestSupport {
         log.info("********************************************************************************");
 
         if (isCreateCamelContextPerClass()) {
-            // we tear down in after class
-            return;
-        }
+            while (true) {
+                int v = tests.get();
+                if (v <= 0) {
+                    LOG.warn("Test already teared down");
+                    break;
+                }
 
-        LOG.debug("tearDown test");
-        doStopTemplates(consumer, template, fluentTemplate);
-        doStopCamelContext(context, camelContextService);
+                if (tests.compareAndSet(v, v - 1)) {
+                    if (v == 1) {
+                        LOG.debug("tearDown test");
+                        doStopTemplates(threadConsumer.get(), threadTemplate.get(), threadFluentTemplate.get());
+                        doStopCamelContext(threadCamelContext.get(), threadService.get());
+                        doPostTearDown();
+                        cleanupResources();
+                    }
+
+                    break;
+                }
+            }
+        } else {
+            LOG.debug("tearDown test");
+            doStopTemplates(consumer, template, fluentTemplate);
+            doStopCamelContext(context, camelContextService);
+            doPostTearDown();
+            cleanupResources();
+        }
+    }
+
+    /**
+     * Strategy to perform any post action, after {@link CamelContext} is stopped
+     */
+    protected void doPostTearDown() throws Exception {
+        // noop
+    }
+
+    /**
+     * Strategy to perform resources setup, before {@link CamelContext} is created
+     */
+    protected void setupResources() throws Exception {
+        // noop
+    }
+
+    /**
+     * Strategy to perform resources cleanup, after {@link CamelContext} is stopped
+     */
+    protected void cleanupResources() throws Exception {
+        // noop
     }
 
     /**
@@ -485,7 +558,6 @@ public abstract class CamelTestSupport extends TestSupport {
 
         builder.append(routesSummary);
         log.info(builder.toString());
-
     }
 
     /**
@@ -525,14 +597,6 @@ public abstract class CamelTestSupport extends TestSupport {
         }
 
         return processorsForRoute;
-    }
-
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
-        INIT.remove();
-        LOG.debug("tearDownAfterClass test");
-        doStopTemplates(threadConsumer.get(), threadTemplate.get(), threadFluentTemplate.get());
-        doStopCamelContext(threadCamelContext.get(), threadService.get());
     }
 
     /**
@@ -621,10 +685,28 @@ public abstract class CamelTestSupport extends TestSupport {
      * we would just use CDI to inject this
      */
     protected void applyCamelPostProcessor() throws Exception {
-        // use the default bean post processor from camel-core
-        DefaultCamelBeanPostProcessor processor = new DefaultCamelBeanPostProcessor(context);
-        processor.postProcessBeforeInitialization(this, getClass().getName());
-        processor.postProcessAfterInitialization(this, getClass().getName());
+        // use the default bean post processor from camel-core if the test class is not dependency injected already by Spring
+        boolean spring = hasClassAnnotation("org.springframework.boot.test.context.SpringBootTest", "org.springframework.context.annotation.ComponentScan");
+        if (!spring) {
+            DefaultCamelBeanPostProcessor processor = new DefaultCamelBeanPostProcessor(context);
+            processor.postProcessBeforeInitialization(this, getClass().getName());
+            processor.postProcessAfterInitialization(this, getClass().getName());
+        }
+    }
+
+    /**
+     * Does this test class have any of the following annotations on the class-level.
+     */
+    protected boolean hasClassAnnotation(String... names) {
+        for (String name : names) {
+            for (Annotation ann : getClass().getAnnotations()) {
+                String annName = ann.annotationType().getName();
+                if (annName.equals(name)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     protected void stopCamelContext() throws Exception {
@@ -705,7 +787,7 @@ public abstract class CamelTestSupport extends TestSupport {
         } else {
             properties.put("java.naming.factory.initial", "org.apache.camel.util.jndi.CamelInitialContextFactory");
         }
-        return new InitialContext(new Hashtable<Object, Object>(properties));
+        return new InitialContext(new Hashtable<>(properties));
     }
 
     /**

@@ -21,12 +21,14 @@ import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class MulticastParallelStreamingTwoTimeoutTest extends ContextTestSupport {
 
+    @Test
     public void testMulticastParallelStreamingTwoTimeout() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         // A and C will timeout so we only get B
@@ -54,16 +56,16 @@ public class MulticastParallelStreamingTwoTimeoutTest extends ContextTestSupport
                                 return oldExchange;
                             }
                         })
-                        .parallelProcessing().streaming().timeout(2000).to("direct:a", "direct:b", "direct:c")
+                        .parallelProcessing().streaming().timeout(100).to("direct:a", "direct:b", "direct:c")
                     // use end to indicate end of multicast route
                     .end()
                     .to("mock:result");
 
-                from("direct:a").delay(3000).setBody(constant("A"));
+                from("direct:a").delay(500).setBody(constant("A"));
 
                 from("direct:b").setBody(constant("B"));
 
-                from("direct:c").delay(4000).setBody(constant("C"));
+                from("direct:c").delay(500).setBody(constant("C"));
             }
         };
     }

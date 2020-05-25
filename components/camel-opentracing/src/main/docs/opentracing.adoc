@@ -3,6 +3,9 @@
 
 *Available as of Camel 2.19*
 
+IMPORTANT: Starting with Camel 2.21, it will be necessary to use an OpenTracing complaint tracer that is
+compatible with OpenTracing Java API version 0.31 or higher.
+
 The camel-opentracing component is used for tracing and timing incoming and
 outgoing Camel messages using http://opentracing.io/[OpenTracing].
 
@@ -13,6 +16,21 @@ See the http://opentracing.io/[OpenTracing] website for a list of supported trac
 
 
 ### Configuration
+
+The configuration properties for the OpenTracing tracer are:
+
+[width="100%",cols="10%,10%,80%",options="header",]
+|=======================================================================
+|Option |Default |Description
+
+|excludePatterns |  | Sets exclude pattern(s) that will disable tracing for Camel
+messages that matches the pattern. The content is a Set<String> where the key is a pattern. The pattern
+uses the rules from Intercept.
+|encoding |false| Sets whether the header keys need to be encoded (connector specific) or not. The value is a boolean.
+Dashes need for instances to be encoded for JMS property keys.
+
+|=======================================================================
+
 
 There are three ways in which an OpenTracing tracer can be configured to provide distributed tracing for a Camel application:
 
@@ -44,16 +62,32 @@ OpenTracing tracer beans. Camel will automatically discover and use them.
   </bean>
 ---------------------------------------------------------------------------------------------------------
 
-#### Spring Boot
+### Spring Boot
 
-If you are using link:spring-boot.html[Spring Boot] then you can add
+If you are using Spring Boot then you can add
 the `camel-opentracing-starter` dependency, and turn on OpenTracing by annotating
 the main class with `@CamelOpenTracing`.
 
 The `Tracer` will be implicitly obtained from the camel context's `Registry`, or the `ServiceLoader`, unless
 a `Tracer` bean has been defined by the application.
 
-#### Java Agent
+// spring-boot-auto-configure options: START
+=== Spring Boot Auto-Configuration
+
+
+The component supports 2 options, which are listed below.
+
+
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Name | Description | Default | Type
+| *camel.opentracing.encoding* | Activate or deactivate dash encoding in headers (required by JMS) for messaging |  | Boolean
+| *camel.opentracing.exclude-patterns* | Sets exclude pattern(s) that will disable tracing for Camel messages that matches the pattern. |  | Set
+|===
+// spring-boot-auto-configure options: END
+
+### Java Agent
 
 The third approach is to use a Java Agent to automatically configure the OpenTracing support.
 
@@ -71,10 +105,9 @@ The OpenTracing Java Agent is associated with the following dependency:
 
 The `Tracer` used will be implicitly loaded from the camel context `Registry` or using the `ServiceLoader`.
 
-How this agent is used will be specific to how you execute your application. _Service2_ in the https://github.com/apache/camel/tree/master/examples/camel-example-opentracing[camel-example-opentracing] downloads the agent into a local folder and then uses the `exec-maven-plugin` to launch the service with the `-javaagent` command line option. 
+How this agent is used will be specific to how you execute your application. _Service2_ in the https://github.com/apache/camel/tree/master/examples/camel-example-opentracing[camel-example-opentracing] downloads the agent into a local folder and then uses the `exec-maven-plugin` to launch the service with the `-javaagent` command line option.
 
 ### Example
 
 You can find an example demonstrating the three ways to configure OpenTracing here:
 https://github.com/apache/camel/tree/master/examples/camel-example-opentracing[camel-example-opentracing]
-

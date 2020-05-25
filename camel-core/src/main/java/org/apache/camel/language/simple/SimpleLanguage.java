@@ -16,12 +16,20 @@
  */
 package org.apache.camel.language.simple;
 
+import java.util.Map;
+
 import org.apache.camel.Expression;
 import org.apache.camel.Predicate;
+import org.apache.camel.StaticService;
 import org.apache.camel.builder.ExpressionBuilder;
 import org.apache.camel.support.LanguageSupport;
+import org.apache.camel.util.CamelContextHelper;
+import org.apache.camel.util.LRUCache;
+import org.apache.camel.util.LRUCacheFactory;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.PredicateToExpressionAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A <a href="http://camel.apache.org/simple.html">simple language</a>
@@ -50,6 +58,7 @@ import org.apache.camel.util.PredicateToExpressionAdapter;
  *     Supported commands are: <tt>now</tt> for current timestamp,
  *     <tt>in.header.xxx</tt> or <tt>header.xxx</tt> to use the Date object in the in header.
  *     <tt>out.header.xxx</tt> to use the Date object in the out header.
+ *     <tt>property.xxx</tt> to use the Date object in the exchange property.
  *     <tt>file</tt> for the last modified timestamp of the file (available with a File consumer).
  *     Command accepts offsets such as: <tt>now-24h</tt> or <tt>in.header.xxx+1h</tt> or even <tt>now+1h30m-100</tt>.
  * </li>
@@ -86,14 +95,19 @@ import org.apache.camel.util.PredicateToExpressionAdapter;
  * return the full path including the starting directory.
  * <br/>
  * The <b>only</b> file is the filename only with all paths clipped.
- *
  */
-public class SimpleLanguage extends LanguageSupport {
+public class SimpleLanguage extends LanguageSupport implements StaticService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SimpleLanguage.class);
 
     // singleton for expressions without a result type
     private static final SimpleLanguage SIMPLE = new SimpleLanguage();
 
-    protected boolean allowEscape = true;
+    boolean allowEscape = true;
+
+    // use caches to avoid re-parsing the same expressions over and over again
+    private Map<String, Expression> cacheExpression;
+    private Map<String, Predicate> cachePredicate;
 
     /**
      * Default constructor.
@@ -101,35 +115,91 @@ public class SimpleLanguage extends LanguageSupport {
     public SimpleLanguage() {
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
+    public void start() throws Exception {
+        // setup cache which requires CamelContext to be set first
+        if (cacheExpression == null && cachePredicate == null && getCamelContext() != null) {
+            int maxSize = CamelContextHelper.getMaximumSimpleCacheSize(getCamelContext());
+            if (maxSize > 0) {
+                cacheExpression = LRUCacheFactory.newLRUCache(16, maxSize, false);
+                cachePredicate = LRUCacheFactory.newLRUCache(16, maxSize, false);
+                LOG.debug("Simple language predicate/expression cache size: {}", maxSize);
+            } else {
+                LOG.debug("Simple language disabled predicate/expression cache");
+            }
+        }
+    }
+
+    @Override
+    public void stop() throws Exception {
+        if (cachePredicate instanceof LRUCache) {
+            if (LOG.isDebugEnabled()) {
+                LRUCache cache = (LRUCache) cachePredicate;
+                LOG.debug("Clearing simple language predicate cache[size={}, hits={}, misses={}, evicted={}]",
+                        cache.size(), cache.getHits(), cache.getMisses(), cache.getEvicted());
+            }
+        }
+        if (cacheExpression instanceof LRUCache) {
+            if (LOG.isDebugEnabled()) {
+                LRUCache cache = (LRUCache) cacheExpression;
+                LOG.debug("Clearing simple language expression cache[size={}, hits={}, misses={}, evicted={}]",
+                        cache.size(), cache.getHits(), cache.getMisses(), cache.getEvicted());
+            }
+        }
+    }
+
+    @SuppressWarnings("deprecation")
     public Predicate createPredicate(String expression) {
         ObjectHelper.notNull(expression, "expression");
 
-        expression = loadResource(expression);
-
-        // support old simple language syntax
-        @SuppressWarnings("deprecation")
-        Predicate answer = SimpleBackwardsCompatibleParser.parsePredicate(expression, allowEscape);
+        Predicate answer = cachePredicate != null ? cachePredicate.get(expression) : null;
         if (answer == null) {
-            // use the new parser
-            SimplePredicateParser parser = new SimplePredicateParser(expression, allowEscape);
-            answer = parser.parsePredicate();
+
+            expression = loadResource(expression);
+
+            // support old simple language syntax
+            answer = SimpleBackwardsCompatibleParser.parsePredicate(expression, allowEscape);
+            if (answer != null) {
+                LOG.warn("Simple language is using deprecated syntax: {}. You should migrate to use newer syntax that uses ${xxx} style.", expression);
+            }
+            if (answer == null) {
+                // use the new parser
+                SimplePredicateParser parser = new SimplePredicateParser(expression, allowEscape, cacheExpression);
+                answer = parser.parsePredicate();
+            }
+            if (cachePredicate != null && answer != null) {
+                cachePredicate.put(expression, answer);
+            }
         }
+
         return answer;
     }
 
+    @SuppressWarnings("deprecation")
     public Expression createExpression(String expression) {
         ObjectHelper.notNull(expression, "expression");
 
-        expression = loadResource(expression);
-
-        // support old simple language syntax
-        @SuppressWarnings("deprecation")
-        Expression answer = SimpleBackwardsCompatibleParser.parseExpression(expression, allowEscape);
+        Expression answer = cacheExpression != null ? cacheExpression.get(expression) : null;
         if (answer == null) {
-            // use the new parser
-            SimpleExpressionParser parser = new SimpleExpressionParser(expression, allowEscape);
-            answer = parser.parseExpression();
+
+            expression = loadResource(expression);
+
+            // support old simple language syntax
+            answer = SimpleBackwardsCompatibleParser.parseExpression(expression, allowEscape);
+            if (answer != null) {
+                LOG.warn("Simple language is using deprecated syntax: {}. You should migrate to use newer syntax that uses ${xxx} style.", expression);
+            }
+            if (answer == null) {
+                // use the new parser
+                SimpleExpressionParser parser = new SimpleExpressionParser(expression, allowEscape, cacheExpression);
+                answer = parser.parseExpression();
+            }
+            if (cacheExpression != null && answer != null) {
+                cacheExpression.put(expression, answer);
+            }
         }
+
         return answer;
     }
 
@@ -201,7 +271,9 @@ public class SimpleLanguage extends LanguageSupport {
      * The default start tokens is <tt>${</tt> and <tt>$simple{</tt>.
      *
      * @param startToken new start token(s) to be used for functions
+     * @deprecated will be removed in Camel 3
      */
+    @Deprecated
     public static void changeFunctionStartToken(String... startToken) {
         SimpleTokenizer.changeFunctionStartToken(startToken);
     }
@@ -215,7 +287,9 @@ public class SimpleLanguage extends LanguageSupport {
      * The default end token is <tt>}</tt>
      *
      * @param endToken new end token(s) to be used for functions
+     * @deprecated will be removed in Camel 3
      */
+    @Deprecated
     public static void changeFunctionEndToken(String... endToken) {
         SimpleTokenizer.changeFunctionEndToken(endToken);
     }
@@ -229,7 +303,9 @@ public class SimpleLanguage extends LanguageSupport {
      * The default start tokens is <tt>${</tt> and <tt>$simple{</tt>.
      *
      * @param startToken new start token to be used for functions
+     * @deprecated will be removed in Camel 3
      */
+    @Deprecated
     public void setFunctionStartToken(String startToken) {
         changeFunctionStartToken(startToken);
     }
@@ -243,8 +319,11 @@ public class SimpleLanguage extends LanguageSupport {
      * The default end token is <tt>}</tt>
      *
      * @param endToken new end token to be used for functions
+     * @deprecated will be removed in Camel 3
      */
+    @Deprecated
     public void setFunctionEndToken(String endToken) {
         changeFunctionEndToken(endToken);
     }
+
 }

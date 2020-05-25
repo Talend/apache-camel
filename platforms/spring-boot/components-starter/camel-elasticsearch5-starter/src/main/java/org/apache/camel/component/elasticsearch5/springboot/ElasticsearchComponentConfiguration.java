@@ -33,11 +33,31 @@ public class ElasticsearchComponentConfiguration
             ComponentConfigurationPropertiesCommon {
 
     /**
+     * Whether to enable auto configuration of the elasticsearch5 component.
+     * This is enabled by default.
+     */
+    private Boolean enabled;
+    /**
+     * To use an existing configured Elasticsearch client, instead of creating a
+     * client per endpoint. This allow to customize the client with specific
+     * settings. The option is a
+     * org.elasticsearch.client.transport.TransportClient type.
+     */
+    private String client;
+    /**
      * Whether the component should resolve property placeholders on itself when
      * starting. Only properties which are of String type can use property
      * placeholders.
      */
     private Boolean resolvePropertyPlaceholders = true;
+
+    public String getClient() {
+        return client;
+    }
+
+    public void setClient(String client) {
+        this.client = client;
+    }
 
     public Boolean getResolvePropertyPlaceholders() {
         return resolvePropertyPlaceholders;

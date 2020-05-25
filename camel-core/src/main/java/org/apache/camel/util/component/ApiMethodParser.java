@@ -39,13 +39,14 @@ public abstract class ApiMethodParser<T> {
     public static final Pattern ARGS_PATTERN = Pattern.compile("\\s*([^<\\s]+)\\s*(<[^>]+>)?\\s+([^\\s,]+)\\s*,?");
 
     private static final String METHOD_PREFIX = "^(\\s*(public|final|synchronized|native)\\s+)*(\\s*<[^>]>)?\\s*(\\S+)\\s+([^\\(]+\\s*)\\(";
-    private static final Pattern METHOD_PATTERN = Pattern.compile("\\s*([^<\\s]+)\\s*(<[^>]+>)?\\s+(\\S+)\\s*\\(\\s*([\\S\\s,]*)\\)\\s*;?\\s*");
+    private static final Pattern METHOD_PATTERN = Pattern.compile("\\s*([^<\\s]+)?\\s*(<[^>]+>)?(<(?<genericTypeParameterName>\\S+)\\s+extends\\s+"
+            + "(?<genericTypeParameterUpperBound>\\S+)>\\s+(?<returnType>\\S+))?\\s+(\\S+)\\s*\\(\\s*(?<signature>[\\S\\s,]*)\\)\\s*;?\\s*");
 
     private static final String JAVA_LANG = "java.lang.";
     private static final Map<String, Class<?>> PRIMITIVE_TYPES;
 
     static {
-        PRIMITIVE_TYPES = new HashMap<String, Class<?>>();
+        PRIMITIVE_TYPES = new HashMap<>();
         PRIMITIVE_TYPES.put("int", Integer.TYPE);
         PRIMITIVE_TYPES.put("long", Long.TYPE);
         PRIMITIVE_TYPES.put("double", Double.TYPE);
@@ -77,7 +78,7 @@ public abstract class ApiMethodParser<T> {
     }
 
     public final void setSignatures(List<String> signatures) {
-        this.signatures = new ArrayList<String>();
+        this.signatures = new ArrayList<>();
         this.signatures.addAll(signatures);
     }
 
@@ -95,7 +96,7 @@ public abstract class ApiMethodParser<T> {
      */
     public final List<ApiMethodModel> parse() {
         // parse sorted signatures and generate descriptions
-        List<ApiMethodModel> result = new ArrayList<ApiMethodModel>();
+        List<ApiMethodModel> result = new ArrayList<>();
         for (String signature : signatures) {
 
             // skip comment or empty lines
@@ -110,30 +111,48 @@ public abstract class ApiMethodParser<T> {
             // remove all redundant spaces in generic parameters
             signature = signature.replaceAll("\\s*<\\s*", "<").replaceAll("\\s*>", ">");
 
-            log.debug("Processing " + signature);
+            log.debug("Processing {}", signature);
 
             final Matcher methodMatcher = METHOD_PATTERN.matcher(signature);
             if (!methodMatcher.matches()) {
                 throw new IllegalArgumentException("Invalid method signature " + signature);
             }
+            // handle generic methods with single bounded type parameters
+            String genericTypeParameterName = null;
+            String genericTypeParameterUpperBound = null;
+            String returnType = null;
+            try {
+                genericTypeParameterName = methodMatcher.group("genericTypeParameterName");
+                genericTypeParameterUpperBound = methodMatcher.group("genericTypeParameterUpperBound");
+                returnType = methodMatcher.group("returnType");
+                if (returnType != null && returnType.equals(genericTypeParameterName)) {
+                    returnType = genericTypeParameterUpperBound;
+                }
+            } catch (IllegalArgumentException e) {
+                // ignore
+            }
 
-            // ignore generic type parameters in result, if any
-            final Class<?> resultType = forName(methodMatcher.group(1));
-            final String name = methodMatcher.group(3);
-            final String argSignature = methodMatcher.group(4);
+            final Class<?> resultType = returnType != null ? forName(returnType) : forName(methodMatcher.group(1));
+            final String name = methodMatcher.group(7);
+            final String argSignature = methodMatcher.group(8);
 
-            final List<ApiMethodArg> arguments = new ArrayList<ApiMethodArg>();
-            final List<Class<?>> argTypes = new ArrayList<Class<?>>();
+            final List<ApiMethodArg> arguments = new ArrayList<>();
+            final List<Class<?>> argTypes = new ArrayList<>();
 
             final Matcher argsMatcher = ARGS_PATTERN.matcher(argSignature);
             while (argsMatcher.find()) {
-
-                final Class<?> type = forName(argsMatcher.group(1));
+                String genericParameterName = argsMatcher.group(1);
+                if (genericTypeParameterName != null && genericTypeParameterName.equals(genericParameterName)) {
+                    genericParameterName = genericTypeParameterUpperBound;
+                }
+                final Class<?> type = forName(genericParameterName);
                 argTypes.add(type);
-
-                final String typeArgsGroup = argsMatcher.group(2);
-                final String typeArgs = typeArgsGroup != null
-                    ? typeArgsGroup.substring(1, typeArgsGroup.length() - 1).replaceAll(" ", "") : null;
+                String genericParameterUpperbound = argsMatcher.group(2);
+                String typeArgs = genericParameterUpperbound != null
+                    ? genericParameterUpperbound.substring(1, genericParameterUpperbound.length() - 1).replaceAll(" ", "") : null;
+                if (typeArgs != null && typeArgs.equals(genericTypeParameterName)) {
+                    typeArgs = genericTypeParameterUpperBound;
+                }
                 arguments.add(new ApiMethodArg(argsMatcher.group(3), type, typeArgs));
             }
 
@@ -150,7 +169,7 @@ public abstract class ApiMethodParser<T> {
         result = processResults(result);
 
         // check that argument names have the same type across methods
-        Map<String, Class<?>> allArguments = new HashMap<String, Class<?>>();
+        Map<String, Class<?>> allArguments = new HashMap<>();
         for (ApiMethodModel model : result) {
             for (ApiMethodArg argument : model.getArguments()) {
                 String name = argument.getName();
@@ -190,7 +209,7 @@ public abstract class ApiMethodParser<T> {
                             }
                         }
                         // duplicate methods???
-                        log.warn("Duplicate methods found [" + model1 + "], [" + model2 + "]");
+                        log.warn("Duplicate methods found [{}], [{}]", model1, model2);
                         return 0;
                     }
                 }
@@ -198,7 +217,7 @@ public abstract class ApiMethodParser<T> {
         });
 
         // assign unique names to every method model
-        final Map<String, Integer> dups = new HashMap<String, Integer>();
+        final Map<String, Integer> dups = new HashMap<>();
         for (ApiMethodModel model : result) {
             // locale independent upper case conversion
             final String name = model.getName();

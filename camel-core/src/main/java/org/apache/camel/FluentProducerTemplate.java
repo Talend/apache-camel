@@ -137,6 +137,11 @@ public interface FluentProducerTemplate extends Service {
     // -----------------------------------------------------------------------
 
     /**
+     * Remove the body and headers.
+     */
+    FluentProducerTemplate clearAll();
+
+    /**
      * Set the header
      *
      * @param key the key of the header
@@ -196,6 +201,8 @@ public interface FluentProducerTemplate extends Service {
     /**
      * Set the exchange to use for send.
      *
+     * When using withExchange then you must use the send method (request is not supported).
+     *
      * @param exchange the exchange
      */
     FluentProducerTemplate withExchange(Exchange exchange);
@@ -203,6 +210,8 @@ public interface FluentProducerTemplate extends Service {
     /**
      * Set the exchangeSupplier which will be invoke to get the exchange to be
      * used for send.
+     *
+     * When using withExchange then you must use the send method (request is not supported).
      *
      * @param exchangeSupplier the supplier
      */

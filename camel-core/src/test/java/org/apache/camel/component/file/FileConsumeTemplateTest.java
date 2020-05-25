@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Using ConsumerTemplate to consume a file
@@ -25,11 +26,13 @@ import org.apache.camel.Exchange;
 public class FileConsumeTemplateTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/template");
         super.setUp();
     }
 
+    @Test
     public void testConsumeFileWithTemplate() throws Exception {
         template.sendBodyAndHeader("file://target/template", "Hello World", Exchange.FILE_NAME, "hello.txt");
         template.sendBodyAndHeader("file://target/template", "Bye World", Exchange.FILE_NAME, "bye.txt");
@@ -43,6 +46,7 @@ public class FileConsumeTemplateTest extends ContextTestSupport {
         String body = out.getIn().getBody(String.class);
         String body2 = out2.getIn().getBody(String.class);
 
+        // bye should come before hello (eg sorted a..z by file name)
         assertEquals("Bye World", body);
         assertEquals("Hello World", body2);
     }

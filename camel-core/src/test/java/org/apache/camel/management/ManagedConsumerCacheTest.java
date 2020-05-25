@@ -19,6 +19,7 @@ package org.apache.camel.management;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
@@ -27,12 +28,14 @@ import org.apache.camel.Exchange;
 import org.apache.camel.PollingConsumer;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.ConsumerCache;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class ManagedConsumerCacheTest extends ManagementTestSupport {
 
+    @Test
     public void testManageConsumerCache() throws Exception {
         // JMX tests dont work well on AIX CI servers (hangs them)
         if (isPlatform("aix")) {
@@ -56,7 +59,7 @@ public class ManagedConsumerCacheTest extends ManagementTestSupport {
         // get the stats for the route
         MBeanServer mbeanServer = getMBeanServer();
         Set<ObjectName> set = mbeanServer.queryNames(new ObjectName("*:type=services,*"), null);
-        List<ObjectName> list = new ArrayList<ObjectName>(set);
+        List<ObjectName> list = new ArrayList<>(set);
         ObjectName on = null;
         for (ObjectName name : list) {
             if (name.getCanonicalName().contains("ConsumerCache")) {

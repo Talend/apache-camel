@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.language;
-
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -25,6 +24,8 @@ import javax.management.ObjectName;
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @version 
@@ -32,7 +33,8 @@ import org.apache.camel.builder.RouteBuilder;
 public class LanguageLoadScriptFromFileCachedTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/script");
         super.setUp();
     }
@@ -42,6 +44,7 @@ public class LanguageLoadScriptFromFileCachedTest extends ContextTestSupport {
         return true;
     }
 
+    @Test
     public void testLanguage() throws Exception {
         getMockEndpoint("mock:result").expectedBodiesReceived("Hello World", "Hello World");
 
@@ -54,6 +57,7 @@ public class LanguageLoadScriptFromFileCachedTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
     
+    @Test
     public void testClearCachedScriptViaJmx() throws Exception {
         getMockEndpoint("mock:result").expectedBodiesReceived("Hello World", "Hello World", "Bye World");
 
@@ -67,7 +71,7 @@ public class LanguageLoadScriptFromFileCachedTest extends ContextTestSupport {
         MBeanServer mbeanServer = context.getManagementStrategy().getManagementAgent().getMBeanServer();
         Set<ObjectName> objNameSet = mbeanServer.queryNames(
             new ObjectName("org.apache.camel:type=endpoints,name=\"language://simple:*contentCache=true*\",*"), null);
-        ObjectName managedObjName = new ArrayList<ObjectName>(objNameSet).get(0);
+        ObjectName managedObjName = new ArrayList<>(objNameSet).get(0);
         mbeanServer.invoke(managedObjName, "clearContentCache", null, null);
 
         template.sendBody("direct:start", "World");

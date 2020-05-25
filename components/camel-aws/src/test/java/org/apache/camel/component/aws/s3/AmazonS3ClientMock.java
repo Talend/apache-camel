@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,8 +31,7 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.AmazonWebServiceRequest;
 import com.amazonaws.HttpMethod;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AbstractAmazonS3;
 import com.amazonaws.services.s3.S3ResponseMetadata;
 import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
 import com.amazonaws.services.s3.model.AccessControlList;
@@ -79,17 +79,17 @@ import com.amazonaws.services.s3.model.VersionListing;
 import org.apache.camel.util.ObjectHelper;
 import org.junit.Assert;
 
-public class AmazonS3ClientMock extends AmazonS3Client {
+public class AmazonS3ClientMock extends AbstractAmazonS3 {
     
-    List<S3Object> objects = new CopyOnWriteArrayList<S3Object>();
-    List<PutObjectRequest> putObjectRequests = new CopyOnWriteArrayList<PutObjectRequest>();
+    List<S3Object> objects = new CopyOnWriteArrayList<>();
+    List<PutObjectRequest> putObjectRequests = new CopyOnWriteArrayList<>();
     
     private boolean nonExistingBucketCreated;
     
     private int maxCapacity = 100;
     
     public AmazonS3ClientMock() {
-        super(new BasicAWSCredentials("myAccessKey", "mySecretKey"));
+        super();
     }
 
     @Override
@@ -115,7 +115,15 @@ public class AmazonS3ClientMock extends AmazonS3Client {
 
     @Override
     public ObjectListing listObjects(String bucketName) throws AmazonClientException, AmazonServiceException {
-        throw new UnsupportedOperationException();
+        ObjectListing list = new ObjectListing();
+        list.setBucketName("test");
+        list.setTruncated(false);
+        S3ObjectSummary summary = new S3ObjectSummary();
+        summary.setBucketName("test");
+        summary.setSize(10000L);
+        summary.setKey("Myfile");
+        list.getObjectSummaries().add(summary);
+        return list;
     }
 
     @Override
@@ -166,7 +174,7 @@ public class AmazonS3ClientMock extends AmazonS3Client {
 
     @Override
     public List<Bucket> listBuckets() throws AmazonClientException, AmazonServiceException {
-        ArrayList<Bucket> list = new ArrayList<Bucket>();
+        ArrayList<Bucket> list = new ArrayList<>();
         Bucket bucket = new Bucket("camel-bucket");
         bucket.setOwner(new Owner("Camel", "camel"));
         bucket.setCreationDate(new Date());
@@ -322,6 +330,7 @@ public class AmazonS3ClientMock extends AmazonS3Client {
         S3Object s3Object = new S3Object();
         s3Object.setBucketName(putObjectRequest.getBucketName());
         s3Object.setKey(putObjectRequest.getKey());
+        s3Object.getObjectMetadata().setUserMetadata(putObjectRequest.getMetadata().getUserMetadata());
         if (putObjectRequest.getFile() != null) {
             try {
                 s3Object.setObjectContent(new FileInputStream(putObjectRequest.getFile()));
@@ -358,7 +367,7 @@ public class AmazonS3ClientMock extends AmazonS3Client {
 
     @Override
     public void deleteObject(DeleteObjectRequest deleteObjectRequest) throws AmazonClientException, AmazonServiceException {
-        throw new UnsupportedOperationException();
+        // noop
     }
 
     @Override
@@ -429,7 +438,13 @@ public class AmazonS3ClientMock extends AmazonS3Client {
 
     @Override
     public URL generatePresignedUrl(GeneratePresignedUrlRequest generatePresignedUrlRequest) throws AmazonClientException {
-        throw new UnsupportedOperationException();
+        URL url = null;
+        try {
+            url = new URL("http://aws.amazonas.s3/file.zip");
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
     }
 
     @Override

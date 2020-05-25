@@ -18,6 +18,7 @@ package org.apache.camel.component.mail.mock;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.mail.Folder;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -29,7 +30,7 @@ import org.jvnet.mock_javamail.MockStore;
 
 public class MyMockStore extends MockStore {
 
-    private Map<String, Folder> folders = new HashMap<String, Folder>();
+    private Map<String, Folder> folders = new HashMap<>();
     private String address;
 
     public MyMockStore(Session session, URLName urlname) {

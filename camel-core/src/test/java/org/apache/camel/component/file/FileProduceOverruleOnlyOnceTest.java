@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,12 +22,15 @@ import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit test to verify the overrule filename header
  */
 public class FileProduceOverruleOnlyOnceTest extends ContextTestSupport {
 
+    @Test
     public void testBoth() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
@@ -37,7 +39,7 @@ public class FileProduceOverruleOnlyOnceTest extends ContextTestSupport {
         mock.expectedFileExists("target/write/ruled.txt", "Hello World");
         mock.expectedFileExists("target/again/hello.txt", "Hello World");
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put(Exchange.FILE_NAME, "hello.txt");
         // this header should overrule the endpoint configuration
         map.put(Exchange.OVERRULE_FILE_NAME, "ruled.txt");
@@ -48,7 +50,8 @@ public class FileProduceOverruleOnlyOnceTest extends ContextTestSupport {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/write");
         deleteDirectory("target/again");
         super.setUp();

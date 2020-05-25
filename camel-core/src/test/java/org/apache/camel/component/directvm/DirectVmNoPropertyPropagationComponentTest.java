@@ -19,6 +19,7 @@ package org.apache.camel.component.directvm;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Test;
 
 /**
  *
@@ -31,11 +32,13 @@ public class DirectVmNoPropertyPropagationComponentTest extends ContextTestSuppo
         
         DirectVmComponent directvm = new DirectVmComponent();
         directvm.setPropagateProperties(false);
+        directvm.setBlock(false);
         context.addComponent("direct-vm", directvm);
         
         return context;
     }
 
+    @Test
     public void testPropertiesPropagatedOrNot() throws Exception {
 
             

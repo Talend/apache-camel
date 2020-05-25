@@ -15,21 +15,23 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
- * Unit test for  the file sort by expression
+ * Unit test for the file sort by expression
  */
 public class FileSortByIgnoreCaseExpressionTest extends ContextTestSupport {
 
     private String fileUrl = "file://target/filesorter/";
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/filesorter");
         super.setUp();
     }
@@ -50,6 +52,7 @@ public class FileSortByIgnoreCaseExpressionTest extends ContextTestSupport {
             Exchange.FILE_NAME, "Report-1.xml");
     }
 
+    @Test
     public void testSortFilesByNameWithCase() throws Exception {
         prepareFolder("a");
 
@@ -68,13 +71,14 @@ public class FileSortByIgnoreCaseExpressionTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testSortFilesByNameNoCase() throws Exception {
         prepareFolder("b");
 
         context.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from(fileUrl + "b/?sortBy=ignoreCase:file:name&initialDelay=500&delay=1000")
+                from(fileUrl + "b/?initialDelay=0&delay=10&sortBy=ignoreCase:file:name")
                         .convertBodyTo(String.class).to("mock:nocase");
             }
         });
@@ -86,13 +90,14 @@ public class FileSortByIgnoreCaseExpressionTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testSortFilesByNameNoCaseReverse() throws Exception {
         prepareFolder("c");
 
         context.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from(fileUrl + "c/?sortBy=reverse:ignoreCase:file:name&initialDelay=750&delay=1000")
+                from(fileUrl + "c/?initialDelay=0&delay=10&sortBy=reverse:ignoreCase:file:name")
                         .convertBodyTo(String.class).to("mock:nocasereverse");
             }
         });

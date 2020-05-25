@@ -18,6 +18,7 @@ package org.apache.camel.model;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -33,11 +34,11 @@ import org.apache.camel.spi.Metadata;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PackageScanDefinition {
     @XmlElement(name = "package", required = true)
-    private List<String> packages = new ArrayList<String>();
+    private List<String> packages = new ArrayList<>();
     @XmlElement
-    private List<String> excludes = new ArrayList<String>();
+    private List<String> excludes = new ArrayList<>();
     @XmlElement
-    private List<String> includes = new ArrayList<String>();
+    private List<String> includes = new ArrayList<>();
 
     public PackageScanDefinition() {
     }

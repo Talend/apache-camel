@@ -43,7 +43,7 @@ public class Namespaces {
     public static final String ENVIRONMENT_VARIABLES = "http://camel.apache.org/xml/variables/environment-variables";
     public static final String EXCHANGE_PROPERTY = "http://camel.apache.org/xml/variables/exchange-property";
 
-    private Map<String, String> namespaces = new HashMap<String, String>();
+    private Map<String, String> namespaces = new HashMap<>();
 
     /**
      * Creates a namespaces object from the given XML element
@@ -97,6 +97,7 @@ public class Namespaces {
     /**
      * Creates the XPath expression using the current namespace context
      */
+    @Deprecated
     public XPathExpression xpath(String expression) {
         XPathExpression answer = new XPathExpression(expression);
         configure(answer);
@@ -106,6 +107,7 @@ public class Namespaces {
     /**
      * Creates the XPath expression using the current namespace context
      */
+    @Deprecated
     public XPathExpression xpath(String expression, Class<?> resultType) {
         XPathExpression answer = xpath(expression);
         answer.setResultType(resultType);
@@ -115,6 +117,7 @@ public class Namespaces {
     /**
      * Creates the XQuery expression using the current namespace context
      */
+    @Deprecated
     public XQueryExpression xquery(String expression) {
         XQueryExpression answer = new XQueryExpression(expression);
         configure(answer);
@@ -125,6 +128,7 @@ public class Namespaces {
      * Creates the XQuery expression using the current namespace context
      * and the given expected return type
      */
+    @Deprecated
     public XQueryExpression xquery(String expression, Class<?> resultType) {
         XQueryExpression answer = new XQueryExpression(expression);
         answer.setResultType(resultType);

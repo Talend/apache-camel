@@ -32,12 +32,9 @@ import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"javax.management.*", "javax.net.ssl.*"})
+@RunWith(MockitoJUnitRunner.class)
 public abstract class BaseDockerHeaderTest<T> extends CamelTestSupport {
 
     @Mock
@@ -125,7 +122,7 @@ public abstract class BaseDockerHeaderTest<T> extends CamelTestSupport {
     }
 
     protected Map<String, Object> getDefaultParameters() {
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put(DockerConstants.DOCKER_HOST, getHost());
         parameters.put(DockerConstants.DOCKER_PORT, getPort());
         parameters.put(DockerConstants.DOCKER_EMAIL, getEmail());

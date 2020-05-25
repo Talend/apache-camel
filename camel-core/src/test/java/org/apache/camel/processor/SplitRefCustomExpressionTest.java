@@ -24,6 +24,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Expression;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.JndiRegistry;
+import org.junit.Test;
 
 /**
  *
@@ -37,6 +38,7 @@ public class SplitRefCustomExpressionTest extends ContextTestSupport {
         return jndi;
     }
 
+    @Test
     public void testSplitCustomExpression() throws Exception {
         getMockEndpoint("mock:split").expectedBodiesReceived("A", "B", "C");
 
@@ -66,7 +68,7 @@ public class SplitRefCustomExpressionTest extends ContextTestSupport {
 
             // just split the body by comma
             String[] parts = body.split(",");
-            List<String> list = new ArrayList<String>();
+            List<String> list = new ArrayList<>();
             for (String part : parts) {
                 list.add(part);
             }

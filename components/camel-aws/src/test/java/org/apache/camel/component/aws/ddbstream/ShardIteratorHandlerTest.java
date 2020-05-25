@@ -34,7 +34,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -46,14 +46,16 @@ public class ShardIteratorHandlerTest {
 
     private ShardIteratorHandler undertest;
 
-    @Mock private AmazonDynamoDBStreams amazonDynamoDBStreams;
+    @Mock
+    private AmazonDynamoDBStreams amazonDynamoDBStreams;
     private final CamelContext context = new DefaultCamelContext();
     private final DdbStreamComponent component = new DdbStreamComponent(context);
-    private final DdbStreamEndpoint endpoint = new DdbStreamEndpoint(null, "table_name", component);
+    private final DdbStreamEndpoint endpoint = new DdbStreamEndpoint(null, new DdbStreamConfiguration(), component);
 
     @Before
     public void setup() throws Exception {
-        endpoint.setAmazonDynamoDbStreamsClient(amazonDynamoDBStreams);
+        endpoint.getConfiguration().setAmazonDynamoDbStreamsClient(amazonDynamoDBStreams);
+        endpoint.start();
         undertest = new ShardIteratorHandler(endpoint);
 
         when(amazonDynamoDBStreams.listStreams(any(ListStreamsRequest.class))).thenReturn(
@@ -92,7 +94,7 @@ public class ShardIteratorHandlerTest {
 
     @Test
     public void latestOnlyUsesTheLastShard() throws Exception {
-        endpoint.setIteratorType(ShardIteratorType.LATEST);
+        endpoint.getConfiguration().setIteratorType(ShardIteratorType.LATEST);
 
         String shardIterator = undertest.getShardIterator(null);
 
@@ -104,7 +106,7 @@ public class ShardIteratorHandlerTest {
 
     @Test
     public void cachesRecentShardId() throws Exception {
-        endpoint.setIteratorType(ShardIteratorType.LATEST);
+        endpoint.getConfiguration().setIteratorType(ShardIteratorType.LATEST);
 
         undertest.updateShardIterator("bar");
         String shardIterator = undertest.getShardIterator(null);
@@ -115,7 +117,7 @@ public class ShardIteratorHandlerTest {
 
     @Test
     public void trimHorizonStartsWithTheFirstShard() throws Exception {
-        endpoint.setIteratorType(ShardIteratorType.TRIM_HORIZON);
+        endpoint.getConfiguration().setIteratorType(ShardIteratorType.TRIM_HORIZON);
 
         String shardIterator = undertest.getShardIterator(null);
 
@@ -127,7 +129,7 @@ public class ShardIteratorHandlerTest {
 
     @Test
     public void trimHorizonWalksAllShards() throws Exception {
-        endpoint.setIteratorType(ShardIteratorType.TRIM_HORIZON);
+        endpoint.getConfiguration().setIteratorType(ShardIteratorType.TRIM_HORIZON);
 
         String[] shardIterators = new String[4];
 
@@ -148,8 +150,8 @@ public class ShardIteratorHandlerTest {
 
     @Test
     public void atSeqNumber12StartsWithShardB() throws Exception {
-        endpoint.setIteratorType(ShardIteratorType.AT_SEQUENCE_NUMBER);
-        endpoint.setSequenceNumberProvider(new StaticSequenceNumberProvider("12"));
+        endpoint.getConfiguration().setIteratorType(ShardIteratorType.AT_SEQUENCE_NUMBER);
+        endpoint.getConfiguration().setSequenceNumberProvider(new StaticSequenceNumberProvider("12"));
 
         String shardIterator = undertest.getShardIterator(null);
 
@@ -161,8 +163,8 @@ public class ShardIteratorHandlerTest {
 
     @Test
     public void afterSeqNumber16StartsWithShardD() throws Exception {
-        endpoint.setIteratorType(ShardIteratorType.AFTER_SEQUENCE_NUMBER);
-        endpoint.setSequenceNumberProvider(new StaticSequenceNumberProvider("16"));
+        endpoint.getConfiguration().setIteratorType(ShardIteratorType.AFTER_SEQUENCE_NUMBER);
+        endpoint.getConfiguration().setSequenceNumberProvider(new StaticSequenceNumberProvider("16"));
 
         String shardIterator = undertest.getShardIterator(null);
 
@@ -174,7 +176,7 @@ public class ShardIteratorHandlerTest {
 
     @Test
     public void resumingFromSomewhereActuallyUsesTheAfterSequenceNumber() throws Exception {
-        endpoint.setIteratorType(ShardIteratorType.LATEST);
+        endpoint.getConfiguration().setIteratorType(ShardIteratorType.LATEST);
 
         String shardIterator = undertest.getShardIterator("12");
 

@@ -27,6 +27,7 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.ComponentVerifier;
 import org.apache.camel.Endpoint;
 import org.apache.camel.VerifiableComponent;
+import org.apache.camel.component.extension.ComponentVerifierExtension;
 import org.apache.camel.impl.DefaultComponent;
 import org.apache.camel.model.rest.RestConstants;
 import org.apache.camel.spi.Metadata;
@@ -34,7 +35,7 @@ import org.apache.camel.spi.RestConfiguration;
 import org.apache.camel.util.CamelContextHelper;
 import org.apache.camel.util.FileUtil;
 import org.apache.camel.util.IntrospectionSupport;
-import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.StringHelper;
 import org.apache.camel.util.URISupport;
 
 /**
@@ -50,6 +51,10 @@ public class RestComponent extends DefaultComponent implements VerifiableCompone
     @Metadata(label = "producer")
     private String host;
 
+    public RestComponent() {
+        registerExtension(RestComponentVerifierExtension::new);
+    }
+
     @Override
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
         String restConfigurationName = getAndRemoveParameter(parameters, "componentName", String.class, componentName);
@@ -64,7 +69,7 @@ public class RestComponent extends DefaultComponent implements VerifiableCompone
 
         // if no explicit host was given, then fallback and use default configured host
         String h = getAndRemoveOrResolveReferenceParameter(parameters, "host", String.class, host);
-        if (h == null && config != null) {
+        if (h == null) {
             h = config.getHost();
             int port = config.getPort();
             // is there a custom port number
@@ -96,14 +101,14 @@ public class RestComponent extends DefaultComponent implements VerifiableCompone
             throw new IllegalArgumentException("Invalid syntax. Must be rest:method:path[:uriTemplate] where uriTemplate is optional");
         }
 
-        String method = ObjectHelper.before(remaining, ":");
-        String s = ObjectHelper.after(remaining, ":");
+        String method = StringHelper.before(remaining, ":");
+        String s = StringHelper.after(remaining, ":");
 
         String path;
         String uriTemplate;
         if (s != null && s.contains(":")) {
-            path = ObjectHelper.before(s, ":");
-            uriTemplate = ObjectHelper.after(s, ":");
+            path = StringHelper.before(s, ":");
+            uriTemplate = StringHelper.after(s, ":");
         } else {
             path = s;
             uriTemplate = null;
@@ -118,7 +123,7 @@ public class RestComponent extends DefaultComponent implements VerifiableCompone
         answer.setUriTemplate(uriTemplate);
 
         // if no explicit component name was given, then fallback and use default configured component name
-        if (answer.getComponentName() == null && config != null) {
+        if (answer.getComponentName() == null) {
             String name = config.getProducerComponent();
             if (name == null) {
                 // fallback and use the consumer name
@@ -127,7 +132,7 @@ public class RestComponent extends DefaultComponent implements VerifiableCompone
             answer.setComponentName(name);
         }
         // if no explicit producer api was given, then fallback and use default configured
-        if (answer.getApiDoc() == null && config != null) {
+        if (answer.getApiDoc() == null) {
             answer.setApiDoc(config.getProducerApiDoc());
         }
 
@@ -188,6 +193,9 @@ public class RestComponent extends DefaultComponent implements VerifiableCompone
     }
 
     private RestConfiguration mergeConfigurations(RestConfiguration conf, RestConfiguration from) throws Exception {
+        if (conf == from) {
+            return conf;
+        }
         if (from != null) {
             Map<String, Object> map = IntrospectionSupport.getNonNullProperties(from);
 
@@ -232,13 +240,8 @@ public class RestComponent extends DefaultComponent implements VerifiableCompone
         }
     }
 
-    /**
-     * Get the {@link ComponentVerifier}
-     *
-     * @return the Component Verifier
-     */
     @Override
     public ComponentVerifier getVerifier() {
-        return new RestComponentVerifier(this);
+        return (scope, parameters) -> getExtension(ComponentVerifierExtension.class).orElseThrow(UnsupportedOperationException::new).verify(scope, parameters);
     }
 }

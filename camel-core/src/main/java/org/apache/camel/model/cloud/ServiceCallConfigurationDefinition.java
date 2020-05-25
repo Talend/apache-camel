@@ -70,17 +70,20 @@ public class ServiceCallConfigurationDefinition extends IdentifiedType {
     @XmlElements({
         @XmlElement(name = "cachingServiceDiscovery", type = CachingServiceCallServiceDiscoveryConfiguration.class),
         @XmlElement(name = "aggregatingServiceDiscovery", type = AggregatingServiceCallServiceDiscoveryConfiguration.class),
+        @XmlElement(name = "combinedServiceDiscovery", type = CombinedServiceCallServiceDiscoveryConfiguration.class),
         @XmlElement(name = "consulServiceDiscovery", type = ConsulServiceCallServiceDiscoveryConfiguration.class),
         @XmlElement(name = "dnsServiceDiscovery", type = DnsServiceCallServiceDiscoveryConfiguration.class),
         @XmlElement(name = "etcdServiceDiscovery", type = EtcdServiceCallServiceDiscoveryConfiguration.class),
         @XmlElement(name = "kubernetesServiceDiscovery", type = KubernetesServiceCallServiceDiscoveryConfiguration.class),
-        @XmlElement(name = "staticServiceDiscovery", type = StaticServiceCallServiceDiscoveryConfiguration.class)}
+        @XmlElement(name = "staticServiceDiscovery", type = StaticServiceCallServiceDiscoveryConfiguration.class),
+        @XmlElement(name = "zookeeperServiceDiscovery", type = ZooKeeperServiceCallServiceDiscoveryConfiguration.class)}
     )
     private ServiceCallServiceDiscoveryConfiguration serviceDiscoveryConfiguration;
 
     @XmlElements({
         @XmlElement(name = "blacklistServiceFilter", type = BlacklistServiceCallServiceFilterConfiguration.class),
         @XmlElement(name = "chainedServiceFilter", type = ChainedServiceCallServiceFilterConfiguration.class),
+        @XmlElement(name = "combinedServiceFilter", type = CombinedServiceCallServiceFilterConfiguration.class),
         @XmlElement(name = "customServiceFilter", type = CustomServiceCallServiceFilterConfiguration.class),
         @XmlElement(name = "healthyServiceFilter", type = HealthyServiceCallServiceFilterConfiguration.class),
         @XmlElement(name = "passThroughServiceFilter", type = PassThroughServiceCallServiceFilterConfiguration.class)}
@@ -536,6 +539,10 @@ public class ServiceCallConfigurationDefinition extends IdentifiedType {
         return this;
     }
 
+    /**
+     * @deprecated As of version 2.22.0, replaced by {@link #combinedServiceDiscovery()}
+     */
+    @Deprecated
     public AggregatingServiceCallServiceDiscoveryConfiguration multiServiceDiscovery() {
         AggregatingServiceCallServiceDiscoveryConfiguration conf = new AggregatingServiceCallServiceDiscoveryConfiguration();
         setServiceDiscoveryConfiguration(conf);
@@ -543,7 +550,24 @@ public class ServiceCallConfigurationDefinition extends IdentifiedType {
         return conf;
     }
 
+    /**
+     * @deprecated As of version 2.22.0, replaced by {@link #combinedServiceDiscovery(CombinedServiceCallServiceDiscoveryConfiguration)}
+     */
+    @Deprecated
     public ServiceCallConfigurationDefinition multiServiceDiscovery(AggregatingServiceCallServiceDiscoveryConfiguration conf) {
+        setServiceDiscoveryConfiguration(conf);
+
+        return this;
+    }
+
+    public CombinedServiceCallServiceDiscoveryConfiguration combinedServiceDiscovery() {
+        CombinedServiceCallServiceDiscoveryConfiguration conf = new CombinedServiceCallServiceDiscoveryConfiguration();
+        setServiceDiscoveryConfiguration(conf);
+
+        return conf;
+    }
+
+    public ServiceCallConfigurationDefinition combinedServiceDiscovery(CombinedServiceCallServiceDiscoveryConfiguration conf) {
         setServiceDiscoveryConfiguration(conf);
 
         return this;
@@ -557,6 +581,23 @@ public class ServiceCallConfigurationDefinition extends IdentifiedType {
     }
 
     public ServiceCallConfigurationDefinition staticServiceDiscovery(StaticServiceCallServiceDiscoveryConfiguration conf) {
+        setServiceDiscoveryConfiguration(conf);
+
+        return this;
+    }
+
+    public ZooKeeperServiceCallServiceDiscoveryConfiguration zookeeperServiceDiscovery() {
+        ZooKeeperServiceCallServiceDiscoveryConfiguration conf = new ZooKeeperServiceCallServiceDiscoveryConfiguration();
+        setServiceDiscoveryConfiguration(conf);
+
+        return conf;
+    }
+
+    public ServiceCallConfigurationDefinition zookeeperServiceDiscovery(String nodes, String basePath) {
+        ZooKeeperServiceCallServiceDiscoveryConfiguration conf = new ZooKeeperServiceCallServiceDiscoveryConfiguration();
+        conf.setNodes(nodes);
+        conf.setBasePath(basePath);
+
         setServiceDiscoveryConfiguration(conf);
 
         return this;
@@ -580,8 +621,19 @@ public class ServiceCallConfigurationDefinition extends IdentifiedType {
         return this;
     }
 
+    /**
+     * @deprecated As of version 2.22.0, replaced by {@link #combinedFilter()}
+     */
+    @Deprecated
     public ChainedServiceCallServiceFilterConfiguration multiFilter() {
         ChainedServiceCallServiceFilterConfiguration conf = new ChainedServiceCallServiceFilterConfiguration();
+        setServiceFilterConfiguration(conf);
+
+        return conf;
+    }
+
+    public CombinedServiceCallServiceFilterConfiguration combinedFilter() {
+        CombinedServiceCallServiceFilterConfiguration conf = new CombinedServiceCallServiceFilterConfiguration();
         setServiceFilterConfiguration(conf);
 
         return conf;

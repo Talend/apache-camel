@@ -19,16 +19,17 @@ package org.apache.camel.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import org.apache.camel.CamelContext;
 import org.apache.camel.spi.CamelContextTracker;
 import org.apache.camel.support.LifecycleStrategySupport;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class CamelContextTrackerTest extends TestCase {
+public class CamelContextTrackerTest extends Assert {
 
     private final class MyContextTracker extends CamelContextTracker {
 
-        private List<String> names = new ArrayList<String>();
+        private List<String> names = new ArrayList<>();
 
         @Override
         public void contextCreated(CamelContext camelContext) {
@@ -42,6 +43,7 @@ public class CamelContextTrackerTest extends TestCase {
         }
     }
 
+    @Test
     public void testContainerSet() throws Exception {
 
         MyContextTracker tracker = new MyContextTracker();

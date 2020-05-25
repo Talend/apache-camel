@@ -41,6 +41,7 @@ import javax.xml.validation.Schema;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
 import org.xml.sax.SAXException;
 
 import org.apache.camel.Exchange;
@@ -128,8 +129,8 @@ public class XmlVerifierProcessor extends XmlSignatureProcessor {
 
         NodeList signatureNodes = getSignatureNodes(doc);
 
-        List<XMLObject> collectedObjects = new ArrayList<XMLObject>(3);
-        List<Reference> collectedReferences = new ArrayList<Reference>(3);
+        List<XMLObject> collectedObjects = new ArrayList<>(3);
+        List<Reference> collectedReferences = new ArrayList<>(3);
         int totalCount = signatureNodes.getLength();
         for (int i = 0; i < totalCount; i++) {
 

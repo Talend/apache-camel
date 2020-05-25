@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -27,6 +26,8 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.spi.PollingConsumerPollStrategy;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit test for poll strategy
@@ -36,7 +37,7 @@ public class FileConsumerPollStrategyPolledMessagesTest extends ContextTestSuppo
     private static int maxPolls;
     private final CountDownLatch latch = new CountDownLatch(1);
 
-    private String fileUrl = "file://target/pollstrategy/?consumer.pollStrategy=#myPoll";
+    private String fileUrl = "file://target/pollstrategy/?consumer.pollStrategy=#myPoll&initialDelay=0&delay=10";
 
     @Override
     protected JndiRegistry createRegistry() throws Exception {
@@ -46,11 +47,13 @@ public class FileConsumerPollStrategyPolledMessagesTest extends ContextTestSuppo
     }
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/pollstrategy");
         super.setUp();
     }
 
+    @Test
     public void testPolledMessages() throws Exception {
         template.sendBodyAndHeader("file:target/pollstrategy/", "Hello World", Exchange.FILE_NAME, "hello.txt");
         template.sendBodyAndHeader("file:target/pollstrategy/", "Bye World", Exchange.FILE_NAME, "bye.txt");

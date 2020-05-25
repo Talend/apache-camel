@@ -26,6 +26,7 @@ import org.apache.camel.component.twitter.consumer.AbstractTwitterConsumerHandle
 import org.apache.camel.component.twitter.data.TimelineType;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
+import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriPath;
 
 /**
@@ -38,13 +39,16 @@ public class TwitterTimelineEndpoint extends AbstractTwitterEndpoint {
     @UriPath(description = "The timeline type to produce/consume.")
     @Metadata(required = "true")
     private TimelineType timelineType;
+    @UriParam(description = "The username when using timelineType=user")
+    private String user;
 
-    public TwitterTimelineEndpoint(String uri, String remaining, TwitterTimelineComponent component, TwitterConfiguration properties) {
+    public TwitterTimelineEndpoint(String uri, String remaining, String user, TwitterTimelineComponent component, TwitterConfiguration properties) {
         super(uri, component, properties);
         if (remaining == null) {
             throw new IllegalArgumentException(String.format("The timeline type must be specified for '%s'", uri));
         }
-        this.timelineType = TimelineType.valueOf(remaining.toUpperCase());
+        this.timelineType = component.getCamelContext().getTypeConverter().convertTo(TimelineType.class, remaining);
+        this.user = user;
     }
 
     @Override
@@ -72,10 +76,10 @@ public class TwitterTimelineEndpoint extends AbstractTwitterEndpoint {
             handler = new RetweetsConsumerHandler(this);
             break;
         case USER:
-            if (getProperties().getUser() == null || getProperties().getUser().trim().isEmpty()) {
+            if (user == null || user.trim().isEmpty()) {
                 throw new IllegalArgumentException("Fetch type set to USER TIMELINE but no user was set.");
             } else {
-                handler = new UserConsumerHandler(this);
+                handler = new UserConsumerHandler(this, user);
                 break;
             }
         default:

@@ -59,11 +59,30 @@ public class BoxFoldersManagerIntegrationTest extends AbstractBoxTestSupport {
         // delete folder created in test setup.
         deleteTestFolder();
 
-        final Map<String, Object> headers = new HashMap<String, Object>();
+        final Map<String, Object> headers = new HashMap<>();
         // parameter type is String
         headers.put("CamelBox.parentFolderId", "0");
         // parameter type is String
         headers.put("CamelBox.folderName", CAMEL_TEST_FOLDER);
+
+        testFolder = requestBodyAndHeaders("direct://CREATEFOLDER", null, headers);
+
+        assertNotNull("createFolder result", testFolder);
+        assertEquals("createFolder folder name", CAMEL_TEST_FOLDER, testFolder.getInfo().getName());
+        LOG.debug("createFolder: " + testFolder);
+    }
+
+    @Test
+    public void testCreateFolderByPath() throws Exception {
+
+        // delete folder created in test setup.
+        deleteTestFolder();
+
+        final Map<String, Object> headers = new HashMap<>();
+        // parameter type is String
+        headers.put("CamelBox.parentFolderId", "0");
+        // parameter type is String[]
+        headers.put("CamelBox.path", new String[] {CAMEL_TEST_FOLDER});
 
         testFolder = requestBodyAndHeaders("direct://CREATEFOLDER", null, headers);
 
@@ -89,7 +108,7 @@ public class BoxFoldersManagerIntegrationTest extends AbstractBoxTestSupport {
     public void testCopyFolder() throws Exception {
         com.box.sdk.BoxFolder result = null;
         try {
-            final Map<String, Object> headers = new HashMap<String, Object>();
+            final Map<String, Object> headers = new HashMap<>();
             // parameter type is String
             headers.put("CamelBox.folderId", testFolder.getID());
             // parameter type is String
@@ -112,7 +131,7 @@ public class BoxFoldersManagerIntegrationTest extends AbstractBoxTestSupport {
 
     @Test
     public void testCreateSharedLink() throws Exception {
-        final Map<String, Object> headers = new HashMap<String, Object>();
+        final Map<String, Object> headers = new HashMap<>();
         // parameter type is String
         headers.put("CamelBox.folderId", testFolder.getID());
         // parameter type is com.box.sdk.BoxSharedLink.Access
@@ -141,7 +160,7 @@ public class BoxFoldersManagerIntegrationTest extends AbstractBoxTestSupport {
 
     @Test
     public void testGetFolderInfo() throws Exception {
-        final Map<String, Object> headers = new HashMap<String, Object>();
+        final Map<String, Object> headers = new HashMap<>();
         // parameter type is String
         headers.put("CamelBox.folderId", testFolder.getID());
         // parameter type is String[]
@@ -157,7 +176,7 @@ public class BoxFoldersManagerIntegrationTest extends AbstractBoxTestSupport {
 
     @Test
     public void testGetFolderItems() throws Exception {
-        final Map<String, Object> headers = new HashMap<String, Object>();
+        final Map<String, Object> headers = new HashMap<>();
         // parameter type is String
         headers.put("CamelBox.folderId", CAMEL_TEST_ROOT_FOLDER_ID);
         // parameter type is Long
@@ -184,7 +203,7 @@ public class BoxFoldersManagerIntegrationTest extends AbstractBoxTestSupport {
 
     @Test
     public void testMoveFolder() throws Exception {
-        final Map<String, Object> headers = new HashMap<String, Object>();
+        final Map<String, Object> headers = new HashMap<>();
         // parameter type is String
         headers.put("CamelBox.folderId", testFolder.getID());
         // parameter type is String
@@ -201,7 +220,7 @@ public class BoxFoldersManagerIntegrationTest extends AbstractBoxTestSupport {
 
     @Test
     public void testRenameFolder() throws Exception {
-        final Map<String, Object> headers = new HashMap<String, Object>();
+        final Map<String, Object> headers = new HashMap<>();
         // parameter type is String
         headers.put("CamelBox.folderId", testFolder.getID());
         // parameter type is String
@@ -218,7 +237,7 @@ public class BoxFoldersManagerIntegrationTest extends AbstractBoxTestSupport {
     public void testUpdateInfo() throws Exception {
         final BoxFolder.Info testFolderInfo = testFolder.getInfo();
 
-        final Map<String, Object> headers = new HashMap<String, Object>();
+        final Map<String, Object> headers = new HashMap<>();
         // parameter type is String
         headers.put("CamelBox.folderId", testFolder.getID());
         // parameter type is com.box.sdk.BoxFolder.Info

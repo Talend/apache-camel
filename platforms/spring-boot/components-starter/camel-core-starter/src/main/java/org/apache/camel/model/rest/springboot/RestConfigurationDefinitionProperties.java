@@ -16,11 +16,10 @@
  */
 package org.apache.camel.model.rest.springboot;
 
-import java.util.List;
+import java.util.Map;
 import javax.annotation.Generated;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.camel.model.rest.RestHostNameResolver;
-import org.apache.camel.model.rest.RestPropertyDefinition;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -33,11 +32,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class RestConfigurationDefinitionProperties {
 
     /**
-     * The Camel Rest component to use for the REST transport (consumer) such as
-     * restlet spark-rest. If no component has been explicit configured then
-     * Camel will lookup if there is a Camel component that integrates with the
-     * Rest DSL or if a org.apache.camel.spi.RestConsumerFactory is registered
-     * in the registry. If either one is found then that is being used.
+     * The Camel Rest component to use for the REST transport (consumer), such
+     * as restlet, spark-rest. If no component has been explicit configured,
+     * then Camel will lookup if there is a Camel component that integrates with
+     * the Rest DSL, or if a org.apache.camel.spi.RestConsumerFactory is
+     * registered in the registry. If either one is found, then that is being
+     * used.
      */
     private String component;
     /**
@@ -58,23 +58,33 @@ public class RestConfigurationDefinitionProperties {
      */
     private String host;
     /**
+     * To use an specific hostname for the API documentation (eg swagger) This
+     * can be used to override the generated host with this configured hostname
+     */
+    private String apiHost;
+    /**
+     * Whether to use X-Forward headers for Host and related setting. The
+     * default value is true.
+     */
+    private Boolean useXForwardHeaders = true;
+    /**
      * The port number to use for exposing the REST service. Notice if you use
-     * servlet component then the port number configured here does not apply as
+     * servlet component then the port number configured here does not apply, as
      * the port number in use is the actual port number the servlet component is
-     * using. eg if using Apache Tomcat its the tomcat http port if using Apache
-     * Karaf its the HTTP service in Karaf that uses port 8181 by default etc.
-     * Though in those situations setting the port number here allows tooling
-     * and JMX to know the port number so its recommended to set the port number
-     * to the number that the servlet engine uses.
+     * using. eg if using Apache Tomcat its the tomcat http port, if using
+     * Apache Karaf its the HTTP service in Karaf that uses port 8181 by default
+     * etc. Though in those situations setting the port number here, allows
+     * tooling and JMX to know the port number, so its recommended to set the
+     * port number to the number that the servlet engine uses.
      */
     private String port;
     /**
      * Sets the location of the api document (swagger api) the REST producer
      * will use to validate the REST uri and query parameters are valid
      * accordingly to the api document. This requires adding camel-swagger-java
-     * to the classpath and any miss configuration will let Camel fail on
+     * to the classpath, and any miss configuration will let Camel fail on
      * startup and report the error(s). The location of the api document is
-     * loaded from classpath by default but you can use file: or http: to refer
+     * loaded from classpath by default, but you can use file: or http: to refer
      * to resources to load from file or http url.
      */
     private String producerApiDoc;
@@ -99,20 +109,28 @@ public class RestConfigurationDefinitionProperties {
     /**
      * Sets an CamelContext id pattern to only allow Rest APIs from rest
      * services within CamelContext's which name matches the pattern. The
-     * pattern name refers to the CamelContext name to match on the current
-     * CamelContext only. For any other value the pattern uses the rules from
-     * link org.apache.camel.util.EndpointHelpermatchPattern(String String)
+     * pattern #name# refers to the CamelContext name, to match on the current
+     * CamelContext only. For any other value, the pattern uses the rules from
+     * link org.apache.camel.util.EndpointHelper#matchPattern(String, String)
      */
     private String apiContextIdPattern;
     /**
      * Sets whether listing of all available CamelContext's with REST services
-     * in the JVM is enabled. If enabled it allows to discover these contexts if
-     * false then only the current CamelContext is in use.
+     * in the JVM is enabled. If enabled it allows to discover these contexts,
+     * if false then only the current CamelContext is in use.
      */
     private Boolean apiContextListing = false;
     /**
-     * If no hostname has been explicit configured then this resolver is used to
-     * compute the hostname the REST service will be using.
+     * Whether vendor extension is enabled in the Rest APIs. If enabled then
+     * Camel will include additional information as vendor extension (eg keys
+     * starting with x-) such as route ids, class names etc. Not all 3rd party
+     * API gateways and tools supports vendor-extensions when importing your API
+     * docs.
+     */
+    private Boolean apiVendorExtension = false;
+    /**
+     * If no hostname has been explicit configured, then this resolver is used
+     * to compute the hostname the REST service will be using.
      */
     private RestHostNameResolver hostNameResolver;
     /**
@@ -122,9 +140,17 @@ public class RestConfigurationDefinitionProperties {
     /**
      * Whether to skip binding on output if there is a custom HTTP error code
      * header. This allows to build custom error messages that do not bind to
-     * json / xml etc as success messages otherwise will do.
+     * json / xml etc, as success messages otherwise will do.
      */
     private Boolean skipBindingOnErrorCode = false;
+    /**
+     * Whether to enable validation of the client request to check whether the
+     * Content-Type and Accept headers from the client is supported by the
+     * Rest-DSL configuration of its consumes/produces settings. This can be
+     * turned on, to enable this check. In case of validation error, then HTTP
+     * Status codes 415 or 406 is returned. The default value is false.
+     */
+    private Boolean clientRequestValidation = false;
     /**
      * Whether to enable CORS headers in the HTTP response. The default value is
      * false.
@@ -133,30 +159,30 @@ public class RestConfigurationDefinitionProperties {
     /**
      * Name of specific json data format to use. By default json-jackson will be
      * used. Important: This option is only for setting a custom name of the
-     * data format not to refer to an existing data format instance.
+     * data format, not to refer to an existing data format instance.
      */
     private String jsonDataFormat;
     /**
      * Name of specific XML data format to use. By default jaxb will be used.
      * Important: This option is only for setting a custom name of the data
-     * format not to refer to an existing data format instance.
+     * format, not to refer to an existing data format instance.
      */
     private String xmlDataFormat;
     /**
      * Allows to configure as many additional properties for the rest component
      * in use.
      */
-    private List<RestPropertyDefinition> componentProperty;
+    private Map<String, Object> componentProperty;
     /**
      * Allows to configure as many additional properties for the rest endpoint
      * in use.
      */
-    private List<RestPropertyDefinition> endpointProperty;
+    private Map<String, Object> endpointProperty;
     /**
      * Allows to configure as many additional properties for the rest consumer
      * in use.
      */
-    private List<RestPropertyDefinition> consumerProperty;
+    private Map<String, Object> consumerProperty;
     /**
      * Allows to configure as many additional properties for the data formats in
      * use. For example set property prettyPrint to true to have json outputted
@@ -166,17 +192,17 @@ public class RestConfigurationDefinitionProperties {
      * value xml.out.mustBeJAXBElement is only for the XML data format for the
      * outgoing. A key without a prefix is a common key for all situations.
      */
-    private List<RestPropertyDefinition> dataFormatProperty;
+    private Map<String, Object> dataFormatProperty;
     /**
      * Allows to configure as many additional properties for the api
      * documentation (swagger). For example set property api.title to my cool
      * stuff
      */
-    private List<RestPropertyDefinition> apiProperty;
+    private Map<String, Object> apiProperty;
     /**
      * Allows to configure custom CORS headers.
      */
-    private List<RestPropertyDefinition> corsHeaders;
+    private Map<String, Object> corsHeaders;
 
     public String getComponent() {
         return component;
@@ -216,6 +242,22 @@ public class RestConfigurationDefinitionProperties {
 
     public void setHost(String host) {
         this.host = host;
+    }
+
+    public String getApiHost() {
+        return apiHost;
+    }
+
+    public void setApiHost(String apiHost) {
+        this.apiHost = apiHost;
+    }
+
+    public Boolean getUseXForwardHeaders() {
+        return useXForwardHeaders;
+    }
+
+    public void setUseXForwardHeaders(Boolean useXForwardHeaders) {
+        this.useXForwardHeaders = useXForwardHeaders;
     }
 
     public String getPort() {
@@ -274,6 +316,14 @@ public class RestConfigurationDefinitionProperties {
         this.apiContextListing = apiContextListing;
     }
 
+    public Boolean getApiVendorExtension() {
+        return apiVendorExtension;
+    }
+
+    public void setApiVendorExtension(Boolean apiVendorExtension) {
+        this.apiVendorExtension = apiVendorExtension;
+    }
+
     public RestHostNameResolver getHostNameResolver() {
         return hostNameResolver;
     }
@@ -296,6 +346,14 @@ public class RestConfigurationDefinitionProperties {
 
     public void setSkipBindingOnErrorCode(Boolean skipBindingOnErrorCode) {
         this.skipBindingOnErrorCode = skipBindingOnErrorCode;
+    }
+
+    public Boolean getClientRequestValidation() {
+        return clientRequestValidation;
+    }
+
+    public void setClientRequestValidation(Boolean clientRequestValidation) {
+        this.clientRequestValidation = clientRequestValidation;
     }
 
     public Boolean getEnableCors() {
@@ -322,55 +380,51 @@ public class RestConfigurationDefinitionProperties {
         this.xmlDataFormat = xmlDataFormat;
     }
 
-    public List<RestPropertyDefinition> getComponentProperty() {
+    public Map<String, Object> getComponentProperty() {
         return componentProperty;
     }
 
-    public void setComponentProperty(
-            List<RestPropertyDefinition> componentProperty) {
+    public void setComponentProperty(Map<String, Object> componentProperty) {
         this.componentProperty = componentProperty;
     }
 
-    public List<RestPropertyDefinition> getEndpointProperty() {
+    public Map<String, Object> getEndpointProperty() {
         return endpointProperty;
     }
 
-    public void setEndpointProperty(
-            List<RestPropertyDefinition> endpointProperty) {
+    public void setEndpointProperty(Map<String, Object> endpointProperty) {
         this.endpointProperty = endpointProperty;
     }
 
-    public List<RestPropertyDefinition> getConsumerProperty() {
+    public Map<String, Object> getConsumerProperty() {
         return consumerProperty;
     }
 
-    public void setConsumerProperty(
-            List<RestPropertyDefinition> consumerProperty) {
+    public void setConsumerProperty(Map<String, Object> consumerProperty) {
         this.consumerProperty = consumerProperty;
     }
 
-    public List<RestPropertyDefinition> getDataFormatProperty() {
+    public Map<String, Object> getDataFormatProperty() {
         return dataFormatProperty;
     }
 
-    public void setDataFormatProperty(
-            List<RestPropertyDefinition> dataFormatProperty) {
+    public void setDataFormatProperty(Map<String, Object> dataFormatProperty) {
         this.dataFormatProperty = dataFormatProperty;
     }
 
-    public List<RestPropertyDefinition> getApiProperty() {
+    public Map<String, Object> getApiProperty() {
         return apiProperty;
     }
 
-    public void setApiProperty(List<RestPropertyDefinition> apiProperty) {
+    public void setApiProperty(Map<String, Object> apiProperty) {
         this.apiProperty = apiProperty;
     }
 
-    public List<RestPropertyDefinition> getCorsHeaders() {
+    public Map<String, Object> getCorsHeaders() {
         return corsHeaders;
     }
 
-    public void setCorsHeaders(List<RestPropertyDefinition> corsHeaders) {
+    public void setCorsHeaders(Map<String, Object> corsHeaders) {
         this.corsHeaders = corsHeaders;
     }
 }

@@ -24,13 +24,19 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>platforms</artifactId>
-    <version>2.20.0-SNAPSHOT</version>
+    <version>2.24.2</version>
   </parent>
 
   <artifactId>camel-catalog-rest</artifactId>
   <packaging>jar</packaging>
-  <name>Camel :: Platforms :: Camel Catalog :: REST</name>
+  <name>Camel :: Platforms :: Camel Catalog :: REST (deprecated)</name>
   <description>Camel Catalog REST</description>
+
+  <properties>
+    <!-- use by camel-catalog -->
+    <firstVersion>2.19.0</firstVersion>
+    <label>tooling</label>
+  </properties>
 
   <dependencies>
 
@@ -51,7 +57,6 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>${jackson2-version}</version>
     </dependency>
 
     <!-- REST api -->
@@ -72,31 +77,26 @@
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-core</artifactId>
-      <version>${cxf-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-      <version>${cxf-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-transports-http</artifactId>
-      <version>${cxf-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-transports-http-jetty</artifactId>
-      <version>${cxf-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-service-description-swagger</artifactId>
-      <version>${cxf-version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -104,7 +104,6 @@
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-extension-providers</artifactId>
-      <version>${cxf-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -175,9 +174,9 @@
 
   <profiles>
     <profile>
-      <id>java9</id>
+      <id>java9+</id>
       <activation>
-        <jdk>9</jdk>
+        <jdk>[9,)</jdk>
       </activation>
       <build>
         <plugins>

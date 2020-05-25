@@ -54,7 +54,7 @@ public class AggregationStrategyBeanInfo {
 
         int size = parameterTypes.length;
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Creating MethodInfo for class: {} method: {} having {} parameters", new Object[]{type, method, size});
+            LOG.trace("Creating MethodInfo for class: {} method: {} having {} parameters", type, method, size);
         }
 
         // must have equal number of parameters
@@ -73,8 +73,8 @@ public class AggregationStrategyBeanInfo {
             }
         }
 
-        List<ParameterInfo> oldParameters = new ArrayList<ParameterInfo>();
-        List<ParameterInfo> newParameters = new ArrayList<ParameterInfo>();
+        List<ParameterInfo> oldParameters = new ArrayList<>();
+        List<ParameterInfo> newParameters = new ArrayList<>();
 
         for (int i = 0; i < size / 2; i++) {
             Class<?> oldType = parameterTypes[i];

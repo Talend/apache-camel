@@ -25,6 +25,7 @@ import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.component.file.GenericFileOperationFailedException;
 import org.apache.camel.component.file.GenericFileOperations;
 import org.apache.camel.util.FileUtil;
+import org.junit.Test;
 
 /**
  * Unit test about retrying deleting processed file, that can be a bit more tricky
@@ -67,15 +68,15 @@ public class GenericFileDeleteProcessStrategyTest extends ContextTestSupport {
             return false;
         }
 
-        public boolean retrieveFile(String name, Exchange exchange) throws GenericFileOperationFailedException {
+        public boolean retrieveFile(String name, Exchange exchange, long size) throws GenericFileOperationFailedException {
             return false;
         }
-        @Override
-        public void releaseRetreivedFileResources(Exchange exchange) throws GenericFileOperationFailedException {
+
+        public void releaseRetrievedFileResources(Exchange exchange) throws GenericFileOperationFailedException {
             // No-op
         }
 
-        public boolean storeFile(String name, Exchange exchange) throws GenericFileOperationFailedException {
+        public boolean storeFile(String name, Exchange exchange, long size) throws GenericFileOperationFailedException {
             return false;
         }
 
@@ -98,6 +99,7 @@ public class GenericFileDeleteProcessStrategyTest extends ContextTestSupport {
         }
     }
 
+    @Test
     public void testTroubleDeletingFile() throws Exception {
         deleteCounter = 0;
         existsCounter = 0;
@@ -106,16 +108,17 @@ public class GenericFileDeleteProcessStrategyTest extends ContextTestSupport {
         GenericFileEndpoint<Object> endpoint = context.getEndpoint("file://target/foo", GenericFileEndpoint.class);
         Exchange exchange = endpoint.createExchange();
 
-        GenericFile<Object> file = new GenericFile<Object>();
+        GenericFile<Object> file = new GenericFile<>();
         file.setAbsoluteFilePath("target/foo/me.txt");
 
-        GenericFileDeleteProcessStrategy<Object> strategy = new GenericFileDeleteProcessStrategy<Object>();
+        GenericFileDeleteProcessStrategy<Object> strategy = new GenericFileDeleteProcessStrategy<>();
         strategy.commit(new MyGenericFileOperations(), endpoint, exchange, file);
 
         assertEquals("Should have tried to delete file 2 times", 2, deleteCounter);
         assertEquals("Should have tried to delete file 2 times", 2, existsCounter);
     }
 
+    @Test
     public void testCannotDeleteFile() throws Exception {
         deleteCounter = 0;
         existsCounter = 0;
@@ -124,10 +127,10 @@ public class GenericFileDeleteProcessStrategyTest extends ContextTestSupport {
         GenericFileEndpoint<Object> endpoint = context.getEndpoint("file://target/foo", GenericFileEndpoint.class);
         Exchange exchange = endpoint.createExchange();
 
-        GenericFile<Object> file = new GenericFile<Object>();
+        GenericFile<Object> file = new GenericFile<>();
         file.setAbsoluteFilePath("target/foo/boom.txt");
 
-        GenericFileDeleteProcessStrategy<Object> strategy = new GenericFileDeleteProcessStrategy<Object>();
+        GenericFileDeleteProcessStrategy<Object> strategy = new GenericFileDeleteProcessStrategy<>();
         try {
             strategy.commit(new MyGenericFileOperations(), endpoint, exchange, file);
             fail("Should have thrown an exception");

@@ -16,15 +16,30 @@
  */
 package org.apache.camel.component.grpc;
 
+import com.google.auth.Credentials;
+import com.google.auth.oauth2.GoogleCredentials;
+import io.grpc.CallCredentials;
 import io.grpc.ManagedChannel;
+import io.grpc.auth.MoreCallCredentials;
+import io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
+import io.grpc.stub.StreamObserver;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslProvider;
 import org.apache.camel.AsyncCallback;
 import org.apache.camel.AsyncProcessor;
 import org.apache.camel.Exchange;
-import org.apache.camel.Message;
+import org.apache.camel.component.grpc.auth.jwt.JwtCallCredentials;
+import org.apache.camel.component.grpc.auth.jwt.JwtHelper;
+import org.apache.camel.component.grpc.client.GrpcExchangeForwarder;
+import org.apache.camel.component.grpc.client.GrpcExchangeForwarderFactory;
 import org.apache.camel.component.grpc.client.GrpcResponseAggregationStreamObserver;
+import org.apache.camel.component.grpc.client.GrpcResponseRouterStreamObserver;
 import org.apache.camel.impl.DefaultProducer;
+import org.apache.camel.spi.ClassResolver;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.ResourceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,45 +53,73 @@ public class GrpcProducer extends DefaultProducer implements AsyncProcessor {
     protected final GrpcEndpoint endpoint;
     private ManagedChannel channel;
     private Object grpcStub;
+    private GrpcExchangeForwarder forwarder;
+    private StreamObserver<Object> globalResponseObserver;
 
     public GrpcProducer(GrpcEndpoint endpoint, GrpcConfiguration configuration) {
         super(endpoint);
         this.endpoint = endpoint;
         this.configuration = configuration;
+
+        if (configuration.getProducerStrategy() == GrpcProducerStrategy.STREAMING) {
+            if (endpoint.isSynchronous()) {
+                throw new IllegalStateException("Cannot use synchronous processing in streaming mode");
+            } else if (configuration.getStreamRepliesTo() == null) {
+                throw new IllegalStateException("The streamReplyTo property is mandatory when using the STREAMING mode");
+            }
+        }
+        
+        if (configuration.getAuthenticationType() == GrpcAuthType.GOOGLE && configuration.getNegotiationType() != NegotiationType.TLS) {
+            throw new IllegalStateException("Google token-based authentication requires SSL/TLS negotiation mode");
+        }
     }
 
     @Override
     public boolean process(Exchange exchange, AsyncCallback callback) {
-        Message message = exchange.getIn();
-
-        try {
-            GrpcUtils.invokeAsyncMethod(grpcStub, configuration.getMethod(), message.getBody(), new GrpcResponseAggregationStreamObserver(exchange, callback));
-        } catch (Exception e) {
-            exchange.setException(e);
-            callback.done(true);
-            return true;
+        StreamObserver<Object> streamObserver = this.globalResponseObserver;
+        if (globalResponseObserver == null) {
+            streamObserver = new GrpcResponseAggregationStreamObserver(exchange, callback);
         }
-        return false;
+
+        return forwarder.forward(exchange, streamObserver, callback);
     }
 
     @Override
     public void process(Exchange exchange) throws Exception {
-        Message message = exchange.getIn();
-        Object outBody = GrpcUtils.invokeSyncMethod(grpcStub, configuration.getMethod(), message.getBody());
-        exchange.getOut().setBody(outBody);
+        forwarder.forward(exchange);
     }
 
     @Override
     protected void doStart() throws Exception {
         super.doStart();
         if (channel == null) {
+            CallCredentials callCreds = null;
             initializeChannel();
+            
+            if (configuration.getAuthenticationType() == GrpcAuthType.GOOGLE) {
+                ObjectHelper.notNull(configuration.getKeyCertChainResource(), "serviceAccountResource");
+                ClassResolver classResolver = endpoint.getCamelContext().getClassResolver();
+                
+                Credentials creds = GoogleCredentials.fromStream(ResourceHelper.resolveResourceAsInputStream(classResolver, configuration.getServiceAccountResource()));
+                callCreds = MoreCallCredentials.from(creds);
+            } else if (configuration.getAuthenticationType() == GrpcAuthType.JWT) {
+                ObjectHelper.notNull(configuration.getJwtSecret(), "jwtSecret");
+                
+                String jwtToken = JwtHelper.createJwtToken(configuration.getJwtAlgorithm(), configuration.getJwtSecret(), configuration.getJwtIssuer(), configuration.getJwtSubject());
+                callCreds = new JwtCallCredentials(jwtToken);
+            }
+            
             if (endpoint.isSynchronous()) {
-                LOG.info("Getting synchronous method stub from channel");
-                grpcStub = GrpcUtils.constructGrpcBlockingStub(configuration.getServicePackage(), configuration.getServiceName(), channel, endpoint.getCamelContext());
+                LOG.debug("Getting synchronous method stub from channel");
+                grpcStub = GrpcUtils.constructGrpcBlockingStub(endpoint.getServicePackage(), endpoint.getServiceName(), channel, callCreds, endpoint.getCamelContext());
             } else {
-                LOG.info("Getting asynchronous method stub from channel");
-                grpcStub = GrpcUtils.constructGrpcAsyncStub(configuration.getServicePackage(), configuration.getServiceName(), channel, endpoint.getCamelContext());
+                LOG.debug("Getting asynchronous method stub from channel");
+                grpcStub = GrpcUtils.constructGrpcAsyncStub(endpoint.getServicePackage(), endpoint.getServiceName(), channel, callCreds, endpoint.getCamelContext());
+            }
+            forwarder = GrpcExchangeForwarderFactory.createExchangeForwarder(configuration, grpcStub);
+
+            if (configuration.getStreamRepliesTo() != null) {
+                this.globalResponseObserver = new GrpcResponseRouterStreamObserver(configuration, getEndpoint());
             }
         }
     }
@@ -84,25 +127,50 @@ public class GrpcProducer extends DefaultProducer implements AsyncProcessor {
     @Override
     protected void doStop() throws Exception {
         if (channel != null) {
-            LOG.trace("Terminating channel to the remote gRPC server");
+            forwarder.shutdown();
+            forwarder = null;
+
+            LOG.debug("Terminating channel to the remote gRPC server");
             channel.shutdown().shutdownNow();
             channel = null;
             grpcStub = null;
+            globalResponseObserver = null;
         }
         super.doStop();
     }
 
-    protected void initializeChannel() {
+    protected void initializeChannel() throws Exception {
         NettyChannelBuilder channelBuilder = null;
+        
         if (!ObjectHelper.isEmpty(configuration.getHost()) && !ObjectHelper.isEmpty(configuration.getPort())) {
-            LOG.info("Creating channel to the remote gRPC server " + configuration.getHost() + ":" + configuration.getPort());
+            LOG.info("Creating channel to the remote gRPC server {}:{}", configuration.getHost(), configuration.getPort());
             channelBuilder = NettyChannelBuilder.forAddress(configuration.getHost(), configuration.getPort());
-        } else if (!ObjectHelper.isEmpty(configuration.getTarget())) {
-            LOG.info("Creating channel to the remote gRPC server " + configuration.getTarget());
-            channelBuilder =  NettyChannelBuilder.forTarget(configuration.getTarget());
         } else {
-            throw new IllegalArgumentException("No connection properties (host, port or target) specified");
+            throw new IllegalArgumentException("No connection properties (host or port) specified");
         }
-        channel = channelBuilder.usePlaintext(configuration.getUsePlainText()).build();
+        if (configuration.getNegotiationType() == NegotiationType.TLS) {
+            ObjectHelper.notNull(configuration.getKeyCertChainResource(), "keyCertChainResource");
+            ObjectHelper.notNull(configuration.getKeyResource(), "keyResource");
+            
+            ClassResolver classResolver = endpoint.getCamelContext().getClassResolver();
+            
+            SslContextBuilder sslContextBuilder = GrpcSslContexts.forClient()
+                                                                 .sslProvider(SslProvider.OPENSSL)
+                                                                 .keyManager(ResourceHelper.resolveResourceAsInputStream(classResolver, configuration.getKeyCertChainResource()), 
+                                                                             ResourceHelper.resolveResourceAsInputStream(classResolver, configuration.getKeyResource()),
+                                                                             configuration.getKeyPassword());
+                               
+            if (ObjectHelper.isNotEmpty(configuration.getTrustCertCollectionResource())) {
+                sslContextBuilder = sslContextBuilder.trustManager(ResourceHelper.resolveResourceAsInputStream(classResolver, configuration.getTrustCertCollectionResource()));
+            }
+            
+            channelBuilder = channelBuilder.sslContext(sslContextBuilder.build());
+        }
+         
+        channel = channelBuilder.negotiationType(configuration.getNegotiationType())
+                                .flowControlWindow(configuration.getFlowControlWindow())
+                                .userAgent(configuration.getUserAgent())
+                                .maxInboundMessageSize(configuration.getMaxMessageSize())
+                                .build();
     }
 }

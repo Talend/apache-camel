@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.processor.interceptor;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,17 +26,20 @@ import org.apache.camel.impl.BreakpointSupport;
 import org.apache.camel.impl.DefaultDebugger;
 import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.spi.Breakpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class DebugSingleStepTest extends ContextTestSupport {
 
-    private List<String> logs = new ArrayList<String>();
+    private List<String> logs = new ArrayList<>();
     private Breakpoint breakpoint;
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
         breakpoint = new BreakpointSupport() {
@@ -48,6 +50,7 @@ public class DebugSingleStepTest extends ContextTestSupport {
         };
     }
 
+    @Test
     public void testDebug() throws Exception {
         context.getDebugger().addSingleStepBreakpoint(breakpoint);
 

@@ -16,7 +16,14 @@
  */
 package org.apache.camel.converter.jaxp;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.Writer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.BlockingQueue;
@@ -81,8 +88,8 @@ public class StaxConverter {
 
         LOG.debug("StaxConverter pool size: {}", i);
 
-        INPUT_FACTORY_POOL = new LinkedBlockingQueue<XMLInputFactory>(i);
-        OUTPUT_FACTORY_POOL = new LinkedBlockingQueue<XMLOutputFactory>(i);
+        INPUT_FACTORY_POOL = new LinkedBlockingQueue<>(i);
+        OUTPUT_FACTORY_POOL = new LinkedBlockingQueue<>(i);
     }
     
     private XMLInputFactory inputFactory;

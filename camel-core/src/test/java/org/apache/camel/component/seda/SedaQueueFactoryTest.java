@@ -25,12 +25,14 @@ import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.SimpleRegistry;
+import org.apache.camel.util.SedaConstants;
+import org.junit.Test;
 
 /**
  *
  */
 public class SedaQueueFactoryTest extends ContextTestSupport {
-    private final ArrayBlockingQueueFactory<Exchange> arrayQueueFactory = new ArrayBlockingQueueFactory<Exchange>();
+    private final ArrayBlockingQueueFactory<Exchange> arrayQueueFactory = new ArrayBlockingQueueFactory<>();
 
     @Override
     protected CamelContext createCamelContext() throws Exception {
@@ -40,23 +42,27 @@ public class SedaQueueFactoryTest extends ContextTestSupport {
     }
 
    
+    @Test
     public void testArrayBlockingQueueFactory() throws Exception {
         SedaEndpoint endpoint = resolveMandatoryEndpoint("seda:arrayQueue?queueFactory=#arrayQueueFactory", SedaEndpoint.class);
 
         BlockingQueue<Exchange> queue = endpoint.getQueue();
-        assertIsInstanceOf(ArrayBlockingQueue.class, queue);
+        ArrayBlockingQueue<Exchange> blockingQueue = assertIsInstanceOf(ArrayBlockingQueue.class, queue);
+        assertEquals("remainingCapacity - default", SedaConstants.QUEUE_SIZE, blockingQueue.remainingCapacity());
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testArrayBlockingQueueFactoryAndSize() throws Exception {
-        SedaEndpoint endpoint = resolveMandatoryEndpoint("seda:arrayQueue50?queueFactory=#arrayQueueFactory&size=50", SedaEndpoint.class);
+        SedaEndpoint endpoint = resolveMandatoryEndpoint("seda:arrayQueue100?queueFactory=#arrayQueueFactory&size=100", SedaEndpoint.class);
 
         BlockingQueue<Exchange> queue = endpoint.getQueue();
         ArrayBlockingQueue<Exchange> blockingQueue = assertIsInstanceOf(ArrayBlockingQueue.class, queue);
-        assertEquals("remainingCapacity", 50, blockingQueue.remainingCapacity());
+        assertEquals("remainingCapacity - custom", 100, blockingQueue.remainingCapacity());
     }
 
     
+    @Test
     public void testDefaultBlockingQueueFactory() throws Exception {
         SedaEndpoint endpoint = resolveMandatoryEndpoint("seda:linkedQueue", SedaEndpoint.class);
         BlockingQueue<Exchange> queue = endpoint.getQueue();

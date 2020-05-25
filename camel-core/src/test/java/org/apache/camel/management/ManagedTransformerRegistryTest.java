@@ -30,12 +30,14 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.dataformat.StringDataFormat;
 import org.apache.camel.spi.DataType;
 import org.apache.camel.spi.Transformer;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ManagedTransformerRegistryTest extends ManagementTestSupport {
     private static final Logger LOG = LoggerFactory.getLogger(ManagedTransformerRegistryTest.class);
 
+    @Test
     public void testManageTransformerRegistry() throws Exception {
         // JMX tests dont work well on AIX CI servers (hangs them)
         if (isPlatform("aix")) {
@@ -51,7 +53,7 @@ public class ManagedTransformerRegistryTest extends ManagementTestSupport {
         // get the stats for the route
         MBeanServer mbeanServer = getMBeanServer();
         Set<ObjectName> set = mbeanServer.queryNames(new ObjectName("*:type=services,*"), null);
-        List<ObjectName> list = new ArrayList<ObjectName>(set);
+        List<ObjectName> list = new ArrayList<>(set);
         ObjectName on = null;
         for (ObjectName name : list) {
             if (name.getCanonicalName().contains("DefaultTransformerRegistry")) {

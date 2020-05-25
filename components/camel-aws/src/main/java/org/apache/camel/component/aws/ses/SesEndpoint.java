@@ -18,9 +18,12 @@ package org.apache.camel.component.aws.ses;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Component;
@@ -59,10 +62,16 @@ public class SesEndpoint extends DefaultEndpoint {
         sesClient = configuration.getAmazonSESClient() != null
             ? configuration.getAmazonSESClient()
             : createSESClient();
-            
-        if (ObjectHelper.isNotEmpty(configuration.getAmazonSESEndpoint())) {
-            sesClient.setEndpoint(configuration.getAmazonSESEndpoint());
+    }
+    
+    @Override
+    public void doStop() throws Exception {
+        if (ObjectHelper.isEmpty(configuration.getAmazonSESClient())) {
+            if (sesClient != null) {
+                sesClient.shutdown();
+            }
         }
+        super.doStop();
     }
 
     public Consumer createConsumer(Processor processor) throws Exception {
@@ -87,6 +96,7 @@ public class SesEndpoint extends DefaultEndpoint {
 
     private AmazonSimpleEmailService createSESClient() {
         AmazonSimpleEmailService client = null;
+        AmazonSimpleEmailServiceClientBuilder clientBuilder = null;
         ClientConfiguration clientConfiguration = null;
         boolean isClientConfigFound = false;
         if (ObjectHelper.isNotEmpty(configuration.getProxyHost()) && ObjectHelper.isNotEmpty(configuration.getProxyPort())) {
@@ -97,18 +107,23 @@ public class SesEndpoint extends DefaultEndpoint {
         }
         if (configuration.getAccessKey() != null && configuration.getSecretKey() != null) {
             AWSCredentials credentials = new BasicAWSCredentials(configuration.getAccessKey(), configuration.getSecretKey());
+            AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials);
             if (isClientConfigFound) {
-                client = new AmazonSimpleEmailServiceClient(credentials, clientConfiguration);
+                clientBuilder = AmazonSimpleEmailServiceClientBuilder.standard().withClientConfiguration(clientConfiguration).withCredentials(credentialsProvider);
             } else {
-                client = new AmazonSimpleEmailServiceClient(credentials);
+                clientBuilder = AmazonSimpleEmailServiceClientBuilder.standard().withCredentials(credentialsProvider);
             }
         } else {
             if (isClientConfigFound) {
-                client = new AmazonSimpleEmailServiceClient();
+                clientBuilder = AmazonSimpleEmailServiceClientBuilder.standard();
             } else {
-                client = new AmazonSimpleEmailServiceClient(clientConfiguration);
+                clientBuilder = AmazonSimpleEmailServiceClientBuilder.standard().withClientConfiguration(clientConfiguration);
             }
         }
+        if (ObjectHelper.isNotEmpty(configuration.getRegion())) {
+            clientBuilder = clientBuilder.withRegion(Regions.valueOf(configuration.getRegion()));
+        }
+        client = clientBuilder.build();
         return client;
     }
 }

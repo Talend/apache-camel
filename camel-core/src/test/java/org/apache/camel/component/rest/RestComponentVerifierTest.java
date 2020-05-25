@@ -26,15 +26,16 @@ import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
-import org.apache.camel.VerifiableComponent;
+import org.apache.camel.component.extension.ComponentVerifierExtension;
+import org.apache.camel.component.extension.verifier.ResultBuilder;
+import org.apache.camel.component.extension.verifier.ResultErrorHelper;
 import org.apache.camel.impl.DefaultComponent;
 import org.apache.camel.impl.JndiRegistry;
-import org.apache.camel.impl.verifier.ResultBuilder;
-import org.apache.camel.impl.verifier.ResultErrorHelper;
 import org.apache.camel.spi.RestConfiguration;
 import org.apache.camel.spi.RestConsumerFactory;
 import org.apache.camel.spi.RestProducerFactory;
 import org.junit.Assert;
+import org.junit.Test;
 
 public class RestComponentVerifierTest extends ContextTestSupport {
     @Override
@@ -45,9 +46,10 @@ public class RestComponentVerifierTest extends ContextTestSupport {
         return registry;
     }
 
+    @Test
     public void testParameters() throws Exception {
         RestComponent component = context.getComponent("rest", RestComponent.class);
-        RestComponentVerifier verifier = (RestComponentVerifier)component.getVerifier();
+        ComponentVerifier verifier = component.getVerifier();
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("componentName", "rest-component");
@@ -64,9 +66,10 @@ public class RestComponentVerifierTest extends ContextTestSupport {
         Assert.assertEquals(ComponentVerifier.Result.Status.OK, result.getStatus());
     }
 
+    @Test
     public void testMissingParameters() throws Exception {
         RestComponent component = context.getComponent("rest", RestComponent.class);
-        RestComponentVerifier verifier = (RestComponentVerifier)component.getVerifier();
+        ComponentVerifier verifier = component.getVerifier();
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("componentName", "rest-component");
@@ -90,7 +93,19 @@ public class RestComponentVerifierTest extends ContextTestSupport {
     //
     // ***************************************************
 
-    private final class MyComponent extends DefaultComponent implements RestProducerFactory, RestConsumerFactory, VerifiableComponent {
+    private final class MyComponent extends DefaultComponent implements RestProducerFactory, RestConsumerFactory {
+        public MyComponent() {
+            registerExtension(
+                new ComponentVerifierExtension() {
+                    @Override
+                    public Result verify(Scope scope, Map<String, Object> parameters) {
+                        return ResultBuilder.withStatusAndScope(RestComponentVerifierExtension.Result.Status.OK, scope)
+                            .error(ResultErrorHelper.requiresOption("authProxy", parameters))
+                            .build();
+                    }
+                }
+            );
+        }
         @Override
         protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
             throw new UnsupportedOperationException();
@@ -106,6 +121,7 @@ public class RestComponentVerifierTest extends ContextTestSupport {
                 String queryParameters,
                 String consumes,
                 String produces,
+                RestConfiguration configuration,
                 Map<String, Object> parameters)
                     throws Exception {
             throw new UnsupportedOperationException();
@@ -124,14 +140,6 @@ public class RestComponentVerifierTest extends ContextTestSupport {
                 Map<String, Object> parameters)
                     throws Exception {
             throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public ComponentVerifier getVerifier() {
-            return (scope, parameters) ->
-                ResultBuilder.withStatusAndScope(ComponentVerifier.Result.Status.OK, scope)
-                    .error(ResultErrorHelper.requiresOption("authProxy", parameters))
-                    .build();
         }
     }
 }

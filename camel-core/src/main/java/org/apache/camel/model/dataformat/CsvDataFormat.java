@@ -17,6 +17,7 @@
 package org.apache.camel.model.dataformat;
 
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -31,16 +32,16 @@ import org.apache.camel.util.CamelContextHelper;
 import org.apache.camel.util.ObjectHelper;
 
 /**
- * CSV data format
+ * The CSV data format is used for handling CSV payloads.
  */
 @Metadata(firstVersion = "1.3.0", label = "dataformat,transformation,csv", title = "CSV")
 @XmlRootElement(name = "csv")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CsvDataFormat extends DataFormatDefinition {
     // Format options
-    @XmlAttribute
+    @XmlAttribute @Metadata(label = "advanced")
     private String formatRef;
-    @XmlAttribute
+    @XmlAttribute @Metadata(enums = "DEFAULT,EXCEL,INFORMIX_UNLOAD,INFORMIX_UNLOAD_CSV,MYSQL,RFC4180")
     private String formatName;
     @XmlAttribute
     private Boolean commentMarkerDisabled;
@@ -90,6 +91,8 @@ public class CsvDataFormat extends DataFormatDefinition {
     private Boolean lazyLoad;
     @XmlAttribute
     private Boolean useMaps;
+    @XmlAttribute
+    private Boolean useOrderedMaps;
     @XmlAttribute
     private String recordConverterRef;
 
@@ -186,6 +189,9 @@ public class CsvDataFormat extends DataFormatDefinition {
         }
         if (useMaps != null) {
             setProperty(camelContext, dataFormat, "useMaps", useMaps);
+        }
+        if (useOrderedMaps != null) {
+            setProperty(camelContext, dataFormat, "useOrderedMaps", useOrderedMaps);
         }
         if (ObjectHelper.isNotEmpty(recordConverterRef)) {
             Object recordConverter = CamelContextHelper.mandatoryLookup(camelContext, recordConverterRef);
@@ -394,7 +400,7 @@ public class CsvDataFormat extends DataFormatDefinition {
     }
 
     /**
-     * Sets the record separator (aka new line) which by default is \r\n (CRLF)
+     * Sets the record separator (aka new line) which by default is new line characters (CRLF)
      */
     public void setRecordSeparator(String recordSeparator) {
         this.recordSeparator = recordSeparator;
@@ -438,10 +444,21 @@ public class CsvDataFormat extends DataFormatDefinition {
     }
 
     /**
-     * Whether the unmarshalling should produce maps for the lines values instead of lists. It requires to have header (either defined or collected).
+     * Whether the unmarshalling should produce maps (HashMap)for the lines values instead of lists. It requires to have header (either defined or collected).
      */
     public void setUseMaps(Boolean useMaps) {
         this.useMaps = useMaps;
+    }
+
+    public Boolean getUseOrderedMaps() {
+        return useOrderedMaps;
+    }
+
+    /**
+     * Whether the unmarshalling should produce ordered maps (LinkedHashMap) for the lines values instead of lists. It requires to have header (either defined or collected).
+     */
+    public void setUseOrderedMaps(Boolean useOrderedMaps) {
+        this.useOrderedMaps = useOrderedMaps;
     }
 
     public String getRecordConverterRef() {

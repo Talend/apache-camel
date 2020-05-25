@@ -1,6 +1,5 @@
 [[Kura-EclipseKuracomponent]]
-Eclipse Kura component
-~~~~~~~~~~~~~~~~~~~~~~
+== Eclipse Kura component
 
 *Available as of Camel 2.15*
 
@@ -313,8 +312,8 @@ service, you can use `activate` and `deactivate` methods provided by
 See Also
 ^^^^^^^^
 
-* link:configuring-camel.html[Configuring Camel]
-* link:component.html[Component]
-* link:endpoint.html[Endpoint]
-* link:getting-started.html[Getting Started]
+* Configuring Camel
+* Component
+* Endpoint
+* Getting Started
 

@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @version 
@@ -27,11 +28,13 @@ import org.apache.camel.component.mock.MockEndpoint;
 public class FileProducerFileExistAppendNoFileBeforeTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/file");
         super.setUp();
     }
 
+    @Test
     public void testAppend() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodiesReceived("Bye World");
@@ -47,7 +50,8 @@ public class FileProducerFileExistAppendNoFileBeforeTest extends ContextTestSupp
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("file://target/file?noop=true&delay=1000").convertBodyTo(String.class).to("mock:result");
+                from("file://target/file?noop=true&initialDelay=0&delay=10")
+                    .convertBodyTo(String.class).to("mock:result");
             }
         };
     }

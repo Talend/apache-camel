@@ -62,12 +62,12 @@ public class NettyConfiguration extends NettyServerBootstrapConfiguration implem
     @Deprecated
     private ChannelHandler encoder;
     @UriParam(label = "codec", javaType = "java.lang.String")
-    private List<ChannelHandler> encoders = new ArrayList<ChannelHandler>();
+    private List<ChannelHandler> encoders = new ArrayList<>();
     @UriParam(label = "codec", description = "To use a single decoder. This options is deprecated use encoders instead.")
     @Deprecated
     private ChannelHandler decoder;
     @UriParam(label = "codec", javaType = "java.lang.String")
-    private List<ChannelHandler> decoders = new ArrayList<ChannelHandler>();
+    private List<ChannelHandler> decoders = new ArrayList<>();
     @UriParam
     private boolean disconnect;
     @UriParam(label = "producer,advanced", defaultValue = "true")
@@ -108,8 +108,10 @@ public class NettyConfiguration extends NettyServerBootstrapConfiguration implem
     private boolean useByteBuf;
     @UriParam(label = "advanced")
     private boolean udpByteArrayCodec;
-    @UriParam(label = "producer")
+    @UriParam(label = "common")
     private boolean reuseChannel;
+    @UriParam(label = "producer,advanced")
+    private NettyCamelStateCorrelationManager correlationManager;
 
     /**
      * Returns a copy of this configuration
@@ -118,9 +120,9 @@ public class NettyConfiguration extends NettyServerBootstrapConfiguration implem
         try {
             NettyConfiguration answer = (NettyConfiguration) clone();
             // make sure the lists is copied in its own instance
-            List<ChannelHandler> encodersCopy = new ArrayList<ChannelHandler>(encoders);
+            List<ChannelHandler> encodersCopy = new ArrayList<>(encoders);
             answer.setEncoders(encodersCopy);
-            List<ChannelHandler> decodersCopy = new ArrayList<ChannelHandler>(decoders);
+            List<ChannelHandler> decodersCopy = new ArrayList<>(decoders);
             answer.setDecoders(decodersCopy);
             return answer;
         } catch (CloneNotSupportedException e) {
@@ -491,7 +493,7 @@ public class NettyConfiguration extends NettyServerBootstrapConfiguration implem
     }
 
     /**
-     * The netty component installs a default codec if both, encoder/deocder is null and textline is false.
+     * The netty component installs a default codec if both, encoder/decoder is null and textline is false.
      * Setting allowDefaultCodec to false prevents the netty component from installing a default codec as the first element in the filter chain.
      */
     public void setAllowDefaultCodec(boolean allowDefaultCodec) {
@@ -587,7 +589,14 @@ public class NettyConfiguration extends NettyServerBootstrapConfiguration implem
 
     /**
      * Whether producer pool is enabled or not.
-     * Important: Do not turn this off, as the pooling is needed for handling concurrency and reliable request/reply.
+     *
+     * Important: If you turn this off then a single shared connection is used for the producer, also if you are doing request/reply.
+     * That means there is a potential issue with interleaved responses if replies comes back out-of-order. Therefore you need to
+     * have a correlation id in both the request and reply messages so you can properly correlate the replies to the Camel callback
+     * that is responsible for continue processing the message in Camel. To do this you need to implement {@link NettyCamelStateCorrelationManager}
+     * as correlation manager and configure it via the <tt>correlationManager</tt> option.
+     * <p/>
+     * See also the <tt>correlationManager</tt> option for more details.
      */
     public void setProducerPoolEnabled(boolean producerPoolEnabled) {
         this.producerPoolEnabled = producerPoolEnabled;
@@ -643,16 +652,36 @@ public class NettyConfiguration extends NettyServerBootstrapConfiguration implem
     }
 
     /**
-     * This option allows producers to reuse the same Netty {@link Channel} for the lifecycle of processing the {@link Exchange}.
-     * This is useable if you need to call a server multiple times in a Camel route and want to use the same network connection.
-     * When using this the channel is not returned to the connection pool until the {@link Exchange} is done; or disconnected
+     * This option allows producers and consumers (in client mode) to reuse the same Netty {@link Channel} for the lifecycle of processing the {@link Exchange}.
+     * This is useful if you need to call a server multiple times in a Camel route and want to use the same network connection.
+     * When using this, the channel is not returned to the connection pool until the {@link Exchange} is done; or disconnected
      * if the disconnect option is set to true.
      * <p/>
-     * The reused {@link Channel} is stored on the {@link Exchange} as an exchange property with the key {@link NettyConstants#NETTY_CHANNEL}
+     * The reused {@link Channel} is stored on the {@link Exchange} as an exchange property with the key {@link NettyConstants#NETTY_CHANNEL} 
      * which allows you to obtain the channel during routing and use it as well.
      */
     public void setReuseChannel(boolean reuseChannel) {
         this.reuseChannel = reuseChannel;
+    }
+
+    public NettyCamelStateCorrelationManager getCorrelationManager() {
+        return correlationManager;
+    }
+
+    /**
+     * To use a custom correlation manager to manage how request and reply messages are mapped when using request/reply with the netty producer.
+     * This should only be used if you have a way to map requests together with replies such as if there is correlation ids in both the request
+     * and reply messages. This can be used if you want to multiplex concurrent messages on the same channel (aka connection) in netty. When doing
+     * this you must have a way to correlate the request and reply messages so you can store the right reply on the inflight Camel Exchange before
+     * its continued routed.
+     * <p/>
+     * We recommend extending the {@link TimeoutCorrelationManagerSupport} when you build custom correlation managers.
+     * This provides support for timeout and other complexities you otherwise would need to implement as well.
+     * <p/>
+     * See also the <tt>producerPoolEnabled</tt> option for more details.
+     */
+    public void setCorrelationManager(NettyCamelStateCorrelationManager correlationManager) {
+        this.correlationManager = correlationManager;
     }
 
     private static <T> void addToHandlersList(List<T> configured, List<T> handlers, Class<T> handlerType) {

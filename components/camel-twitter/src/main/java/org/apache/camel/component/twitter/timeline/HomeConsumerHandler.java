@@ -19,6 +19,7 @@ package org.apache.camel.component.twitter.timeline;
 import java.util.List;
 
 import org.apache.camel.component.twitter.TwitterEndpoint;
+import twitter4j.Paging;
 import twitter4j.Status;
 import twitter4j.TwitterException;
 
@@ -33,11 +34,14 @@ public class HomeConsumerHandler extends AbstractStatusConsumerHandler {
 
     @Override
     protected List<Status> doPoll() throws TwitterException {
-        return getTwitter().getHomeTimeline(getLastIdPaging());
+        Paging paging = getLastIdPaging();
+        log.trace("doPoll.getHomeTimeline(sinceId={})", paging.getSinceId());
+        return getTwitter().getHomeTimeline(paging);
     }
 
     @Override
     protected List<Status> doDirect() throws TwitterException {
+        log.trace("doDirect.getHomeTimeline()");
         return getTwitter().getHomeTimeline();
     }
 }

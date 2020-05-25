@@ -28,6 +28,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 import javax.jms.BytesMessage;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -140,7 +141,7 @@ public class JmsBinding {
     }
 
     public Map<String, Object> extractHeadersFromJms(Message jmsMessage, Exchange exchange) {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         if (jmsMessage != null) {
             // lets populate the standard JMS message headers
             try {
@@ -585,7 +586,7 @@ public class JmsBinding {
      * Extracts a {@link Map} from a {@link MapMessage}
      */
     public Map<String, Object> createMapFromMapMessage(MapMessage message) throws JMSException {
-        Map<String, Object> answer = new HashMap<String, Object>();
+        Map<String, Object> answer = new HashMap<>();
         Enumeration<?> names = message.getMapNames();
         while (names.hasMoreElements()) {
             String name = names.nextElement().toString();

@@ -125,7 +125,7 @@ public final class MessageHelper {
             return;
         }
         Object body = message.getBody();
-        if (body != null && body instanceof StreamCache) {
+        if (body instanceof StreamCache) {
             ((StreamCache) body).reset();
         }
     }
@@ -423,7 +423,7 @@ public final class MessageHelper {
             sb.append(prefix);
             sb.append("  <headers>\n");
             // sort the headers so they are listed A..Z
-            Map<String, Object> headers = new TreeMap<String, Object>(message.getHeaders());
+            Map<String, Object> headers = new TreeMap<>(message.getHeaders());
             for (Map.Entry<String, Object> entry : headers.entrySet()) {
                 Object value = entry.getValue();
                 String type = ObjectHelper.classCanonicalName(value);
@@ -566,9 +566,8 @@ public final class MessageHelper {
         }
 
         String goMessageHistoryOutput = exchange.getContext().getGlobalOption(Exchange.MESSAGE_HISTORY_OUTPUT_FORMAT);
-        sb.append(String.format(
-                        goMessageHistoryOutput == null ? MESSAGE_HISTORY_OUTPUT : goMessageHistoryOutput,
-                        routeId, id, label, elapsed));
+        goMessageHistoryOutput = goMessageHistoryOutput == null ? MESSAGE_HISTORY_OUTPUT : goMessageHistoryOutput;
+        sb.append(String.format(goMessageHistoryOutput, routeId, id, label, elapsed));
         sb.append("\n");
 
         // and then each history
@@ -582,7 +581,7 @@ public final class MessageHelper {
             label =  URISupport.sanitizeUri(StringHelper.limitLength(history.getNode().getLabel(), 100));
             elapsed = history.getElapsed();
 
-            sb.append(String.format(MESSAGE_HISTORY_OUTPUT, routeId, id, label, elapsed));
+            sb.append(String.format(goMessageHistoryOutput, routeId, id, label, elapsed));
             sb.append("\n");
         }
 

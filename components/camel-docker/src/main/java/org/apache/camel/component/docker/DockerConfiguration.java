@@ -63,10 +63,10 @@ public class DockerConfiguration implements Cloneable {
     private boolean tlsVerify;
     @UriParam(label = "advanced", defaultValue = "true")
     private boolean socket;
-    @UriParam(label = "advanced", defaultValue = "com.github.dockerjava.jaxrs.JerseyDockerCmdExecFactory")
-    private String cmdExecFactory = "com.github.dockerjava.jaxrs.JerseyDockerCmdExecFactory";
+    @UriParam(label = "advanced", defaultValue = "com.github.dockerjava.netty.NettyDockerCmdExecFactory")
+    private String cmdExecFactory = "com.github.dockerjava.netty.NettyDockerCmdExecFactory";
     
-    private Map<String, Object> parameters = new HashMap<String, Object>();
+    private Map<String, Object> parameters = new HashMap<>();
 
     public String getHost() {
         return host;

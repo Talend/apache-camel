@@ -21,6 +21,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,7 @@ public class RedeliveryErrorHandlerNonBlockedDelayTest extends ContextTestSuppor
 
     private static volatile int attempt;
 
+    @Test
     public void testRedelivery() throws Exception {
         MockEndpoint before = getMockEndpoint("mock:result");
         before.expectedBodiesReceived("Hello World", "Hello Camel");
@@ -53,14 +55,14 @@ public class RedeliveryErrorHandlerNonBlockedDelayTest extends ContextTestSuppor
             @Override
             public void configure() throws Exception {
                 // use async delayed which means non blocking
-                errorHandler(defaultErrorHandler().maximumRedeliveries(5).redeliveryDelay(2000).asyncDelayedRedelivery());
+                errorHandler(defaultErrorHandler().maximumRedeliveries(5).redeliveryDelay(10).asyncDelayedRedelivery());
 
                 from("seda:start")
                     .to("log:before")
                     .to("mock:before")
                     .process(new Processor() {
                         public void process(Exchange exchange) throws Exception {
-                            LOG.info("Processing at attempt " + attempt + " " + exchange);
+                            LOG.info("Processing at attempt {} {}", attempt, exchange);
 
                             String body = exchange.getIn().getBody(String.class);
                             if (body.contains("World")) {
@@ -71,7 +73,7 @@ public class RedeliveryErrorHandlerNonBlockedDelayTest extends ContextTestSuppor
                             }
 
                             exchange.getIn().setBody("Hello " + body);
-                            LOG.info("Processing at attempt " + attempt + " complete " + exchange);
+                            LOG.info("Processing at attempt {} complete {}", attempt, exchange);
                         }
                     })
                     .to("log:after")

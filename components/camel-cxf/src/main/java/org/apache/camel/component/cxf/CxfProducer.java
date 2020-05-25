@@ -84,7 +84,7 @@ public class CxfProducer extends DefaultProducer implements AsyncProcessor {
             client = endpoint.createClient();
         }
         Conduit conduit = client.getConduit();
-        if (conduit.getClass().getName().endsWith("JMSConduit")) {
+        if (conduit != null && conduit.getClass().getName().endsWith("JMSConduit")) {
             java.lang.reflect.Method getJmsConfig = conduit.getClass().getMethod("getJmsConfig");
             Object jmsConfig = getJmsConfig.invoke(conduit);
             java.lang.reflect.Method getMessageType = jmsConfig.getClass().getMethod("getMessageType");
@@ -123,8 +123,8 @@ public class CxfProducer extends DefaultProducer implements AsyncProcessor {
             // prepare binding operation info
             BindingOperationInfo boi = prepareBindingOperation(camelExchange, cxfExchange);
             
-            Map<String, Object> invocationContext = new HashMap<String, Object>();
-            Map<String, Object> responseContext = new HashMap<String, Object>();
+            Map<String, Object> invocationContext = new HashMap<>();
+            Map<String, Object> responseContext = new HashMap<>();
             invocationContext.put(Client.RESPONSE_CONTEXT, responseContext);
             invocationContext.put(Client.REQUEST_CONTEXT, prepareRequest(camelExchange, cxfExchange));
             
@@ -160,8 +160,8 @@ public class CxfProducer extends DefaultProducer implements AsyncProcessor {
         // prepare binding operation info
         BindingOperationInfo boi = prepareBindingOperation(camelExchange, cxfExchange);
         
-        Map<String, Object> invocationContext = new HashMap<String, Object>();
-        Map<String, Object> responseContext = new HashMap<String, Object>();
+        Map<String, Object> invocationContext = new HashMap<>();
+        Map<String, Object> responseContext = new HashMap<>();
         invocationContext.put(Client.RESPONSE_CONTEXT, responseContext);
         invocationContext.put(Client.REQUEST_CONTEXT, prepareRequest(camelExchange, cxfExchange));
         
@@ -176,8 +176,11 @@ public class CxfProducer extends DefaultProducer implements AsyncProcessor {
             // add cookies to the cookie store
             if (endpoint.getCookieHandler() != null) {
                 try {
-                    Map<String, List<String>> cxfHeaders = CastUtils.cast((Map<?, ?>)cxfExchange.getInMessage().get(Message.PROTOCOL_HEADERS));
-                    endpoint.getCookieHandler().storeCookies(camelExchange, endpoint.getRequestUri(camelExchange), cxfHeaders);
+                    Message inMessage = cxfExchange.getInMessage();
+                    if (inMessage != null) {
+                        Map<String, List<String>> cxfHeaders = CastUtils.cast((Map<?, ?>)inMessage.get(Message.PROTOCOL_HEADERS));
+                        endpoint.getCookieHandler().storeCookies(camelExchange, endpoint.getRequestUri(camelExchange), cxfHeaders);
+                    }
                 } catch (IOException e) {
                     LOG.error("Cannot store cookies", e);
                 }
@@ -193,8 +196,7 @@ public class CxfProducer extends DefaultProducer implements AsyncProcessor {
     protected Map<String, Object> prepareRequest(Exchange camelExchange, org.apache.cxf.message.Exchange cxfExchange) throws Exception {
         
         // create invocation context
-        WrappedMessageContext requestContext = new WrappedMessageContext(
-                new HashMap<String, Object>(), null, Scope.APPLICATION);
+        WrappedMessageContext requestContext = new WrappedMessageContext(new HashMap<String, Object>(), null, Scope.APPLICATION);
 
         camelExchange.setProperty(Message.MTOM_ENABLED, String.valueOf(endpoint.isMtomEnabled()));
         
@@ -226,7 +228,7 @@ public class CxfProducer extends DefaultProducer implements AsyncProcessor {
                 Map<String, List<String>> transportHeaders = CastUtils.cast((Map<?, ?>)requestContext.get(Message.PROTOCOL_HEADERS));
                 boolean added;
                 if (transportHeaders == null) {
-                    transportHeaders = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
+                    transportHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
                     added = true;
                 } else {
                     added = false;
@@ -284,15 +286,15 @@ public class CxfProducer extends DefaultProducer implements AsyncProcessor {
                 boi = boi.getUnwrappedOperation();
             }
         }
-        int experctMessagePartsSize = boi.getInput().getMessageParts().size();
+        int expectMessagePartsSize = boi.getInput().getMessageParts().size();
         
-        if (parameters.length < experctMessagePartsSize) {
+        if (parameters.length < expectMessagePartsSize) {
             throw new IllegalArgumentException("Get the wrong parameter size to invoke the out service, Expect size "
-                                               + experctMessagePartsSize + ", Parameter size " + parameters.length
+                                               + expectMessagePartsSize + ", Parameter size " + parameters.length
                                                + ". Please check if the message body matches the CXFEndpoint POJO Dataformat request.");
         }
         
-        if (parameters.length > experctMessagePartsSize) {
+        if (parameters.length > expectMessagePartsSize) {
             // need to check the holder parameters        
             int holdersSize = 0;            
             for (Object parameter : parameters) {
@@ -310,9 +312,9 @@ public class CxfProducer extends DefaultProducer implements AsyncProcessor {
                 }
             }
           
-            if (holdersSize + experctMessagePartsSize + soapHeadersSize < parameters.length) {
+            if (holdersSize + expectMessagePartsSize + soapHeadersSize < parameters.length) {
                 throw new IllegalArgumentException("Get the wrong parameter size to invoke the out service, Expect size "
-                                                   + (experctMessagePartsSize + holdersSize + soapHeadersSize) + ", Parameter size " + parameters.length
+                                                   + (expectMessagePartsSize + holdersSize + soapHeadersSize) + ", Parameter size " + parameters.length
                                                    + ". Please check if the message body matches the CXFEndpoint POJO Dataformat request.");
             }
         }
@@ -417,7 +419,7 @@ public class CxfProducer extends DefaultProducer implements AsyncProcessor {
 
             QName qname = new QName(ns, lp);
 
-            LOG.trace("Operation qname = {}", qname.toString());
+            LOG.trace("Operation qname = {}", qname);
             
             answer = client.getEndpoint().getEndpointInfo().getBinding().getOperation(qname);
             if (answer == null) {

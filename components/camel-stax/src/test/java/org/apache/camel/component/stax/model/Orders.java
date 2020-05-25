@@ -18,6 +18,7 @@ package org.apache.camel.component.stax.model;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -34,7 +35,7 @@ public class Orders {
 
     public List<Order> getOrders() {
         if (orders == null) {
-            orders = new ArrayList<Order>();
+            orders = new ArrayList<>();
         }
         return orders;
     }

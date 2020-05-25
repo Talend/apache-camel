@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.math.BigInteger;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,6 +32,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMResult;
@@ -44,15 +46,24 @@ import org.w3c.dom.Node;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.lib.ModuleURIResolver;
+import net.sf.saxon.om.AllElementsSpaceStrippingRule;
 import net.sf.saxon.om.DocumentInfo;
+import net.sf.saxon.om.IgnorableSpaceStrippingRule;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.SequenceIterator;
+import net.sf.saxon.om.SpaceStrippingRule;
 import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.query.DynamicQueryContext;
 import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
+import net.sf.saxon.value.BooleanValue;
+import net.sf.saxon.value.DoubleValue;
+import net.sf.saxon.value.FloatValue;
+import net.sf.saxon.value.Int64Value;
+import net.sf.saxon.value.IntegerValue;
 import net.sf.saxon.value.ObjectValue;
+import net.sf.saxon.value.StringValue;
 import net.sf.saxon.value.Whitespace;
 import org.apache.camel.BytesSource;
 import org.apache.camel.Exchange;
@@ -82,11 +93,11 @@ import org.slf4j.LoggerFactory;
 public abstract class XQueryBuilder implements Expression, Predicate, NamespaceAware, Processor {
     private static final Logger LOG = LoggerFactory.getLogger(XQueryBuilder.class);
     private Configuration configuration;
-    private Map<String, Object> configurationProperties = new HashMap<String, Object>();
+    private Map<String, Object> configurationProperties = new HashMap<>();
     private XQueryExpression expression;
     private StaticQueryContext staticQueryContext;
-    private Map<String, Object> parameters = new HashMap<String, Object>();
-    private Map<String, String> namespacePrefixes = new HashMap<String, String>();
+    private Map<String, Object> parameters = new HashMap<>();
+    private Map<String, String> namespacePrefixes = new HashMap<>();
     private ResultFormat resultsFormat = ResultFormat.DOM;
     private Properties properties = new Properties();
     private Class<?> resultType;
@@ -623,19 +634,19 @@ public abstract class XQueryBuilder implements Expression, Predicate, NamespaceA
         addParameters(dynamicQueryContext, exchange.getIn().getHeaders(), "in.headers.");
         dynamicQueryContext.setParameter(
             StructuredQName.fromClarkName("in.body"),
-            new ObjectValue(exchange.getIn().getBody())
+            getAsParameter(exchange.getIn().getBody())
         );
 
         addParameters(dynamicQueryContext, getParameters());
 
         dynamicQueryContext.setParameter(
             StructuredQName.fromClarkName("exchange"),
-            new ObjectValue(exchange)
+            getAsParameter(exchange)
         );
         if (exchange.hasOut() && exchange.getPattern().isOutCapable()) {
             dynamicQueryContext.setParameter(
                 StructuredQName.fromClarkName("out.body"),
-                new ObjectValue(exchange.getOut().getBody())
+                getAsParameter(exchange.getOut().getBody())
             );
 
             addParameters(dynamicQueryContext, exchange.getOut().getHeaders(), "out.headers.");
@@ -653,9 +664,28 @@ public abstract class XQueryBuilder implements Expression, Predicate, NamespaceA
             if (entry.getValue() != null) {
                 dynamicQueryContext.setParameter(
                         StructuredQName.fromClarkName(parameterPrefix + entry.getKey()),
-                        new ObjectValue(entry.getValue())
+                        getAsParameter(entry.getValue())
                 );
             }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Item getAsParameter(Object value) {
+        if (value instanceof String) {
+            return new StringValue((CharSequence) value);
+        } else if (value instanceof Boolean) {
+            return BooleanValue.get((Boolean) value);
+        } else if (value instanceof Long) {
+            return Int64Value.makeIntegerValue((Long) value);
+        } else if (value instanceof BigInteger) {
+            return IntegerValue.makeIntegerValue((BigInteger) value);
+        } else if (value instanceof Double) {
+            return DoubleValue.makeDoubleValue((double) value);
+        } else if (value instanceof Float) {
+            return FloatValue.makeFloatValue((float) value);
+        } else {
+            return new ObjectValue(value);
         }
     }
 
@@ -672,7 +702,7 @@ public abstract class XQueryBuilder implements Expression, Predicate, NamespaceA
             LOG.debug("Initializing XQueryBuilder {}", this);
             if (configuration == null) {
                 configuration = new Configuration();
-                configuration.setStripsWhiteSpace(isStripsAllWhiteSpace() ? Whitespace.ALL : Whitespace.IGNORABLE);
+                configuration.getParseOptions().setSpaceStrippingRule(isStripsAllWhiteSpace() ? AllElementsSpaceStrippingRule.getInstance() : IgnorableSpaceStrippingRule.getInstance());
                 LOG.debug("Created new Configuration {}", configuration);
             } else {
                 LOG.debug("Using existing Configuration {}", configuration);
@@ -692,8 +722,13 @@ public abstract class XQueryBuilder implements Expression, Predicate, NamespaceA
             for (Map.Entry<String, String> entry : entries) {
                 String prefix = entry.getKey();
                 String uri = entry.getValue();
-                staticQueryContext.declareNamespace(prefix, uri);
-                staticQueryContext.setInheritNamespaces(true);
+                // skip invalid prefix or uri according to XQuery spec
+                boolean invalid = "xml".equals(prefix) || "xmlns".equals(prefix);
+                if (!invalid) {
+                    LOG.debug("Declaring namespace [prefix: {}, uri: {}]", prefix, uri);
+                    staticQueryContext.declareNamespace(prefix, uri);
+                    staticQueryContext.setInheritNamespaces(true);
+                }
             }
             expression = createQueryExpression(staticQueryContext);
 

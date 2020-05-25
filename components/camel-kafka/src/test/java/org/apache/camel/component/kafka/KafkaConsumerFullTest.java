@@ -17,15 +17,18 @@
 package org.apache.camel.component.kafka;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Properties;
 import java.util.stream.StreamSupport;
 
 import org.apache.camel.Endpoint;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.kafka.serde.DefaultKafkaHeaderDeserializer;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.camel.impl.JndiRegistry;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.header.internals.RecordHeader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -49,7 +52,7 @@ public class KafkaConsumerFullTest extends BaseEmbeddedKafkaTest {
     @Before
     public void before() {
         Properties props = getDefaultProperties();
-        producer = new org.apache.kafka.clients.producer.KafkaProducer<String, String>(props);
+        producer = new org.apache.kafka.clients.producer.KafkaProducer<>(props);
     }
 
     @After
@@ -70,22 +73,39 @@ public class KafkaConsumerFullTest extends BaseEmbeddedKafkaTest {
         };
     }
 
+    @Override
+    protected JndiRegistry createRegistry() throws Exception {
+        JndiRegistry jndi = super.createRegistry();
+        jndi.bind("myHeaderDeserializer", new MyKafkaHeaderDeserializer());
+        return jndi;
+    }
+
     @Test
     public void kafkaMessageIsConsumedByCamel() throws InterruptedException, IOException {
+        String propagatedHeaderKey = "PropagatedCustomHeader";
+        byte[] propagatedHeaderValue = "propagated header value".getBytes();
+        String skippedHeaderKey = "CamelSkippedHeader";
         to.expectedMessageCount(5);
         to.expectedBodiesReceivedInAnyOrder("message-0", "message-1", "message-2", "message-3", "message-4");
         // The LAST_RECORD_BEFORE_COMMIT header should not be configured on any exchange because autoCommitEnable=true
         to.expectedHeaderValuesReceivedInAnyOrder(KafkaConstants.LAST_RECORD_BEFORE_COMMIT, null, null, null, null, null);
+        to.expectedHeaderReceived(propagatedHeaderKey, propagatedHeaderValue);
 
         for (int k = 0; k < 5; k++) {
             String msg = "message-" + k;
-            ProducerRecord<String, String> data = new ProducerRecord<String, String>(TOPIC, "1", msg);
+            ProducerRecord<String, String> data = new ProducerRecord<>(TOPIC, "1", msg);
+            data.headers().add(new RecordHeader("CamelSkippedHeader", "skipped header value".getBytes()));
+            data.headers().add(new RecordHeader(propagatedHeaderKey, propagatedHeaderValue));
             producer.send(data);
         }
 
         to.assertIsSatisfied(3000);
 
         assertEquals(5, StreamSupport.stream(MockConsumerInterceptor.recordsCaptured.get(0).records(TOPIC).spliterator(), false).count());
+
+        Map<String, Object> headers = to.getExchanges().get(0).getIn().getHeaders();
+        assertFalse("Should not receive skipped header", headers.containsKey(skippedHeaderKey));
+        assertTrue("Should receive propagated header", headers.containsKey(propagatedHeaderKey));
     }
 
     @Test
@@ -95,7 +115,7 @@ public class KafkaConsumerFullTest extends BaseEmbeddedKafkaTest {
         to.expectedBodiesReceivedInAnyOrder("message-0", "message-1", "message-2", "message-3", "message-4");
         for (int k = 0; k < 5; k++) {
             String msg = "message-" + k;
-            ProducerRecord<String, String> data = new ProducerRecord<String, String>(TOPIC, "1", msg);
+            ProducerRecord<String, String> data = new ProducerRecord<>(TOPIC, "1", msg);
             producer.send(data);
         }
         to.assertIsSatisfied(3000);
@@ -124,7 +144,7 @@ public class KafkaConsumerFullTest extends BaseEmbeddedKafkaTest {
         to.expectedBodiesReceivedInAnyOrder("message-0", "message-1", "message-2", "message-3", "message-4");
         for (int k = 0; k < 5; k++) {
             String msg = "message-" + k;
-            ProducerRecord<String, String> data = new ProducerRecord<String, String>(TOPIC, "1", msg);
+            ProducerRecord<String, String> data = new ProducerRecord<>(TOPIC, "1", msg);
             producer.send(data);
         }
         to.assertIsSatisfied(3000);
@@ -146,6 +166,16 @@ public class KafkaConsumerFullTest extends BaseEmbeddedKafkaTest {
             Thread.sleep(1000);
         }
         to.assertIsSatisfied(3000);
+    }
+
+    @Test
+    public void headerDeserializerCouldBeOverridden() {
+        KafkaEndpoint kafkaEndpoint = context.getEndpoint(
+                "kafka:random_topic?kafkaHeaderDeserializer=#myHeaderDeserializer", KafkaEndpoint.class);
+        assertIsInstanceOf(MyKafkaHeaderDeserializer.class, kafkaEndpoint.getConfiguration().getKafkaHeaderDeserializer());
+    }
+
+    private static class MyKafkaHeaderDeserializer extends DefaultKafkaHeaderDeserializer {
     }
 }
 

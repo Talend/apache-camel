@@ -1,4 +1,5 @@
-## AWS Simple Notification System Component
+[[aws-sns-component]]
+== AWS Simple Notification System Component
 
 *Available as of Camel version 2.8*
 
@@ -28,7 +29,19 @@ The topic will be created if they don't already exists. +
 
 
 // component options: START
-The AWS Simple Notification System component has no options.
+The AWS Simple Notification System component supports 5 options, which are listed below.
+
+
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Name | Description | Default | Type
+| *configuration* (advanced) | The AWS SNS default configuration |  | SnsConfiguration
+| *accessKey* (producer) | Amazon AWS Access Key |  | String
+| *secretKey* (producer) | Amazon AWS Secret Key |  | String
+| *region* (producer) | The region in which SNS client needs to work |  | String
+| *resolveProperty Placeholders* (advanced) | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | boolean
+|===
 // component options: END
 
 
@@ -38,36 +51,71 @@ The AWS Simple Notification System component has no options.
 // endpoint options: START
 The AWS Simple Notification System endpoint is configured using URI syntax:
 
-    aws-sns:topicNameOrArn
+----
+aws-sns:topicNameOrArn
+----
 
 with the following path and query parameters:
 
-#### Path Parameters (1 parameters):
+==== Path Parameters (1 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **topicNameOrArn** | *Required* Topic name or ARN |  | String
-|=======================================================================
+| *topicNameOrArn* | *Required* Topic name or ARN |  | String
+|===
 
-#### Query Parameters (11 parameters):
+
+==== Query Parameters (11 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **accessKey** (producer) | Amazon AWS Access Key |  | String
-| **amazonSNSClient** (producer) | To use the AmazonSNS as the client |  | AmazonSNS
-| **amazonSNSEndpoint** (producer) | The region with which the AWS-SNS client wants to work with. |  | String
-| **headerFilterStrategy** (producer) | To use a custom HeaderFilterStrategy to map headers to/from Camel. |  | HeaderFilterStrategy
-| **messageStructure** (producer) | The message structure to use such as json |  | String
-| **policy** (producer) | The policy for this queue |  | String
-| **proxyHost** (producer) | To define a proxy host when instantiating the SQS client |  | String
-| **proxyPort** (producer) | To define a proxy port when instantiating the SQS client |  | Integer
-| **secretKey** (producer) | Amazon AWS Secret Key |  | String
-| **subject** (producer) | The subject which is used if the message header 'CamelAwsSnsSubject' is not present. |  | String
-| **synchronous** (advanced) | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported). | false | boolean
-|=======================================================================
+| *amazonSNSClient* (producer) | To use the AmazonSNS as the client |  | AmazonSNS
+| *headerFilterStrategy* (producer) | To use a custom HeaderFilterStrategy to map headers to/from Camel. |  | HeaderFilterStrategy
+| *messageStructure* (producer) | The message structure to use such as json |  | String
+| *policy* (producer) | The policy for this queue |  | String
+| *proxyHost* (producer) | To define a proxy host when instantiating the SNS client |  | String
+| *proxyPort* (producer) | To define a proxy port when instantiating the SNS client |  | Integer
+| *region* (producer) | The region in which SNS client needs to work |  | String
+| *subject* (producer) | The subject which is used if the message header 'CamelAwsSnsSubject' is not present. |  | String
+| *synchronous* (advanced) | Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported). | false | boolean
+| *accessKey* (security) | Amazon AWS Access Key |  | String
+| *secretKey* (security) | Amazon AWS Secret Key |  | String
+|===
 // endpoint options: END
+// spring-boot-auto-configure options: START
+=== Spring Boot Auto-Configuration
+
+
+The component supports 16 options, which are listed below.
+
+
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Name | Description | Default | Type
+| *camel.component.aws-sns.access-key* | Amazon AWS Access Key |  | String
+| *camel.component.aws-sns.configuration.access-key* | Amazon AWS Access Key |  | String
+| *camel.component.aws-sns.configuration.amazon-s-n-s-client* | To use the AmazonSNS as the client |  | AmazonSNS
+| *camel.component.aws-sns.configuration.message-structure* | The message structure to use such as json |  | String
+| *camel.component.aws-sns.configuration.policy* | The policy for this queue |  | String
+| *camel.component.aws-sns.configuration.proxy-host* | To define a proxy host when instantiating the SNS client |  | String
+| *camel.component.aws-sns.configuration.proxy-port* | To define a proxy port when instantiating the SNS client |  | Integer
+| *camel.component.aws-sns.configuration.region* | The region in which SNS client needs to work |  | String
+| *camel.component.aws-sns.configuration.secret-key* | Amazon AWS Secret Key |  | String
+| *camel.component.aws-sns.configuration.subject* | The subject which is used if the message header 'CamelAwsSnsSubject' is not present. |  | String
+| *camel.component.aws-sns.configuration.topic-arn* | The Amazon Resource Name (ARN) assigned to the created topic. |  | String
+| *camel.component.aws-sns.configuration.topic-name* | The name of the topic |  | String
+| *camel.component.aws-sns.enabled* | Enable aws-sns component | true | Boolean
+| *camel.component.aws-sns.region* | The region in which SNS client needs to work |  | String
+| *camel.component.aws-sns.resolve-property-placeholders* | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | Boolean
+| *camel.component.aws-sns.secret-key* | Amazon AWS Secret Key |  | String
+|===
+// spring-boot-auto-configure options: END
+
 
 
 
@@ -75,7 +123,7 @@ with the following path and query parameters:
 Required SNS component options
 
 You have to provide the amazonSNSClient in the
-link:registry.html[Registry] or your accessKey and secretKey to access
+Registry or your accessKey and secretKey to access
 the http://aws.amazon.com/sns[Amazon's SNS].
 
 ### Usage
@@ -111,7 +159,7 @@ from("direct:start")
 -------------------------------------------------
 
 The `#client` refers to a `AmazonSNS` in the
-link:registry.html[Registry].
+Registry.
 
 For example if your Camel Application is running behind a firewall:
 
@@ -146,9 +194,9 @@ where `${camel-version`} must be replaced by the actual version of Camel
 
 ### See Also
 
-* link:configuring-camel.html[Configuring Camel]
-* link:component.html[Component]
-* link:endpoint.html[Endpoint]
-* link:getting-started.html[Getting Started]
+* Configuring Camel
+* Component
+* Endpoint
+* Getting Started
 
-* link:aws.html[AWS Component]
+* AWS Component

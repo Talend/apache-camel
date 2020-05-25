@@ -17,6 +17,7 @@
 package org.apache.camel.management.mbean;
 
 import java.util.Map;
+
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
 import javax.management.openmbean.CompositeType;
@@ -89,6 +90,14 @@ public class ManagedWireTapProcessor extends ManagedProcessor implements Managed
 
     public Boolean isCopy() {
         return processor.isCopy();
+    }
+
+    public Boolean isDynamicUri() {
+        return processor.isDynamicUri();
+    }
+
+    public Integer getTaskSize() {
+        return processor.getPendingExchangesSize();
     }
 
     @Override

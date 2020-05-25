@@ -24,6 +24,7 @@ import org.apache.camel.Producer;
 import org.apache.camel.api.management.ManagedAttribute;
 import org.apache.camel.api.management.ManagedResource;
 import org.apache.camel.impl.DefaultEndpoint;
+import org.apache.camel.processor.Pipeline;
 import org.apache.camel.util.ServiceHelper;
 
 @ManagedResource(description = "Managed Connector Endpoint")
@@ -32,6 +33,10 @@ public class DefaultConnectorEndpoint extends DefaultEndpoint implements Delegat
     private final Endpoint endpoint;
     private final DataType inputDataType;
     private final DataType outputDataType;
+    private Processor beforeProducer;
+    private Processor afterProducer;
+    private Processor beforeConsumer;
+    private Processor afterConsumer;
 
     public DefaultConnectorEndpoint(String endpointUri, ConnectorComponent component, Endpoint endpoint,
                                     DataType inputDataType, DataType outputDataType) {
@@ -43,15 +48,29 @@ public class DefaultConnectorEndpoint extends DefaultEndpoint implements Delegat
 
     @Override
     public Producer createProducer() throws Exception {
-        Producer producer = endpoint.createProducer();
-        return new ConnectorProducer(endpoint, producer, getComponent().getBeforeProducer(), getComponent().getAfterProducer());
+        final Producer producer = endpoint.createProducer();
+
+        final Processor beforeProducer = getBeforeProducer();
+        final Processor afterProducer = getAfterProducer();
+
+        // use a pipeline to process before, producer, after in that order
+        // create producer with the pipeline
+        final Processor pipeline = Pipeline.newInstance(getCamelContext(), beforeProducer, producer, afterProducer);
+
+        return new ConnectorProducer(endpoint, pipeline);
     }
 
     @Override
-    public Consumer createConsumer(Processor processor) throws Exception {
-        ConnectorConsumerProcessor delegate = new ConnectorConsumerProcessor(processor, getComponent().getBeforeConsumer(), getComponent().getAfterConsumer());
-        Consumer consumer = endpoint.createConsumer(delegate);
+    public Consumer createConsumer(final Processor processor) throws Exception {
+        final Processor beforeConsumer = getBeforeConsumer();
+        final Processor afterConsumer = getAfterConsumer();
+
+        // use a pipeline to process before, processor, after in that order
+        // create consumer with the pipeline
+        final Processor pipeline = Pipeline.newInstance(getCamelContext(), beforeConsumer, processor, afterConsumer);
+        final Consumer consumer = endpoint.createConsumer(pipeline);
         configureConsumer(consumer);
+
         return consumer;
     }
 
@@ -83,6 +102,62 @@ public class DefaultConnectorEndpoint extends DefaultEndpoint implements Delegat
     @ManagedAttribute(description = "Output data type")
     public DataType getOutputDataType() {
         return outputDataType;
+    }
+
+    /**
+     * Gets the processor used to perform custom processing before the producer is sending the message.
+     */
+    public Processor getBeforeProducer() {
+        return beforeProducer;
+    }
+
+    /**
+     * To perform custom processing before the producer is sending the message.
+     */
+    public void setBeforeProducer(Processor beforeProducer) {
+        this.beforeProducer = beforeProducer;
+    }
+
+    /**
+     * Gets the processor used to perform custom processing after the producer has sent the message and received any reply (if InOut).
+     */
+    public Processor getAfterProducer() {
+        return afterProducer;
+    }
+
+    /**
+     * To perform custom processing after the producer has sent the message and received any reply (if InOut).
+     */
+    public void setAfterProducer(Processor afterProducer) {
+        this.afterProducer = afterProducer;
+    }
+
+    /**
+     * Gets the processor used to perform custom processing when the consumer has just received a new incoming message.
+     */
+    public Processor getBeforeConsumer() {
+        return beforeConsumer;
+    }
+
+    /**
+     * To perform custom processing when the consumer has just received a new incoming message.
+     */
+    public void setBeforeConsumer(Processor beforeConsumer) {
+        this.beforeConsumer = beforeConsumer;
+    }
+
+    /**
+     * Gets the processor used to perform custom processing when the consumer is about to send back a reply message to the caller (if InOut).
+     */
+    public Processor getAfterConsumer() {
+        return afterConsumer;
+    }
+
+    /**
+     * To perform custom processing when the consumer is about to send back a reply message to the caller (if InOut).
+     */
+    public void setAfterConsumer(Processor afterConsumer) {
+        this.afterConsumer = afterConsumer;
     }
 
     @Override

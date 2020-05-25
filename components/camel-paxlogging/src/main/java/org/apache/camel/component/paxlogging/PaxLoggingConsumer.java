@@ -28,7 +28,6 @@ import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 /**
  * Paxlogging consumer.
@@ -84,7 +83,7 @@ public class PaxLoggingConsumer extends DefaultConsumer implements PaxAppender {
         // start the executor before the registration
         executor = endpoint.getCamelContext().getExecutorServiceManager().newSingleThreadExecutor(this, "PaxLoggingEventTask");
 
-        Dictionary<String, String> props = new Hashtable<String, String>();
+        Dictionary<String, String> props = new Hashtable<>();
         props.put("org.ops4j.pax.logging.appender.name", endpoint.getAppender());
         registration = endpoint.getComponent().getBundleContext().registerService(PaxAppender.class.getName(), this, props);
     }

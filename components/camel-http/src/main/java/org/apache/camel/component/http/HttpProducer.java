@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.apache.camel.CamelExchangeException;
 import org.apache.camel.Exchange;
@@ -116,7 +117,7 @@ public class HttpProducer extends DefaultProducer {
                 final Iterator<?> it = ObjectHelper.createIterator(headerValue, null, true);
 
                 // the value to add as request header
-                final List<String> values = new ArrayList<String>();
+                final List<String> values = new ArrayList<>();
 
                 // if its a multi value then check each value if we can add it and for multi values they
                 // should be combined into a single value
@@ -150,10 +151,8 @@ public class HttpProducer extends DefaultProducer {
             for (Map.Entry<String, List<String>> entry : cookieHeaders.entrySet()) {
                 String key = entry.getKey();
                 if (entry.getValue().size() > 0) {
-                    // use the default toString of a ArrayList to create in the form [xxx, yyy]
-                    // if multi valued, for a single value, then just output the value as is
-                    String s = entry.getValue().size() > 1 ? entry.getValue().toString() : entry.getValue().get(0);
-                    method.addRequestHeader(key, s);
+                    // join multi-values separated by semi-colon
+                    method.addRequestHeader(key, entry.getValue().stream().collect(Collectors.joining(";")));
                 }
             }
         }
@@ -165,7 +164,7 @@ public class HttpProducer extends DefaultProducer {
         // lets store the result in the output message.
         try {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Executing http {} method: {}", method.getName(), method.getURI().toString());
+                LOG.debug("Executing http {} method: {}", method.getName(), method.getURI());
             }
             int responseCode = executeMethod(method);
             LOG.debug("Http responseCode: {}", responseCode);
@@ -204,11 +203,11 @@ public class HttpProducer extends DefaultProducer {
 
         // propagate HTTP response headers
         Header[] headers = method.getResponseHeaders();
-        Map<String, List<String>> m = new HashMap<String, List<String>>();
+        Map<String, List<String>> m = new HashMap<>();
         for (Header header : headers) {
             String name = header.getName();
             String value = header.getValue();
-            m.put(name, Collections.singletonList(value));
+            m.computeIfAbsent(name, k -> new ArrayList<>()).add(value);
             if (name.toLowerCase().equals("content-type")) {
                 name = Exchange.CONTENT_TYPE;
                 exchange.setProperty(Exchange.CHARSET_NAME, IOHelper.getCharsetNameFromContentType(value));
@@ -240,7 +239,7 @@ public class HttpProducer extends DefaultProducer {
         Map<String, String> headers = extractResponseHeaders(method.getResponseHeaders());
         // handle cookies
         if (getEndpoint().getCookieHandler() != null) {
-            Map<String, List<String>> m = new HashMap<String, List<String>>();
+            Map<String, List<String>> m = new HashMap<>();
             for (Entry<String, String> e : headers.entrySet()) {
                 m.put(e.getKey(), Collections.singletonList(e.getValue()));
             }
@@ -248,7 +247,7 @@ public class HttpProducer extends DefaultProducer {
         }
 
         Object responseBody = extractResponseBody(method, exchange, getEndpoint().isIgnoreResponseBody());
-        if (transferException && responseBody != null && responseBody instanceof Exception) {
+        if (transferException && responseBody instanceof Exception) {
             // if the response was a serialized exception then use that
             return (Exception) responseBody;
         }
@@ -299,7 +298,7 @@ public class HttpProducer extends DefaultProducer {
             return null;
         }
 
-        Map<String, String> answer = new HashMap<String, String>();
+        Map<String, String> answer = new HashMap<>();
         for (Header header : responseHeaders) {
             answer.put(header.getName(), header.getValue());
         }

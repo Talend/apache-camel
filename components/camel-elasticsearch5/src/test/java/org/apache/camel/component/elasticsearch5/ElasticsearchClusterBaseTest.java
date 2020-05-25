@@ -64,7 +64,7 @@ public class ElasticsearchClusterBaseTest extends CamelTestSupport {
                  .baseTransportPort(ES_BASE_TRANSPORT_PORT)
                  .baseHttpPort(ES_BASE_HTTP_PORT)
                  .basePath("target/testcluster/")
-                 .useLogger());
+                 .disableESLogger());
 
         // wait for green status
         runner.ensureGreen();
@@ -122,7 +122,7 @@ public class ElasticsearchClusterBaseTest extends CamelTestSupport {
         String value = prefix + "value";
         log.info("Creating indexed data using the key/value pair {} => {}", key, value);
 
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(key, value);
         return map;
     }

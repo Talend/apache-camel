@@ -36,6 +36,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.camel.AsyncCallback;
 import org.apache.camel.AsyncProcessor;
 import org.apache.camel.CamelContext;
+import org.apache.camel.CamelContextAware;
 import org.apache.camel.CamelExchangeException;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
@@ -61,7 +62,7 @@ import org.apache.camel.support.LoggingExceptionHandler;
 import org.apache.camel.support.ServiceSupport;
 import org.apache.camel.util.AsyncProcessorHelper;
 import org.apache.camel.util.ExchangeHelper;
-import org.apache.camel.util.LRUCache;
+import org.apache.camel.util.LRUCacheFactory;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.ServiceHelper;
 import org.apache.camel.util.StopWatch;
@@ -110,9 +111,9 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
     private ExceptionHandler exceptionHandler;
     private AggregationRepository aggregationRepository;
     private Map<String, String> closedCorrelationKeys;
-    private final Set<String> batchConsumerCorrelationKeys = new ConcurrentSkipListSet<String>();
+    private final Set<String> batchConsumerCorrelationKeys = new ConcurrentSkipListSet<>();
     private final Set<String> inProgressCompleteExchanges = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
-    private final Map<String, RedeliveryData> redeliveryState = new ConcurrentHashMap<String, RedeliveryData>();
+    private final Map<String, RedeliveryData> redeliveryState = new ConcurrentHashMap<>();
 
     private final AggregateProcessorStatistics statistics = new Statistics();
     private final AtomicLong totalIn = new AtomicLong();
@@ -205,10 +206,12 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
     private int completionSize;
     private Expression completionSizeExpression;
     private boolean completionFromBatchConsumer;
+    private boolean completionOnNewCorrelationGroup;
     private AtomicInteger batchConsumerCounter = new AtomicInteger();
     private boolean discardOnCompletionTimeout;
     private boolean forceCompletionOnStop;
     private boolean completeAllOnStop;
+    private long completionTimeoutCheckerInterval = 1000;
 
     private ProducerTemplate deadLetterProducerTemplate;
 
@@ -242,7 +245,7 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
         if (!hasNext()) {
             return null;
         }
-        List<Processor> answer = new ArrayList<Processor>(1);
+        List<Processor> answer = new ArrayList<>(1);
         answer.add(processor);
         return answer;
     }
@@ -282,6 +285,8 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
         //check for the special header to force completion of all groups (and ignore the exchange otherwise)
         boolean completeAllGroups = exchange.getIn().getHeader(Exchange.AGGREGATION_COMPLETE_ALL_GROUPS, false, boolean.class);
         if (completeAllGroups) {
+            // remove the header so we do not complete again
+            exchange.getIn().removeHeader(Exchange.AGGREGATION_COMPLETE_ALL_GROUPS);
             forceCompletionOfAllGroups();
             return;
         }
@@ -313,6 +318,12 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
                 // copy exchange, and do not share the unit of work
                 // the aggregated output runs in another unit of work
                 Exchange copy = ExchangeHelper.createCorrelatedCopy(exchange, false);
+
+                // remove the complete all groups headers as it should not be on the copy
+                copy.getIn().removeHeader(Exchange.AGGREGATION_COMPLETE_CURRENT_GROUP);
+                copy.getIn().removeHeader(Exchange.AGGREGATION_COMPLETE_ALL_GROUPS);
+                copy.getIn().removeHeader(Exchange.AGGREGATION_COMPLETE_ALL_GROUPS_INCLUSIVE);
+
                 try {
                     aggregated = doAggregation(key, copy);
                     exhaustedRetries = false;
@@ -338,17 +349,21 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
             // the aggregated output runs in another unit of work
             Exchange copy = ExchangeHelper.createCorrelatedCopy(exchange, false);
 
+            // remove the complete all groups headers as it should not be on the copy
+            copy.getIn().removeHeader(Exchange.AGGREGATION_COMPLETE_CURRENT_GROUP);
+            copy.getIn().removeHeader(Exchange.AGGREGATION_COMPLETE_ALL_GROUPS);
+            copy.getIn().removeHeader(Exchange.AGGREGATION_COMPLETE_ALL_GROUPS_INCLUSIVE);
+
             // when memory based then its fast using synchronized, but if the aggregation repository is IO
             // bound such as JPA etc then concurrent aggregation per correlation key could
             // improve performance as we can run aggregation repository get/add in parallel
-            List<Exchange> aggregated = null;
+            List<Exchange> aggregated;
             lock.lock();
             try {
                 aggregated = doAggregation(key, copy);
             } finally {
                 lock.unlock();
             }
-
             // we are completed so do that work outside the lock
             if (aggregated != null) {
                 for (Exchange agg : aggregated) {
@@ -360,6 +375,8 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
         // check for the special header to force completion of all groups (inclusive of the message)
         boolean completeAllGroupsInclusive = exchange.getIn().getHeader(Exchange.AGGREGATION_COMPLETE_ALL_GROUPS_INCLUSIVE, false, boolean.class);
         if (completeAllGroupsInclusive) {
+            // remove the header so we do not complete again
+            exchange.getIn().removeHeader(Exchange.AGGREGATION_COMPLETE_ALL_GROUPS_INCLUSIVE);
             forceCompletionOfAllGroups();
         }
     }
@@ -381,7 +398,7 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
     private List<Exchange> doAggregation(String key, Exchange newExchange) throws CamelExchangeException {
         LOG.trace("onAggregation +++ start +++ with correlation key: {}", key);
 
-        List<Exchange> list = new ArrayList<Exchange>();
+        List<Exchange> list = new ArrayList<>();
         String complete = null;
 
         Exchange answer;
@@ -455,6 +472,17 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
             throw new CamelExchangeException("AggregationStrategy " + aggregationStrategy + " returned null which is not allowed", newExchange);
         }
 
+        // check for the special exchange property to force completion of all groups
+        boolean completeAllGroups = answer.getProperty(Exchange.AGGREGATION_COMPLETE_ALL_GROUPS, false, boolean.class);
+        if (completeAllGroups) {
+            // remove the exchange property so we do not complete again
+            answer.removeProperty(Exchange.AGGREGATION_COMPLETE_ALL_GROUPS);
+            forceCompletionOfAllGroups();
+        } else if (isCompletionOnNewCorrelationGroup() && originalExchange == null) {
+            // its a new group so force complete of all existing groups
+            forceCompletionOfAllGroups();
+        }
+
         // special for some repository implementations
         if (aggregationRepository instanceof RecoverableAggregationRepository) {
             boolean valid = oldExchange == null || answer.getExchangeId().equals(oldExchange.getExchangeId());
@@ -520,7 +548,7 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
     }
 
     protected void doAggregationRepositoryAdd(CamelContext camelContext, String key, Exchange oldExchange, Exchange newExchange) {
-        LOG.trace("In progress aggregated oldExchange: {}, newExchange: {} with correlation key: {}", new Object[]{oldExchange, newExchange, key});
+        LOG.trace("In progress aggregated oldExchange: {}, newExchange: {} with correlation key: {}", oldExchange, newExchange, key);
         if (optimisticLocking) {
             try {
                 ((OptimisticLockingAggregationRepository)aggregationRepository).add(camelContext, key, oldExchange, newExchange);
@@ -928,8 +956,24 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
         this.completionFromBatchConsumer = completionFromBatchConsumer;
     }
 
+    public boolean isCompletionOnNewCorrelationGroup() {
+        return completionOnNewCorrelationGroup;
+    }
+
+    public void setCompletionOnNewCorrelationGroup(boolean completionOnNewCorrelationGroup) {
+        this.completionOnNewCorrelationGroup = completionOnNewCorrelationGroup;
+    }
+
     public boolean isCompleteAllOnStop() {
         return completeAllOnStop;
+    }
+
+    public long getCompletionTimeoutCheckerInterval() {
+        return completionTimeoutCheckerInterval;
+    }
+
+    public void setCompletionTimeoutCheckerInterval(long completionTimeoutCheckerInterval) {
+        this.completionTimeoutCheckerInterval = completionTimeoutCheckerInterval;
     }
 
     public ExceptionHandler getExceptionHandler() {
@@ -1204,7 +1248,7 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
             LOG.trace("Starting recover check");
 
             // copy the current in progress before doing scan
-            final Set<String> copyOfInProgress = new LinkedHashSet<String>(inProgressCompleteExchanges);
+            final Set<String> copyOfInProgress = new LinkedHashSet<>(inProgressCompleteExchanges);
 
             Set<String> exchangeIds = recoverable.scan(camelContext);
             for (String exchangeId : exchangeIds) {
@@ -1214,66 +1258,74 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
                     LOG.info("We are shutting down so stop recovering");
                     return;
                 }
+                if (!optimisticLocking) {
+                    lock.lock();
+                }
+                try {
+                    // consider in progress if it was in progress before we did the scan, or currently after we did the scan
+                    // its safer to consider it in progress than risk duplicates due both in progress + recovered
+                    boolean inProgress = copyOfInProgress.contains(exchangeId) || inProgressCompleteExchanges.contains(exchangeId);
+                    if (inProgress) {
+                        LOG.trace("Aggregated exchange with id: {} is already in progress.", exchangeId);
+                    } else {
+                        LOG.debug("Loading aggregated exchange with id: {} to be recovered.", exchangeId);
+                        Exchange exchange = recoverable.recover(camelContext, exchangeId);
+                        if (exchange != null) {
+                            // get the correlation key
+                            String key = exchange.getProperty(Exchange.AGGREGATED_CORRELATION_KEY, String.class);
+                            // and mark it as redelivered
+                            exchange.getIn().setHeader(Exchange.REDELIVERED, Boolean.TRUE);
 
-                // consider in progress if it was in progress before we did the scan, or currently after we did the scan
-                // its safer to consider it in progress than risk duplicates due both in progress + recovered
-                boolean inProgress = copyOfInProgress.contains(exchangeId) || inProgressCompleteExchanges.contains(exchangeId);
-                if (inProgress) {
-                    LOG.trace("Aggregated exchange with id: {} is already in progress.", exchangeId);
-                } else {
-                    LOG.debug("Loading aggregated exchange with id: {} to be recovered.", exchangeId);
-                    Exchange exchange = recoverable.recover(camelContext, exchangeId);
-                    if (exchange != null) {
-                        // get the correlation key
-                        String key = exchange.getProperty(Exchange.AGGREGATED_CORRELATION_KEY, String.class);
-                        // and mark it as redelivered
-                        exchange.getIn().setHeader(Exchange.REDELIVERED, Boolean.TRUE);
+                            // get the current redelivery data
+                            RedeliveryData data = redeliveryState.get(exchange.getExchangeId());
 
-                        // get the current redelivery data
-                        RedeliveryData data = redeliveryState.get(exchange.getExchangeId());
+                            // if we are exhausted, then move to dead letter channel
+                            if (data != null && recoverable.getMaximumRedeliveries() > 0 && data.redeliveryCounter >= recoverable.getMaximumRedeliveries()) {
+                                LOG.warn("The recovered exchange is exhausted after " + recoverable.getMaximumRedeliveries()
+                                        + " attempts, will now be moved to dead letter channel: " + recoverable.getDeadLetterUri());
 
-                        // if we are exhausted, then move to dead letter channel
-                        if (data != null && recoverable.getMaximumRedeliveries() > 0 && data.redeliveryCounter >= recoverable.getMaximumRedeliveries()) {
-                            LOG.warn("The recovered exchange is exhausted after " + recoverable.getMaximumRedeliveries()
-                                    + " attempts, will now be moved to dead letter channel: " + recoverable.getDeadLetterUri());
+                                // send to DLC
+                                try {
+                                    // set redelivery counter
+                                    exchange.getIn().setHeader(Exchange.REDELIVERY_COUNTER, data.redeliveryCounter);
+                                    exchange.getIn().setHeader(Exchange.REDELIVERY_EXHAUSTED, Boolean.TRUE);
+                                    deadLetterProducerTemplate.send(recoverable.getDeadLetterUri(), exchange);
+                                } catch (Throwable e) {
+                                    exchange.setException(e);
+                                }
 
-                            // send to DLC
-                            try {
+                                // handle if failed
+                                if (exchange.getException() != null) {
+                                    getExceptionHandler().handleException("Failed to move recovered Exchange to dead letter channel: " + recoverable.getDeadLetterUri(), exchange.getException());
+                                } else {
+                                    // it was ok, so confirm after it has been moved to dead letter channel, so we wont recover it again
+                                    recoverable.confirm(camelContext, exchangeId);
+                                }
+                            } else {
+                                // update current redelivery state
+                                if (data == null) {
+                                    // create new data
+                                    data = new RedeliveryData();
+                                    redeliveryState.put(exchange.getExchangeId(), data);
+                                }
+                                data.redeliveryCounter++;
+
                                 // set redelivery counter
                                 exchange.getIn().setHeader(Exchange.REDELIVERY_COUNTER, data.redeliveryCounter);
-                                exchange.getIn().setHeader(Exchange.REDELIVERY_EXHAUSTED, Boolean.TRUE);
-                                deadLetterProducerTemplate.send(recoverable.getDeadLetterUri(), exchange);
-                            } catch (Throwable e) {
-                                exchange.setException(e);
-                            }
+                                if (recoverable.getMaximumRedeliveries() > 0) {
+                                    exchange.getIn().setHeader(Exchange.REDELIVERY_MAX_COUNTER, recoverable.getMaximumRedeliveries());
+                                }
 
-                            // handle if failed
-                            if (exchange.getException() != null) {
-                                getExceptionHandler().handleException("Failed to move recovered Exchange to dead letter channel: " + recoverable.getDeadLetterUri(), exchange.getException());
-                            } else {
-                                // it was ok, so confirm after it has been moved to dead letter channel, so we wont recover it again
-                                recoverable.confirm(camelContext, exchangeId);
-                            }
-                        } else {
-                            // update current redelivery state
-                            if (data == null) {
-                                // create new data
-                                data = new RedeliveryData();
-                                redeliveryState.put(exchange.getExchangeId(), data);
-                            }
-                            data.redeliveryCounter++;
+                                LOG.debug("Delivery attempt: {} to recover aggregated exchange with id: {}", data.redeliveryCounter, exchangeId);
 
-                            // set redelivery counter
-                            exchange.getIn().setHeader(Exchange.REDELIVERY_COUNTER, data.redeliveryCounter);
-                            if (recoverable.getMaximumRedeliveries() > 0) {
-                                exchange.getIn().setHeader(Exchange.REDELIVERY_MAX_COUNTER, recoverable.getMaximumRedeliveries());
+                                // not exhaust so resubmit the recovered exchange
+                                onSubmitCompletion(key, exchange);
                             }
-
-                            LOG.debug("Delivery attempt: {} to recover aggregated exchange with id: {}", data.redeliveryCounter, exchangeId);
-
-                            // not exhaust so resubmit the recovered exchange
-                            onSubmitCompletion(key, exchange);
                         }
+                    }
+                } finally {
+                    if (!optimisticLocking) {
+                        lock.unlock();
                     }
                 }
             }
@@ -1283,10 +1335,14 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void doStart() throws Exception {
         AggregationStrategy strategy = aggregationStrategy;
         if (strategy instanceof DelegateAggregationStrategy) {
             strategy = ((DelegateAggregationStrategy) strategy).getDelegate();
+        }
+        if (strategy instanceof CamelContextAware) {
+            ((CamelContextAware) strategy).setCamelContext(camelContext);
         }
         if (strategy instanceof PreCompletionAwareAggregationStrategy) {
             preCompletion = true;
@@ -1305,11 +1361,11 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
 
         if (getCloseCorrelationKeyOnCompletion() != null) {
             if (getCloseCorrelationKeyOnCompletion() > 0) {
-                LOG.info("Using ClosedCorrelationKeys with a LRUCache with a capacity of " + getCloseCorrelationKeyOnCompletion());
-                closedCorrelationKeys = new LRUCache<String, String>(getCloseCorrelationKeyOnCompletion());
+                LOG.info("Using ClosedCorrelationKeys with a LRUCache with a capacity of {}", getCloseCorrelationKeyOnCompletion());
+                closedCorrelationKeys = LRUCacheFactory.newLRUCache(getCloseCorrelationKeyOnCompletion());
             } else {
                 LOG.info("Using ClosedCorrelationKeys with unbounded capacity");
-                closedCorrelationKeys = new ConcurrentHashMap<String, String>();
+                closedCorrelationKeys = new ConcurrentHashMap<>();
             }
         }
 
@@ -1339,7 +1395,7 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
                 // create a background recover thread to check every interval
                 recoverService = camelContext.getExecutorServiceManager().newScheduledThreadPool(this, "AggregateRecoverChecker", 1);
                 Runnable recoverTask = new RecoverTask(recoverable);
-                LOG.info("Using RecoverableAggregationRepository by scheduling recover checker to run every " + interval + " millis.");
+                LOG.info("Using RecoverableAggregationRepository by scheduling recover checker to run every {} millis.", interval);
                 // use fixed delay so there is X interval between each run
                 recoverService.scheduleWithFixedDelay(recoverTask, 1000L, interval, TimeUnit.MILLISECONDS);
 
@@ -1348,7 +1404,7 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
                     if (max <= 0) {
                         throw new IllegalArgumentException("Option maximumRedeliveries must be a positive number, was: " + max);
                     }
-                    LOG.info("After " + max + " failed redelivery attempts Exchanges will be moved to deadLetterUri: " + recoverable.getDeadLetterUri());
+                    LOG.info("After {} failed redelivery attempts Exchanges will be moved to deadLetterUri: {}", max, recoverable.getDeadLetterUri());
 
                     // dead letter uri must be a valid endpoint
                     Endpoint endpoint = camelContext.getEndpoint(recoverable.getDeadLetterUri());
@@ -1364,7 +1420,7 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
             throw new IllegalArgumentException("Only one of completionInterval or completionTimeout can be used, not both.");
         }
         if (getCompletionInterval() > 0) {
-            LOG.info("Using CompletionInterval to run every " + getCompletionInterval() + " millis.");
+            LOG.info("Using CompletionInterval to run every {} millis.", getCompletionInterval());
             if (getTimeoutCheckerExecutorService() == null) {
                 setTimeoutCheckerExecutorService(camelContext.getExecutorServiceManager().newScheduledThreadPool(this, AGGREGATE_TIMEOUT_CHECKER, 1));
                 shutdownTimeoutCheckerExecutorService = true;
@@ -1375,13 +1431,13 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
 
         // start timeout service if its in use
         if (getCompletionTimeout() > 0 || getCompletionTimeoutExpression() != null) {
-            LOG.info("Using CompletionTimeout to trigger after " + getCompletionTimeout() + " millis of inactivity.");
+            LOG.info("Using CompletionTimeout to trigger after {} millis of inactivity.", getCompletionTimeout());
             if (getTimeoutCheckerExecutorService() == null) {
                 setTimeoutCheckerExecutorService(camelContext.getExecutorServiceManager().newScheduledThreadPool(this, AGGREGATE_TIMEOUT_CHECKER, 1));
                 shutdownTimeoutCheckerExecutorService = true;
             }
             // check for timed out aggregated messages once every second
-            timeoutMap = new AggregationTimeoutMap(getTimeoutCheckerExecutorService(), 1000L);
+            timeoutMap = new AggregationTimeoutMap(getTimeoutCheckerExecutorService(), getCompletionTimeoutCheckerInterval());
             // fill in existing timeout values from the aggregation repository, for example if a restart occurred, then we
             // need to re-establish the timeout map so timeout can trigger
             restoreTimeoutMapFromAggregationRepository();
@@ -1407,6 +1463,13 @@ public class AggregateProcessor extends ServiceSupport implements AsyncProcessor
         if (recoverService != null) {
             camelContext.getExecutorServiceManager().shutdown(recoverService);
         }
+
+        if (shutdownTimeoutCheckerExecutorService && timeoutCheckerExecutorService != null) {
+            camelContext.getExecutorServiceManager().shutdown(timeoutCheckerExecutorService);
+            timeoutCheckerExecutorService = null;
+            shutdownTimeoutCheckerExecutorService = false;
+        }
+
         ServiceHelper.stopServices(timeoutMap, processor, deadLetterProducerTemplate);
 
         if (closedCorrelationKeys != null) {

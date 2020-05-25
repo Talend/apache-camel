@@ -24,12 +24,14 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class ChangeHeaderCaseIssueTest extends ContextTestSupport {
 
+    @Test
     public void testChangeHeaderCaseIssue() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodiesReceived("Hello World");
@@ -40,7 +42,7 @@ public class ChangeHeaderCaseIssueTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
 
         // only the changed case header should exist
-        Map<String, Object> headers = new HashMap<String, Object>(mock.getReceivedExchanges().get(0).getIn().getHeaders());
+        Map<String, Object> headers = new HashMap<>(mock.getReceivedExchanges().get(0).getIn().getHeaders());
         assertEquals("cool", headers.get("SoapAction"));
         assertEquals(null, headers.get("SOAPAction"));
     }

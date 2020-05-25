@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file.strategy;
-
 import java.util.concurrent.TimeUnit;
 
 import org.apache.camel.ContextTestSupport;
@@ -26,6 +25,8 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.processor.idempotent.MemoryIdempotentRepository;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @version
@@ -35,7 +36,8 @@ public class FileIdempotentReadLockTest extends ContextTestSupport {
     MemoryIdempotentRepository myRepo = new MemoryIdempotentRepository();
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/changed/");
         createDirectory("target/changed/in");
         super.setUp();
@@ -48,6 +50,7 @@ public class FileIdempotentReadLockTest extends ContextTestSupport {
         return jndi;
     }
 
+    @Test
     public void testIdempotentReadLock() throws Exception {
         assertEquals(0, myRepo.getCacheSize());
 
@@ -73,7 +76,7 @@ public class FileIdempotentReadLockTest extends ContextTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("file:target/changed/in?readLock=idempotent&idempotentRepository=#myRepo")
+                from("file:target/changed/in?initialDelay=0&delay=10&readLock=idempotent&idempotentRepository=#myRepo")
                     .process(new Processor() {
                         @Override
                         public void process(Exchange exchange) throws Exception {

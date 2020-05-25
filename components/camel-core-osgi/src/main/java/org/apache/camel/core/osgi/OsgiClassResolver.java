@@ -57,14 +57,14 @@ public class OsgiClassResolver extends DefaultClassResolver {
         if (clazz == null) {
             clazz = doLoadClass(name, bundleContext.getBundle());
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Loading class {} using BundleContext {} -> {}", new Object[]{name, bundleContext.getBundle(), clazz});
+                LOG.trace("Loading class {} using BundleContext {} -> {}", name, bundleContext.getBundle(), clazz);
             }
         }
         if (clazz == null && camelContext != null) {
             // fallback and load class using the application context classloader
             clazz = super.loadClass(name, camelContext.getApplicationContextClassLoader());
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Loading class {} using CamelContext {} -> {}", new Object[]{name, camelContext, clazz});
+                LOG.trace("Loading class {} using CamelContext {} -> {}", name, camelContext, clazz);
             }
         }
         return clazz;
@@ -90,7 +90,7 @@ public class OsgiClassResolver extends DefaultClassResolver {
             }
         }
 
-        // fallback to default as spring-dm may have issues loading resources
+        // fallback to default as OSGi may have issues loading resources
         if (answer == null) {
             answer = super.loadResourceAsStream(uri);
         }
@@ -103,7 +103,7 @@ public class OsgiClassResolver extends DefaultClassResolver {
         String resolvedName = resolveUriPath(uri);
         URL answer = bundleContext.getBundle().getResource(resolvedName);
 
-        // fallback to default as spring-dm may have issues loading resources
+        // fallback to default as OSGi may have issues loading resources
         if (answer == null) {
             answer = super.loadResourceAsURL(uri);
         }
@@ -124,7 +124,7 @@ public class OsgiClassResolver extends DefaultClassResolver {
     @Override
     public Enumeration<URL> loadAllResourcesAsURL(String uri) {
         ObjectHelper.notEmpty(uri, "uri");
-        Vector<URL> answer = new Vector<URL>();
+        Vector<URL> answer = new Vector<>();
 
         try {
             String resolvedName = resolveUriPath(uri);

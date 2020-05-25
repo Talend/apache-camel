@@ -38,19 +38,17 @@ public class CamelConfigurationProperties {
      * Whether Camel should try to suppress logging during shutdown and timeout was triggered,
      * meaning forced shutdown is happening. And during forced shutdown we want to avoid logging
      * errors/warnings et all in the logs as a side-effect of the forced timeout.
-     * <p/>
-     * By default this is <tt>false</tt>
-     * <p/>
-     * Notice the suppress is a <i>best effort</i> as there may still be some logs coming
+     * Notice the suppress is a best effort as there may still be some logs coming
      * from 3rd party libraries and whatnot, which Camel cannot control.
+     * This option is default false.
      */
     private boolean shutdownSuppressLoggingOnTimeout;
 
     /**
      * Sets whether to force shutdown of all consumers when a timeout occurred and thus
      * not all consumers was shutdown within that period.
-     * <p/>
-     * You should have good reasons to set this option to <tt>false</tt> as it means that the routes
+     *
+     * You should have good reasons to set this option to false as it means that the routes
      * keep running and is halted abruptly when CamelContext has been shutdown.
      */
     private boolean shutdownNowOnTimeout = true;
@@ -87,21 +85,68 @@ public class CamelConfigurationProperties {
     private boolean typeConversion = true;
 
     /**
+     * Sets whether to load custom type converters by scanning classpath.
+     * This can be turned off if you are only using Camel components
+     * that does not provide type converters which is needed at runtime.
+     * In such situations setting this option to false, can speedup starting
+     * Camel.
+     */
+    private boolean loadTypeConverters = true;
+
+    /**
+     * Used for inclusive filtering component scanning of RouteBuilder classes with @Component annotation.
+     * The exclusive filtering takes precedence over inclusive filtering.
+     * The pattern is using Ant-path style pattern.
+     *
+     * Multiple patterns can be specified separated by comma.
+     * For example to include all classes starting with Foo use: &#42;&#42;/Foo*
+     * To include all routes form a specific package use: com/mycompany/foo/&#42;
+     * To include all routes form a specific package and its sub-packages use double wildcards: com/mycompany/foo/&#42;&#42;
+     * And to include all routes from two specific packages use: com/mycompany/foo/&#42;,com/mycompany/stuff/&#42;
+     */
+    private String javaRoutesIncludePattern;
+
+    /**
+     * Used for exclusive filtering component scanning of RouteBuilder classes with @Component annotation.
+     * The exclusive filtering takes precedence over inclusive filtering.
+     * The pattern is using Ant-path style pattern.
+     * Multiple patterns can be specified separated by comma.
+     *
+     * For example to exclude all classes starting with Bar use: &#42;&#42;/Bar&#42;
+     * To exclude all routes form a specific package use: com/mycompany/bar/&#42;
+     * To exclude all routes form a specific package and its sub-packages use double wildcards: com/mycompany/bar/&#42;&#42;
+     * And to exclude all routes from two specific packages use: com/mycompany/bar/&#42;,com/mycompany/stuff/&#42;
+     */
+    private String javaRoutesExcludePattern;
+
+    /**
      * Directory to scan for adding additional XML routes.
      * You can turn this off by setting the value to false.
+     *
+     * Files can be loaded from either classpath or file by prefixing with classpath: or file:
+     * Wildcards is supported using a ANT pattern style paths, such as classpath:&#42;&#42;/&#42;camel&#42;.xml
+     *
+     * Multiple directories can be specified and separated by comma, such as:
+     * file:/myapp/mycamel/&#42;.xml,file:/myapp/myothercamel/&#42;.xml
      */
     private String xmlRoutes = "classpath:camel/*.xml";
 
     /**
      * Directory to scan for adding additional XML rests.
      * You can turn this off by setting the value to false.
+     *
+     * Files can be loaded from either classpath or file by prefixing with classpath: or file:
+     * Wildcards is supported using a ANT pattern style paths, such as classpath:&#42;&#42;/&#42;camel&#42;.xml
+     *
+     * Multiple directories can be specified and separated by comma, such as:
+     * file:/myapp/mycamel/&#42;.xml,file:/myapp/myothercamel/&#42;.xml
      */
     private String xmlRests = "classpath:camel-rest/*.xml";
 
     /**
      * To watch the directory for file changes which triggers
      * a live reload of the Camel routes on-the-fly.
-     * <p/>
+     *
      * For example configure this to point to the source code where the Camel XML files are located
      * such as: src/main/resources/camel/
      */
@@ -112,10 +157,10 @@ public class CamelConfigurationProperties {
      * configuration values that takes precedence over any other configuration.
      * This can be used to refer to files that may have secret configuration that
      * has been mounted on the file system for containers.
-     * <p/>
-     * You must use either <tt>file:</tt> or <tt>classpath:</tt> as prefix to load
+     *
+     * You must use either file: or classpath: as prefix to load
      * from file system or classpath. Then you can specify a pattern to load
-     * from sub directories and a name pattern such as <tt>file:/var/app/secret/*.properties</tt>
+     * from sub directories and a name pattern such as file:/var/app/secret/*.properties
      */
     private String fileConfigurations;
 
@@ -153,17 +198,15 @@ public class CamelConfigurationProperties {
 
     /**
      * Is used to limit the maximum length of the logging Camel message bodies. If the message body
-     * is longer than the limit, the log message is clipped. Use a value of 0 or negative to have unlimited length.
-     * Use for example 1000 to log at at most 1000 chars.
+     * is longer than the limit, the log message is clipped. Use -1 to have unlimited length.
+     * Use for example 1000 to log at most 1000 characters.
      */
     private int logDebugMaxChars;
 
     /**
-     * Sets whether stream caching is enabled or not.
+     * Sets whether stream caching is enabled or not (deprecated use stream-caching-enabled instead).
      *
      * Default is false.
-     *
-     * @deprecated use {@link #streamCachingEnabled}
      */
     @Deprecated
     private boolean streamCaching;
@@ -177,24 +220,32 @@ public class CamelConfigurationProperties {
 
     /**
      * Sets the stream caching spool (temporary) directory to use for overflow and spooling to disk.
-     * <p/>
+     *
      * If no spool directory has been explicit configured, then a temporary directory
-     * is created in the <tt>java.io.tmpdir</tt> directory.
+     * is created in the java.io.tmpdir directory.
      */
     private String streamCachingSpoolDirectory;
 
     /**
      * Sets a stream caching chiper name to use when spooling to disk to write with encryption.
-     * <p/>
+     * By default the data is not encrypted.
+     *
+     * @deprecated use streamCachingSpoolCipher
+     */
+    @Deprecated
+    private String streamCachingSpoolChiper;
+    // TODO: Remove this in Camel 3
+
+    /**
+     * Sets a stream caching cipher name to use when spooling to disk to write with encryption.
      * By default the data is not encrypted.
      */
-    private String streamCachingSpoolChiper;
+    private String streamCachingSpoolCipher;
 
     /**
      * Stream caching threshold in bytes when overflow to disk is activated.
-     * <p/>
-     * The default threshold is {@link org.apache.camel.StreamCache#DEFAULT_SPOOL_THRESHOLD} bytes (eg 128kb).
-     * Use <tt>-1</tt> to disable overflow to disk.
+     * The default threshold is 128kb.
+     * Use -1 to disable overflow to disk.
      */
     private long streamCachingSpoolThreshold;
 
@@ -209,26 +260,25 @@ public class CamelConfigurationProperties {
     private String streamCachingSpoolUsedHeapMemoryLimit;
 
     /**
-     * Sets whether if just any of the {@link org.apache.camel.spi.StreamCachingStrategy.SpoolRule} rules
-     * returns <tt>true</tt> then shouldSpoolCache(long) returns <tt>true</tt>.
-     * If this option is <tt>false</tt>, then <b>all</b> the {@link org.apache.camel.spi.StreamCachingStrategy.SpoolRule} must
-     * return <tt>true</tt>.
-     * <p/>
-     * The default value is <tt>false</tt> which means that all the rules must return <tt>true</tt>.
+     * Sets whether if just any of the org.apache.camel.spi.StreamCachingStrategy.SpoolRule rules
+     * returns true then shouldSpoolCache(long) returns true, to allow spooling to disk.
+     * If this option is false, then all the org.apache.camel.spi.StreamCachingStrategy.SpoolRule must
+     * return true.
+     *
+     * The default value is false which means that all the rules must return true.
      */
     private boolean streamCachingAnySpoolRules;
 
     /**
      * Sets the stream caching buffer size to use when allocating in-memory buffers used for in-memory stream caches.
-     * <p/>
-     * The default size is {@link org.apache.camel.util.IOHelper#DEFAULT_BUFFER_SIZE}
+     *
+     * The default size is 4096.
      */
     private int streamCachingBufferSize;
 
     /**
      * Whether to remove stream caching temporary directory when stopping.
-     * <p/>
-     * This option is default <tt>true</tt>
+     * This option is default true.
      */
     private boolean streamCachingRemoveSpoolDirectoryWhenStopping = true;
 
@@ -299,6 +349,20 @@ public class CamelConfigurationProperties {
      * The default value is false.
      */
     private boolean endpointRuntimeStatisticsEnabled;
+
+    /**
+     * Whether to enable using data type on Camel messages.
+     *
+     * Data type are automatic turned on if one ore more routes has been explicit configured with input and output types.
+     * Otherwise data type is default off.
+     */
+    private boolean useDataType;
+
+    /**
+     * Set whether breadcrumb is enabled.
+     * The default value is true.
+     */
+    private boolean useBreadcrumb = true;
 
     /**
      * Sets the JMX statistics level
@@ -391,6 +455,30 @@ public class CamelConfigurationProperties {
      * Tracer maximum characters in total
      */
     private Integer tracerFormatterMaxChars = 10000;
+    
+    /**
+     * To turn on MDC logging (deprecated use use-mdc-logging instead)
+     */
+    @Deprecated
+    private boolean useMDCLogging;
+
+    /**
+     * To turn on MDC logging
+     */
+    private boolean useMdcLogging;
+
+    /**
+     * Sets the thread name pattern used for creating the full thread name.
+     *
+     * The default pattern is: Camel (#camelId#) thread ##counter# - #name#
+     *
+     * Where #camelId# is the name of the CamelContext.
+     * and #counter# is a unique incrementing counter.
+     * and #name# is the regular thread name.
+     *
+     * You can also use #longName# which is the long thread name which can includes endpoint parameters etc.
+     */
+    private String threadNamePattern;
 
     // Getters & setters
 
@@ -472,6 +560,30 @@ public class CamelConfigurationProperties {
 
     public void setTypeConversion(boolean typeConversion) {
         this.typeConversion = typeConversion;
+    }
+
+    public boolean isLoadTypeConverters() {
+        return loadTypeConverters;
+    }
+
+    public void setLoadTypeConverters(boolean loadTypeConverters) {
+        this.loadTypeConverters = loadTypeConverters;
+    }
+
+    public String getJavaRoutesIncludePattern() {
+        return javaRoutesIncludePattern;
+    }
+
+    public void setJavaRoutesIncludePattern(String javaRoutesIncludePattern) {
+        this.javaRoutesIncludePattern = javaRoutesIncludePattern;
+    }
+
+    public String getJavaRoutesExcludePattern() {
+        return javaRoutesExcludePattern;
+    }
+
+    public void setJavaRoutesExcludePattern(String javaRoutesExcludePattern) {
+        this.javaRoutesExcludePattern = javaRoutesExcludePattern;
     }
 
     public String getXmlRoutes() {
@@ -564,12 +676,22 @@ public class CamelConfigurationProperties {
         this.streamCachingSpoolDirectory = streamCachingSpoolDirectory;
     }
 
+    @Deprecated
     public String getStreamCachingSpoolChiper() {
         return streamCachingSpoolChiper;
     }
 
+    @Deprecated
     public void setStreamCachingSpoolChiper(String streamCachingSpoolChiper) {
         this.streamCachingSpoolChiper = streamCachingSpoolChiper;
+    }
+
+    public String getStreamCachingSpoolCipher() {
+        return streamCachingSpoolCipher;
+    }
+
+    public void setStreamCachingSpoolCipher(String streamCachingSpoolCipher) {
+        this.streamCachingSpoolCipher = streamCachingSpoolCipher;
     }
 
     public long getStreamCachingSpoolThreshold() {
@@ -690,6 +812,22 @@ public class CamelConfigurationProperties {
 
     public void setEndpointRuntimeStatisticsEnabled(boolean endpointRuntimeStatisticsEnabled) {
         this.endpointRuntimeStatisticsEnabled = endpointRuntimeStatisticsEnabled;
+    }
+
+    public boolean isUseDataType() {
+        return useDataType;
+    }
+
+    public void setUseDataType(boolean useDataType) {
+        this.useDataType = useDataType;
+    }
+
+    public boolean isUseBreadcrumb() {
+        return useBreadcrumb;
+    }
+
+    public void setUseBreadcrumb(boolean useBreadcrumb) {
+        this.useBreadcrumb = useBreadcrumb;
     }
 
     public ManagementStatisticsLevel getJmxManagementStatisticsLevel() {
@@ -842,5 +980,31 @@ public class CamelConfigurationProperties {
 
     public void setIncludeNonSingletons(boolean includeNonSingletons) {
         this.includeNonSingletons = includeNonSingletons;
+    }
+
+    @Deprecated
+    public boolean isUseMDCLogging() {
+        return isUseMdcLogging();
+    }
+
+    @Deprecated
+    public void setUseMDCLogging(boolean useMDCLogging) {
+        setUseMdcLogging(useMDCLogging);
+    }
+
+    public boolean isUseMdcLogging() {
+        return useMdcLogging;
+    }
+
+    public void setUseMdcLogging(boolean useMdcLogging) {
+        this.useMdcLogging = useMdcLogging;
+    }
+
+    public String getThreadNamePattern() {
+        return threadNamePattern;
+    }
+
+    public void setThreadNamePattern(String threadNamePattern) {
+        this.threadNamePattern = threadNamePattern;
     }
 }

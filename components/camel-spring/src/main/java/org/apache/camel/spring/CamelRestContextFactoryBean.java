@@ -18,6 +18,7 @@ package org.apache.camel.spring;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -39,7 +40,7 @@ import org.springframework.beans.factory.FactoryBean;
 public class CamelRestContextFactoryBean extends IdentifiedType implements FactoryBean<List<RestDefinition>> {
 
     @XmlElement(name = "rest", required = true)
-    private List<RestDefinition> rests = new ArrayList<RestDefinition>();
+    private List<RestDefinition> rests = new ArrayList<>();
 
     public List<RestDefinition> getObject() throws Exception {
         return rests;

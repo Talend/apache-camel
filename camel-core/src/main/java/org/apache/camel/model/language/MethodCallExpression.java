@@ -38,7 +38,7 @@ import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.OgnlHelper;
 
 /**
- * For expressions and predicates using a java bean (aka method call)
+ * To use a Java bean (aka method call) in Camel expressions or predicates.
  *
  * @version
  */
@@ -207,7 +207,7 @@ public class MethodCallExpression extends ExpressionDefinition {
 
     @Override
     public Predicate createPredicate(CamelContext camelContext) {
-        return (BeanExpression) createExpression(camelContext);
+        return (Predicate) createExpression(camelContext);
     }
 
     /**

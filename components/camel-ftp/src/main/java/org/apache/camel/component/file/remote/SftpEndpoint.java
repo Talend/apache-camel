@@ -16,11 +16,11 @@
  */
 package org.apache.camel.component.file.remote;
 
-import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.Proxy;
 import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFileConfiguration;
 import org.apache.camel.component.file.GenericFileProducer;
+import org.apache.camel.component.file.strategy.FileMoveExistingStrategy;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
 
@@ -29,8 +29,8 @@ import org.apache.camel.spi.UriParam;
  */
 @UriEndpoint(firstVersion = "1.1.0", scheme = "sftp", extendsScheme = "file", title = "SFTP",
         syntax = "sftp:host:port/directoryName", consumerClass = SftpConsumer.class, label = "file",
-        excludeProperties = "binary,passiveMode,receiveBufferSize,siteCommand,useList")
-public class SftpEndpoint extends RemoteFileEndpoint<ChannelSftp.LsEntry> {
+        excludeProperties = "binary,passiveMode,receiveBufferSize,siteCommand")
+public class SftpEndpoint extends RemoteFileEndpoint<SftpRemoteFile> {
 
     @UriParam
     protected SftpConfiguration configuration;
@@ -61,15 +61,26 @@ public class SftpEndpoint extends RemoteFileEndpoint<ChannelSftp.LsEntry> {
     }
 
     @Override
-    protected RemoteFileConsumer<ChannelSftp.LsEntry> buildConsumer(Processor processor) {
-        return new SftpConsumer(this, processor, createRemoteFileOperations());
+    protected RemoteFileConsumer<SftpRemoteFile> buildConsumer(Processor processor) {
+        return new SftpConsumer(this, processor, createRemoteFileOperations(), processStrategy != null ? processStrategy : createGenericFileStrategy());
     }
 
-    protected GenericFileProducer<ChannelSftp.LsEntry> buildProducer() {
-        return new RemoteFileProducer<ChannelSftp.LsEntry>(this, createRemoteFileOperations());
+    protected GenericFileProducer<SftpRemoteFile> buildProducer() {
+        if (this.getMoveExistingFileStrategy() == null) {
+            this.setMoveExistingFileStrategy(createDefaultSftpMoveExistingFileStrategy());
+        }
+        return new RemoteFileProducer<>(this, createRemoteFileOperations());
     }
 
-    public RemoteFileOperations<ChannelSftp.LsEntry> createRemoteFileOperations() {
+    /**
+     * Default Existing File Move Strategy
+     * @return the default implementation for sftp component
+     */
+    private FileMoveExistingStrategy createDefaultSftpMoveExistingFileStrategy() {
+        return new SftpDefaultMoveExistingFileStrategy();
+    }
+
+    public RemoteFileOperations<SftpRemoteFile> createRemoteFileOperations() {
         SftpOperations operations = new SftpOperations(proxy);
         operations.setEndpoint(this);
         return operations;

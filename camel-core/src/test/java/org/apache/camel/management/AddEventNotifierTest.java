@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.management;
-
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
@@ -24,21 +23,25 @@ import org.apache.camel.ContextTestSupport;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.spi.EventNotifier;
 import org.apache.camel.support.EventNotifierSupport;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class AddEventNotifierTest extends ContextTestSupport {
 
-    private static List<EventObject> events = new ArrayList<EventObject>();
+    private static List<EventObject> events = new ArrayList<>();
     private EventNotifier notifier;
 
     @Override
+    @Before
     public void setUp() throws Exception {
         events.clear();
         super.setUp();
     }
 
+    @Test
     public void testAddAndRemove() throws Exception {
         getMockEndpoint("mock:result").expectedMessageCount(1);
         template.sendBody("direct:start", "Hello World");

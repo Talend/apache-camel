@@ -14,6 +14,7 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 ## ------------------------------------------------------------------------
+ASN1DataFormat
 AvroDataFormat
 Base64DataFormat
 BeanioDataFormat
@@ -24,6 +25,8 @@ CryptoDataFormat
 CsvDataFormat
 CustomDataFormat
 DataFormatsDefinition
+FhirJsonDataFormat
+FhirXmlDataFormat
 FlatpackDataFormat
 GzipDataFormat
 HessianDataFormat
@@ -42,6 +45,7 @@ SoapJaxbDataFormat
 StringDataFormat
 SyslogDataFormat
 TarFileDataFormat
+ThriftDataFormat
 TidyMarkupDataFormat
 UniVocityCsvDataFormat
 UniVocityFixedWidthDataFormat

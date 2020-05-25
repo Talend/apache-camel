@@ -171,7 +171,7 @@ public class CamelCatalogTest {
 
     @Test
     public void testAsEndpointUriMapFile() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("directoryName", "src/data/inbox");
         map.put("noop", "true");
         map.put("delay", "5000");
@@ -185,7 +185,7 @@ public class CamelCatalogTest {
 
     @Test
     public void testAsEndpointUriMapFtp() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("host", "someserver");
         map.put("port", "21");
         map.put("directoryName", "foo");
@@ -200,7 +200,7 @@ public class CamelCatalogTest {
 
     @Test
     public void testAsEndpointUriMapJms() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("destinationType", "queue");
         map.put("destinationName", "foo");
 
@@ -210,7 +210,7 @@ public class CamelCatalogTest {
 
     @Test
     public void testAsEndpointUriNetty4http() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         // use http protocol
         map.put("protocol", "http");
         map.put("host", "localhost");
@@ -237,7 +237,7 @@ public class CamelCatalogTest {
 
     @Test
     public void testAsEndpointUriTimer() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("timerName", "foo");
         map.put("period", "5000");
 
@@ -247,7 +247,7 @@ public class CamelCatalogTest {
 
     @Test
     public void testAsEndpointDefaultValue() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("destinationName", "cheese");
         map.put("maxMessagesPerTask", "-1");
 
@@ -257,7 +257,7 @@ public class CamelCatalogTest {
 
     @Test
     public void testAsEndpointUriPropertiesPlaceholders() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("timerName", "foo");
         map.put("period", "{{howoften}}");
         map.put("repeatCount", "5");
@@ -271,7 +271,7 @@ public class CamelCatalogTest {
 
     @Test
     public void testAsEndpointUriBeanLookup() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("resourceUri", "foo.xslt");
         map.put("converter", "#myConverter");
 
@@ -284,7 +284,7 @@ public class CamelCatalogTest {
 
     @Test
     public void testAsEndpointUriMapJmsRequiredOnly() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("destinationName", "foo");
         String uri = catalog.asEndpointUri("jms", map, true);
         assertEquals("jms:foo", uri);
@@ -313,6 +313,13 @@ public class CamelCatalogTest {
     @Test
     public void testAsEndpointUriJson() throws Exception {
         String json = loadText(CamelCatalogTest.class.getClassLoader().getResourceAsStream("sample.json"));
+        String uri = catalog.asEndpointUri("ftp", json, true);
+        assertEquals("ftp:someserver:21/foo?connectTimeout=5000", uri);
+    }
+
+    @Test
+    public void testAsEndpointUriJsonPrettyJson() throws Exception {
+        String json = loadText(CamelCatalogTest.class.getClassLoader().getResourceAsStream("sample-pretty.json"));
         String uri = catalog.asEndpointUri("ftp", json, true);
         assertEquals("ftp:someserver:21/foo?connectTimeout=5000", uri);
     }
@@ -422,7 +429,7 @@ public class CamelCatalogTest {
 
     @Test
     public void testAsEndpointUriLog() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("loggerName", "foo");
         map.put("loggerLevel", "WARN");
         map.put("multiline", "true");
@@ -437,7 +444,7 @@ public class CamelCatalogTest {
 
     @Test
     public void testAsEndpointUriLogShort() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("loggerName", "foo");
         map.put("loggerLevel", "DEBUG");
 
@@ -446,7 +453,7 @@ public class CamelCatalogTest {
 
     @Test
     public void testAsEndpointUriWithplaceholder() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("query", "{{insert}}");
         assertEquals("sql:{{insert}}", catalog.asEndpointUri("sql", map, false));
 
@@ -455,6 +462,15 @@ public class CamelCatalogTest {
 
         map.put("parametersCount", "{{count}}");
         assertEquals("sql:{{insert}}?parametersCount={{count}}&useMessageBodyForSql=true", catalog.asEndpointUri("sql", map, false));
+    }
+
+    @Test
+    public void testAsEndpointUriStream() throws Exception {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("kind", "url");
+        map.put("url", "http://camel.apache.org");
+
+        assertEquals("stream:url?url=http://camel.apache.org", catalog.asEndpointUri("stream", map, false));
     }
 
     @Test
@@ -557,13 +573,17 @@ public class CamelCatalogTest {
         catalog.addComponent("activemq", "org.apache.activemq.camel.component.ActiveMQComponent");
 
         // activemq
-        EndpointValidationResult result = catalog.validateEndpointProperties("activemq:temp:queue:cheese?jmsMessageType=Bytes");
+        EndpointValidationResult result = catalog.validateEndpointProperties("activemq:temp-queue:cheese?jmsMessageType=Bytes");
         assertTrue(result.isSuccess());
-        result = catalog.validateEndpointProperties("activemq:temp:queue:cheese?jmsMessageType=Bytes");
+        result = catalog.validateEndpointProperties("activemq:temp-queue:cheese?jmsMessageType=Bytes");
         assertTrue(result.isSuccess());
-        result = catalog.validateEndpointProperties("activemq:temp:queue:cheese?jmsMessageType=Bytes", false, true, false);
+        result = catalog.validateEndpointProperties("activemq:temp-queue:cheese?jmsMessageType=Bytes", false, true, false);
         assertTrue(result.isSuccess());
-        result = catalog.validateEndpointProperties("activemq:temp:queue:cheese?jmsMessageType=Bytes", false, false, true);
+        result = catalog.validateEndpointProperties("activemq:temp-queue:cheese?jmsMessageType=Bytes", false, false, true);
+        assertTrue(result.isSuccess());
+
+        // connection factory
+        result = catalog.validateEndpointProperties("activemq:Consumer.Baz.VirtualTopic.FooRequest?connectionFactory=#pooledJmsConnectionFactory");
         assertTrue(result.isSuccess());
     }
 
@@ -889,6 +909,23 @@ public class CamelCatalogTest {
     }
 
     @Test
+    public void testAddComponentWithPrettyJson() throws Exception {
+        String json = loadText(new FileInputStream("src/test/resources/org/foo/camel/dummy-pretty.json"));
+        assertNotNull(json);
+        catalog.addComponent("dummy", "org.foo.camel.DummyComponent", json);
+
+        assertTrue(catalog.findComponentNames().contains("dummy"));
+
+        json = catalog.componentJSonSchema("dummy");
+        assertNotNull(json);
+
+        // validate we can parse the json
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode tree = mapper.readTree(json);
+        assertNotNull(tree);
+    }
+
+    @Test
     public void testAddDataFormat() throws Exception {
         catalog.addDataFormat("dummyformat", "org.foo.camel.DummyDataFormat");
 
@@ -921,6 +958,23 @@ public class CamelCatalogTest {
     }
 
     @Test
+    public void testAddDataFormatWithPrettyJSon() throws Exception {
+        String json = loadText(new FileInputStream("src/test/resources/org/foo/camel/dummyformat-pretty.json"));
+        assertNotNull(json);
+        catalog.addDataFormat("dummyformat", "org.foo.camel.DummyDataFormat", json);
+
+        assertTrue(catalog.findDataFormatNames().contains("dummyformat"));
+
+        json = catalog.dataFormatJSonSchema("dummyformat");
+        assertNotNull(json);
+
+        // validate we can parse the json
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode tree = mapper.readTree(json);
+        assertNotNull(tree);
+    }
+
+    @Test
     public void testSimpleExpression() throws Exception {
         SimpleValidationResult result = catalog.validateSimpleExpression(null, "${body}");
         assertTrue(result.isSuccess());
@@ -933,6 +987,13 @@ public class CamelCatalogTest {
         assertTrue(result.getError().startsWith("expected symbol functionEnd but was eol at location 5"));
         assertEquals("expected symbol functionEnd but was eol", result.getShortError());
         assertEquals(5, result.getIndex());
+
+        result = catalog.validateSimpleExpression(null, "${bodyxxx}");
+        assertFalse(result.isSuccess());
+        assertEquals("${bodyxxx}", result.getSimple());
+        LOG.info(result.getError());
+        assertEquals("Valid syntax: ${body.OGNL} was: bodyxxx", result.getShortError());
+        assertEquals(0, result.getIndex());
     }
 
     @Test
@@ -990,6 +1051,18 @@ public class CamelCatalogTest {
     }
 
     @Test
+    public void testValidateJSonPathLanguage() throws Exception {
+        LanguageValidationResult result = catalog.validateLanguageExpression(null, "jsonpath", "$.store.book[?(@.price < 10)]");
+        assertTrue(result.isSuccess());
+        assertEquals("$.store.book[?(@.price < 10)]", result.getText());
+
+        result = catalog.validateLanguageExpression(null, "jsonpath", "$.store.book[?(@.price ^^^ 10)]");
+        assertFalse(result.isSuccess());
+        assertEquals("$.store.book[?(@.price ^^^ 10)]", result.getText());
+        assertEquals("Illegal syntax: $.store.book[?(@.price ^^^ 10)]", result.getError());
+    }
+
+    @Test
     public void testSpringCamelContext() throws Exception {
         String json = catalog.modelJSonSchema("camelContext");
         assertNotNull(json);
@@ -1018,6 +1091,19 @@ public class CamelCatalogTest {
 
         doc = catalog.componentAsciiDoc("unknown");
         assertNull(doc);
+    }
+
+    @Test
+    public void testTransactedAndPolicyNoOutputs() throws Exception {
+        String json = catalog.modelJSonSchema("transacted");
+        assertNotNull(json);
+        assertTrue(json.contains("\"output\": false"));
+        assertFalse(json.contains("\"outputs\":"));
+
+        json = catalog.modelJSonSchema("policy");
+        assertNotNull(json);
+        assertTrue(json.contains("\"output\": false"));
+        assertFalse(json.contains("\"outputs\":"));
     }
 
     @Test
@@ -1091,6 +1177,33 @@ public class CamelCatalogTest {
         assertFalse(result.isSuccess());
 
         assertEquals("delete", result.getNotProducerOnly().iterator().next());
+    }
+
+    @Test
+    public void testNetty4Http4DynamicToIssue() throws Exception {
+        String uri = "netty4-http:http://10.192.1.10:8080/client/alerts/summary?throwExceptionOnFailure=false";
+        Map<String, String> params = catalog.endpointProperties(uri);
+        params.remove("path");
+        params.remove("throwExceptionOnFailure");
+
+        String resolved = catalog.asEndpointUri("netty4-http", params, false);
+        assertEquals("netty4-http:http:10.192.1.10:8080", resolved);
+    }
+
+    @Test
+    public void testNetty4Http4DynamicToIssueHost() throws Exception {
+        String uri = "netty4-http:http://a-b-c.hostname.tld:8080/anything";
+        Map<String, String> params = catalog.endpointProperties(uri);
+        assertEquals("http", params.get("protocol"));
+        assertEquals("a-b-c.hostname.tld", params.get("host"));
+        assertEquals("8080", params.get("port"));
+        assertEquals("anything", params.get("path"));
+
+        // remove path
+        params.remove("path");
+
+        String resolved = catalog.asEndpointUri("netty4-http", params, false);
+        assertEquals("netty4-http:http:a-b-c.hostname.tld:8080", resolved);
     }
 
     @Test

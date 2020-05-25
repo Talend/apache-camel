@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 
 import org.apache.camel.NoFactoryAvailableException;
 import org.apache.camel.spi.ClassResolver;
@@ -38,7 +39,7 @@ import org.apache.camel.util.IOHelper;
  */
 public class DefaultFactoryFinder implements FactoryFinder {
 
-    private final ConcurrentMap<String, Class<?>> classMap = new ConcurrentHashMap<String, Class<?>>();
+    private final ConcurrentMap<String, Class<?>> classMap = new ConcurrentHashMap<>();
     private final ClassResolver classResolver;
     private final String path;
 
@@ -64,7 +65,7 @@ public class DefaultFactoryFinder implements FactoryFinder {
     @Override
     public <T> List<T> newInstances(String key, Injector injector, Class<T> type) throws ClassNotFoundException, IOException {
         List<Class<T>> list = CastUtils.cast(findClasses(key));
-        List<T> answer = new ArrayList<T>(list.size());
+        List<T> answer = new ArrayList<>(list.size());
         answer.add(newInstance(key, injector, type));
         return answer;
     }
@@ -79,7 +80,12 @@ public class DefaultFactoryFinder implements FactoryFinder {
         final String prefix = propertyPrefix != null ? propertyPrefix : "";
         final String classKey = prefix + key;
 
-        return addToClassMap(classKey, () -> newInstance(doFindFactoryProperties(key), prefix));
+        return addToClassMap(classKey, new ClassSupplier() {
+            @Override
+            public Class<?> get() throws ClassNotFoundException, IOException {
+                return DefaultFactoryFinder.this.newInstance(DefaultFactoryFinder.this.doFindFactoryProperties(key), prefix);
+            }
+        });
     }
 
     @Override
@@ -160,15 +166,18 @@ public class DefaultFactoryFinder implements FactoryFinder {
      */
     protected Class<?> addToClassMap(String key, ClassSupplier mappingFunction) throws ClassNotFoundException, IOException {
         try {
-            return classMap.computeIfAbsent(key, (String classKey) -> {
-                try {
-                    return mappingFunction.get();
-                } catch (ClassNotFoundException e) {
-                    throw new WrappedRuntimeException(e);
-                } catch (NoFactoryAvailableException e) {
-                    throw new WrappedRuntimeException(e);
-                } catch (IOException e) {
-                    throw new WrappedRuntimeException(e);
+            return classMap.computeIfAbsent(key, new Function<String, Class<?>>() {
+                @Override
+                public Class<?> apply(String classKey) {
+                    try {
+                        return mappingFunction.get();
+                    } catch (ClassNotFoundException e) {
+                        throw new WrappedRuntimeException(e);
+                    } catch (NoFactoryAvailableException e) {
+                        throw new WrappedRuntimeException(e);
+                    } catch (IOException e) {
+                        throw new WrappedRuntimeException(e);
+                    }
                 }
             });
         } catch (WrappedRuntimeException e) {

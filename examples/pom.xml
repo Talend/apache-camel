@@ -24,24 +24,31 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>camel-parent</artifactId>
-    <version>2.20.0-SNAPSHOT</version>
+    <version>2.24.2</version>
     <relativePath>../parent</relativePath>
   </parent>
 
   <artifactId>examples</artifactId>
   <name>Camel :: Example</name>
+  <groupId>org.apache.camel.example</groupId>
   <description>Camel Examples</description>
   <packaging>pom</packaging>
 
   <modules>
     <module>camel-example-activemq-tomcat</module>
     <module>camel-example-aggregate</module>
+    <module>camel-example-artemis-amqp-blueprint</module>
+    <module>camel-example-artemis-large-messages</module>
     <module>camel-example-bam</module>
     <module>camel-example-cafe</module>
     <module>camel-example-cassandra-kubernetes</module>
     <module>camel-example-cdi</module>
     <module>camel-example-cdi-aws-s3</module>
     <module>camel-example-cdi-cassandraql</module>
+    <module>camel-example-fhir</module>
+    <module>camel-example-fhir-auth-tx-spring-boot</module>
+    <module>camel-example-fhir-osgi</module>
+    <module>camel-example-fhir-spring-boot</module>
     <module>camel-example-cdi-kubernetes</module>
     <module>camel-example-cdi-metrics</module>
     <module>camel-example-cdi-osgi</module>
@@ -51,14 +58,15 @@
     <module>camel-example-cdi-xml</module>
     <module>camel-example-cxf</module>
     <module>camel-example-cxf-blueprint</module>
-    <module>camel-example-cxf-osgi</module>
     <module>camel-example-cxf-proxy</module>
     <module>camel-example-cxf-tomcat</module>
     <module>camel-example-console</module>
-    <module>camel-example-etl</module>
+    <module>camel-example-ehcache-blueprint</module>
     <module>camel-example-ftp</module>
+    <module>camel-example-google-pubsub</module>
     <module>camel-example-guice-jms</module>
     <module>camel-example-groovy</module>
+    <module>camel-example-grpc-kubernetes</module>
     <module>camel-example-hazelcast-kubernetes</module>
     <module>camel-example-hystrix</module>
     <module>camel-example-java8</module>
@@ -72,11 +80,14 @@
     <module>camel-example-loan-broker-cxf</module>
     <module>camel-example-loan-broker-jms</module>
     <module>camel-example-management</module>
+    <module>camel-example-micrometer</module>
     <module>camel-example-mybatis</module>
+    <module>camel-example-netty-custom-correlation</module>
     <module>camel-example-netty-http</module>
+    <module>camel-example-olingo4-blueprint</module>
     <module>camel-example-opentracing</module>
-    <module>camel-example-osgi-rmi</module>
     <module>camel-example-pojo-messaging</module>
+    <module>camel-example-rabbitmq</module>
     <module>camel-example-reactive-streams</module>
     <module>camel-example-reload</module>
     <module>camel-example-reportincident</module>
@@ -86,6 +97,7 @@
     <module>camel-example-restlet-jdbc</module>
     <module>camel-example-route-throttling</module>
     <module>camel-example-scala</module>
+    <module>camel-example-servlet-httpregistry-blueprint</module>
     <module>camel-example-servlet-rest-blueprint</module>
     <module>camel-example-servlet-tomcat</module>
     <module>camel-example-servlet-tomcat-no-spring</module>
@@ -95,25 +107,32 @@
     <module>camel-example-spring</module>
     <module>camel-example-spring-boot</module>
     <module>camel-example-spring-boot-activemq</module>
+    <module>camel-example-spring-boot-clustered-route-controller</module>
     <module>camel-example-spring-boot-geocoder</module>
-    <module>camel-example-spring-boot-live-reload</module>
+    <module>camel-example-spring-boot-grpc</module>
+    <module>camel-example-spring-boot-health-checks</module>
+    <module>camel-example-spring-boot-infinispan</module>
+    <module>camel-example-spring-boot-master</module>
     <module>camel-example-spring-boot-metrics</module>
+    <module>camel-example-spring-boot-pojo</module>
     <module>camel-example-spring-boot-rest-jpa</module>
     <module>camel-example-spring-boot-rest-swagger</module>
     <module>camel-example-spring-boot-servicecall</module>
+    <module>camel-example-spring-boot-supervising-route-controller</module>
+    <module>camel-example-spring-boot-xml</module>
     <module>camel-example-spring-cloud-servicecall</module>
+    <module>camel-example-spring-cloud-serviceregistry</module>
     <module>camel-example-spring-javaconfig</module>
     <module>camel-example-spring-jms</module>
+    <module>camel-example-spring-pulsar</module>
     <module>camel-example-spring-ws</module>
     <module>camel-example-spring-xquery</module>
     <module>camel-example-spring-security</module>
     <module>camel-example-ssh</module>
     <module>camel-example-ssh-security</module>
-    <module>camel-example-sql</module>
     <module>camel-example-sql-blueprint</module>
     <module>camel-example-swagger-cdi</module>
     <module>camel-example-swagger-osgi</module>
-    <module>camel-example-swagger-xml</module>
     <module>camel-example-tracer</module>
     <module>camel-example-transformer-blueprint</module>
     <module>camel-example-transformer-cdi</module>
@@ -133,8 +152,23 @@
     <!-- as having org.apache.camel as prefix is not needed and makes the name very long -->
     <camel.osgi.symbolic.name>${project.artifactId}</camel.osgi.symbolic.name>
     <skip.starting.camel.context>false</skip.starting.camel.context>
-    <camel.osgi.export.pkg/>
+    <javax.servlet.api.version>4.0.1</javax.servlet.api.version>
+    <camel.osgi.export.pkg />
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!--
+        CAMEL-13084 Fix the spring-boot examples start up error by overriding servlet API version from camel-parent
+        Wqe need to clean it up once camel-parent upgrade the servlet api version.
+      -->
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>${javax.servlet.api.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <build>
     <resources>
@@ -144,6 +178,14 @@
       </resource>
     </resources>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
@@ -216,7 +258,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore/>
+                    <ignore />
                   </action>
                 </pluginExecution>
               </pluginExecutions>
@@ -234,9 +276,9 @@
         <skip.starting.camel.context>true</skip.starting.camel.context>
       </properties>
     </profile>
-    <!-- 
-      This profile allows you to add a repository to the repo list so that 
-      you can test the examples out against a staged version of the camel distribution 
+    <!--
+      This profile allows you to add a repository to the repo list so that
+      you can test the examples out against a staged version of the camel distribution
     -->
     <profile>
       <id>add-remote-repo</id>

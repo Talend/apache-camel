@@ -44,6 +44,7 @@ import org.apache.camel.spi.ThreadPoolProfile;
 import org.apache.camel.support.ServiceSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.StopWatch;
+import org.apache.camel.util.StringHelper;
 import org.apache.camel.util.TimeUtils;
 import org.apache.camel.util.URISupport;
 import org.apache.camel.util.concurrent.CamelThreadFactory;
@@ -97,7 +98,7 @@ public class DefaultExecutorServiceManager extends ServiceSupport implements Exe
     @Override
     public void registerThreadPoolProfile(ThreadPoolProfile profile) {
         ObjectHelper.notNull(profile, "profile");
-        ObjectHelper.notEmpty(profile.getId(), "id", profile);
+        StringHelper.notEmpty(profile.getId(), "id", profile);
         threadPoolProfiles.put(profile.getId(), profile);
     }
 
@@ -116,7 +117,7 @@ public class DefaultExecutorServiceManager extends ServiceSupport implements Exe
         threadPoolProfiles.remove(defaultThreadPoolProfileId);
         defaultThreadPoolProfile.addDefaults(defaultProfile);
 
-        LOG.info("Using custom DefaultThreadPoolProfile: " + defaultThreadPoolProfile);
+        LOG.info("Using custom DefaultThreadPoolProfile: {}", defaultThreadPoolProfile);
 
         this.defaultThreadPoolProfileId = defaultThreadPoolProfile.getId();
         defaultThreadPoolProfile.setDefaultProfile(true);
@@ -241,7 +242,7 @@ public class DefaultExecutorServiceManager extends ServiceSupport implements Exe
         onThreadPoolCreated(answer, source, null);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Created new ScheduledThreadPool for source: {} with name: {}. -> {}", source, sanitizedName, answer);
+            LOG.debug("Created new ScheduledThreadPool for source: {} with name: {} -> {}", source, sanitizedName, answer);
         }
         return answer;
     }
@@ -517,7 +518,7 @@ public class DefaultExecutorServiceManager extends ServiceSupport implements Exe
         }
 
         // id is mandatory
-        ObjectHelper.notEmpty(id, "id for thread pool " + executorService);
+        StringHelper.notEmpty(id, "id for thread pool " + executorService);
 
         // extract route id if possible
         if (source instanceof ProcessorDefinition) {

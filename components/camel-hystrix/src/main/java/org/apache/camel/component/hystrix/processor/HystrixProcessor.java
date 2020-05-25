@@ -19,6 +19,7 @@ package org.apache.camel.component.hystrix.processor;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.netflix.hystrix.HystrixCircuitBreaker;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
@@ -144,6 +145,15 @@ public class HystrixProcessor extends ServiceSupport implements AsyncProcessor, 
         return 0;
     }
 
+    @ManagedAttribute
+    public boolean isCircuitBreakerOpen() {
+        HystrixCircuitBreaker cb = HystrixCircuitBreaker.Factory.getInstance(commandKey);
+        if (cb != null) {
+            return cb.isOpen();
+        }
+        return false;
+    }
+
     @Override
     public String getId() {
         return id;
@@ -164,7 +174,7 @@ public class HystrixProcessor extends ServiceSupport implements AsyncProcessor, 
         if (!hasNext()) {
             return null;
         }
-        List<Processor> answer = new ArrayList<Processor>();
+        List<Processor> answer = new ArrayList<>();
         answer.add(processor);
         if (fallback != null) {
             answer.add(fallback);

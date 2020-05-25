@@ -73,7 +73,7 @@ public class AmazonEC2ClientMock extends AmazonEC2Client {
             res.setOwnerId("1");
             res.setRequesterId("user-test");
             res.setReservationId("res-1");
-            Collection<Instance> instances = new ArrayList();
+            Collection<Instance> instances = new ArrayList<>();
             Instance ins = new Instance();
             ins.setImageId(runInstancesRequest.getImageId());
             ins.setInstanceType(runInstancesRequest.getInstanceType());
@@ -86,7 +86,7 @@ public class AmazonEC2ClientMock extends AmazonEC2Client {
                     GroupIdentifier id2 = new GroupIdentifier();
                     id2.setGroupId("id-2");
                     id2.setGroupName("secgroup-2");
-                    Collection secGroups = new ArrayList<GroupIdentifier>();
+                    Collection<GroupIdentifier> secGroups = new ArrayList<>();
                     secGroups.add(id1);
                     secGroups.add(id2);
                     ins.setSecurityGroups(secGroups);
@@ -98,7 +98,7 @@ public class AmazonEC2ClientMock extends AmazonEC2Client {
                         GroupIdentifier id2 = new GroupIdentifier();
                         id2.setGroupId("id-4");
                         id2.setGroupName("secgroup-4");
-                        Collection secGroups = new ArrayList<GroupIdentifier>();
+                        Collection<GroupIdentifier> secGroups = new ArrayList<>();
                         secGroups.add(id1);
                         secGroups.add(id2);
                         ins.setSecurityGroups(secGroups);
@@ -119,7 +119,7 @@ public class AmazonEC2ClientMock extends AmazonEC2Client {
     public StartInstancesResult startInstances(StartInstancesRequest startInstancesRequest) {
         StartInstancesResult result = new StartInstancesResult();
         if (startInstancesRequest.getInstanceIds().get(0).equals("test-1")) {
-            Collection<InstanceStateChange> coll = new ArrayList<InstanceStateChange>();
+            Collection<InstanceStateChange> coll = new ArrayList<>();
             InstanceStateChange sc = new InstanceStateChange();
             InstanceState previousState = new InstanceState();
             previousState.setCode(80);
@@ -142,7 +142,7 @@ public class AmazonEC2ClientMock extends AmazonEC2Client {
     public StopInstancesResult stopInstances(StopInstancesRequest stopInstancesRequest) {
         StopInstancesResult result = new StopInstancesResult();
         if (stopInstancesRequest.getInstanceIds().get(0).equals("test-1")) {
-            Collection<InstanceStateChange> coll = new ArrayList<InstanceStateChange>();
+            Collection<InstanceStateChange> coll = new ArrayList<>();
             InstanceStateChange sc = new InstanceStateChange();
             InstanceState previousState = new InstanceState();
             previousState.setCode(80);
@@ -165,7 +165,7 @@ public class AmazonEC2ClientMock extends AmazonEC2Client {
     public TerminateInstancesResult terminateInstances(TerminateInstancesRequest terminateInstancesRequest) {
         TerminateInstancesResult result = new TerminateInstancesResult();
         if (terminateInstancesRequest.getInstanceIds().contains("test-1")) {
-            Collection<InstanceStateChange> coll = new ArrayList<InstanceStateChange>();
+            Collection<InstanceStateChange> coll = new ArrayList<>();
             InstanceStateChange sc = new InstanceStateChange();
             InstanceState previousState = new InstanceState();
             previousState.setCode(80);
@@ -188,12 +188,12 @@ public class AmazonEC2ClientMock extends AmazonEC2Client {
     public DescribeInstancesResult describeInstances(DescribeInstancesRequest describeInstancesRequest) {
         DescribeInstancesResult result = new DescribeInstancesResult();
         if (describeInstancesRequest.getInstanceIds().isEmpty()) {
-            Collection<Reservation> list = new ArrayList<Reservation>();
+            Collection<Reservation> list = new ArrayList<>();
             Reservation res = new Reservation();
             res.setOwnerId("1");
             res.setRequesterId("user-test");
             res.setReservationId("res-1");
-            Collection<Instance> instances = new ArrayList();
+            Collection<Instance> instances = new ArrayList<>();
             Instance ins = new Instance();
             ins.setImageId("id-1");
             ins.setInstanceType(InstanceType.T2Micro);
@@ -209,12 +209,12 @@ public class AmazonEC2ClientMock extends AmazonEC2Client {
             result.setReservations(list); 
         } else {
             if (describeInstancesRequest.getInstanceIds().contains("instance-1")) {
-                Collection<Reservation> list = new ArrayList<Reservation>();
+                Collection<Reservation> list = new ArrayList<>();
                 Reservation res = new Reservation();
                 res.setOwnerId("1");
                 res.setRequesterId("user-test");
                 res.setReservationId("res-1");
-                Collection<Instance> instances = new ArrayList();
+                Collection<Instance> instances = new ArrayList<>();
                 Instance ins = new Instance();
                 ins.setImageId("id-1");
                 ins.setInstanceType(InstanceType.T2Micro);
@@ -231,7 +231,7 @@ public class AmazonEC2ClientMock extends AmazonEC2Client {
     @Override
     public DescribeInstanceStatusResult describeInstanceStatus(DescribeInstanceStatusRequest describeInstanceStatusRequest) {
         DescribeInstanceStatusResult result = new DescribeInstanceStatusResult();
-        Collection<InstanceStatus> instanceStatuses = new ArrayList();
+        Collection<InstanceStatus> instanceStatuses = new ArrayList<>();
         if (describeInstanceStatusRequest.getInstanceIds().isEmpty()) {
             InstanceStatus status = new InstanceStatus();
             status.setInstanceId("test-1");
@@ -267,10 +267,10 @@ public class AmazonEC2ClientMock extends AmazonEC2Client {
     public MonitorInstancesResult monitorInstances(MonitorInstancesRequest monitorInstancesRequest) {
         MonitorInstancesResult result = new MonitorInstancesResult();
         if (!monitorInstancesRequest.getInstanceIds().isEmpty()) {
-            Collection<InstanceMonitoring> coll = new ArrayList();
-            Iterator it = monitorInstancesRequest.getInstanceIds().iterator();
+            Collection<InstanceMonitoring> coll = new ArrayList<>();
+            Iterator<String> it = monitorInstancesRequest.getInstanceIds().iterator();
             while (it.hasNext()) {
-                String id = (String) it.next();
+                String id = it.next();
                 InstanceMonitoring mon = new InstanceMonitoring();
                 mon.setInstanceId(id);
                 Monitoring monitoring = new Monitoring();
@@ -287,10 +287,10 @@ public class AmazonEC2ClientMock extends AmazonEC2Client {
     public UnmonitorInstancesResult unmonitorInstances(UnmonitorInstancesRequest unmonitorInstancesRequest) {
         UnmonitorInstancesResult result = new UnmonitorInstancesResult();
         if (!unmonitorInstancesRequest.getInstanceIds().isEmpty()) {
-            Collection<InstanceMonitoring> coll = new ArrayList();
-            Iterator it = unmonitorInstancesRequest.getInstanceIds().iterator();
+            Collection<InstanceMonitoring> coll = new ArrayList<>();
+            Iterator<String> it = unmonitorInstancesRequest.getInstanceIds().iterator();
             while (it.hasNext()) {
-                String id = (String) it.next();
+                String id = it.next();
                 InstanceMonitoring mon = new InstanceMonitoring();
                 mon.setInstanceId(id);
                 Monitoring monitoring = new Monitoring();

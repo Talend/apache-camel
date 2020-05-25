@@ -20,21 +20,25 @@ import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 
 /**
  * Unit test for fired time exchange property
  */
 public class TimerRepeatCountTest extends ContextTestSupport {
 
+    @Test
     public void testRepeatCount() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(3);
-        mock.setAssertPeriod(500);
+        mock.setAssertPeriod(100);
         mock.message(0).header(Exchange.TIMER_COUNTER).isEqualTo(1);
         mock.message(1).header(Exchange.TIMER_COUNTER).isEqualTo(2);
         mock.message(2).header(Exchange.TIMER_COUNTER).isEqualTo(3);
 
         // we should only get 3 messages as we have a repeat count limit at 3
+
+        context.startAllRoutes();
 
         assertMockEndpointsSatisfied();
     }
@@ -43,7 +47,8 @@ public class TimerRepeatCountTest extends ContextTestSupport {
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() throws Exception {
-                from("timer://hello?repeatCount=3&period=10").to("mock:result");
+                from("timer://hello?delay=0&repeatCount=3&period=10").noAutoStartup()
+                    .to("mock:result");
             }
         };
     }

@@ -16,31 +16,31 @@
  */
 package org.apache.camel.component.pgevent;
 
-import java.io.InvalidClassException;
 import java.sql.DriverManager;
-import java.util.Properties;
 import javax.sql.DataSource;
 
 import com.impossibl.postgres.api.jdbc.PGConnection;
-import com.impossibl.postgres.jdbc.PGDataSource;
+import com.impossibl.postgres.jdbc.PGDriver;
+
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.impl.DefaultEndpoint;
+import org.apache.camel.spi.ClassResolver;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriPath;
-import org.apache.camel.util.URISupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The pgevent component allows for producing/consuming  PostgreSQL events related to the LISTEN/NOTIFY commands.
- *
+ * The pgevent component allows for producing/consuming PostgreSQL events related to the listen/notify commands.
+ * <p/>
  * This requires using PostgreSQL 8.3 or newer.
  */
-@UriEndpoint(firstVersion = "2.15.0", scheme = "pgevent", title = "PostgresSQL Event", syntax = "pgevent:host:port/database/channel", consumerClass = PgEventConsumer.class, label = "database,sql")
+@UriEndpoint(firstVersion = "2.15.0", scheme = "pgevent", title = "PostgresSQL Event", syntax = "pgevent:host:port/database/channel",
+    consumerClass = PgEventConsumer.class, label = "database,sql")
 public class PgEventEndpoint extends DefaultEndpoint {
     private static final Logger LOG = LoggerFactory.getLogger(PgEventEndpoint.class);
 
@@ -83,13 +83,12 @@ public class PgEventEndpoint extends DefaultEndpoint {
 
     public final PGConnection initJdbc() throws Exception {
         PGConnection conn;
-        Properties props = new Properties();
-        props.putAll(URISupport.parseQuery(uri));
         if (this.getDatasource() != null) {
-            conn = (PGConnection) this.getDatasource().getConnection();
+            conn = PgEventHelper.toPGConnection(this.getDatasource().getConnection());
         } else {
             // ensure we can load the class
-            getCamelContext().getClassResolver().resolveMandatoryClass("com.impossibl.postgres.jdbc.PGDriver");
+            ClassResolver classResolver = getCamelContext().getClassResolver();
+            classResolver.resolveMandatoryClass(PGDriver.class.getName(), PgEventComponent.class.getClassLoader());
             conn = (PGConnection) DriverManager.getConnection("jdbc:pgsql://" + this.getHost() + ":" + this.getPort() + "/" + this.getDatabase(), this.getUser(), this.getPass());
         }
         return conn;
@@ -101,7 +100,7 @@ public class PgEventEndpoint extends DefaultEndpoint {
      * @throws IllegalArgumentException if there is an error in the parameters
      */
     protected final void parseUri() throws IllegalArgumentException {
-        LOG.info("URI: " + uri);
+        LOG.info("URI: {}", uri);
         if (uri.matches(FORMAT1)) {
             LOG.info("FORMAT1");
             String[] parts = uri.replaceFirst(FORMAT1, "$1:$2:$3:$4").split(":");
@@ -139,22 +138,14 @@ public class PgEventEndpoint extends DefaultEndpoint {
         return new PgEventProducer(this);
     }
 
-    private void validateInputs() throws InvalidClassException, IllegalArgumentException {
+    private void validateInputs() throws IllegalArgumentException {
         if (getChannel() == null || getChannel().length() == 0) {
             throw new IllegalArgumentException("A required parameter was not set when creating this Endpoint (channel)");
         }
-        if (datasource != null) {
-            LOG.debug("******Datasource detected*****");
-            if (!PGDataSource.class.isInstance(datasource)) {
-                throw new InvalidClassException("The datasource passed to the "
-                        + "pgevent component is NOT a PGDataSource class from the"
-                        + "pgjdbc-ng library. See: https://github.com/impossibl/pgjdbc-ng");
-            }
-        } else {
-            if (user == null) {
-                throw new IllegalArgumentException("A required parameter was "
-                        + "not set when creating this Endpoint (pgUser or pgDataSource)");
-            }
+
+        if (datasource == null && user == null) {
+            throw new IllegalArgumentException("A required parameter was "
+                    + "not set when creating this Endpoint (pgUser or pgDataSource)");
         }
     }
 

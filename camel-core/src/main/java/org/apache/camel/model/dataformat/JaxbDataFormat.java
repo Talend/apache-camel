@@ -17,6 +17,7 @@
 package org.apache.camel.model.dataformat;
 
 import java.util.Map;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -31,7 +32,7 @@ import org.apache.camel.util.CamelContextHelper;
 import org.apache.camel.util.ObjectHelper;
 
 /**
- * JAXB data format
+ * JAXB data format uses the JAXB2 XML marshalling standard to unmarshal an XML payload into Java objects or to marshal Java objects into an XML payload.
  *
  * @version 
  */
@@ -43,6 +44,8 @@ public class JaxbDataFormat extends DataFormatDefinition {
     private String contextPath;
     @XmlAttribute
     private String schema;
+    @XmlAttribute @Metadata(enums = "0,1,2", defaultValue = "0")
+    private Integer schemaSeverityLevel;
     @XmlAttribute
     private Boolean prettyPrint;
     @XmlAttribute
@@ -64,13 +67,13 @@ public class JaxbDataFormat extends DataFormatDefinition {
     private String partNamespace;
     @XmlAttribute
     private String namespacePrefixRef;
-    @XmlAttribute
+    @XmlAttribute @Metadata(label = "advanced")
     private String xmlStreamWriterWrapper;
     @XmlAttribute
     private String schemaLocation;
     @XmlAttribute
     private String noNamespaceSchemaLocation;
-    @XmlAttribute
+    @XmlAttribute @Metadata(label = "advanced")
     private String jaxbProviderProperties;
 
     public JaxbDataFormat() {
@@ -104,6 +107,20 @@ public class JaxbDataFormat extends DataFormatDefinition {
      */
     public void setSchema(String schema) {
         this.schema = schema;
+    }
+
+    public Integer getSchemaSeverityLevel() {
+        return schemaSeverityLevel;
+    }
+
+    /**
+     * Sets the schema severity level to use when validating against a schema.
+     * This level determines the minimum severity error that triggers JAXB to stop continue parsing.
+     * The default value of 0 (warning) means that any error (warning, error or fatal error) will trigger
+     * JAXB to stop. There are the following three levels: 0=warning, 1=error, 2=fatal error.
+     */
+    public void setSchemaSeverityLevel(Integer schemaSeverityLevel) {
+        this.schemaSeverityLevel = schemaSeverityLevel;
     }
 
     public Boolean getPrettyPrint() {
@@ -329,6 +346,9 @@ public class JaxbDataFormat extends DataFormatDefinition {
         }
         if (schema != null) {
             setProperty(camelContext, dataFormat, "schema", schema);
+        }
+        if (schemaSeverityLevel != null) {
+            setProperty(camelContext, dataFormat, "schemaSeverityLevel", schemaSeverityLevel);
         }
         if (xmlStreamWriterWrapper != null) {
             setProperty(camelContext, dataFormat, "xmlStreamWriterWrapper", xmlStreamWriterWrapper);

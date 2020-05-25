@@ -19,6 +19,7 @@ package org.apache.camel.component.milo;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.EnumSet;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -29,6 +30,7 @@ import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.milo.server.MiloServerComponent;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.junit.Test;
 
 /**
@@ -41,17 +43,20 @@ public class MonitorItemMultiConnectionsCertTest extends AbstractMiloServerTest 
     private static final String MILO_SERVER_ITEM_1 = "milo-server:myitem1";
 
     // with key
-    private static final String MILO_CLIENT_ITEM_C1_1 = "milo-client:tcp://foo:bar@localhost:12685?node="
+    private static final String MILO_CLIENT_ITEM_C1_1 = "milo-client:tcp://foo:bar@localhost:@@port@@?node="
                                                         + NodeIds.nodeValue(MiloServerComponent.DEFAULT_NAMESPACE_URI, "items-myitem1")
-                                                        + "&keyStoreUrl=file:src/test/resources/cert/cert.p12&keyStorePassword=pwd1&keyPassword=pwd1";
+                                                        + "&keyStoreUrl=file:src/test/resources/cert/cert.p12&keyStorePassword=pwd1&keyPassword=pwd1"
+                                                        + "&discoveryEndpointSuffix=/discovery&overrideHost=true";
 
     // with wrong password
-    private static final String MILO_CLIENT_ITEM_C2_1 = "milo-client:tcp://foo:bar2@localhost:12685?node="
-                                                        + NodeIds.nodeValue(MiloServerComponent.DEFAULT_NAMESPACE_URI, "items-myitem1");
+    private static final String MILO_CLIENT_ITEM_C2_1 = "milo-client:tcp://foo:bar2@localhost:@@port@@?node="
+                                                        + NodeIds.nodeValue(MiloServerComponent.DEFAULT_NAMESPACE_URI, "items-myitem1")
+                                                        + "&discoveryEndpointSuffix=/discovery&overrideHost=true";
 
     // without key, clientId=1
-    private static final String MILO_CLIENT_ITEM_C3_1 = "milo-client:tcp://foo:bar@localhost:12685?clientId=1&node="
-                                                        + NodeIds.nodeValue(MiloServerComponent.DEFAULT_NAMESPACE_URI, "items-myitem1");
+    private static final String MILO_CLIENT_ITEM_C3_1 = "milo-client:tcp://foo:bar@localhost:@@port@@?clientId=1&node="
+                                                        + NodeIds.nodeValue(MiloServerComponent.DEFAULT_NAMESPACE_URI, "items-myitem1")
+                                                        + "&discoveryEndpointSuffix=/discovery&overrideHost=true";
 
     private static final String MOCK_TEST_1 = "mock:test1";
     private static final String MOCK_TEST_2 = "mock:test2";
@@ -81,6 +86,9 @@ public class MonitorItemMultiConnectionsCertTest extends AbstractMiloServerTest 
 
         server.setServerCertificate(loadDefaultTestKey());
         server.setDefaultCertificateValidator(baseDir.toFile());
+
+        server.setSecurityPolicies(EnumSet.of(SecurityPolicy.Basic256Sha256));
+        server.setUsernameSecurityPolicyUri(SecurityPolicy.Basic256Sha256);
     }
 
     @Override
@@ -90,9 +98,9 @@ public class MonitorItemMultiConnectionsCertTest extends AbstractMiloServerTest 
             public void configure() throws Exception {
                 from(DIRECT_START_1).to(MILO_SERVER_ITEM_1);
 
-                from(MILO_CLIENT_ITEM_C1_1).to(MOCK_TEST_1);
-                from(MILO_CLIENT_ITEM_C2_1).to(MOCK_TEST_2);
-                from(MILO_CLIENT_ITEM_C3_1).to(MOCK_TEST_3);
+                from(resolve(MILO_CLIENT_ITEM_C1_1)).to(MOCK_TEST_1);
+                from(resolve(MILO_CLIENT_ITEM_C2_1)).to(MOCK_TEST_2);
+                from(resolve(MILO_CLIENT_ITEM_C3_1)).to(MOCK_TEST_3);
             }
         };
     }
@@ -102,8 +110,6 @@ public class MonitorItemMultiConnectionsCertTest extends AbstractMiloServerTest 
      */
     @Test
     public void testMonitorItem1() throws Exception {
-        // set server value
-        this.producer1.sendBody("Foo");
 
         // item 1 ... only this one receives
         this.test1Endpoint.setExpectedCount(1);
@@ -117,7 +123,10 @@ public class MonitorItemMultiConnectionsCertTest extends AbstractMiloServerTest 
         this.test3Endpoint.setExpectedCount(0);
         this.test3Endpoint.setSleepForEmptyTest(5_000);
 
+        // set server value
+        this.producer1.sendBody("Foo");
+
         // assert
-        this.assertMockEndpointsSatisfied();
+        assertMockEndpointsSatisfied();
     }
 }

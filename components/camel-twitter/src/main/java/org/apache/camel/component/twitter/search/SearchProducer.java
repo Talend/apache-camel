@@ -24,7 +24,6 @@ import org.apache.camel.component.twitter.TwitterConstants;
 import org.apache.camel.component.twitter.TwitterEndpoint;
 import org.apache.camel.impl.DefaultProducer;
 import org.apache.camel.util.ObjectHelper;
-
 import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.Status;
@@ -34,10 +33,12 @@ public class SearchProducer extends DefaultProducer {
 
     private volatile long lastId;
     private TwitterEndpoint endpoint;
+    private String keywords;
 
-    public SearchProducer(TwitterEndpoint endpoint) {
+    public SearchProducer(TwitterEndpoint endpoint, String keywords) {
         super(endpoint);
         this.endpoint = endpoint;
+        this.keywords = keywords;
     }
 
     @Override
@@ -47,7 +48,7 @@ public class SearchProducer extends DefaultProducer {
         // keywords from header take precedence
         String keywords = exchange.getIn().getHeader(TwitterConstants.TWITTER_KEYWORDS, String.class);
         if (keywords == null) {
-            keywords = endpoint.getProperties().getKeywords();
+            keywords = this.keywords;
         }
 
         if (keywords == null) {

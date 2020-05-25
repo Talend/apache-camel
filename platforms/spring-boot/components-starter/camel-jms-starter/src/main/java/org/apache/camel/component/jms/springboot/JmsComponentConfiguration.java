@@ -28,13 +28,10 @@ import org.apache.camel.component.jms.JmsMessageType;
 import org.apache.camel.component.jms.JmsProviderMetadata;
 import org.apache.camel.component.jms.MessageCreatedStrategy;
 import org.apache.camel.component.jms.MessageListenerContainerFactory;
-import org.apache.camel.component.jms.QueueBrowseStrategy;
 import org.apache.camel.component.jms.ReplyToType;
-import org.apache.camel.spi.HeaderFilterStrategy;
 import org.apache.camel.spring.boot.ComponentConfigurationPropertiesCommon;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.DeprecatedConfigurationProperty;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.support.converter.MessageConverter;
@@ -55,25 +52,30 @@ public class JmsComponentConfiguration
             ComponentConfigurationPropertiesCommon {
 
     /**
+     * Whether to enable auto configuration of the jms component. This is
+     * enabled by default.
+     */
+    private Boolean enabled;
+    /**
      * To use a shared JMS configuration
      */
     private JmsConfigurationNestedConfiguration configuration;
     /**
      * Specifies whether the consumer accept messages while it is stopping. You
-     * may consider enabling this option if you start and stop JMS routes at
-     * runtime while there are still messages enqueued on the queue. If this
-     * option is false and you stop the JMS route then messages may be rejected
-     * and the JMS broker would have to attempt redeliveries which yet again may
-     * be rejected and eventually the message may be moved at a dead letter
-     * queue on the JMS broker. To avoid this its recommended to enable this
-     * option.
+     * may consider enabling this option, if you start and stop JMS routes at
+     * runtime, while there are still messages enqueued on the queue. If this
+     * option is false, and you stop the JMS route, then messages may be
+     * rejected, and the JMS broker would have to attempt redeliveries, which
+     * yet again may be rejected, and eventually the message may be moved at a
+     * dead letter queue on the JMS broker. To avoid this its recommended to
+     * enable this option.
      */
     private Boolean acceptMessagesWhileStopping = false;
     /**
      * Whether the DefaultMessageListenerContainer used in the reply managers
      * for request-reply messaging allow the
      * DefaultMessageListenerContainer.runningAllowed flag to quick stop in case
-     * JmsConfigurationisAcceptMessagesWhileStopping is enabled and
+     * JmsConfiguration#isAcceptMessagesWhileStopping is enabled, and
      * org.apache.camel.CamelContext is currently being stopped. This quick stop
      * ability is enabled by default in the regular JMS consumers but to enable
      * for reply managers you must enable this flag.
@@ -82,7 +84,7 @@ public class JmsComponentConfiguration
     /**
      * The JMS acknowledgement mode defined as an Integer. Allows you to set
      * vendor-specific extensions to the acknowledgment mode. For the regular
-     * modes it is preferable to use the acknowledgementModeName instead.
+     * modes, it is preferable to use the acknowledgementModeName instead.
      */
     private Integer acknowledgementMode;
     /**
@@ -93,8 +95,8 @@ public class JmsComponentConfiguration
      */
     private Boolean eagerLoadingOfProperties = false;
     /**
-     * The JMS acknowledgement name which is one of: SESSION_TRANSACTED
-     * CLIENT_ACKNOWLEDGE AUTO_ACKNOWLEDGE DUPS_OK_ACKNOWLEDGE
+     * The JMS acknowledgement name, which is one of: SESSION_TRANSACTED,
+     * CLIENT_ACKNOWLEDGE, AUTO_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE
      */
     private String acknowledgementModeName = "AUTO_ACKNOWLEDGE";
     /**
@@ -108,7 +110,7 @@ public class JmsComponentConfiguration
     private Integer cacheLevel;
     /**
      * Sets the cache level by name for the underlying JMS resources. Possible
-     * values are: CACHE_AUTO CACHE_CONNECTION CACHE_CONSUMER CACHE_NONE and
+     * values are: CACHE_AUTO, CACHE_CONNECTION, CACHE_CONSUMER, CACHE_NONE, and
      * CACHE_SESSION. The default setting is CACHE_AUTO. See the Spring
      * documentation and Transactions Cache Levels for more information.
      */
@@ -120,13 +122,13 @@ public class JmsComponentConfiguration
      * exclusive or shared w/ replyToSelectorName. And CACHE_SESSION for shared
      * without replyToSelectorName. Some JMS brokers such as IBM WebSphere may
      * require to set the replyToCacheLevelName=CACHE_NONE to work. Note: If
-     * using temporary queues then CACHE_NONE is not allowed and you must use a
+     * using temporary queues then CACHE_NONE is not allowed, and you must use a
      * higher value such as CACHE_CONSUMER or CACHE_SESSION.
      */
     private String replyToCacheLevelName;
     /**
-     * Sets the JMS client ID to use. Note that this value if specified must be
-     * unique and can only be used by a single JMS connection instance. It is
+     * Sets the JMS client ID to use. Note that this value, if specified, must
+     * be unique and can only be used by a single JMS connection instance. It is
      * typically only required for durable topic subscriptions. If using Apache
      * ActiveMQ you may prefer to use Virtual Topics instead.
      */
@@ -147,9 +149,10 @@ public class JmsComponentConfiguration
     private Integer replyToConcurrentConsumers = 1;
     /**
      * The connection factory to be use. A connection factory must be configured
-     * either on the component or endpoint.
+     * either on the component or endpoint. The option is a
+     * javax.jms.ConnectionFactory type.
      */
-    private ConnectionFactory connectionFactory;
+    private String connectionFactory;
     /**
      * Username to use with the ConnectionFactory. You can also configure
      * username/password directly on the ConnectionFactory.
@@ -177,37 +180,38 @@ public class JmsComponentConfiguration
     private String durableSubscriptionName;
     /**
      * Specifies the JMS Exception Listener that is to be notified of any
-     * underlying JMS exceptions.
+     * underlying JMS exceptions. The option is a javax.jms.ExceptionListener
+     * type.
      */
-    private ExceptionListener exceptionListener;
+    private String exceptionListener;
     /**
      * Specifies a org.springframework.util.ErrorHandler to be invoked in case
      * of any uncaught exceptions thrown while processing a Message. By default
-     * these exceptions will be logged at the WARN level if no errorHandler has
+     * these exceptions will be logged at the WARN level, if no errorHandler has
      * been configured. You can configure logging level and whether stack traces
      * should be logged using errorHandlerLoggingLevel and
-     * errorHandlerLogStackTrace options. This makes it much easier to configure
-     * than having to code a custom errorHandler.
+     * errorHandlerLogStackTrace options. This makes it much easier to
+     * configure, than having to code a custom errorHandler. The option is a
+     * org.springframework.util.ErrorHandler type.
      */
-    @NestedConfigurationProperty
-    private ErrorHandler errorHandler;
+    private String errorHandler;
     /**
      * Allows to configure the default errorHandler logging level for logging
      * uncaught exceptions.
      */
     private LoggingLevel errorHandlerLoggingLevel = LoggingLevel.WARN;
     /**
-     * Allows to control whether stacktraces should be logged or not by the
+     * Allows to control whether stacktraces should be logged or not, by the
      * default errorHandler.
      */
     private Boolean errorHandlerLogStackTrace = true;
     /**
-     * Set if the deliveryMode priority or timeToLive qualities of service
+     * Set if the deliveryMode, priority or timeToLive qualities of service
      * should be used when sending messages. This option is based on Spring's
-     * JmsTemplate. The deliveryMode priority and timeToLive options are applied
-     * to the current endpoint. This contrasts with the preserveMessageQos
-     * option which operates at message granularity reading QoS properties
-     * exclusively from the Camel In message headers.
+     * JmsTemplate. The deliveryMode, priority and timeToLive options are
+     * applied to the current endpoint. This contrasts with the
+     * preserveMessageQos option, which operates at message granularity, reading
+     * QoS properties exclusively from the Camel In message headers.
      */
     private Boolean explicitQosEnabled = false;
     /**
@@ -216,8 +220,8 @@ public class JmsComponentConfiguration
      */
     private Boolean exposeListenerSession = false;
     /**
-     * Specifies the limit for idle executions of a receive task not having
-     * received any message within its execution. If this limit is reached the
+     * Specifies the limit for idle executions of a receive task, not having
+     * received any message within its execution. If this limit is reached, the
      * task will shut down and leave receiving to other executing tasks (in the
      * case of dynamic scheduling; see the maxConcurrentConsumers setting).
      * There is additional doc available from Spring.
@@ -250,7 +254,7 @@ public class JmsComponentConfiguration
     private Integer replyOnTimeoutToMaxConcurrentConsumers = 1;
     /**
      * The number of messages per task. -1 is unlimited. If you use a range for
-     * concurrent consumers (eg min max) then this option can be used to set a
+     * concurrent consumers (eg min max), then this option can be used to set a
      * value to eg 100 to control how fast the consumers will shrink when less
      * work is required.
      */
@@ -258,21 +262,21 @@ public class JmsComponentConfiguration
     /**
      * To use a custom Spring
      * org.springframework.jms.support.converter.MessageConverter so you can be
-     * in control how to map to/from a javax.jms.Message.
+     * in control how to map to/from a javax.jms.Message. The option is a
+     * org.springframework.jms.support.converter.MessageConverter type.
      */
-    @NestedConfigurationProperty
-    private MessageConverter messageConverter;
+    private String messageConverter;
     /**
      * Specifies whether Camel should auto map the received JMS message to a
-     * suited payload type such as javax.jms.TextMessage to a String etc. See
+     * suited payload type, such as javax.jms.TextMessage to a String etc. See
      * section about how mapping works below for more details.
      */
     private Boolean mapJmsMessage = true;
     /**
-     * When sending specifies whether message IDs should be added. This is just
-     * an hint to the JMS Broker. If the JMS provider accepts this hint these
+     * When sending, specifies whether message IDs should be added. This is just
+     * an hint to the JMS Broker. If the JMS provider accepts this hint, these
      * messages must have the message ID set to null; if the provider ignores
-     * the hint the message ID must be set to its normal unique value
+     * the hint, the message ID must be set to its normal unique value
      */
     private Boolean messageIdEnabled = true;
     /**
@@ -281,10 +285,10 @@ public class JmsComponentConfiguration
      */
     private Boolean messageTimestampEnabled = true;
     /**
-     * If true Camel will always make a JMS message copy of the message when it
+     * If true, Camel will always make a JMS message copy of the message when it
      * is passed to the producer for sending. Copying the message is needed in
-     * some situations such as when a replyToDestinationSelectorName is set
-     * (incidentally Camel will set the alwaysCopyMessage option to true if a
+     * some situations, such as when a replyToDestinationSelectorName is set
+     * (incidentally, Camel will set the alwaysCopyMessage option to true, if a
      * replyToDestinationSelectorName is set)
      */
     private Boolean alwaysCopyMessage = false;
@@ -309,24 +313,18 @@ public class JmsComponentConfiguration
      */
     private Long receiveTimeout = 1000L;
     /**
-     * Specifies the interval between recovery attempts i.e. when a connection
-     * is being refreshed in milliseconds. The default is 5000 ms that is 5
+     * Specifies the interval between recovery attempts, i.e. when a connection
+     * is being refreshed, in milliseconds. The default is 5000 ms, that is, 5
      * seconds.
      */
     private Long recoveryInterval = 5000L;
     /**
-     * Deprecated: Enabled by default if you specify a durableSubscriptionName
-     * and a clientId.
+     * Allows you to specify a custom task executor for consuming messages. The
+     * option is a org.springframework.core.task.TaskExecutor type.
      */
-    @Deprecated
-    private Boolean subscriptionDurable = false;
+    private String taskExecutor;
     /**
-     * Allows you to specify a custom task executor for consuming messages.
-     */
-    @NestedConfigurationProperty
-    private TaskExecutor taskExecutor;
-    /**
-     * When sending messages specifies the time-to-live of the message (in
+     * When sending messages, specifies the time-to-live of the message (in
      * milliseconds).
      */
     private Long timeToLive = -1L;
@@ -335,21 +333,21 @@ public class JmsComponentConfiguration
      */
     private Boolean transacted = false;
     /**
-     * If true Camel will create a JmsTransactionManager if there is no
+     * If true, Camel will create a JmsTransactionManager, if there is no
      * transactionManager injected when option transacted=true.
      */
     private Boolean lazyCreateTransactionManager = true;
     /**
-     * The Spring transaction manager to use.
+     * The Spring transaction manager to use. The option is a
+     * org.springframework.transaction.PlatformTransactionManager type.
      */
-    @NestedConfigurationProperty
-    private PlatformTransactionManager transactionManager;
+    private String transactionManager;
     /**
      * The name of the transaction to use.
      */
     private String transactionName;
     /**
-     * The timeout value of the transaction (in seconds) if using transacted
+     * The timeout value of the transaction (in seconds), if using transacted
      * mode.
      */
     private Integer transactionTimeout = -1;
@@ -362,20 +360,20 @@ public class JmsComponentConfiguration
      */
     private Boolean testConnectionOnStartup = false;
     /**
-     * Whether to startup the JmsConsumer message listener asynchronously when
+     * Whether to startup the JmsConsumer message listener asynchronously, when
      * starting a route. For example if a JmsConsumer cannot get a connection to
-     * a remote JMS broker then it may block while retrying and/or failover.
+     * a remote JMS broker, then it may block while retrying and/or failover.
      * This will cause Camel to block while starting routes. By setting this
-     * option to true you will let routes startup while the JmsConsumer connects
-     * to the JMS broker using a dedicated thread in asynchronous mode. If this
-     * option is used then beware that if the connection could not be
-     * established then an exception is logged at WARN level and the consumer
+     * option to true, you will let routes startup, while the JmsConsumer
+     * connects to the JMS broker using a dedicated thread in asynchronous mode.
+     * If this option is used, then beware that if the connection could not be
+     * established, then an exception is logged at WARN level, and the consumer
      * will not be able to receive messages; You can then restart the route to
      * retry.
      */
     private Boolean asyncStartListener = false;
     /**
-     * Whether to stop the JmsConsumer message listener asynchronously when
+     * Whether to stop the JmsConsumer message listener asynchronously, when
      * stopping a route.
      */
     private Boolean asyncStopListener = false;
@@ -389,49 +387,49 @@ public class JmsComponentConfiguration
     /**
      * The timeout for waiting for a reply when using the InOut Exchange Pattern
      * (in milliseconds). The default is 20 seconds. You can include the header
-     * CamelJmsRequestTimeout to override this endpoint configured timeout value
-     * and thus have per message individual timeout values. See also the
+     * CamelJmsRequestTimeout to override this endpoint configured timeout
+     * value, and thus have per message individual timeout values. See also the
      * requestTimeoutCheckerInterval option.
      */
     private Long requestTimeout = 20000L;
     /**
      * Configures how often Camel should check for timed out Exchanges when
      * doing request/reply over JMS. By default Camel checks once per second.
-     * But if you must react faster when a timeout occurs then you can lower
-     * this interval to check more frequently. The timeout is determined by the
+     * But if you must react faster when a timeout occurs, then you can lower
+     * this interval, to check more frequently. The timeout is determined by the
      * option requestTimeout.
      */
     private Long requestTimeoutCheckerInterval = 1000L;
     /**
      * You can transfer the exchange over the wire instead of just the body and
-     * headers. The following fields are transferred: In body Out body Fault
-     * body In headers Out headers Fault headers exchange properties exchange
-     * exception. This requires that the objects are serializable. Camel will
-     * exclude any non-serializable objects and log it at WARN level. You must
-     * enable this option on both the producer and consumer side so Camel knows
-     * the payloads is an Exchange and not a regular payload.
+     * headers. The following fields are transferred: In body, Out body, Fault
+     * body, In headers, Out headers, Fault headers, exchange properties,
+     * exchange exception. This requires that the objects are serializable.
+     * Camel will exclude any non-serializable objects and log it at WARN level.
+     * You must enable this option on both the producer and consumer side, so
+     * Camel knows the payloads is an Exchange and not a regular payload.
      */
     private Boolean transferExchange = false;
     /**
      * If enabled and you are using Request Reply messaging (InOut) and an
-     * Exchange failed on the consumer side then the caused Exception will be
+     * Exchange failed on the consumer side, then the caused Exception will be
      * send back in response as a javax.jms.ObjectMessage. If the client is
-     * Camel the returned Exception is rethrown. This allows you to use Camel
-     * JMS as a bridge in your routing - for example using persistent queues to
+     * Camel, the returned Exception is rethrown. This allows you to use Camel
+     * JMS as a bridge in your routing - for example, using persistent queues to
      * enable robust routing. Notice that if you also have transferExchange
-     * enabled this option takes precedence. The caught exception is required to
-     * be serializable. The original Exception on the consumer side can be
+     * enabled, this option takes precedence. The caught exception is required
+     * to be serializable. The original Exception on the consumer side can be
      * wrapped in an outer exception such as
      * org.apache.camel.RuntimeCamelException when returned to the producer.
      */
     private Boolean transferException = false;
     /**
      * If enabled and you are using Request Reply messaging (InOut) and an
-     * Exchange failed with a SOAP fault (not exception) on the consumer side
-     * then the fault flag on link org.apache.camel.MessageisFault() will be
-     * send back in the response as a JMS header with the key link
-     * JmsConstantsJMS_TRANSFER_FAULT. If the client is Camel the returned fault
-     * flag will be set on the link org.apache.camel.MessagesetFault(boolean).
+     * Exchange failed with a SOAP fault (not exception) on the consumer side,
+     * then the fault flag on org.apache.camel.Message#isFault() will be send
+     * back in the response as a JMS header with the key
+     * JmsConstants#JMS_TRANSFER_FAULT. If the client is Camel, the returned
+     * fault flag will be set on the org.apache.camel.Message#setFault(boolean).
      * You may want to enable this when using Camel components that support
      * faults such as SOAP based such as cxf or spring-ws.
      */
@@ -439,57 +437,57 @@ public class JmsComponentConfiguration
     /**
      * Allows you to use your own implementation of the
      * org.springframework.jms.core.JmsOperations interface. Camel uses
-     * JmsTemplate as default. Can be used for testing purpose but not used much
-     * as stated in the spring API docs.
+     * JmsTemplate as default. Can be used for testing purpose, but not used
+     * much as stated in the spring API docs. The option is a
+     * org.springframework.jms.core.JmsOperations type.
      */
-    @NestedConfigurationProperty
-    private JmsOperations jmsOperations;
+    private String jmsOperations;
     /**
      * A pluggable
      * org.springframework.jms.support.destination.DestinationResolver that
-     * allows you to use your own resolver (for example to lookup the real
-     * destination in a JNDI registry).
+     * allows you to use your own resolver (for example, to lookup the real
+     * destination in a JNDI registry). The option is a
+     * org.springframework.jms.support.destination.DestinationResolver type.
      */
-    @NestedConfigurationProperty
-    private DestinationResolver destinationResolver;
+    private String destinationResolver;
     /**
      * Allows for explicitly specifying which kind of strategy to use for
      * replyTo queues when doing request/reply over JMS. Possible values are:
-     * Temporary Shared or Exclusive. By default Camel will use temporary
-     * queues. However if replyTo has been configured then Shared is used by
+     * Temporary, Shared, or Exclusive. By default Camel will use temporary
+     * queues. However if replyTo has been configured, then Shared is used by
      * default. This option allows you to use exclusive queues instead of shared
-     * ones. See Camel JMS documentation for more details and especially the
-     * notes about the implications if running in a clustered environment and
+     * ones. See Camel JMS documentation for more details, and especially the
+     * notes about the implications if running in a clustered environment, and
      * the fact that Shared reply queues has lower performance than its
      * alternatives Temporary and Exclusive.
      */
     private ReplyToType replyToType;
     /**
-     * Set to true if you want to send message using the QoS settings specified
-     * on the message instead of the QoS settings on the JMS endpoint. The
-     * following three headers are considered JMSPriority JMSDeliveryMode and
-     * JMSExpiration. You can provide all or only some of them. If not provided
-     * Camel will fall back to use the values from the endpoint instead. So when
-     * using this option the headers override the values from the endpoint. The
-     * explicitQosEnabled option by contrast will only use options set on the
-     * endpoint and not values from the message header.
+     * Set to true, if you want to send message using the QoS settings specified
+     * on the message, instead of the QoS settings on the JMS endpoint. The
+     * following three headers are considered JMSPriority, JMSDeliveryMode, and
+     * JMSExpiration. You can provide all or only some of them. If not provided,
+     * Camel will fall back to use the values from the endpoint instead. So,
+     * when using this option, the headers override the values from the
+     * endpoint. The explicitQosEnabled option, by contrast, will only use
+     * options set on the endpoint, and not values from the message header.
      */
     private Boolean preserveMessageQos = false;
     /**
      * Whether the JmsConsumer processes the Exchange asynchronously. If enabled
-     * then the JmsConsumer may pickup the next message from the JMS queue while
-     * the previous message is being processed asynchronously (by the
+     * then the JmsConsumer may pickup the next message from the JMS queue,
+     * while the previous message is being processed asynchronously (by the
      * Asynchronous Routing Engine). This means that messages may be processed
-     * not 100 strictly in order. If disabled (as default) then the Exchange is
+     * not 100% strictly in order. If disabled (as default) then the Exchange is
      * fully processed before the JmsConsumer will pickup the next message from
-     * the JMS queue. Note if transacted has been enabled then
-     * asyncConsumer=true does not run asynchronously as transaction must be
+     * the JMS queue. Note if transacted has been enabled, then
+     * asyncConsumer=true does not run asynchronously, as transaction must be
      * executed synchronously (Camel 3.0 may support async transactions).
      */
     private Boolean asyncConsumer = false;
     /**
      * Whether to allow sending messages with no body. If this option is false
-     * and the message body is null then an JMSException is thrown.
+     * and the message body is null, then an JMSException is thrown.
      */
     private Boolean allowNullBody = true;
     /**
@@ -501,20 +499,20 @@ public class JmsComponentConfiguration
     private Boolean includeSentJMSMessageID = false;
     /**
      * Whether to include all JMSXxxx properties when mapping from JMS to Camel
-     * Message. Setting this to true will include properties such as JMSXAppID
+     * Message. Setting this to true will include properties such as JMSXAppID,
      * and JMSXUserID etc. Note: If you are using a custom headerFilterStrategy
      * then this option does not apply.
      */
     private Boolean includeAllJMSXProperties = false;
     /**
      * Specifies what default TaskExecutor type to use in the
-     * DefaultMessageListenerContainer for both consumer endpoints and the
+     * DefaultMessageListenerContainer, for both consumer endpoints and the
      * ReplyTo consumer of producer endpoints. Possible values: SimpleAsync
      * (uses Spring's SimpleAsyncTaskExecutor) or ThreadPool (uses Spring's
      * ThreadPoolTaskExecutor with optimal values - cached threadpool-like). If
-     * not set it defaults to the previous behaviour which uses a cached thread
-     * pool for consumer endpoints and SimpleAsync for reply consumers. The use
-     * of ThreadPool is recommended to reduce thread trash in elastic
+     * not set, it defaults to the previous behaviour, which uses a cached
+     * thread pool for consumer endpoints and SimpleAsync for reply consumers.
+     * The use of ThreadPool is recommended to reduce thread trash in elastic
      * configurations with dynamically increasing and decreasing concurrent
      * consumers.
      */
@@ -527,22 +525,31 @@ public class JmsComponentConfiguration
      * key as is. Can be used for JMS brokers which do not care whether JMS
      * header keys contain illegal characters. You can provide your own
      * implementation of the org.apache.camel.component.jms.JmsKeyFormatStrategy
-     * and refer to it using the notation.
+     * and refer to it using the # notation. The option is a
+     * org.apache.camel.component.jms.JmsKeyFormatStrategy type.
      */
-    @NestedConfigurationProperty
-    private JmsKeyFormatStrategy jmsKeyFormatStrategy;
+    private String jmsKeyFormatStrategy;
     /**
-     * To use a custom QueueBrowseStrategy when browsing queues
+     * This option is used to allow additional headers which may have values
+     * that are invalid according to JMS specification. For example some message
+     * systems such as WMQ do this with header names using prefix JMS_IBM_MQMD_
+     * containing values with byte array or other invalid types. You can specify
+     * multiple header names separated by comma, and use as suffix for wildcard
+     * matching.
      */
-    @NestedConfigurationProperty
-    private QueueBrowseStrategy queueBrowseStrategy;
+    private String allowAdditionalHeaders;
+    /**
+     * To use a custom QueueBrowseStrategy when browsing queues. The option is a
+     * org.apache.camel.component.jms.QueueBrowseStrategy type.
+     */
+    private String queueBrowseStrategy;
     /**
      * To use the given MessageCreatedStrategy which are invoked when Camel
      * creates new instances of javax.jms.Message objects when Camel is sending
-     * a JMS message.
+     * a JMS message. The option is a
+     * org.apache.camel.component.jms.MessageCreatedStrategy type.
      */
-    @NestedConfigurationProperty
-    private MessageCreatedStrategy messageCreatedStrategy;
+    private String messageCreatedStrategy;
     /**
      * Number of times to wait for provisional correlation id to be updated to
      * the actual correlation id when doing request/reply over JMS and when the
@@ -564,11 +571,59 @@ public class JmsComponentConfiguration
      */
     private String correlationProperty;
     /**
-     * To use a custom org.apache.camel.spi.HeaderFilterStrategy to filter
-     * header to and from Camel message.
+     * Set whether to make the subscription durable. The durable subscription
+     * name to be used can be specified through the subscriptionName property.
+     * Default is false. Set this to true to register a durable subscription,
+     * typically in combination with a subscriptionName value (unless your
+     * message listener class name is good enough as subscription name). Only
+     * makes sense when listening to a topic (pub-sub domain), therefore this
+     * method switches the pubSubDomain flag as well.
      */
-    @NestedConfigurationProperty
-    private HeaderFilterStrategy headerFilterStrategy;
+    private Boolean subscriptionDurable = false;
+    /**
+     * Set whether to make the subscription shared. The shared subscription name
+     * to be used can be specified through the subscriptionName property.
+     * Default is false. Set this to true to register a shared subscription,
+     * typically in combination with a subscriptionName value (unless your
+     * message listener class name is good enough as subscription name). Note
+     * that shared subscriptions may also be durable, so this flag can (and
+     * often will) be combined with subscriptionDurable as well. Only makes
+     * sense when listening to a topic (pub-sub domain), therefore this method
+     * switches the pubSubDomain flag as well. Requires a JMS 2.0 compatible
+     * message broker.
+     */
+    private Boolean subscriptionShared = false;
+    /**
+     * Set the name of a subscription to create. To be applied in case of a
+     * topic (pub-sub domain) with a shared or durable subscription. The
+     * subscription name needs to be unique within this client's JMS client id.
+     * Default is the class name of the specified message listener. Note: Only 1
+     * concurrent consumer (which is the default of this message listener
+     * container) is allowed for each subscription, except for a shared
+     * subscription (which requires JMS 2.0).
+     */
+    private String subscriptionName;
+    /**
+     * Sets whether StreamMessage type is enabled or not. Message payloads of
+     * streaming kind such as files, InputStream, etc will either by sent as
+     * BytesMessage or StreamMessage. This option controls which kind will be
+     * used. By default BytesMessage is used which enforces the entire message
+     * payload to be read into memory. By enabling this option the message
+     * payload is read into memory in chunks and each chunk is then written to
+     * the StreamMessage until no more data.
+     */
+    private Boolean streamMessageTypeEnabled = false;
+    /**
+     * Sets whether date headers should be formatted according to the ISO 8601
+     * standard.
+     */
+    private Boolean formatDateHeadersToIso8601 = false;
+    /**
+     * To use a custom org.apache.camel.spi.HeaderFilterStrategy to filter
+     * header to and from Camel message. The option is a
+     * org.apache.camel.spi.HeaderFilterStrategy type.
+     */
+    private String headerFilterStrategy;
     /**
      * Whether the component should resolve property placeholders on itself when
      * starting. Only properties which are of String type can use property
@@ -682,11 +737,11 @@ public class JmsComponentConfiguration
         this.replyToConcurrentConsumers = replyToConcurrentConsumers;
     }
 
-    public ConnectionFactory getConnectionFactory() {
+    public String getConnectionFactory() {
         return connectionFactory;
     }
 
-    public void setConnectionFactory(ConnectionFactory connectionFactory) {
+    public void setConnectionFactory(String connectionFactory) {
         this.connectionFactory = connectionFactory;
     }
 
@@ -730,19 +785,19 @@ public class JmsComponentConfiguration
         this.durableSubscriptionName = durableSubscriptionName;
     }
 
-    public ExceptionListener getExceptionListener() {
+    public String getExceptionListener() {
         return exceptionListener;
     }
 
-    public void setExceptionListener(ExceptionListener exceptionListener) {
+    public void setExceptionListener(String exceptionListener) {
         this.exceptionListener = exceptionListener;
     }
 
-    public ErrorHandler getErrorHandler() {
+    public String getErrorHandler() {
         return errorHandler;
     }
 
-    public void setErrorHandler(ErrorHandler errorHandler) {
+    public void setErrorHandler(String errorHandler) {
         this.errorHandler = errorHandler;
     }
 
@@ -829,11 +884,11 @@ public class JmsComponentConfiguration
         this.maxMessagesPerTask = maxMessagesPerTask;
     }
 
-    public MessageConverter getMessageConverter() {
+    public String getMessageConverter() {
         return messageConverter;
     }
 
-    public void setMessageConverter(MessageConverter messageConverter) {
+    public void setMessageConverter(String messageConverter) {
         this.messageConverter = messageConverter;
     }
 
@@ -910,22 +965,11 @@ public class JmsComponentConfiguration
         this.recoveryInterval = recoveryInterval;
     }
 
-    @Deprecated
-    @DeprecatedConfigurationProperty
-    public Boolean getSubscriptionDurable() {
-        return subscriptionDurable;
-    }
-
-    @Deprecated
-    public void setSubscriptionDurable(Boolean subscriptionDurable) {
-        this.subscriptionDurable = subscriptionDurable;
-    }
-
-    public TaskExecutor getTaskExecutor() {
+    public String getTaskExecutor() {
         return taskExecutor;
     }
 
-    public void setTaskExecutor(TaskExecutor taskExecutor) {
+    public void setTaskExecutor(String taskExecutor) {
         this.taskExecutor = taskExecutor;
     }
 
@@ -954,12 +998,11 @@ public class JmsComponentConfiguration
         this.lazyCreateTransactionManager = lazyCreateTransactionManager;
     }
 
-    public PlatformTransactionManager getTransactionManager() {
+    public String getTransactionManager() {
         return transactionManager;
     }
 
-    public void setTransactionManager(
-            PlatformTransactionManager transactionManager) {
+    public void setTransactionManager(String transactionManager) {
         this.transactionManager = transactionManager;
     }
 
@@ -1052,19 +1095,19 @@ public class JmsComponentConfiguration
         this.transferFault = transferFault;
     }
 
-    public JmsOperations getJmsOperations() {
+    public String getJmsOperations() {
         return jmsOperations;
     }
 
-    public void setJmsOperations(JmsOperations jmsOperations) {
+    public void setJmsOperations(String jmsOperations) {
         this.jmsOperations = jmsOperations;
     }
 
-    public DestinationResolver getDestinationResolver() {
+    public String getDestinationResolver() {
         return destinationResolver;
     }
 
-    public void setDestinationResolver(DestinationResolver destinationResolver) {
+    public void setDestinationResolver(String destinationResolver) {
         this.destinationResolver = destinationResolver;
     }
 
@@ -1125,29 +1168,35 @@ public class JmsComponentConfiguration
         this.defaultTaskExecutorType = defaultTaskExecutorType;
     }
 
-    public JmsKeyFormatStrategy getJmsKeyFormatStrategy() {
+    public String getJmsKeyFormatStrategy() {
         return jmsKeyFormatStrategy;
     }
 
-    public void setJmsKeyFormatStrategy(
-            JmsKeyFormatStrategy jmsKeyFormatStrategy) {
+    public void setJmsKeyFormatStrategy(String jmsKeyFormatStrategy) {
         this.jmsKeyFormatStrategy = jmsKeyFormatStrategy;
     }
 
-    public QueueBrowseStrategy getQueueBrowseStrategy() {
+    public String getAllowAdditionalHeaders() {
+        return allowAdditionalHeaders;
+    }
+
+    public void setAllowAdditionalHeaders(String allowAdditionalHeaders) {
+        this.allowAdditionalHeaders = allowAdditionalHeaders;
+    }
+
+    public String getQueueBrowseStrategy() {
         return queueBrowseStrategy;
     }
 
-    public void setQueueBrowseStrategy(QueueBrowseStrategy queueBrowseStrategy) {
+    public void setQueueBrowseStrategy(String queueBrowseStrategy) {
         this.queueBrowseStrategy = queueBrowseStrategy;
     }
 
-    public MessageCreatedStrategy getMessageCreatedStrategy() {
+    public String getMessageCreatedStrategy() {
         return messageCreatedStrategy;
     }
 
-    public void setMessageCreatedStrategy(
-            MessageCreatedStrategy messageCreatedStrategy) {
+    public void setMessageCreatedStrategy(String messageCreatedStrategy) {
         this.messageCreatedStrategy = messageCreatedStrategy;
     }
 
@@ -1177,12 +1226,51 @@ public class JmsComponentConfiguration
         this.correlationProperty = correlationProperty;
     }
 
-    public HeaderFilterStrategy getHeaderFilterStrategy() {
+    public Boolean getSubscriptionDurable() {
+        return subscriptionDurable;
+    }
+
+    public void setSubscriptionDurable(Boolean subscriptionDurable) {
+        this.subscriptionDurable = subscriptionDurable;
+    }
+
+    public Boolean getSubscriptionShared() {
+        return subscriptionShared;
+    }
+
+    public void setSubscriptionShared(Boolean subscriptionShared) {
+        this.subscriptionShared = subscriptionShared;
+    }
+
+    public String getSubscriptionName() {
+        return subscriptionName;
+    }
+
+    public void setSubscriptionName(String subscriptionName) {
+        this.subscriptionName = subscriptionName;
+    }
+
+    public Boolean getStreamMessageTypeEnabled() {
+        return streamMessageTypeEnabled;
+    }
+
+    public void setStreamMessageTypeEnabled(Boolean streamMessageTypeEnabled) {
+        this.streamMessageTypeEnabled = streamMessageTypeEnabled;
+    }
+
+    public Boolean getFormatDateHeadersToIso8601() {
+        return formatDateHeadersToIso8601;
+    }
+
+    public void setFormatDateHeadersToIso8601(Boolean formatDateHeadersToIso8601) {
+        this.formatDateHeadersToIso8601 = formatDateHeadersToIso8601;
+    }
+
+    public String getHeaderFilterStrategy() {
         return headerFilterStrategy;
     }
 
-    public void setHeaderFilterStrategy(
-            HeaderFilterStrategy headerFilterStrategy) {
+    public void setHeaderFilterStrategy(String headerFilterStrategy) {
         this.headerFilterStrategy = headerFilterStrategy;
     }
 
@@ -1213,8 +1301,8 @@ public class JmsComponentConfiguration
         /**
          * Sets the default connection factory to be used if a connection
          * factory is not specified for either
-         * {@link #setTemplateConnectionFactory(ConnectionFactory)} or
-         * {@link #setListenerConnectionFactory(ConnectionFactory)}
+         * setTemplateConnectionFactory(ConnectionFactory) or
+         * setListenerConnectionFactory(ConnectionFactory)
          */
         private ConnectionFactory connectionFactory;
         /**
@@ -1252,15 +1340,22 @@ public class JmsComponentConfiguration
          * avoid this its recommended to enable this option.
          */
         private Boolean acceptMessagesWhileStopping = false;
+        /**
+         * Whether the DefaultMessageListenerContainer used in the reply
+         * managers for request-reply messaging allow the
+         * DefaultMessageListenerContainer#runningAllowed() flag to quick stop
+         * in case JmsConfiguration#isAcceptMessagesWhileStopping() is enabled,
+         * and org.apache.camel.CamelContext is currently being stopped. This
+         * quick stop ability is enabled by default in the regular JMS consumers
+         * but to enable for reply managers you must enable this flag.
+         */
         private Boolean allowReplyManagerQuickStop = false;
         /**
          * Sets the JMS client ID to use. Note that this value, if specified,
          * must be unique and can only be used by a single JMS connection
          * instance. It is typically only required for durable topic
-         * subscriptions.
-         * <p>
-         * If using Apache ActiveMQ you may prefer to use Virtual Topics
-         * instead.
+         * subscriptions. If using Apache ActiveMQ you may prefer to use Virtual
+         * Topics instead.
          */
         private String clientId;
         /**
@@ -1293,8 +1388,6 @@ public class JmsComponentConfiguration
          * default errorHandler.
          */
         private Boolean errorHandlerLogStackTrace = true;
-        @Deprecated
-        private Boolean subscriptionDurable;
         /**
          * The JMS acknowledgement name, which is one of: SESSION_TRANSACTED,
          * CLIENT_ACKNOWLEDGE, AUTO_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE
@@ -1318,9 +1411,7 @@ public class JmsComponentConfiguration
          * Specifies the default number of concurrent consumers when consuming
          * from JMS (not for request/reply over JMS). See also the
          * maxMessagesPerTask option to control dynamic scaling up/down of
-         * threads.
-         * <p>
-         * When doing request/reply over JMS then the option
+         * threads. When doing request/reply over JMS then the option
          * replyToConcurrentConsumers is used to control number of concurrent
          * consumers on the reply message listener.
          */
@@ -1333,7 +1424,7 @@ public class JmsComponentConfiguration
         private Integer replyToConcurrentConsumers = 1;
         /**
          * The number of messages per task. -1 is unlimited. If you use a range
-         * for concurrent consumers (eg min < max), then this option can be used
+         * for concurrent consumers (eg min max), then this option can be used
          * to set a value to eg 100 to control how fast the consumers will
          * shrink when less work is required.
          */
@@ -1402,9 +1493,7 @@ public class JmsComponentConfiguration
          * Specifies the maximum number of concurrent consumers when consuming
          * from JMS (not for request/reply over JMS). See also the
          * maxMessagesPerTask option to control dynamic scaling up/down of
-         * threads.
-         * <p>
-         * When doing request/reply over JMS then the option
+         * threads. When doing request/reply over JMS then the option
          * replyToMaxConcurrentConsumers is used to control number of concurrent
          * consumers on the reply message listener.
          */
@@ -1492,20 +1581,21 @@ public class JmsComponentConfiguration
          */
         private Boolean lazyCreateTransactionManager = true;
         /**
-         * Enables eager loading of JMS properties as soon as a message is
-         * loaded which generally is inefficient as the JMS properties may not
-         * be required but sometimes can catch early any issues with the
-         * underlying JMS provider and the use of JMS properties
+         * Enables eager loading of JMS properties and payload as soon as a
+         * message is loaded which generally is inefficient as the JMS
+         * properties may not be required but sometimes can catch early any
+         * issues with the underlying JMS provider and the use of JMS properties
          */
         private Boolean eagerLoadingOfProperties = false;
         /**
-         * If true, a producer will behave like a InOnly exchange with the
-         * exception that JMSReplyTo header is sent out and not be suppressed
-         * like in the case of InOnly. Like InOnly the producer will not wait
-         * for a reply. A consumer with this flag will behave like InOnly. This
-         * feature can be used to bridge InOut requests to another queue so that
-         * a route on the other queue will send its response directly back to
-         * the original JMSReplyTo.
+         * Specifies whether Camel ignores the JMSReplyTo header in messages. If
+         * true, Camel does not send a reply back to the destination specified
+         * in the JMSReplyTo header. You can use this option if you want Camel
+         * to consume from a route and you do not want Camel to automatically
+         * send back a reply message because another component in your code
+         * handles the reply message. You can also use this option if you want
+         * to use Camel as a proxy between different message brokers and you
+         * want to route message from one system to another.
          */
         private Boolean disableReplyTo = false;
         /**
@@ -1539,7 +1629,6 @@ public class JmsComponentConfiguration
          * this is not required and Camel will auto-detect the provider metadata
          * from the underlying provider.
          */
-        @NestedConfigurationProperty
         private JmsProviderMetadata providerMetadata;
         /**
          * Sets the {@link JmsOperations} used to deduce the
@@ -1564,7 +1653,7 @@ public class JmsComponentConfiguration
         /**
          * The timeout for waiting for a reply when using the InOut Exchange
          * Pattern (in milliseconds). The default is 20 seconds. You can include
-         * the header "CamelJmsRequestTimeout" to override this endpoint
+         * the header CamelJmsRequestTimeout to override this endpoint
          * configured timeout value, and thus have per message individual
          * timeout values. See also the requestTimeoutCheckerInterval option.
          */
@@ -1635,9 +1724,9 @@ public class JmsComponentConfiguration
         private Boolean transferExchange = false;
         /**
          * Controls whether or not to include serialized headers. Applies only
-         * when {@link #isTransferExchange()} is {@code true} . This requires
-         * that the objects are serializable. Camel will exclude any
-         * non-serializable objects and log it at WARN level.
+         * when isTransferExchange() is true. This requires that the objects are
+         * serializable. Camel will exclude any non-serializable objects and log
+         * it at WARN level.
          */
         private Boolean allowSerializedHeaders = false;
         /**
@@ -1656,15 +1745,13 @@ public class JmsComponentConfiguration
         /**
          * If enabled and you are using Request Reply messaging (InOut) and an
          * Exchange failed with a SOAP fault (not exception) on the consumer
-         * side, then the fault flag on
-         * {@link org.apache.camel.Message#isFault()} will be send back in the
-         * response as a JMS header with the key
-         * {@link JmsConstants#JMS_TRANSFER_FAULT} . If the client is Camel, the
-         * returned fault flag will be set on the
-         * {@link org.apache.camel.Message#setFault(boolean)} .
-         * <p>
-         * You may want to enable this when using Camel components that support
-         * faults such as SOAP based such as cxf or spring-ws.
+         * side, then the fault flag on org.apache.camel.Message#isFault() will
+         * be send back in the response as a JMS header with the key
+         * JmsConstants#JMS_TRANSFER_FAULT. If the client is Camel, the returned
+         * fault flag will be set on the
+         * org.apache.camel.Message#setFault(boolean). You may want to enable
+         * this when using Camel components that support faults such as SOAP
+         * based such as cxf or spring-ws.
          */
         private Boolean transferFault = false;
         /**
@@ -1777,9 +1864,9 @@ public class JmsComponentConfiguration
          * ThreadPoolTaskExecutor with optimal values - cached threadpool-like).
          * If not set, it defaults to the previous behaviour, which uses a
          * cached thread pool for consumer endpoints and SimpleAsync for reply
-         * consumers. The use of ThreadPool is recommended to reduce
-         * "thread trash" in elastic configurations with dynamically increasing
-         * and decreasing concurrent consumers.
+         * consumers. The use of ThreadPool is recommended to reduce thread
+         * trash in elastic configurations with dynamically increasing and
+         * decreasing concurrent consumers.
          */
         private DefaultTaskExecutorType defaultTaskExecutorType;
         /**
@@ -1791,8 +1878,8 @@ public class JmsComponentConfiguration
         private Boolean includeAllJMSXProperties = false;
         /**
          * To use the given MessageCreatedStrategy which are invoked when Camel
-         * creates new instances of <tt>javax.jms.Message</tt> objects when
-         * Camel is sending a JMS message.
+         * creates new instances of javax.jms.Message objects when Camel is
+         * sending a JMS message.
          */
         private MessageCreatedStrategy messageCreatedStrategy;
         /**
@@ -1809,6 +1896,65 @@ public class JmsComponentConfiguration
          * name.
          */
         private String correlationProperty;
+        /**
+         * This option is used to allow additional headers which may have values
+         * that are invalid according to JMS specification. For example some
+         * message systems such as WMQ do this with header names using prefix
+         * JMS_IBM_MQMD_ containing values with byte array or other invalid
+         * types. You can specify multiple header names separated by comma, and
+         * use as suffix for wildcard matching.
+         */
+        private String allowAdditionalHeaders;
+        /**
+         * Set whether to make the subscription durable. The durable
+         * subscription name to be used can be specified through the
+         * subscriptionName property. Default is false. Set this to true to
+         * register a durable subscription, typically in combination with a
+         * subscriptionName value (unless your message listener class name is
+         * good enough as subscription name). Only makes sense when listening to
+         * a topic (pub-sub domain), therefore this method switches the
+         * pubSubDomain flag as well.
+         */
+        private Boolean subscriptionDurable = false;
+        /**
+         * Set whether to make the subscription shared. The shared subscription
+         * name to be used can be specified through the subscriptionName
+         * property. Default is false. Set this to true to register a shared
+         * subscription, typically in combination with a subscriptionName value
+         * (unless your message listener class name is good enough as
+         * subscription name). Note that shared subscriptions may also be
+         * durable, so this flag can (and often will) be combined with
+         * subscriptionDurable as well. Only makes sense when listening to a
+         * topic (pub-sub domain), therefore this method switches the
+         * pubSubDomain flag as well. Requires a JMS 2.0 compatible message
+         * broker.
+         */
+        private Boolean subscriptionShared = false;
+        /**
+         * Set the name of a subscription to create. To be applied in case of a
+         * topic (pub-sub domain) with a shared or durable subscription. The
+         * subscription name needs to be unique within this client's JMS client
+         * id. Default is the class name of the specified message listener.
+         * Note: Only 1 concurrent consumer (which is the default of this
+         * message listener container) is allowed for each subscription, except
+         * for a shared subscription (which requires JMS 2.0).
+         */
+        private String subscriptionName;
+        /**
+         * Sets whether StreamMessage type is enabled or not. Message payloads
+         * of streaming kind such as files, InputStream, etc will either by sent
+         * as BytesMessage or StreamMessage. This option controls which kind
+         * will be used. By default BytesMessage is used which enforces the
+         * entire message payload to be read into memory. By enabling this
+         * option the message payload is read into memory in chunks and each
+         * chunk is then written to the StreamMessage until no more data.
+         */
+        private Boolean streamMessageTypeEnabled = false;
+        /**
+         * Sets whether date headers should be formatted according to the ISO
+         * 8601 standard.
+         */
+        private Boolean formatDateHeadersToIso8601 = false;
 
         public ConsumerType getConsumerType() {
             return consumerType;
@@ -1934,17 +2080,6 @@ public class JmsComponentConfiguration
         public void setErrorHandlerLogStackTrace(
                 Boolean errorHandlerLogStackTrace) {
             this.errorHandlerLogStackTrace = errorHandlerLogStackTrace;
-        }
-
-        @Deprecated
-        @DeprecatedConfigurationProperty
-        public Boolean getSubscriptionDurable() {
-            return subscriptionDurable;
-        }
-
-        @Deprecated
-        public void setSubscriptionDurable(Boolean subscriptionDurable) {
-            this.subscriptionDurable = subscriptionDurable;
         }
 
         public String getAcknowledgementModeName() {
@@ -2533,6 +2668,55 @@ public class JmsComponentConfiguration
 
         public void setCorrelationProperty(String correlationProperty) {
             this.correlationProperty = correlationProperty;
+        }
+
+        public String getAllowAdditionalHeaders() {
+            return allowAdditionalHeaders;
+        }
+
+        public void setAllowAdditionalHeaders(String allowAdditionalHeaders) {
+            this.allowAdditionalHeaders = allowAdditionalHeaders;
+        }
+
+        public Boolean getSubscriptionDurable() {
+            return subscriptionDurable;
+        }
+
+        public void setSubscriptionDurable(Boolean subscriptionDurable) {
+            this.subscriptionDurable = subscriptionDurable;
+        }
+
+        public Boolean getSubscriptionShared() {
+            return subscriptionShared;
+        }
+
+        public void setSubscriptionShared(Boolean subscriptionShared) {
+            this.subscriptionShared = subscriptionShared;
+        }
+
+        public String getSubscriptionName() {
+            return subscriptionName;
+        }
+
+        public void setSubscriptionName(String subscriptionName) {
+            this.subscriptionName = subscriptionName;
+        }
+
+        public Boolean getStreamMessageTypeEnabled() {
+            return streamMessageTypeEnabled;
+        }
+
+        public void setStreamMessageTypeEnabled(Boolean streamMessageTypeEnabled) {
+            this.streamMessageTypeEnabled = streamMessageTypeEnabled;
+        }
+
+        public Boolean getFormatDateHeadersToIso8601() {
+            return formatDateHeadersToIso8601;
+        }
+
+        public void setFormatDateHeadersToIso8601(
+                Boolean formatDateHeadersToIso8601) {
+            this.formatDateHeadersToIso8601 = formatDateHeadersToIso8601;
         }
     }
 }

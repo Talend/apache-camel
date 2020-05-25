@@ -20,12 +20,14 @@ import org.apache.camel.ContextTestSupport;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.spi.RoutePolicy;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class FlipRoutePolicyTest extends ContextTestSupport {
 
+    @Test
     public void testFlipRoutePolicyTest() throws Exception {
         MockEndpoint foo = getMockEndpoint("mock:foo");
         foo.expectedMinimumMessageCount(3);
@@ -45,7 +47,7 @@ public class FlipRoutePolicyTest extends ContextTestSupport {
                 RoutePolicy policy = new FlipRoutePolicy("foo", "bar");
 
                 // use the flip route policy in the foo route
-                from("timer://foo")
+                from("timer://foo?delay=0&period=10")
                     .routeId("foo").routePolicy(policy)
                     .setBody().constant("Foo message")
                     .to("log:foo")
@@ -53,7 +55,7 @@ public class FlipRoutePolicyTest extends ContextTestSupport {
 
                 // use the flip route policy in the bar route and do NOT start
                 // this route on startup
-                from("timer://bar")
+                from("timer://bar?delay=0&period=10")
                     .routeId("bar").routePolicy(policy).noAutoStartup()
                     .setBody().constant("Bar message")
                     .to("log:bar")

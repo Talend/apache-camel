@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
+
 import javax.management.JMException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -46,6 +47,7 @@ import org.apache.camel.StartupListener;
 import org.apache.camel.TimerListener;
 import org.apache.camel.VetoCamelContextStartException;
 import org.apache.camel.api.management.PerformanceCounter;
+import org.apache.camel.cluster.CamelClusterService;
 import org.apache.camel.impl.ConsumerCache;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultEndpointRegistry;
@@ -125,19 +127,18 @@ public class DefaultManagementLifecycleStrategy extends ServiceSupport implement
     private static final Logger LOG = LoggerFactory.getLogger(DefaultManagementLifecycleStrategy.class);
     // the wrapped processors is for performance counters, which are in use for the created routes
     // when a route is removed, we should remove the associated processors from this map
-    private final Map<Processor, KeyValueHolder<ProcessorDefinition<?>, InstrumentationProcessor>> wrappedProcessors =
-            new HashMap<Processor, KeyValueHolder<ProcessorDefinition<?>, InstrumentationProcessor>>();
-    private final List<PreRegisterService> preServices = new ArrayList<PreRegisterService>();
+    private final Map<Processor, KeyValueHolder<ProcessorDefinition<?>, InstrumentationProcessor>> wrappedProcessors = new HashMap<>();
+    private final List<PreRegisterService> preServices = new ArrayList<>();
     private final TimerListenerManager loadTimer = new ManagedLoadTimer();
     private final TimerListenerManagerStartupListener loadTimerStartupListener = new TimerListenerManagerStartupListener();
     private volatile CamelContext camelContext;
     private volatile ManagedCamelContext camelContextMBean;
     private volatile boolean initialized;
-    private final Set<String> knowRouteIds = new HashSet<String>();
-    private final Map<Tracer, ManagedTracer> managedTracers = new HashMap<Tracer, ManagedTracer>();
-    private final Map<BacklogTracer, ManagedBacklogTracer> managedBacklogTracers = new HashMap<BacklogTracer, ManagedBacklogTracer>();
-    private final Map<BacklogDebugger, ManagedBacklogDebugger> managedBacklogDebuggers = new HashMap<BacklogDebugger, ManagedBacklogDebugger>();
-    private final Map<ThreadPoolExecutor, Object> managedThreadPools = new HashMap<ThreadPoolExecutor, Object>();
+    private final Set<String> knowRouteIds = new HashSet<>();
+    private final Map<Tracer, ManagedTracer> managedTracers = new HashMap<>();
+    private final Map<BacklogTracer, ManagedBacklogTracer> managedBacklogTracers = new HashMap<>();
+    private final Map<BacklogDebugger, ManagedBacklogDebugger> managedBacklogDebuggers = new HashMap<>();
+    private final Map<ThreadPoolExecutor, Object> managedThreadPools = new HashMap<>();
 
     public DefaultManagementLifecycleStrategy() {
     }
@@ -219,6 +220,28 @@ public class DefaultManagementLifecycleStrategy extends ServiceSupport implement
 
         // register any pre registered now that we are initialized
         enlistPreRegisteredServices();
+
+        try {
+            Object me = getManagementObjectStrategy().getManagedObjectForCamelHealth(camelContext);
+            if (me == null) {
+                // endpoint should not be managed
+                return;
+            }
+            manageObject(me);
+        } catch (Exception e) {
+            LOG.warn("Could not register CamelHealth MBean. This exception will be ignored.", e);
+        }
+
+        try {
+            Object me = getManagementObjectStrategy().getManagedObjectForRouteController(camelContext);
+            if (me == null) {
+                // endpoint should not be managed
+                return;
+            }
+            manageObject(me);
+        } catch (Exception e) {
+            LOG.warn("Could not register RouteController MBean. This exception will be ignored.", e);
+        }
     }
 
     private String findFreeName(Object mc, ManagementNameStrategy strategy, String name) throws MalformedObjectNameException {
@@ -236,7 +259,7 @@ public class DefaultManagementLifecycleStrategy extends ServiceSupport implement
             ObjectName on = getManagementStrategy().getManagementNamingStrategy().getObjectNameForCamelContext(newName, name);
             done = !getManagementStrategy().isManaged(mc, on);
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Using name: {} in ObjectName[{}] exists? {}", new Object[]{name, on, done});
+                LOG.trace("Using name: {} in ObjectName[{}] exists? {}", name, on, done);
             }
         }
         return newName;
@@ -276,6 +299,27 @@ public class DefaultManagementLifecycleStrategy extends ServiceSupport implement
         if (!initialized) {
             return;
         }
+
+        try {
+            Object mc = getManagementObjectStrategy().getManagedObjectForRouteController(context);
+            // the context could have been removed already
+            if (getManagementStrategy().isManaged(mc, null)) {
+                unmanageObject(mc);
+            }
+        } catch (Exception e) {
+            LOG.warn("Could not unregister RouteController MBean", e);
+        }
+
+        try {
+            Object mc = getManagementObjectStrategy().getManagedObjectForCamelHealth(context);
+            // the context could have been removed already
+            if (getManagementStrategy().isManaged(mc, null)) {
+                unmanageObject(mc);
+            }
+        } catch (Exception e) {
+            LOG.warn("Could not unregister CamelHealth MBean", e);
+        }
+
         try {
             Object mc = getManagementObjectStrategy().getManagedObjectForCamelContext(context);
             // the context could have been removed already
@@ -503,12 +547,14 @@ public class DefaultManagementLifecycleStrategy extends ServiceSupport implement
             answer = new ManagedValidatorRegistry(context, (ValidatorRegistry)service);
         } else if (service instanceof RuntimeCamelCatalog) {
             answer = new ManagedRuntimeCamelCatalog(context, (RuntimeCamelCatalog) service);
+        } else if (service instanceof CamelClusterService) {
+            answer = getManagementObjectStrategy().getManagedObjectForClusterService(context, (CamelClusterService)service);
         } else if (service != null) {
             // fallback as generic service
             answer = getManagementObjectStrategy().getManagedObjectForService(context, service);
         }
 
-        if (answer != null && answer instanceof ManagedService) {
+        if (answer instanceof ManagedService) {
             ManagedService ms = (ManagedService) answer;
             ms.setRoute(route);
             ms.init(getManagementStrategy());
@@ -722,8 +768,7 @@ public class DefaultManagementLifecycleStrategy extends ServiceSupport implement
 
         // Create a map (ProcessorType -> PerformanceCounter)
         // to be passed to InstrumentationInterceptStrategy.
-        Map<ProcessorDefinition<?>, PerformanceCounter> registeredCounters =
-                new HashMap<ProcessorDefinition<?>, PerformanceCounter>();
+        Map<ProcessorDefinition<?>, PerformanceCounter> registeredCounters = new HashMap<>();
 
         // Each processor in a route will have its own performance counter.
         // These performance counter will be embedded to InstrumentationProcessor

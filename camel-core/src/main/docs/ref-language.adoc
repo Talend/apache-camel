@@ -1,36 +1,35 @@
-## Ref Language
+[[ref-language]]
+== Ref Language
 
 *Available as of Camel version 2.8*
 
 The Ref Expression Language is really just a way to lookup a custom
-link:expression.html[Expression] or link:predicate.html[Predicate] from the link:registry.html[Registry].
+Expression or Predicate from the Registry.
 
 This is particular useable in XML DSLs.
 
-### Ref Language options
+=== Ref Language options
 
 // language options: START
-The Ref language supports 1 options which are listed below.
+The Ref language supports 1 options, which are listed below.
 
 
 
 [width="100%",cols="2,1m,1m,6",options="header"]
-|=======================================================================
+|===
 | Name | Default | Java Type | Description
 | trim | true | Boolean | Whether to trim the value to remove leading and trailing whitespaces and line breaks
-|=======================================================================
+|===
 // language options: END
 
-### Example usage
+=== Example usage
 
-The link:splitter.html[Splitter] in XML DSL can utilize a custom
+The Splitter in XML DSL can utilize a custom
 expression using `<ref>` like:
 
 [source,xml]
-------------------------------------------------------------------
+----
 <bean id="myExpression" class="com.mycompany.MyCustomExpression"/>
-
-...
 
 <route>
   <from uri="seda:a"/>
@@ -39,20 +38,20 @@ expression using `<ref>` like:
     <to uri="mock:b"/>
   </split>     
 </route>
-------------------------------------------------------------------
+----
 
-in this case, the link:message.html[Message] coming from the seda:a
-link:endpoint.html[Endpoint] will be splitted using a custom
-link:expression.html[Expression] which has the id `myExpression` in the
-link:registry.html[Registry].
+in this case, the Message coming from the seda:a
+Endpoint will be splitted using a custom
+Expression which has the id `myExpression` in the
+Registry.
 
 And the same example using Java DSL:
 
 [source,java]
---------------------------------------------------------
+----
 from("seda:a").split().ref("myExpression").to("seda:b");
---------------------------------------------------------
+----
 
-### Dependencies
+=== Dependencies
 
 The Ref language is part of *camel-core*.

@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.box.sdk.BoxAPIConnection;
-import com.box.sdk.BoxFile;
 import com.box.sdk.BoxFolder;
 
 import org.apache.camel.Exchange;
@@ -30,6 +29,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.box.api.BoxEventsManager;
 import org.apache.camel.component.box.internal.BoxApiCollection;
 import org.apache.camel.component.box.internal.BoxEventsManagerApiMethod;
+import org.apache.camel.component.box.internal.BoxFilesManagerApiMethod;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 import org.slf4j.Logger;

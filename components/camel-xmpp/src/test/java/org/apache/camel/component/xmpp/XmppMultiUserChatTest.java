@@ -15,12 +15,11 @@
  * limitations under the License.
  */
 package org.apache.camel.component.xmpp;
-
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.test.junit4.CamelTestSupport;
-import org.junit.Ignore;
+import org.junit.After;
 import org.junit.Test;
 
 /**
@@ -31,12 +30,13 @@ public class XmppMultiUserChatTest extends CamelTestSupport {
     protected MockEndpoint consumerEndpoint;
     protected String body1 = "the first message";
     protected String body2 = "the second message";
+    private EmbeddedXmppTestServer embeddedXmppTestServer;
 
     @Override
     protected JndiRegistry createRegistry() throws Exception {
         JndiRegistry registry = super.createRegistry();
 
-        EmbeddedXmppTestServer.instance().bindSSLContextTo(registry);
+        embeddedXmppTestServer.bindSSLContextTo(registry);
 
         return registry;
     }
@@ -71,17 +71,28 @@ public class XmppMultiUserChatTest extends CamelTestSupport {
         // the nickname parameter is necessary in these URLs because the '@' in the user name can not be parsed by
         // vysper during chat room message routing.
 
-        // here on purpose we provide the room query parameter without the domain name as 'camel-test', and camel
+        // here on purpose we provide the room query parameter without the domain name as 'camel-test', and Camel
         // will resolve it properly to 'camel-test@conference.apache.camel'
-        return "xmpp://localhost:" + EmbeddedXmppTestServer.instance().getXmppPort()
+        return "xmpp://localhost:" + embeddedXmppTestServer.getXmppPort()
             + "/?connectionConfig=#customConnectionConfig&room=camel-test&user=camel_producer@apache.camel&password=secret&nickname=camel_producer";
     }
     
     protected String getConsumerUri() {
-        // however here we provide the room query parameter as fully qualified including the domain name as
+        // however here we provide the room query parameter as fully qualified, including the domain name as
         // 'camel-test@conference.apache.camel'
-        return "xmpp://localhost:" + EmbeddedXmppTestServer.instance().getXmppPort()
+        return "xmpp://localhost:" + embeddedXmppTestServer.getXmppPort()
             + "/?connectionConfig=#customConnectionConfig&room=camel-test@conference.apache.camel&user=camel_consumer@apache.camel&password=secret&nickname=camel_consumer";
     }
 
+    @Override
+    public void doPreSetup() throws Exception {
+        embeddedXmppTestServer = new EmbeddedXmppTestServer();
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+        embeddedXmppTestServer.stop();
+    }
 }

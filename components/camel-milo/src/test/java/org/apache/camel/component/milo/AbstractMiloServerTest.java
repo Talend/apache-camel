@@ -24,9 +24,40 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.component.milo.server.MiloServerComponent;
 import org.apache.camel.component.mock.AssertionClause;
 import org.apache.camel.test.junit4.CamelTestSupport;
+import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 
 public abstract class AbstractMiloServerTest extends CamelTestSupport {
+
+    private int serverPort;
+
+    @Override
+    protected void doPreSetup() throws Exception {
+        super.doPreSetup();
+        this.serverPort = Ports.pickServerPort();
+    }
+
+    public int getServerPort() {
+        return this.serverPort;
+    }
+
+    protected boolean isAddServer() {
+        return true;
+    }
+
+    /**
+     * Replace the port placeholder with the dynamic server port
+     * 
+     * @param uri the URI to process
+     * @return the result, may be {@code null} if the input is {@code null}
+     */
+    protected String resolve(String uri) {
+        if (uri == null) {
+            return uri;
+        }
+
+        return uri.replace("@@port@@", Integer.toString(this.serverPort));
+    }
 
     public static void testBody(final AssertionClause clause, final Consumer<DataValue> valueConsumer) {
         testBody(clause, DataValue.class, valueConsumer);
@@ -57,14 +88,18 @@ public abstract class AbstractMiloServerTest extends CamelTestSupport {
     }
 
     protected void configureContext(final CamelContext context) throws Exception {
-        final MiloServerComponent server = context.getComponent("milo-server", MiloServerComponent.class);
-        configureMiloServer(server);
+        if (isAddServer()) {
+            final MiloServerComponent server = context.getComponent("milo-server", MiloServerComponent.class);
+            configureMiloServer(server);
+        }
     }
 
     protected void configureMiloServer(final MiloServerComponent server) throws Exception {
         server.setBindAddresses("localhost");
-        server.setBindPort(12685);
+        server.setBindPort(this.serverPort);
         server.setUserAuthenticationCredentials("foo:bar,foo2:bar2");
+        server.setUsernameSecurityPolicyUri(SecurityPolicy.None);
+        server.setSecurityPoliciesById("None");
     }
 
     /**

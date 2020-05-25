@@ -30,6 +30,7 @@ import org.apache.camel.Route;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.EventDrivenConsumerRoute;
 import org.apache.camel.util.ServiceHelper;
+import org.junit.Test;
 
 public class StreamResequencerTest extends ContextTestSupport {
 
@@ -44,6 +45,7 @@ public class StreamResequencerTest extends ContextTestSupport {
         });
     }
 
+    @Test
     public void testSendMessagesInWrongOrderButReceiveThemInCorrectOrder() throws Exception {
         getMockEndpoint("mock:result").expectedBodiesReceived("msg1", "msg2", "msg3", "msg4");
 
@@ -55,6 +57,7 @@ public class StreamResequencerTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testMultithreaded() throws Exception {
         int numMessages = 100;
 
@@ -91,16 +94,18 @@ public class StreamResequencerTest extends ContextTestSupport {
         return new RouteBuilder() {
             public void configure() {
                 // START SNIPPET: example
-                from("direct:start").resequence(header("seqnum")).stream().to("mock:result");
+                from("direct:start").resequence(header("seqnum")).stream().timeout(100).deliveryAttemptInterval(10).to("mock:result");
                 // END SNIPPET: example
             }
         };
     }
 
+    @Test
     public void testStreamResequencerTypeWithJmx() throws Exception {
         doTestStreamResequencerType();
     }
 
+    @Test
     public void testStreamResequencerTypeWithoutJmx() throws Exception {
         doTestStreamResequencerType();
     }

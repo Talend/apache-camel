@@ -43,7 +43,7 @@ do
 
   if [ $found -eq 0 ]
   then
-    if [ $testname == "$1" ]
+    if [ $testname = "$1" ]
     then
      found=1
     fi 
@@ -54,7 +54,7 @@ do
     echo "*******************************************************************"
     echo "Running test $testname"
     echo "*******************************************************************"
-    if mvn test -Dtest=$testname ; then
+    if ../../mvnw clean test -Dtest=$testname ; then
       echo "\n"
       echo "*******************************************************************"
       echo "Test success: $testname"

@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 package org.apache.camel.issues;
-
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  *
@@ -27,12 +28,14 @@ import org.apache.camel.builder.RouteBuilder;
 public class RecipientListUseOriginalMessageEndpointExceptionIssueTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/inbox");
         deleteDirectory("target/outbox");
         super.setUp();
     }
 
+    @Test
     public void testRecipientListUseOriginalMessageIssue() throws Exception {
         getMockEndpoint("mock:throwException").whenAnyExchangeReceived(new Processor() {
             @Override
@@ -58,7 +61,7 @@ public class RecipientListUseOriginalMessageEndpointExceptionIssueTest extends C
                     .to("file://target/outbox")
                     .to("mock:error");
 
-                from("file://target/inbox")
+                from("file://target/inbox?initialDelay=0&delay=10")
                     .transform(constant("B"))
                     .setHeader("path", constant("mock:throwException"))
                     // must enable share uow to let the onException use

@@ -22,6 +22,7 @@ import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.JndiRegistry;
+import org.junit.Test;
 
 /**
  * @version 
@@ -37,11 +38,12 @@ public class RecipientListParallelFineGrainedErrorHandlingTest extends ContextTe
         return jndi;
     }
 
+    @Test
     public void testRecipientListOk() throws Exception {
         context.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                onException(Exception.class).maximumRedeliveries(2);
+                onException(Exception.class).redeliveryDelay(0).maximumRedeliveries(2);
 
                 from("direct:start")
                     .to("mock:a")
@@ -60,13 +62,14 @@ public class RecipientListParallelFineGrainedErrorHandlingTest extends ContextTe
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testRecipientListError() throws Exception {
         counter = 0;
 
         context.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                onException(Exception.class).maximumRedeliveries(2);
+                onException(Exception.class).redeliveryDelay(0).maximumRedeliveries(2);
 
                 from("direct:start")
                     .to("mock:a")
@@ -93,6 +96,7 @@ public class RecipientListParallelFineGrainedErrorHandlingTest extends ContextTe
         assertEquals(3, counter);
     }
 
+    @Test
     public void testRecipientListAsBeanError() throws Exception {
         counter = 0;
 
@@ -101,7 +105,7 @@ public class RecipientListParallelFineGrainedErrorHandlingTest extends ContextTe
             public void configure() throws Exception {
                 context.setTracing(true);
 
-                onException(Exception.class).maximumRedeliveries(2);
+                onException(Exception.class).redeliveryDelay(0).maximumRedeliveries(2);
 
                 from("direct:start")
                     .to("mock:a")

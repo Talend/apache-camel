@@ -19,6 +19,7 @@ package org.apache.camel.model;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -54,7 +55,7 @@ public class PropertiesDefinition {
     }
     
     public Map<String, String> asMap() {
-        Map<String, String> propertiesAsMap = new HashMap<String, String>();
+        Map<String, String> propertiesAsMap = new HashMap<>();
         for (PropertyDefinition propertyType : getProperties()) {
             propertiesAsMap.put(propertyType.getKey(), propertyType.getValue());
         }

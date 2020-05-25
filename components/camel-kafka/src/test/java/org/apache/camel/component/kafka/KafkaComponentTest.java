@@ -25,10 +25,14 @@ import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.config.SslConfigs;
+import org.apache.camel.util.jsse.KeyStoreParameters;
+import org.apache.camel.util.jsse.SSLContextParameters;
+import org.apache.camel.util.jsse.TrustManagersParameters;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class KafkaComponentTest {
 
@@ -60,7 +64,7 @@ public class KafkaComponentTest {
 
     @Test
     public void testAllProducerConfigProperty() throws Exception {
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         setProducerProperty(params);
 
         String uri = "kafka:mytopic?brokers=dev1:12345,dev2:12566";
@@ -83,6 +87,7 @@ public class KafkaComponentTest {
         assertEquals(new Integer(1029), endpoint.getConfiguration().getMetadataMaxAgeMs());
         assertEquals(new Integer(23), endpoint.getConfiguration().getReceiveBufferBytes());
         assertEquals(new Integer(234), endpoint.getConfiguration().getReconnectBackoffMs());
+        assertEquals(new Integer(234), endpoint.getConfiguration().getReconnectBackoffMaxMs());
         assertEquals(new Integer(0), endpoint.getConfiguration().getRetries());
         assertEquals(3782, endpoint.getConfiguration().getRetryBackoffMs().intValue());
         assertEquals(765, endpoint.getConfiguration().getSendBufferBytes().intValue());
@@ -116,7 +121,7 @@ public class KafkaComponentTest {
 
     @Test
     public void testAllProducerKeys() throws Exception {
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
 
         String uri = "kafka:mytopic?brokers=dev1:12345,dev2:12566";
         String remaining = "mytopic";
@@ -146,9 +151,11 @@ public class KafkaComponentTest {
         props.put(ProducerConfig.METRICS_NUM_SAMPLES_CONFIG, "2");
         props.put(ProducerConfig.METRICS_SAMPLE_WINDOW_MS_CONFIG, "30000");
         props.put(ProducerConfig.RECONNECT_BACKOFF_MS_CONFIG, "50");
+        props.put(ProducerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, "1000");
         props.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, "100");
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaConstants.KAFKA_DEFAULT_SERIALIZER);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaConstants.KAFKA_DEFAULT_SERIALIZER);
+        props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "false");
         props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "PLAINTEXT");
         props.put(SslConfigs.SSL_ENABLED_PROTOCOLS_CONFIG, "TLSv1.2, TLSv1.1, TLSv1");
         props.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, "JKS");
@@ -184,6 +191,7 @@ public class KafkaComponentTest {
         params.put("metadataFetchTimeoutMs", 9043);
         params.put("metadataMaxAgeMs", 1029);
         params.put("reconnectBackoffMs", 234);
+        params.put("reconnectBackoffMaxMs", 234);
         params.put("retryBackoffMs", 3782);
         params.put("noOfMetricsSample", 3);
         params.put("metricReporters", "org.apache.camel.reporters.TestReport,org.apache.camel.reporters.SampleReport");
@@ -211,5 +219,45 @@ public class KafkaComponentTest {
         params.put("sslKeymanagerAlgorithm", "SunX509");
         params.put("sslTrustmanagerAlgorithm", "PKIX");
     }
+
+    @Test
+    public void testCreateProducerConfigTruststorePassword() throws Exception {
+        KeyStoreParameters keyStoreParameters = new KeyStoreParameters();
+        keyStoreParameters.setPassword("my-password");
     
+        TrustManagersParameters trustManagersParameters = new TrustManagersParameters();
+        trustManagersParameters.setKeyStore(keyStoreParameters);
+    
+        SSLContextParameters sslContextParameters = new SSLContextParameters();
+        sslContextParameters.setTrustManagers(trustManagersParameters);
+
+        KafkaConfiguration kcfg = new KafkaConfiguration();
+        kcfg.setSslContextParameters(sslContextParameters);
+
+        Properties props = kcfg.createProducerProperties();
+    
+        assertEquals("my-password", props.getProperty("ssl.truststore.password"));
+        assertNull(props.getProperty("ssl.keystore.password"));
+    }
+
+    @Test
+    public void testCreateConsumerConfigTruststorePassword() throws Exception {
+        KeyStoreParameters keyStoreParameters = new KeyStoreParameters();
+        keyStoreParameters.setPassword("my-password");
+    
+        TrustManagersParameters trustManagersParameters = new TrustManagersParameters();
+        trustManagersParameters.setKeyStore(keyStoreParameters);
+    
+        SSLContextParameters sslContextParameters = new SSLContextParameters();
+        sslContextParameters.setTrustManagers(trustManagersParameters);
+
+        KafkaConfiguration kcfg = new KafkaConfiguration();
+        kcfg.setSslContextParameters(sslContextParameters);
+
+        Properties props = kcfg.createConsumerProperties();
+    
+        assertEquals("my-password", props.getProperty("ssl.truststore.password"));
+        assertNull(props.getProperty("ssl.keystore.password"));
+    }
+
 }

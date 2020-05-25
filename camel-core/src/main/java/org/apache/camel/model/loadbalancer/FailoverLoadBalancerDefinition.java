@@ -18,6 +18,7 @@ package org.apache.camel.model.loadbalancer;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -45,9 +46,9 @@ import org.apache.camel.util.ObjectHelper;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class FailoverLoadBalancerDefinition extends LoadBalancerDefinition {
     @XmlTransient
-    private List<Class<?>> exceptionTypes = new ArrayList<Class<?>>();
+    private List<Class<?>> exceptionTypes = new ArrayList<>();
     @XmlElement(name = "exception")
-    private List<String> exceptions = new ArrayList<String>();
+    private List<String> exceptions = new ArrayList<>();
     @XmlAttribute
     private Boolean roundRobin;
     @XmlAttribute
@@ -62,7 +63,7 @@ public class FailoverLoadBalancerDefinition extends LoadBalancerDefinition {
     protected LoadBalancer createLoadBalancer(RouteContext routeContext) {
         FailOverLoadBalancer answer;
 
-        List<Class<?>> classes = new ArrayList<Class<?>>();
+        List<Class<?>> classes = new ArrayList<>();
         if (!exceptionTypes.isEmpty()) {
             classes.addAll(exceptionTypes);
         } else if (!exceptions.isEmpty()) {

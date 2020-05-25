@@ -23,6 +23,7 @@ import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Predicate;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Test;
 
 /**
  * @version 
@@ -33,7 +34,7 @@ public class CBRCustomPredicateAsFilterTest extends ContextTestSupport {
 
     private static class MyFiler implements Predicate {
 
-        private List<String> bodies = new ArrayList<String>();
+        private List<String> bodies = new ArrayList<>();
 
         public boolean matches(Exchange exchange) {
             String body = exchange.getIn().getBody(String.class);
@@ -47,6 +48,7 @@ public class CBRCustomPredicateAsFilterTest extends ContextTestSupport {
         }
     }
 
+    @Test
     public void testCBRCustomPredicateAsFilter() throws Exception {
         getMockEndpoint("mock:good").expectedBodiesReceived("Hello World", "Bye World");
         getMockEndpoint("mock:secret").expectedBodiesReceived("secret");

@@ -20,12 +20,14 @@ import org.apache.camel.ContextTestSupport;
 import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class TimerAndErrorHandlerIssueTest extends ContextTestSupport {
 
+    @Test
     public void testTimerAndErrorHandler() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMinimumMessageCount(2);
@@ -45,7 +47,8 @@ public class TimerAndErrorHandlerIssueTest extends ContextTestSupport {
                 String executionTriggerUri = "timer:executionTimer"
                         + "?fixedRate=true"
                         + "&daemon=true"
-                        + "&period=500";
+                        + "&delay=0"
+                        + "&period=10";
 
                 from(executionTriggerUri).to("mock:result");
             }

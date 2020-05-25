@@ -18,11 +18,11 @@
 
 -->
 <!DOCTYPE module PUBLIC
-    "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
-    "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+    "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
+    "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
 
 <!--
-Checks to make sure the code meets the ActiveMQ coding guidelines which
+Checks to make sure the code meets the Camel coding guidelines which
 
 It also enforces a bunch of other "BestPractices like method
 lengths, if/try depths, etc...
@@ -340,5 +340,4 @@ lengths, if/try depths, etc...
         </module>
         <!--<module name="RequiredRegexp">-->
     </module>
-	<module name="SuppressionCommentFilter"/>
 </module>

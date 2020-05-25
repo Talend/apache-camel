@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 
 import junit.framework.TestCase;
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.Channel;
 import org.apache.camel.Endpoint;
@@ -52,7 +53,7 @@ import org.slf4j.LoggerFactory;
  */
 @Deprecated
 public abstract class TestSupport extends TestCase {
-    protected static final String LS = System.getProperty("line.separator");
+    protected static final String LS = System.lineSeparator();
     private static final Logger LOG = LoggerFactory.getLogger(TestSupport.class);
     protected Logger log = LoggerFactory.getLogger(getClass());
     

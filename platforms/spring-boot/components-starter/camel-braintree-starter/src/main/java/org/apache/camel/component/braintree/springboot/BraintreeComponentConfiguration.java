@@ -35,6 +35,11 @@ public class BraintreeComponentConfiguration
             ComponentConfigurationPropertiesCommon {
 
     /**
+     * Whether to enable auto configuration of the braintree component. This is
+     * enabled by default.
+     */
+    private Boolean enabled;
+    /**
      * To use the shared configuration
      */
     private BraintreeConfigurationNestedConfiguration configuration;
@@ -90,6 +95,12 @@ public class BraintreeComponentConfiguration
          */
         private String privateKey;
         /**
+         * The access token granted by a merchant to another in order to process
+         * transactions on their behalf. Used in place of environment, merchant
+         * id, public key and private key fields.
+         */
+        private String accessToken;
+        /**
          * The proxy host
          */
         private String proxyHost;
@@ -98,7 +109,7 @@ public class BraintreeComponentConfiguration
          */
         private Integer proxyPort;
         /**
-         * Set logging level for http calls, @see java.util.logging.Level
+         * Set logging level for http calls, see java.util.logging.Level
          */
         private Level httpLogLevel;
         /**
@@ -156,6 +167,14 @@ public class BraintreeComponentConfiguration
 
         public void setPrivateKey(String privateKey) {
             this.privateKey = privateKey;
+        }
+
+        public String getAccessToken() {
+            return accessToken;
+        }
+
+        public void setAccessToken(String accessToken) {
+            this.accessToken = accessToken;
         }
 
         public String getProxyHost() {

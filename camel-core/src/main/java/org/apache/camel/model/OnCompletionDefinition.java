@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -63,14 +64,14 @@ public class OnCompletionDefinition extends ProcessorDefinition<OnCompletionDefi
     @XmlAttribute(name = "useOriginalMessage")
     private Boolean useOriginalMessagePolicy;
     @XmlElementRef
-    private List<ProcessorDefinition<?>> outputs = new ArrayList<ProcessorDefinition<?>>();
+    private List<ProcessorDefinition<?>> outputs = new ArrayList<>();
     @XmlTransient
     private ExecutorService executorService;
     @XmlTransient
     private Boolean routeScoped;
     // TODO: in Camel 3.0 the OnCompletionDefinition should not contain state and OnCompletion processors
     @XmlTransient
-    private final Map<String, Processor> onCompletions = new HashMap<String, Processor>();
+    private final Map<String, Processor> onCompletions = new HashMap<>();
 
     public OnCompletionDefinition() {
     }
@@ -91,6 +92,11 @@ public class OnCompletionDefinition extends ProcessorDefinition<OnCompletionDefi
     @Override
     public String toString() {
         return "onCompletion[" + getOutputs() + "]";
+    }
+
+    @Override
+    public String getShortName() {
+        return "onCompletion";
     }
 
     @Override

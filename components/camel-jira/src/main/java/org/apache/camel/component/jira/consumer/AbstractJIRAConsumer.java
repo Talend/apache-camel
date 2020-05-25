@@ -53,7 +53,7 @@ public abstract class AbstractJIRAConsumer extends ScheduledPollConsumer {
         Registry registry = endpoint.getCamelContext().getRegistry();
         Object target = registry.lookupByName("JerseyJiraRestClientFactory");
         if (target != null) {
-            LOG.debug("JerseyJiraRestClientFactory found in registry " + target.getClass().getCanonicalName());
+            LOG.debug("JerseyJiraRestClientFactory found in registry {}", target.getClass().getCanonicalName());
             factory = (JerseyJiraRestClientFactory) target;
         } else {
             factory = new JerseyJiraRestClientFactory();
@@ -73,7 +73,7 @@ public abstract class AbstractJIRAConsumer extends ScheduledPollConsumer {
     protected List<BasicIssue> getIssues(String jql, int start, int maxResults, int maxPerQuery) {
         LOG.info("Indexing current JIRA issues...");
 
-        List<BasicIssue> issues = new ArrayList<BasicIssue>();
+        List<BasicIssue> issues = new ArrayList<>();
         while (true) {
             SearchRestClient searchRestClient = client.getSearchClient();
             SearchResult searchResult = searchRestClient.searchJqlWithFullIssues(jql, maxPerQuery, start, null);

@@ -29,12 +29,14 @@ import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.impl.DefaultAttachment;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class ExpressionClauseTest extends ContextTestSupport {
 
+    @Test
     public void testConstant() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
@@ -45,6 +47,7 @@ public class ExpressionClauseTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testAttachments() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(2);
@@ -83,7 +86,7 @@ public class ExpressionClauseTest extends ContextTestSupport {
     public final class Extractor {
         public String extractName(DataHandler body) {
             DataSource ds = (body != null) ? body.getDataSource() : null;
-            if (ds != null && ds instanceof FileDataSource) {
+            if (ds instanceof FileDataSource) {
                 return ((FileDataSource)ds).getName();
             }
             return null;

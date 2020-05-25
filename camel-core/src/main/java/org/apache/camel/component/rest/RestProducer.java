@@ -21,6 +21,7 @@ import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
@@ -200,15 +201,16 @@ public class RestProducer extends DefaultAsyncProducer {
             // HTTP_PATH header will be present, we remove it here
             // as the REST_HTTP_URI contains the full URI for the
             // request and every other HTTP producer will concatenate
-            // REST_HTTP_URI with HTTP_PATH resulting in incorrect
-            // URIs
+            // REST_HTTP_URI with HTTP_PATH resulting in incorrect URIs
             inMessage.removeHeader(Exchange.HTTP_PATH);
         }
 
         // method
         String method = getEndpoint().getMethod();
         if (method != null) {
-            inMessage.setHeader(Exchange.HTTP_METHOD, method);
+            // the method should be in upper case 
+            String upper = method.toUpperCase(Locale.US);
+            inMessage.setHeader(Exchange.HTTP_METHOD, upper);
         }
 
         final String produces = getEndpoint().getProduces();
@@ -354,7 +356,7 @@ public class RestProducer extends DefaultAsyncProducer {
                                             DataFormat dataFormat, String prefix) throws Exception {
         if (config.getDataFormatProperties() != null && !config.getDataFormatProperties().isEmpty()) {
             // must use a copy as otherwise the options gets removed during introspection setProperties
-            Map<String, Object> copy = new HashMap<String, Object>();
+            Map<String, Object> copy = new HashMap<>();
 
             // filter keys on prefix
             // - either its a known prefix and must match the prefix parameter
@@ -404,7 +406,7 @@ public class RestProducer extends DefaultAsyncProducer {
                         }
                         String value = inMessage.getHeader(key, String.class);
                         if (value != null) {
-                            params.put(key, value);
+                            params.put(entry.getKey(), value);
                         } else if (!optional) {
                             // value is null and parameter is not optional
                             params.put(entry.getKey(), entry.getValue());

@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.box.sdk.BoxAPIConnection;
-import com.box.sdk.BoxFile;
 import com.box.sdk.BoxFolder;
 import com.box.sdk.BoxTask;
 import com.box.sdk.BoxTask.Action;
@@ -62,7 +61,7 @@ public class BoxTasksManagerIntegrationTest extends AbstractBoxTestSupport {
     public void testAddAssignmentToTask() throws Exception {
         com.box.sdk.BoxTask result = null;
 
-        final Map<String, Object> headers = new HashMap<String, Object>();
+        final Map<String, Object> headers = new HashMap<>();
         // parameter type is String
         headers.put("CamelBox.taskId", testTask.getID());
         // parameter type is com.box.sdk.BoxUser
@@ -79,7 +78,7 @@ public class BoxTasksManagerIntegrationTest extends AbstractBoxTestSupport {
         com.box.sdk.BoxTask result = null;
 
         try {
-            final Map<String, Object> headers = new HashMap<String, Object>();
+            final Map<String, Object> headers = new HashMap<>();
             // parameter type is String
             headers.put("CamelBox.fileId", testFile.getID());
             // parameter type is com.box.sdk.BoxTask.Action
@@ -184,7 +183,7 @@ public class BoxTasksManagerIntegrationTest extends AbstractBoxTestSupport {
     public void testUpdateTaskInfo() throws Exception {
         BoxTask.Info info = testTask.getInfo();
 
-        final Map<String, Object> headers = new HashMap<String, Object>();
+        final Map<String, Object> headers = new HashMap<>();
         // parameter type is String
         headers.put("CamelBox.taskId", testTask.getID());
         // parameter type is com.box.sdk.BoxTask.Info
@@ -253,7 +252,7 @@ public class BoxTasksManagerIntegrationTest extends AbstractBoxTestSupport {
     private void createTestTask() {
         Date now = new Date();
         Date dueAt = new Date(now.getTime() + TEN_MINUTES_IN_MILLIS);
-        testTask = (BoxTask) testFile.addTask(Action.REVIEW, CAMEL_TEST_MESSAGE, dueAt).getResource();
+        testTask = testFile.addTask(Action.REVIEW, CAMEL_TEST_MESSAGE, dueAt).getResource();
     }
 
     private void deleteTestTask() {

@@ -29,6 +29,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
@@ -137,10 +138,15 @@ public class ManagedCamelContext extends ManagedPerformanceCounter implements Ti
 
     public String getApplicationContextClassName() {
         if (context.getApplicationContextClassLoader() != null) {
-            return context.getApplicationContextClassLoader().toString();
+            return context.getApplicationContextClassLoader().getClass().getName();
         } else {
             return null;
         }
+    }
+
+    @Override
+    public String getHeadersMapFactoryClassName() {
+        return context.getHeadersMapFactory().getClass().getName();
     }
 
     @Deprecated
@@ -276,6 +282,10 @@ public class ManagedCamelContext extends ManagedPerformanceCounter implements Ti
         return context.isUseMDCLogging();
     }
 
+    public boolean isUseDataType() {
+        return context.isUseDataType();
+    }
+
     public void onTimer() {
         load.update(getInflightExchanges());
     }
@@ -394,7 +404,7 @@ public class ManagedCamelContext extends ManagedPerformanceCounter implements Ti
         // if resolving placeholders we parse the xml, and resolve the property placeholders during parsing
         if (resolvePlaceholders) {
             final AtomicBoolean changed = new AtomicBoolean();
-            InputStream is = new ByteArrayInputStream(xml.getBytes());
+            InputStream is = new ByteArrayInputStream(xml.getBytes("UTF-8"));
             Document dom = XmlLineNumberParser.parseXml(is, new XmlLineNumberParser.XmlTextTransformer() {
                 @Override
                 public String transform(String text) {
@@ -440,7 +450,7 @@ public class ManagedCamelContext extends ManagedPerformanceCounter implements Ti
         // if resolving placeholders we parse the xml, and resolve the property placeholders during parsing
         if (resolvePlaceholders) {
             final AtomicBoolean changed = new AtomicBoolean();
-            InputStream is = new ByteArrayInputStream(xml.getBytes());
+            InputStream is = new ByteArrayInputStream(xml.getBytes("UTF-8"));
             Document dom = XmlLineNumberParser.parseXml(is, new XmlLineNumberParser.XmlTextTransformer() {
                 @Override
                 public String transform(String text) {
@@ -510,7 +520,7 @@ public class ManagedCamelContext extends ManagedPerformanceCounter implements Ti
             ObjectName query = ObjectName.getInstance(jmxDomain + ":context=" + prefix + getContext().getManagementName() + ",type=routes,*");
             Set<ObjectName> routes = server.queryNames(query, null);
 
-            List<ManagedProcessorMBean> processors = new ArrayList<ManagedProcessorMBean>();
+            List<ManagedProcessorMBean> processors = new ArrayList<>();
             if (includeProcessors) {
                 // gather all the processors for this CamelContext, which requires JMX
                 query = ObjectName.getInstance(jmxDomain + ":context=" + prefix + getContext().getManagementName() + ",type=processors,*");
@@ -609,7 +619,7 @@ public class ManagedCamelContext extends ManagedPerformanceCounter implements Ti
 
     public List<String> findEipNames() throws Exception {
         Map<String, Properties> map = findEips();
-        return new ArrayList<String>(map.keySet());
+        return new ArrayList<>(map.keySet());
     }
 
     public TabularData listEips() throws Exception {
@@ -665,7 +675,7 @@ public class ManagedCamelContext extends ManagedPerformanceCounter implements Ti
 
     public List<String> findComponentNames() throws Exception {
         Map<String, Properties> map = findComponents();
-        return new ArrayList<String>(map.keySet());
+        return new ArrayList<>(map.keySet());
     }
 
     @Override
@@ -746,7 +756,7 @@ public class ManagedCamelContext extends ManagedPerformanceCounter implements Ti
             configuration.setParameters(endpointParameters);
             return configuration.completeEndpointPath(completionText);
         } else {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
     }
 

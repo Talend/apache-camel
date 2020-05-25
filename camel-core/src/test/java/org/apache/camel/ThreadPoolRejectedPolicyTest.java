@@ -26,18 +26,20 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.camel.util.concurrent.RejectableThreadPoolExecutor;
+import org.junit.Test;
 
 public class ThreadPoolRejectedPolicyTest extends TestSupport {
 
+    @Test
     public void testAbortAsRejectedExecutionHandler() throws InterruptedException {
 
         final ExecutorService executorService = createTestExecutorService(ThreadPoolRejectedPolicy.Abort.asRejectedExecutionHandler());
 
-        final MockCallable<String> task1 = new MockCallable<String>();
+        final MockCallable<String> task1 = new MockCallable<>();
         final Future<?> result1 = executorService.submit(task1);
         final MockRunnable task2 = new MockRunnable();
         final Future<?> result2 = executorService.submit(task2);
-        final MockCallable<String> task3 = new MockCallable<String>();
+        final MockCallable<String> task3 = new MockCallable<>();
         try {
             executorService.submit(task3);
             fail("Third task should have been rejected by a threadpool is full with 1 task and queue is full with 1 task.");
@@ -51,18 +53,19 @@ public class ThreadPoolRejectedPolicyTest extends TestSupport {
         assertRejected(task3, null);
     }
 
+    @Test
     public void testAbortAsRejectedExecutionHandlerWithRejectableTasks() throws InterruptedException {
 
         final ExecutorService executorService = createTestExecutorService(ThreadPoolRejectedPolicy.Abort.asRejectedExecutionHandler());
 
         final MockRejectableRunnable task1 = new MockRejectableRunnable();
         final Future<?> result1 = executorService.submit(task1);
-        final MockRejectableCallable<String> task2 = new MockRejectableCallable<String>();
+        final MockRejectableCallable<String> task2 = new MockRejectableCallable<>();
         final Future<?> result2 = executorService.submit(task2);
         final MockRejectableRunnable task3 = new MockRejectableRunnable();
         final Future<?> result3 = executorService.submit(task3);
 
-        final MockRejectableCallable<String> task4 = new MockRejectableCallable<String>();
+        final MockRejectableCallable<String> task4 = new MockRejectableCallable<>();
         final Future<?> result4 = executorService.submit(task4);
 
         shutdownAndAwait(executorService);
@@ -73,6 +76,7 @@ public class ThreadPoolRejectedPolicyTest extends TestSupport {
         assertRejected(task4, result4);
     }
 
+    @Test
     public void testCallerRunsAsRejectedExecutionHandler() throws InterruptedException {
 
         final ExecutorService executorService = createTestExecutorService(ThreadPoolRejectedPolicy.CallerRuns.asRejectedExecutionHandler());
@@ -91,6 +95,7 @@ public class ThreadPoolRejectedPolicyTest extends TestSupport {
         assertInvoked(task3, result3);
     }
 
+    @Test
     public void testCallerRunsAsRejectedExecutionHandlerWithRejectableTasks() throws InterruptedException {
 
         final ExecutorService executorService = createTestExecutorService(ThreadPoolRejectedPolicy.CallerRuns.asRejectedExecutionHandler());
@@ -109,6 +114,7 @@ public class ThreadPoolRejectedPolicyTest extends TestSupport {
         assertInvoked(task3, result3);
     }
 
+    @Test
     public void testDiscardAsRejectedExecutionHandler() throws InterruptedException {
 
         final ExecutorService executorService = createTestExecutorService(ThreadPoolRejectedPolicy.Discard.asRejectedExecutionHandler());
@@ -127,6 +133,7 @@ public class ThreadPoolRejectedPolicyTest extends TestSupport {
         assertRejected(task3, result3);
     }
 
+    @Test
     public void testDiscardAsRejectedExecutionHandlerWithRejectableTasks() throws InterruptedException {
 
         final ExecutorService executorService = createTestExecutorService(ThreadPoolRejectedPolicy.Discard.asRejectedExecutionHandler());
@@ -145,6 +152,7 @@ public class ThreadPoolRejectedPolicyTest extends TestSupport {
         assertRejected(task3, result3);
     }
 
+    @Test
     public void testDiscardOldestAsRejectedExecutionHandler() throws InterruptedException {
 
         final ExecutorService executorService = createTestExecutorService(ThreadPoolRejectedPolicy.DiscardOldest.asRejectedExecutionHandler());
@@ -163,6 +171,7 @@ public class ThreadPoolRejectedPolicyTest extends TestSupport {
         assertInvoked(task3, result3);
     }
 
+    @Test
     public void testDiscardOldestAsRejectedExecutionHandlerWithRejectableTasks() throws InterruptedException {
 
         final ExecutorService executorService = createTestExecutorService(ThreadPoolRejectedPolicy.DiscardOldest.asRejectedExecutionHandler());

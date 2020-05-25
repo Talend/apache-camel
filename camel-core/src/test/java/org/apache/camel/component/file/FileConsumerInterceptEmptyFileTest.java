@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit test for empty files
@@ -27,11 +28,13 @@ import org.apache.camel.component.mock.MockEndpoint;
 public class FileConsumerInterceptEmptyFileTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/exclude");
         super.setUp();
     }
 
+    @Test
     public void testExcludeZeroLengthFiles() throws Exception {
         MockEndpoint mock1 = getMockEndpoint("mock:result");
         mock1.expectedBodiesReceivedInAnyOrder("Hello World", "Bye World");
@@ -57,7 +60,7 @@ public class FileConsumerInterceptEmptyFileTest extends ContextTestSupport {
             public void configure() throws Exception {
                 interceptFrom().when(simple("${file:length} == 0")).to("mock:skip").stop();
 
-                from("file://target/exclude/")
+                from("file://target/exclude/?initialDelay=10&delay=10")
                     .convertBodyTo(String.class).to("log:test").to("mock:result");
             }
         };

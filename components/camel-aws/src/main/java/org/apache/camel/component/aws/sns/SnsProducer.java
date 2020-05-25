@@ -17,6 +17,7 @@
 package org.apache.camel.component.aws.sns;
 
 import java.nio.ByteBuffer;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -87,14 +88,14 @@ public class SnsProducer extends DefaultProducer {
         return structure;
     }
 
-    private Map<String, MessageAttributeValue> translateAttributes(Map<String, Object> headers, Exchange exchange) {
-        Map<String, MessageAttributeValue> result = new HashMap<String, MessageAttributeValue>();
+    Map<String, MessageAttributeValue> translateAttributes(Map<String, Object> headers, Exchange exchange) {
+        Map<String, MessageAttributeValue> result = new HashMap<>();
         HeaderFilterStrategy headerFilterStrategy = getEndpoint().getHeaderFilterStrategy();
         for (Entry<String, Object> entry : headers.entrySet()) {
             // only put the message header which is not filtered into the message attribute
             if (!headerFilterStrategy.applyFilterToCamelHeaders(entry.getKey(), entry.getValue(), exchange)) {
                 Object value = entry.getValue();
-                if (value instanceof String) {
+                if (value instanceof String && !((String)value).isEmpty()) {
                     MessageAttributeValue mav = new MessageAttributeValue();
                     mav.setDataType("String");
                     mav.withStringValue((String)value);
@@ -103,6 +104,11 @@ public class SnsProducer extends DefaultProducer {
                     MessageAttributeValue mav = new MessageAttributeValue();
                     mav.setDataType("Binary");
                     mav.withBinaryValue((ByteBuffer)value);
+                    result.put(entry.getKey(), mav);
+                } else if (value instanceof Date) {
+                    MessageAttributeValue mav = new MessageAttributeValue();
+                    mav.setDataType("String");
+                    mav.withStringValue(value.toString());
                     result.put(entry.getKey(), mav);
                 } else {
                     // cannot translate the message header to message attribute value

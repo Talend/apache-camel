@@ -155,7 +155,7 @@ public class NotificationXmlFormatter extends ServiceSupport {
     }
 
     private List<String> toStringList(List<ObjectName> objectNames) {
-        List<String> roles = new ArrayList<String>(objectNames.size());
+        List<String> roles = new ArrayList<>(objectNames.size());
         for (ObjectName on : objectNames) {
             roles.add(on.toString());
         }
@@ -171,7 +171,7 @@ public class NotificationXmlFormatter extends ServiceSupport {
             LOG.info("Creating JAXBContext with contextPath: " + contextPath + " and classloader: " + cl);
             return JAXBContext.newInstance(contextPath, cl);
         } catch (Exception e) {
-            LOG.info("Creating JAXBContext with contextPath: " + contextPath);
+            LOG.info("Creating JAXBContext with contextPath: {}", contextPath);
             return JAXBContext.newInstance(contextPath);
         }
     }

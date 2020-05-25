@@ -42,7 +42,7 @@ import org.apache.camel.spi.BrowsableEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.camel.util.ObjectHelper.after;
+import static org.apache.camel.util.StringHelper.after;
 
 /**
  * Some helper methods for working with {@link Endpoint} instances
@@ -130,14 +130,14 @@ public final class EndpointHelper {
         // we need to test with and without scheme separators (//)
         if (uri.contains("://")) {
             // try without :// also
-            String scheme = ObjectHelper.before(uri, "://");
+            String scheme = StringHelper.before(uri, "://");
             String path = after(uri, "://");
             if (matchPattern(scheme + ":" + path, pattern)) {
                 return true;
             }
         } else {
             // try with :// also
-            String scheme = ObjectHelper.before(uri, ":");
+            String scheme = StringHelper.before(uri, ":");
             String path = after(uri, ":");
             if (matchPattern(scheme + "://" + path, pattern)) {
                 return true;
@@ -321,9 +321,9 @@ public final class EndpointHelper {
     public static <T> T resolveReferenceParameter(CamelContext context, String value, Class<T> type, boolean mandatory) {
         String valueNoHash = StringHelper.replaceAll(value, "#", "");
         if (mandatory) {
-            return CamelContextHelper.mandatoryLookup(context, valueNoHash, type);
+            return CamelContextHelper.mandatoryLookupAndConvert(context, valueNoHash, type);
         } else {
-            return CamelContextHelper.lookup(context, valueNoHash, type);
+            return CamelContextHelper.lookupAndConvert(context, valueNoHash, type);
         }
     }
 
@@ -345,7 +345,7 @@ public final class EndpointHelper {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static <T> List<T> resolveReferenceListParameter(CamelContext context, String value, Class<T> elementType) {
         if (value == null) {
-            return new ArrayList<T>();
+            return new ArrayList<>();
         }
         List<String> elements = Arrays.asList(value.split(","));
         if (elements.size() == 1) {
@@ -355,12 +355,12 @@ public final class EndpointHelper {
                 return (List) bean;
             } else {
                 // The bean is a list element
-                List<T> singleElementList = new ArrayList<T>();
+                List<T> singleElementList = new ArrayList<>();
                 singleElementList.add(elementType.cast(bean));
                 return singleElementList;
             }
         } else { // more than one list element
-            List<T> result = new ArrayList<T>(elements.size());
+            List<T> result = new ArrayList<>(elements.size());
             for (String element : elements) {
                 result.add(resolveReferenceParameter(context, element.trim(), elementType));
             }

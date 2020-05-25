@@ -17,17 +17,17 @@
 package org.apache.camel.component.file;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Date;
@@ -37,10 +37,10 @@ import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.InvalidPayloadException;
 import org.apache.camel.WrappedFile;
-import org.apache.camel.converter.IOConverter;
 import org.apache.camel.util.FileUtil;
 import org.apache.camel.util.IOHelper;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,7 +115,7 @@ public class FileOperations implements GenericFileOperations<File> {
                 if (!subDir.exists()) {
                     if (subDir.mkdir()) {
                         if (LOG.isTraceEnabled()) {
-                            LOG.trace("Setting chmod: {} on directory: {} ", PosixFilePermissions.toString(permissions), subDir);
+                            LOG.trace("Setting chmod: {} on directory: {}", PosixFilePermissions.toString(permissions), subDir);
                         }
                         Files.setPosixFilePermissions(subDir.toPath(), permissions);
                     } else {
@@ -148,6 +148,9 @@ public class FileOperations implements GenericFileOperations<File> {
         File endpointPath = endpoint.getFile();
         File target = new File(directory);
 
+        // check if directory is a path
+        boolean isPath = directory.contains("/") || directory.contains("\\");
+
         File path;
         if (absolute) {
             // absolute path
@@ -155,16 +158,19 @@ public class FileOperations implements GenericFileOperations<File> {
         } else if (endpointPath.equals(target)) {
             // its just the root of the endpoint path
             path = endpointPath;
-        } else {
+        } else if (isPath) {
             // relative after the endpoint path
-            String afterRoot = ObjectHelper.after(directory, endpointPath.getPath() + File.separator);
+            String afterRoot = StringHelper.after(directory, endpointPath.getPath() + File.separator);
             if (ObjectHelper.isNotEmpty(afterRoot)) {
                 // dir is under the root path
                 path = new File(endpoint.getFile(), afterRoot);
             } else {
-                // dir is relative to the root path
-                path = new File(endpoint.getFile(), directory);
+                // dir path is relative to the root path
+                path = new File(directory);
             }
+        } else {
+            // dir is a child of the root path
+            path = new File(endpoint.getFile(), directory);
         }
 
         // We need to make sure that this is thread-safe and only one thread tries to create the path directory at the same time.
@@ -202,17 +208,17 @@ public class FileOperations implements GenericFileOperations<File> {
         return null;
     }
 
-    public boolean retrieveFile(String name, Exchange exchange) throws GenericFileOperationFailedException {
+    public boolean retrieveFile(String name, Exchange exchange, long size) throws GenericFileOperationFailedException {
         // noop as we use type converters to read the body content for java.io.File
         return true;
     }
     
     @Override
-    public void releaseRetreivedFileResources(Exchange exchange) throws GenericFileOperationFailedException {
+    public void releaseRetrievedFileResources(Exchange exchange) throws GenericFileOperationFailedException {
         // noop as we used type converters to read the body content for java.io.File
     }
 
-    public boolean storeFile(String fileName, Exchange exchange) throws GenericFileOperationFailedException {
+    public boolean storeFile(String fileName, Exchange exchange, long size) throws GenericFileOperationFailedException {
         ObjectHelper.notNull(endpoint, "endpoint");
 
         File file = new File(fileName);
@@ -227,7 +233,7 @@ public class FileOperations implements GenericFileOperations<File> {
                 throw new GenericFileOperationFailedException("File already exist: " + file + ". Cannot write new file.");
             } else if (endpoint.getFileExist() == GenericFileExist.Move) {
                 // move any existing file first
-                doMoveExistingFile(fileName);
+                this.endpoint.getMoveExistingFileStrategy().moveExistingFile(endpoint, this, fileName);
             }
         }
         
@@ -287,7 +293,7 @@ public class FileOperations implements GenericFileOperations<File> {
                             Set<PosixFilePermission> permissions = endpoint.getPermissions();
                             if (!permissions.isEmpty()) {
                                 if (LOG.isTraceEnabled()) {
-                                    LOG.trace("Setting chmod: {} on file: {} ", PosixFilePermissions.toString(permissions), file);
+                                    LOG.trace("Setting chmod: {} on file: {}", PosixFilePermissions.toString(permissions), file);
                                 }
                                 Files.setPosixFilePermissions(file.toPath(), permissions);
                             }
@@ -308,7 +314,7 @@ public class FileOperations implements GenericFileOperations<File> {
                         Set<PosixFilePermission> permissions = endpoint.getPermissions();
                         if (!permissions.isEmpty()) {
                             if (LOG.isTraceEnabled()) {
-                                LOG.trace("Setting chmod: {} on file: {} ", PosixFilePermissions.toString(permissions), file);
+                                LOG.trace("Setting chmod: {} on file: {}", PosixFilePermissions.toString(permissions), file);
                             }
                             Files.setPosixFilePermissions(file.toPath(), permissions);
                         }
@@ -341,7 +347,7 @@ public class FileOperations implements GenericFileOperations<File> {
                 Set<PosixFilePermission> permissions = endpoint.getPermissions();
                 if (!permissions.isEmpty()) {
                     if (LOG.isTraceEnabled()) {
-                        LOG.trace("Setting chmod: {} on file: {} ", PosixFilePermissions.toString(permissions), file);
+                        LOG.trace("Setting chmod: {} on file: {}", PosixFilePermissions.toString(permissions), file);
                     }
                     Files.setPosixFilePermissions(file.toPath(), permissions);
                 }
@@ -354,57 +360,7 @@ public class FileOperations implements GenericFileOperations<File> {
             throw new GenericFileOperationFailedException("Cannot store file: " + file, e);
         }
     }
-
-    /**
-     * Moves any existing file due fileExists=Move is in use.
-     */
-    private void doMoveExistingFile(String fileName) throws GenericFileOperationFailedException {
-        // need to evaluate using a dummy and simulate the file first, to have access to all the file attributes
-        // create a dummy exchange as Exchange is needed for expression evaluation
-        // we support only the following 3 tokens.
-        Exchange dummy = endpoint.createExchange();
-        String parent = FileUtil.onlyPath(fileName);
-        String onlyName = FileUtil.stripPath(fileName);
-        dummy.getIn().setHeader(Exchange.FILE_NAME, fileName);
-        dummy.getIn().setHeader(Exchange.FILE_NAME_ONLY, onlyName);
-        dummy.getIn().setHeader(Exchange.FILE_PARENT, parent);
-
-        String to = endpoint.getMoveExisting().evaluate(dummy, String.class);
-        // we must normalize it (to avoid having both \ and / in the name which confuses java.io.File)
-        to = FileUtil.normalizePath(to);
-        if (ObjectHelper.isEmpty(to)) {
-            throw new GenericFileOperationFailedException("moveExisting evaluated as empty String, cannot move existing file: " + fileName);
-        }
-
-        // ensure any paths is created before we rename as the renamed file may be in a different path (which may be non exiting)
-        // use java.io.File to compute the file path
-        File toFile = new File(to);
-        String directory = toFile.getParent();
-        boolean absolute = FileUtil.isAbsolute(toFile);
-        if (directory != null) {
-            if (!buildDirectory(directory, absolute)) {
-                LOG.debug("Cannot build directory [{}] (could be because of denied permissions)", directory);
-            }
-        }
-
-        // deal if there already exists a file
-        if (existsFile(to)) {
-            if (endpoint.isEagerDeleteTargetFile()) {
-                LOG.trace("Deleting existing file: {}", to);
-                if (!deleteFile(to)) {
-                    throw new GenericFileOperationFailedException("Cannot delete file: " + to);
-                }
-            } else {
-                throw new GenericFileOperationFailedException("Cannot moved existing file from: " + fileName + " to: " + to + " as there already exists a file: " + to);
-            }
-        }
-
-        LOG.trace("Moving existing file: {} to: {}", fileName, to);
-        if (!renameFile(fileName, to)) {
-            throw new GenericFileOperationFailedException("Cannot rename file from: " + fileName + " to: " + to);
-        }
-    }
-
+    
     private void keepLastModified(Exchange exchange, File file) {
         if (endpoint.isKeepLastModified()) {
             Long last;
@@ -418,7 +374,7 @@ public class FileOperations implements GenericFileOperations<File> {
             if (last != null) {
                 boolean result = file.setLastModified(last);
                 if (LOG.isTraceEnabled()) {
-                    LOG.trace("Keeping last modified timestamp: {} on file: {} with result: {}", new Object[]{last, file, result});
+                    LOG.trace("Keeping last modified timestamp: {} on file: {} with result: {}", last, file, result);
                 }
             }
         }
@@ -430,26 +386,12 @@ public class FileOperations implements GenericFileOperations<File> {
     }
 
     private void writeFileByFile(File source, File target) throws IOException {
-        FileChannel in = new FileInputStream(source).getChannel();
-        FileChannel out = null;
-        try {
-            out = prepareOutputFileChannel(target);
-            LOG.debug("Using FileChannel to write file: {}", target);
-            long size = in.size();
-            long position = 0;
-            while (position < size) {
-                position += in.transferTo(position, endpoint.getBufferSize(), out);
-            }
-        } finally {
-            IOHelper.close(in, source.getName(), LOG);
-            IOHelper.close(out, target.getName(), LOG, endpoint.isForceWrites());
-        }
+        Files.copy(source.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
     private void writeFileByStream(InputStream in, File target) throws IOException {
-        FileChannel out = null;
-        try {
-            out = prepareOutputFileChannel(target);
+        try (SeekableByteChannel out = prepareOutputFileChannel(target)) {
+            
             LOG.debug("Using InputStream to write file: {}", target);
             int size = endpoint.getBufferSize();
             byte[] buffer = new byte[size];
@@ -464,21 +406,20 @@ public class FileOperations implements GenericFileOperations<File> {
             }
         } finally {
             IOHelper.close(in, target.getName(), LOG);
-            IOHelper.close(out, target.getName(), LOG, endpoint.isForceWrites());
         }
     }
 
     private void writeFileByReaderWithCharset(Reader in, File target, String charset) throws IOException {
         boolean append = endpoint.getFileExist() == GenericFileExist.Append;
-        FileOutputStream os = new FileOutputStream(target, append);
-        Writer out = IOConverter.toWriter(os, charset);
-        try {
+        try (Writer out = Files.newBufferedWriter(target.toPath(), Charset.forName(charset), 
+                                                  StandardOpenOption.WRITE,
+                                                  append ? StandardOpenOption.APPEND : StandardOpenOption.TRUNCATE_EXISTING, 
+                                                  StandardOpenOption.CREATE)) {
             LOG.debug("Using Reader to write file: {} with charset: {}", target, charset);
             int size = endpoint.getBufferSize();
             IOHelper.copy(in, out, size);
         } finally {
             IOHelper.close(in, target.getName(), LOG);
-            IOHelper.close(out, os, target.getName(), LOG, endpoint.isForceWrites());
         }
     }
 
@@ -492,11 +433,8 @@ public class FileOperations implements GenericFileOperations<File> {
             FileUtil.createNewFile(target);
         } else if (endpoint.getFileExist() == GenericFileExist.Override) {
             LOG.debug("Truncating existing file: {}", target);
-            FileChannel out = new FileOutputStream(target).getChannel();
-            try {
-                out.truncate(0);
-            } finally {
-                IOHelper.close(out, target.getName(), LOG, endpoint.isForceWrites());
+            try (SeekableByteChannel out = Files.newByteChannel(target.toPath(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)) {
+                //nothing to write
             }
         }
     }
@@ -505,11 +443,11 @@ public class FileOperations implements GenericFileOperations<File> {
      * Creates and prepares the output file channel. Will position itself in correct position if the file is writable
      * eg. it should append or override any existing content.
      */
-    private FileChannel prepareOutputFileChannel(File target) throws IOException {
+    private SeekableByteChannel prepareOutputFileChannel(File target) throws IOException {
         if (endpoint.getFileExist() == GenericFileExist.Append) {
-            FileChannel out = new RandomAccessFile(target, "rw").getChannel();
+            SeekableByteChannel out = Files.newByteChannel(target.toPath(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
             return out.position(out.size());
         }
-        return new FileOutputStream(target).getChannel();
+        return Files.newByteChannel(target.toPath(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
     }
 }

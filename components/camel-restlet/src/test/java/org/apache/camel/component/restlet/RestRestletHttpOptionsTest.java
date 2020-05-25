@@ -19,32 +19,30 @@ package org.apache.camel.component.restlet;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * @version 
  */
-@Ignore("Not supported by camel-restlet yet")
 public class RestRestletHttpOptionsTest extends RestletTestSupport {
 
     @Test
     public void testRestletServerOptions() throws Exception {
-        Exchange exchange = template.request("http://localhost:" + portNum + "/users/v1/customers", new Processor() {
+        Exchange exchange = template.request("http4://localhost:" + portNum + "/users/v1/customers", new Processor() {
             @Override
             public void process(Exchange exchange) throws Exception {
                 exchange.getIn().setHeader(Exchange.HTTP_METHOD, "OPTIONS");
             }
         });
 
-        assertEquals(200, exchange.getOut().getHeader(Exchange.HTTP_RESPONSE_CODE));
-        assertEquals("OPTIONS,GET", exchange.getOut().getHeader("ALLOW"));
-        assertEquals("", exchange.getOut().getBody(String.class));
+        assertEquals(204, exchange.getOut().getHeader(Exchange.HTTP_RESPONSE_CODE));
+        assertEquals("GET, OPTIONS", exchange.getOut().getHeader("ALLOW"));
+        assertEquals(null, exchange.getOut().getBody(String.class));
 
-        exchange = fluentTemplate.to("http://localhost:" + portNum + "/users/v1/123").withHeader(Exchange.HTTP_METHOD, "OPTIONS").send();
-        assertEquals(200, exchange.getOut().getHeader(Exchange.HTTP_RESPONSE_CODE));
-        assertEquals("OPTIONS,PUT", exchange.getOut().getHeader("ALLOW"));
-        assertEquals("", exchange.getOut().getBody(String.class));
+        exchange = fluentTemplate.to("http4://localhost:" + portNum + "/users/v1/123").withHeader(Exchange.HTTP_METHOD, "OPTIONS").send();
+        assertEquals(204, exchange.getOut().getHeader(Exchange.HTTP_RESPONSE_CODE));
+        assertEquals("OPTIONS, PUT", exchange.getOut().getHeader("ALLOW"));
+        assertEquals(null, exchange.getOut().getBody(String.class));
     }
 
     @Override

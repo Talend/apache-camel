@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @version 
@@ -27,11 +28,13 @@ import org.apache.camel.component.mock.MockEndpoint;
 public class FileToFileNioLowBufferTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/nio");
         super.setUp();
     }
 
+    @Test
     public void testFileToFileNioLowBuffer() throws Exception {
         String body = "1234567890123456789012345678901234567890";
         MockEndpoint mock = getMockEndpoint("mock:result");
@@ -48,7 +51,8 @@ public class FileToFileNioLowBufferTest extends ContextTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("file://target/nio/in").convertBodyTo(String.class).to("file://target/nio/out?bufferSize=4").to("mock:result");
+                from("file://target/nio/in?initialDelay=0&delay=10")
+                    .convertBodyTo(String.class).to("file://target/nio/out?bufferSize=4").to("mock:result");
             }
         };
     }

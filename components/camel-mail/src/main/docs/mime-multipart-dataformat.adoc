@@ -1,4 +1,5 @@
-## MIME Multipart DataFormat
+[[mime-multipart-dataformat]]
+== MIME Multipart DataFormat
 
 *Available as of Camel version 2.17*
 
@@ -43,20 +44,20 @@ type and stream cache setting.
 ### Options
 
 // dataformat options: START
-The MIME Multipart dataformat supports 6 options which are listed below.
+The MIME Multipart dataformat supports 6 options, which are listed below.
 
 
 
 [width="100%",cols="2s,1m,1m,6",options="header"]
-|=======================================================================
+|===
 | Name | Default | Java Type | Description
 | multipartSubType | mixed | String | Specify the subtype of the MIME Multipart. Default is mixed.
 | multipartWithoutAttachment | false | Boolean | Defines whether a message without attachment is also marshaled into a MIME Multipart (with only one body part). Default is false.
 | headersInline | false | Boolean | Defines whether the MIME-Multipart headers are part of the message body (true) or are set as Camel headers (false). Default is false.
 | includeHeaders |  | String | A regex that defines which Camel headers are also included as MIME headers into the MIME multipart. This will only work if headersInline is set to true. Default is to include no headers
 | binaryContent | false | Boolean | Defines whether the content of binary parts in the MIME multipart is binary (true) or Base-64 encoded (false) Default is false.
-| contentTypeHeader | false | Boolean | Whether the data format should set the Content-Type header with the type from the data format if the data format is capable of doing so. For example application/xml for data formats marshalling to XML or application/json for data formats marshalling to JSon etc.
-|=======================================================================
+| contentTypeHeader | false | Boolean | Whether the data format should set the Content-Type header with the type from the data format if the data format is capable of doing so. For example application/xml for data formats marshalling to XML, or application/json for data formats marshalling to JSon etc.
+|===
 // dataformat options: END
 
 ### Message Headers (marshal)
@@ -115,7 +116,6 @@ Message with the following message Camel headers:
 
 *Camel Message Headers*
 
-[source,java]
 -------------------------------------------------------------------------------
 Content-Type=multipart/mixed; \n boundary="----=_Part_0_14180567.1447658227051"
 Message-Id=<...>
@@ -128,7 +128,6 @@ The message body will be:
 
 *Camel Message Body*
 
-[source,java]
 ----------------------------------------------------------------
 ------=_Part_0_14180567.1447658227051
 Content-Type: application/octet-stream
@@ -157,7 +156,6 @@ original message starting with "x-" and the header with name "included":
 
 *Camel Message Body*
 
-[source,java]
 ----------------------------------------------------------------
 Message-ID: <...>
 MIME-Version: 1.0

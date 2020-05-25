@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
@@ -68,7 +69,7 @@ public class XsltEndpoint extends ProcessorEndpoint {
     private String resourceUri;
     @UriParam(defaultValue = "true")
     private boolean contentCache = true;
-    @UriParam(label = "advanced")
+    @UriParam(label = "advanced") @Deprecated
     private XmlConverter converter;
     @UriParam(label = "advanced")
     private String transformerFactoryClass;
@@ -154,18 +155,28 @@ public class XsltEndpoint extends ProcessorEndpoint {
         this.xslt = xslt;
     }
 
-    @ManagedAttribute(description = "The name of the template to load from classpath or file system")
+    @ManagedAttribute(description = "Path to the template")
     public String getResourceUri() {
         return resourceUri;
     }
 
     /**
-     * The name of the template to load from classpath or file system
+     * Path to the template.
+     * <p/>
+     * The following is supported by the default URIResolver.
+     * You can prefix with: classpath, file, http, ref, or bean.
+     * classpath, file and http loads the resource using these protocols (classpath is default).
+     * ref will lookup the resource in the registry.
+     * bean will call a method on a bean to be used as the resource.
+     * For bean you can specify the method name after dot, eg bean:myBean.myMethod
+     *
+     * @param resourceUri  the resource path
      */
     public void setResourceUri(String resourceUri) {
         this.resourceUri = resourceUri;
     }
 
+    @Deprecated
     public XmlConverter getConverter() {
         return converter;
     }
@@ -173,6 +184,7 @@ public class XsltEndpoint extends ProcessorEndpoint {
     /**
      * To use a custom implementation of {@link org.apache.camel.converter.jaxp.XmlConverter}
      */
+    @Deprecated
     public void setConverter(XmlConverter converter) {
         this.converter = converter;
     }
@@ -407,7 +419,6 @@ public class XsltEndpoint extends ProcessorEndpoint {
         if (source == null) {
             throw new IOException("Cannot load schema resource " + resourceUri);
         } else {
-            source.setSystemId(resourceUri);
             xslt.setTransformerSource(source);
         }
         // now loaded so clear flag
@@ -470,7 +481,7 @@ public class XsltEndpoint extends ProcessorEndpoint {
 
         // any additional transformer parameters then make a copy to avoid side-effects
         if (parameters != null) {
-            Map<String, Object> copy = new HashMap<String, Object>(parameters);
+            Map<String, Object> copy = new HashMap<>(parameters);
             xslt.setParameters(copy);
         }
 

@@ -18,11 +18,8 @@ package org.apache.camel.component.xquery.springboot;
 
 import java.util.Map;
 import javax.annotation.Generated;
-import net.sf.saxon.Configuration;
-import net.sf.saxon.lib.ModuleURIResolver;
 import org.apache.camel.spring.boot.ComponentConfigurationPropertiesCommon;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 /**
  * Transforms the message using a XQuery template using Saxon.
@@ -36,15 +33,20 @@ public class XQueryComponentConfiguration
             ComponentConfigurationPropertiesCommon {
 
     /**
-     * To use the custom ModuleURIResolver
+     * Whether to enable auto configuration of the xquery component. This is
+     * enabled by default.
      */
-    @NestedConfigurationProperty
-    private ModuleURIResolver moduleURIResolver;
+    private Boolean enabled;
     /**
-     * To use a custom Saxon configuration
+     * To use the custom ModuleURIResolver. The option is a
+     * net.sf.saxon.lib.ModuleURIResolver type.
      */
-    @NestedConfigurationProperty
-    private Configuration configuration;
+    private String moduleURIResolver;
+    /**
+     * To use a custom Saxon configuration. The option is a
+     * net.sf.saxon.Configuration type.
+     */
+    private String configuration;
     /**
      * To set custom Saxon configuration properties
      */
@@ -56,19 +58,19 @@ public class XQueryComponentConfiguration
      */
     private Boolean resolvePropertyPlaceholders = true;
 
-    public ModuleURIResolver getModuleURIResolver() {
+    public String getModuleURIResolver() {
         return moduleURIResolver;
     }
 
-    public void setModuleURIResolver(ModuleURIResolver moduleURIResolver) {
+    public void setModuleURIResolver(String moduleURIResolver) {
         this.moduleURIResolver = moduleURIResolver;
     }
 
-    public Configuration getConfiguration() {
+    public String getConfiguration() {
         return configuration;
     }
 
-    public void setConfiguration(Configuration configuration) {
+    public void setConfiguration(String configuration) {
         this.configuration = configuration;
     }
 

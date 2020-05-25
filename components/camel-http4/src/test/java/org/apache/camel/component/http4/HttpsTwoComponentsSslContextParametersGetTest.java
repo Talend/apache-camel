@@ -20,7 +20,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.test.AvailablePortFinder;
 import org.apache.camel.util.jsse.SSLContextParameters;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.bootstrap.HttpServer;
 import org.apache.http.impl.bootstrap.ServerBootstrap;
 import org.junit.After;
@@ -60,7 +60,7 @@ public class HttpsTwoComponentsSslContextParametersGetTest extends BaseHttpsTest
     @Override
     protected JndiRegistry createRegistry() throws Exception {
         JndiRegistry registry = super.createRegistry();
-        registry.bind("x509HostnameVerifier", new AllowAllHostnameVerifier());
+        registry.bind("x509HostnameVerifier", new NoopHostnameVerifier());
         registry.bind("sslContextParameters", new SSLContextParameters());
         registry.bind("sslContextParameters2", new SSLContextParameters());
 
@@ -83,10 +83,10 @@ public class HttpsTwoComponentsSslContextParametersGetTest extends BaseHttpsTest
                 port2 = AvailablePortFinder.getNextAvailable(localServer.getLocalPort());
 
                 from("direct:foo")
-                        .to("http4s-foo://127.0.0.1:" + localServer.getLocalPort() + "/mail?x509HostnameVerifier=x509HostnameVerifier&sslContextParameters=#sslContextParameters");
+                        .to("http4s-foo://127.0.0.1:" + localServer.getLocalPort() + "/mail?x509HostnameVerifier=#x509HostnameVerifier&sslContextParameters=#sslContextParameters");
 
                 from("direct:bar")
-                        .to("http4s-bar://127.0.0.1:" + port2 + "/mail?x509HostnameVerifier=x509HostnameVerifier&sslContextParameters=#sslContextParameters2");
+                        .to("http4s-bar://127.0.0.1:" + port2 + "/mail?x509HostnameVerifier=#x509HostnameVerifier&sslContextParameters=#sslContextParameters2");
             }
         });
 

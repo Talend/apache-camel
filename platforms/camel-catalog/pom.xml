@@ -17,14 +17,13 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>platforms</artifactId>
-    <version>2.20.0-SNAPSHOT</version>
+    <version>2.24.2</version>
   </parent>
 
   <artifactId>camel-catalog</artifactId>
@@ -32,9 +31,21 @@
   <name>Camel :: Platforms :: Camel Catalog</name>
   <description>Camel Catalog</description>
 
+  <properties>
+    <!-- use by camel-catalog -->
+    <firstVersion>2.15.0</firstVersion>
+    <label>tooling</label>
+  </properties>
+
   <dependencies>
 
-    <!-- no dependency -->
+    <!-- required dependencies by camel-catalog -->
+    <!-- we shade our patched ordered json-simple parser -->
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>json-simple-ordered</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <!-- testing -->
     <dependency>
@@ -47,6 +58,13 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- for testing jsonpath language -->
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-jsonpath</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -113,6 +131,7 @@
                     <include>JSonSchemaHelper.java</include>
                     <include>JSonSchemaResolver.java</include>
                     <include>LanguageValidationResult.java</include>
+                    <include>Pair.java</include>
                     <include>SimpleValidationResult.java</include>
                     <include>SuggestionStrategy.java</include>
                     <include>TimePatternConverter.java</include>
@@ -147,6 +166,7 @@
             <include>${basedir}/src/main/java/org/apache/camel/catalog/JSonSchemaHelper.java</include>
             <include>${basedir}/src/main/java/org/apache/camel/catalog/JSonSchemaResolver.java</include>
             <include>${basedir}/src/main/java/org/apache/camel/catalog/LanguageValidationResult.java</include>
+            <include>${basedir}/src/main/java/org/apache/camel/catalog/Pair.java</include>
             <include>${basedir}/src/main/java/org/apache/camel/catalog/SimpleValidationResult.java</include>
             <include>${basedir}/src/main/java/org/apache/camel/catalog/SuggestionStrategy.java</include>
             <include>${basedir}/src/main/java/org/apache/camel/catalog/TimePatternConverter.java</include>
@@ -160,6 +180,35 @@
             </replacement>
           </replacements>
         </configuration>
+      </plugin>
+
+      <!-- shade caffeine cache for faster Camel and spi-annotations as needed by everybody -->
+      <!-- shade json-simple for parsing Camel component JSon schema files -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <artifactSet>
+                <includes>
+                  <include>org.apache.camel:json-simple-ordered</include>
+                </includes>
+              </artifactSet>
+              <relocations>
+                <relocation>
+                  <pattern>org.json.simple</pattern>
+                  <!-- scala compiler do not like org.apache.camel.org so its just json.simple instead of org.json.simple -->
+                  <shadedPattern>org.apache.camel.json.simple</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <!-- generate and include all components in the catalog -->
@@ -187,7 +236,7 @@
         <configuration>
           <instructions>
             <Export-Package>org.apache.camel.catalog*</Export-Package>
-            <Import-Package>org.apache.camel.language.simple;resolution:=optional,*</Import-Package>
+            <Import-Package>org.apache.camel.language.simple;resolution:=optional,!org.json.simple,*</Import-Package>
           </instructions>
         </configuration>
       </plugin>

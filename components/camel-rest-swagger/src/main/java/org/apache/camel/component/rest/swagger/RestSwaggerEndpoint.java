@@ -20,11 +20,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
@@ -56,6 +58,9 @@ import org.apache.camel.spi.UriPath;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.ResourceHelper;
 import org.apache.camel.util.StringHelper;
+import org.apache.camel.util.UnsafeUriCharactersEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.camel.component.rest.swagger.RestSwaggerHelper.isHostParam;
 import static org.apache.camel.component.rest.swagger.RestSwaggerHelper.isMediaRange;
@@ -71,6 +76,13 @@ import static org.apache.camel.util.StringHelper.notEmpty;
 @UriEndpoint(firstVersion = "2.19.0", scheme = "rest-swagger", title = "REST Swagger",
     syntax = "rest-swagger:specificationUri#operationId", label = "rest,swagger,http", producerOnly = true)
 public final class RestSwaggerEndpoint extends DefaultEndpoint {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RestSwaggerEndpoint.class);
+
+    /**
+     * Remaining parameters specified in the Endpoint URI.
+     */
+    Map<String, Object> parameters = Collections.emptyMap();
 
     /** The name of the Camel component, be it `rest-swagger` or `petstore` */
     private String assignedComponentName;
@@ -128,8 +140,10 @@ public final class RestSwaggerEndpoint extends DefaultEndpoint {
         // help tooling instantiate endpoint
     }
 
-    public RestSwaggerEndpoint(final String uri, final String remaining, final RestSwaggerComponent component) {
+    public RestSwaggerEndpoint(final String uri, final String remaining, final RestSwaggerComponent component,
+        final Map<String, Object> parameters) {
         super(notEmpty(uri, "uri"), notNull(component, "component"));
+        this.parameters = parameters;
 
         assignedComponentName = before(uri, ":");
 
@@ -165,12 +179,14 @@ public final class RestSwaggerEndpoint extends DefaultEndpoint {
             if (maybeOperationEntry.isPresent()) {
                 final Entry<HttpMethod, Operation> operationEntry = maybeOperationEntry.get();
 
-                final String uriTemplate = pathEntry.getKey();
+                final Operation operation = operationEntry.getValue();
+                final Map<String, Parameter> pathParameters = operation.getParameters().stream()
+                    .filter(p -> "path".equals(p.getIn()))
+                    .collect(Collectors.toMap(Parameter::getName, Function.identity()));
+                final String uriTemplate = resolveUri(pathEntry.getKey(), pathParameters);
 
                 final HttpMethod httpMethod = operationEntry.getKey();
                 final String method = httpMethod.name();
-
-                final Operation operation = operationEntry.getValue();
 
                 return createProducerFor(swagger, operation, method, uriTemplate);
             }
@@ -210,6 +226,11 @@ public final class RestSwaggerEndpoint extends DefaultEndpoint {
 
     public URI getSpecificationUri() {
         return specificationUri;
+    }
+
+    @Override
+    public boolean isLenientProperties() {
+        return true;
     }
 
     @Override
@@ -312,10 +333,12 @@ public final class RestSwaggerEndpoint extends DefaultEndpoint {
             parameters.put("host", host);
         }
 
+        final RestSwaggerComponent component = component();
+
         // what we consume is what the API defined by Swagger specification
         // produces
         final String determinedConsumes = determineOption(swagger.getProduces(), operation.getProduces(),
-            component().getConsumes(), consumes);
+            component.getConsumes(), consumes);
 
         if (isNotEmpty(determinedConsumes)) {
             parameters.put("consumes", determinedConsumes);
@@ -324,16 +347,36 @@ public final class RestSwaggerEndpoint extends DefaultEndpoint {
         // what we produce is what the API defined by Swagger specification
         // consumes
         final String determinedProducers = determineOption(swagger.getConsumes(), operation.getConsumes(),
-            component().getProduces(), produces);
+            component.getProduces(), produces);
 
         if (isNotEmpty(determinedProducers)) {
             parameters.put("produces", determinedProducers);
         }
 
         final String queryParameters = operation.getParameters().stream().filter(p -> "query".equals(p.getIn()))
-            .map(RestSwaggerEndpoint::queryParameterExpression).collect(Collectors.joining("&"));
+            .map(this::queryParameter).collect(Collectors.joining("&"));
         if (isNotEmpty(queryParameters)) {
             parameters.put("queryParameters", queryParameters);
+        }
+
+        // pass properties that might be applied if the delegate component is created, i.e. if it's not
+        // present in the Camel Context already
+        final Map<String, Object> componentParameters = new HashMap<>();
+
+        if (component.isUseGlobalSslContextParameters()) {
+            // by default it's false
+            componentParameters.put("useGlobalSslContextParameters", component.isUseGlobalSslContextParameters());
+        }
+        if (component.getSslContextParameters() != null) {
+            componentParameters.put("sslContextParameters", component.getSslContextParameters());
+        }
+
+        if (!componentParameters.isEmpty()) {
+            final Map<Object, Object> nestedParameters = new HashMap<>();
+            nestedParameters.put("component", componentParameters);
+
+            // we're trying to set RestEndpoint.parameters['component']
+            parameters.put("parameters", nestedParameters);
         }
 
         return parameters;
@@ -394,6 +437,72 @@ public final class RestSwaggerEndpoint extends DefaultEndpoint {
             + " `https` scheme, and no RestConfigurations configured with `scheme`, `host` and `port` were found for `"
             + (areTheSame ? "rest-swagger` component" : assignedComponentName + "` or `rest-swagger` components")
             + " and there is no global RestConfiguration with those properties");
+    }
+
+    String literalPathParameterValue(final Parameter parameter) {
+        final String name = parameter.getName();
+
+        final String valueStr = String.valueOf(parameters.get(name));
+        final String encoded = UnsafeUriCharactersEncoder.encode(valueStr);
+
+        return encoded;
+    }
+
+    String literalQueryParameterValue(final Parameter parameter) {
+        final String name = parameter.getName();
+
+        final String valueStr = String.valueOf(parameters.get(name));
+        final String encoded = UnsafeUriCharactersEncoder.encode(valueStr);
+
+        return name + "=" + encoded;
+    }
+
+    String queryParameter(final Parameter parameter) {
+        final String name = parameter.getName();
+        if (ObjectHelper.isEmpty(name)) {
+            return "";
+        }
+
+        if (parameters.containsKey(name)) {
+            return literalQueryParameterValue(parameter);
+        }
+
+        return queryParameterExpression(parameter);
+    }
+
+    String resolveUri(final String uriTemplate, final Map<String, Parameter> pathParameters) {
+        if (pathParameters.isEmpty()) {
+            return uriTemplate;
+        }
+
+        int start = uriTemplate.indexOf('{');
+
+        if (start == -1) {
+            return uriTemplate;
+        }
+
+        int pos = 0;
+        final StringBuilder resolved = new StringBuilder(uriTemplate.length() * 2);
+        while (start != -1) {
+            resolved.append(uriTemplate.substring(pos, start));
+
+            final int end = uriTemplate.indexOf('}', start);
+
+            final String name = uriTemplate.substring(start + 1, end);
+
+            if (parameters.containsKey(name)) {
+                final Parameter parameter = pathParameters.get(name);
+                final Object value = literalPathParameterValue(parameter);
+                resolved.append(value);
+            } else {
+                resolved.append('{').append(name).append('}');
+            }
+
+            pos = end;
+            start = uriTemplate.indexOf('{', pos);
+        }
+
+        return resolved.toString();
     }
 
     static String determineOption(final List<String> specificationLevel, final List<String> operationLevel,
@@ -498,9 +607,6 @@ public final class RestSwaggerEndpoint extends DefaultEndpoint {
 
     static String queryParameterExpression(final Parameter parameter) {
         final String name = parameter.getName();
-        if (ObjectHelper.isEmpty(name)) {
-            return "";
-        }
 
         final StringBuilder expression = new StringBuilder(name).append("={").append(name);
         if (!parameter.getRequired()) {

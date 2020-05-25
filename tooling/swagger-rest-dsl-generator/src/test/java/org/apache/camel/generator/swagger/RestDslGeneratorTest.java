@@ -47,6 +47,8 @@ public class RestDslGeneratorTest {
         final RestsDefinition definition = RestDslGenerator.toDefinition(swagger).generate(context);
 
         assertThat(definition).isNotNull();
+        assertThat(definition.getRests()).hasSize(1);
+        assertThat(definition.getRests().get(0).getPath()).isEqualTo("/v2");
     }
 
     @Test
@@ -62,6 +64,18 @@ public class RestDslGeneratorTest {
     }
 
     @Test
+    public void shouldGenerateSourceCodeWithRestComponent() throws IOException, URISyntaxException {
+        final StringBuilder code = new StringBuilder();
+
+        RestDslGenerator.toAppendable(swagger).withGeneratedTime(generated).withRestComponent("servlet").withRestContextPath("/").generate(code);
+
+        final URI file = RestDslGeneratorTest.class.getResource("/SwaggerPetstoreWithRestComponent.txt").toURI();
+        final String expectedContent = new String(Files.readAllBytes(Paths.get(file)), StandardCharsets.UTF_8);
+
+        assertThat(code.toString()).isEqualTo(expectedContent);
+    }
+
+    @Test
     public void shouldGenerateSourceCodeWithOptions() throws IOException, URISyntaxException {
         final StringBuilder code = new StringBuilder();
 
@@ -70,6 +84,21 @@ public class RestDslGeneratorTest {
             .withDestinationGenerator(o -> "direct:rest-" + o.getOperationId()).generate(code);
 
         final URI file = RestDslGeneratorTest.class.getResource("/MyRestRoute.txt").toURI();
+        final String expectedContent = new String(Files.readAllBytes(Paths.get(file)), StandardCharsets.UTF_8);
+
+        assertThat(code.toString()).isEqualTo(expectedContent);
+    }
+
+    @Test
+    public void shouldGenerateSourceCodeWithFilter() throws IOException, URISyntaxException {
+        final StringBuilder code = new StringBuilder();
+
+        RestDslGenerator.toAppendable(swagger).withGeneratedTime(generated).withClassName("MyRestRoute")
+            .withPackageName("com.example").withIndent("\t").withSourceCodeTimestamps()
+            .withOperationFilter("find*,deletePet,updatePet")
+            .withDestinationGenerator(o -> "direct:rest-" + o.getOperationId()).generate(code);
+
+        final URI file = RestDslGeneratorTest.class.getResource("/MyRestRouteFilter.txt").toURI();
         final String expectedContent = new String(Files.readAllBytes(Paths.get(file)), StandardCharsets.UTF_8);
 
         assertThat(code.toString()).isEqualTo(expectedContent);

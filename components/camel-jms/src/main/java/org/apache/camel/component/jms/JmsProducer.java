@@ -363,7 +363,7 @@ public class JmsProducer extends DefaultAsyncProducer {
 
                 // the reply to is a String, so we need to look up its Destination instance
                 // and if needed create the destination using the session if needed to
-                if (jmsReplyTo != null && jmsReplyTo instanceof String) {
+                if (jmsReplyTo instanceof String) {
                     String replyTo = (String) jmsReplyTo;
                     // we need to null it as we use the String to resolve it as a Destination instance
                     jmsReplyTo = resolveOrCreateDestination(replyTo, session);
@@ -533,13 +533,13 @@ public class JmsProducer extends DefaultAsyncProducer {
             CamelJmsTemplate template = (CamelJmsTemplate) getInOnlyTemplate();
 
             if (log.isDebugEnabled()) {
-                log.debug("Testing JMS Connection on startup for destination: " + template.getDefaultDestinationName());
+                log.debug("Testing JMS Connection on startup for destination: {}", template.getDefaultDestinationName());
             }
 
             Connection conn = template.getConnectionFactory().createConnection();
             JmsUtils.closeConnection(conn);
 
-            log.debug("Successfully tested JMS Connection on startup for destination: " + template.getDefaultDestinationName());
+            log.debug("Successfully tested JMS Connection on startup for destination: {}", template.getDefaultDestinationName());
         } catch (Exception e) {
             throw new FailedToCreateProducerException(getEndpoint(), e);
         }

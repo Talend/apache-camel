@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @version 
@@ -27,17 +28,19 @@ import org.apache.camel.component.mock.MockEndpoint;
 public class FileProducerFileExistIgnoreTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/file");
         super.setUp();
-        template.sendBodyAndHeader("file://target/file", "Hello World", Exchange.FILE_NAME, "hello.txt");
     }
 
+    @Test
     public void testIgnore() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodiesReceived("Hello World");
         mock.expectedFileExists("target/file/hello.txt", "Hello World");
 
+        template.sendBodyAndHeader("file://target/file", "Hello World", Exchange.FILE_NAME, "hello.txt");
         template.sendBodyAndHeader("file://target/file?fileExist=Ignore", "Bye World", Exchange.FILE_NAME, "hello.txt");
 
         assertMockEndpointsSatisfied();
@@ -48,7 +51,7 @@ public class FileProducerFileExistIgnoreTest extends ContextTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("file://target/file?noop=true&delay=1000").convertBodyTo(String.class).to("mock:result");
+                from("file://target/file?noop=true&initialDelay=0&delay=10").convertBodyTo(String.class).to("mock:result");
             }
         };
     }

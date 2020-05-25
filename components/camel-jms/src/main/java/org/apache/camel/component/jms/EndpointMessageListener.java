@@ -86,6 +86,7 @@ public class EndpointMessageListener implements SessionAwareMessageListener {
 
             final Exchange exchange = createExchange(message, session, replyDestination);
             if (eagerLoadingOfProperties) {
+                exchange.getIn().getBody();
                 exchange.getIn().getHeaders();
             }
             String correlationId = message.getJMSCorrelationID();
@@ -373,7 +374,7 @@ public class EndpointMessageListener implements SessionAwareMessageListener {
                 reply.setJMSCorrelationID(correlationID);
 
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("{} sending reply JMS message [correlationId:{}]: {}", new Object[]{endpoint, correlationID, reply});
+                    LOG.debug("{} sending reply JMS message [correlationId:{}]: {}", endpoint, correlationID, reply);
                 }
                 return reply;
             }
@@ -393,7 +394,7 @@ public class EndpointMessageListener implements SessionAwareMessageListener {
                 reply.setJMSCorrelationID(correlationID);
 
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("{} sending reply JMS message [correlationId:{}]: {}", new Object[]{endpoint, correlationID, reply});
+                    LOG.debug("{} sending reply JMS message [correlationId:{}]: {}", endpoint, correlationID, reply);
                 }
                 return reply;
             }

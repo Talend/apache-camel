@@ -19,12 +19,14 @@ package org.apache.camel.impl;
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class DefaultCamelContextSuspendResumeRouteTest extends ContextTestSupport {
 
+    @Test
     public void testSuspendResume() throws Exception {
         assertFalse(context.isSuspended());
 
@@ -44,7 +46,7 @@ public class DefaultCamelContextSuspendResumeRouteTest extends ContextTestSuppor
         context.suspend();
 
         // need to give seda consumer thread time to idle
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         template.sendBody("seda:foo", "B");
 

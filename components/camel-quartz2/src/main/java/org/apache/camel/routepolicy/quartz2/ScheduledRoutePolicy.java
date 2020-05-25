@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class ScheduledRoutePolicy extends RoutePolicySupport implements ScheduledRoutePolicyConstants, NonManagedService {
     private static final Logger LOG = LoggerFactory.getLogger(ScheduledRoutePolicy.class);
-    protected Map<String, ScheduledRouteDetails> scheduledRouteDetailsMap = new LinkedHashMap<String, ScheduledRouteDetails>();
+    protected Map<String, ScheduledRouteDetails> scheduledRouteDetailsMap = new LinkedHashMap<>();
     private Scheduler scheduler;
     private int routeStopGracePeriod;
     private TimeUnit timeUnit;
@@ -66,7 +66,7 @@ public abstract class ScheduledRoutePolicy extends RoutePolicySupport implements
                 startRoute(route);
                 // here we just check the states of the Consumer
             } else if (ServiceHelper.isSuspended(route.getConsumer())) {
-                startConsumer(route.getConsumer());
+                resumeOrStartConsumer(route.getConsumer());
             }
         } else if (action == Action.STOP) {
             if ((routeStatus == ServiceStatus.Started) || (routeStatus == ServiceStatus.Suspended)) {
@@ -76,14 +76,14 @@ public abstract class ScheduledRoutePolicy extends RoutePolicySupport implements
             }
         } else if (action == Action.SUSPEND) {
             if (routeStatus == ServiceStatus.Started) {
-                stopConsumer(route.getConsumer());
+                suspendOrStopConsumer(route.getConsumer());
             } else {
                 LOG.warn("Route is not in a started state and cannot be suspended. The current route state is {}", routeStatus);
             }
         } else if (action == Action.RESUME) {
             if (routeStatus == ServiceStatus.Started) {
                 if (ServiceHelper.isSuspended(route.getConsumer())) {
-                    startConsumer(route.getConsumer());
+                    resumeOrStartConsumer(route.getConsumer());
                 } else {
                     LOG.warn("The Consumer {} is not suspended and cannot be resumed.", route.getConsumer());
                 }
@@ -128,7 +128,7 @@ public abstract class ScheduledRoutePolicy extends RoutePolicySupport implements
         getScheduler().scheduleJob(jobDetail, trigger);
 
         if (LOG.isInfoEnabled()) {
-            LOG.info("Scheduled trigger: {} for action: {} on route {}", new Object[]{trigger.getKey(), action, route.getId()});
+            LOG.info("Scheduled trigger: {} for action: {} on route {}", trigger.getKey(), action, route.getId());
         }
     }
 

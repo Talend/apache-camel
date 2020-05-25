@@ -22,12 +22,9 @@ import java.util.Map;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
 import io.fabric8.kubernetes.api.model.ConfigMapList;
-import io.fabric8.kubernetes.api.model.DoneableConfigMap;
 import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.FilterWatchListMultiDeletable;
-import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
-import io.fabric8.kubernetes.client.dsl.Resource;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.component.kubernetes.AbstractKubernetesEndpoint;
@@ -91,6 +88,8 @@ public class KubernetesConfigMapsProducer extends DefaultProducer {
 
     protected void doList(Exchange exchange, String operation) throws Exception {
         ConfigMapList configMapsList = getEndpoint().getKubernetesClient().configMaps().inAnyNamespace().list();
+        
+        MessageHelper.copyHeaders(exchange.getIn(), exchange.getOut(), true);       
         exchange.getOut().setBody(configMapsList.getItems());
     }
 
@@ -110,11 +109,16 @@ public class KubernetesConfigMapsProducer extends DefaultProducer {
     protected void doGetConfigMap(Exchange exchange, String operation) throws Exception {
         ConfigMap configMap = null;
         String cfMapName = exchange.getIn().getHeader(KubernetesConstants.KUBERNETES_CONFIGMAP_NAME, String.class);
+        String namespaceName = exchange.getIn().getHeader(KubernetesConstants.KUBERNETES_NAMESPACE_NAME, String.class);
         if (ObjectHelper.isEmpty(cfMapName)) {
             LOG.error("Get a specific ConfigMap require specify a ConfigMap name");
             throw new IllegalArgumentException("Get a specific ConfigMap require specify a ConfigMap name");
         }
-        configMap = getEndpoint().getKubernetesClient().configMaps().withName(cfMapName).get();
+        if (namespaceName != null) {
+            configMap = getEndpoint().getKubernetesClient().configMaps().inNamespace(namespaceName).withName(cfMapName).get();
+        } else {
+            configMap = getEndpoint().getKubernetesClient().configMaps().withName(cfMapName).get();
+        }
 
         MessageHelper.copyHeaders(exchange.getIn(), exchange.getOut(), true);
         exchange.getOut().setBody(configMap);

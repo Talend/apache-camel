@@ -223,7 +223,7 @@ public class PollEnricher extends ServiceSupport implements AsyncProcessor, IdAw
         boolean bridgeErrorHandler = false;
         if (delegate instanceof DefaultConsumer) {
             ExceptionHandler handler = ((DefaultConsumer) delegate).getExceptionHandler();
-            if (handler != null && handler instanceof BridgeExceptionHandlerToErrorHandler) {
+            if (handler instanceof BridgeExceptionHandlerToErrorHandler) {
                 bridgeErrorHandler = true;
             }
         }
@@ -383,6 +383,9 @@ public class PollEnricher extends ServiceSupport implements AsyncProcessor, IdAw
                 consumerCache = new ConsumerCache(this, camelContext, cacheSize);
                 LOG.debug("PollEnrich {} using ConsumerCache with cacheSize={}", this, cacheSize);
             }
+        }
+        if (aggregationStrategy instanceof CamelContextAware) {
+            ((CamelContextAware) aggregationStrategy).setCamelContext(camelContext);
         }
         ServiceHelper.startServices(consumerCache, aggregationStrategy);
     }

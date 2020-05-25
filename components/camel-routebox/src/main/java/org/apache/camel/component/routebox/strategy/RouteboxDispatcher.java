@@ -115,14 +115,14 @@ public class RouteboxDispatcher {
         }
         
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Dispatch URI set to: " + dispatchUri.toASCIIString());
+            LOG.debug("Dispatch URI set to: {}", dispatchUri.toASCIIString());
         }
         
         return dispatchUri;
     }
 
     protected List<URI> getInnerContextConsumerList(CamelContext context) throws URISyntaxException {
-        List<URI> consumerList = new ArrayList<URI>();
+        List<URI> consumerList = new ArrayList<>();
         List<RouteDefinition> routeDefinitions = context.getRouteDefinitions();
         for (RouteDefinition routeDefinition : routeDefinitions) {
             List<FromDefinition> inputs = routeDefinition.getInputs();

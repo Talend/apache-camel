@@ -39,7 +39,7 @@ public class GenericFileRenameExclusiveReadLockStrategy<T> implements GenericFil
     private static final Logger LOG = LoggerFactory.getLogger(GenericFileRenameExclusiveReadLockStrategy.class);
     private long timeout;
     private long checkInterval;
-    private LoggingLevel readLockLoggingLevel = LoggingLevel.WARN;
+    private LoggingLevel readLockLoggingLevel = LoggingLevel.DEBUG;
 
     @Override
     public void prepareOnStartup(GenericFileOperations<T> operations, GenericFileEndpoint<T> endpoint) throws Exception {
@@ -76,7 +76,7 @@ public class GenericFileRenameExclusiveReadLockStrategy<T> implements GenericFil
             try {
                 exclusive = operations.renameFile(file.getAbsoluteFilePath(), newFile.getAbsoluteFilePath());
             } catch (GenericFileOperationFailedException ex) {
-                if (ex.getCause() != null && ex.getCause() instanceof FileNotFoundException) {
+                if (ex.getCause() instanceof FileNotFoundException) {
                     exclusive = false;
                 } else {
                     throw ex;

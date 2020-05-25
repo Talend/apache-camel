@@ -39,7 +39,21 @@ public class SdbComponentConfigurationTest extends CamelTestSupport {
         assertEquals("yyy", endpoint.getConfiguration().getSecretKey());
         assertNotNull(endpoint.getConfiguration().getAmazonSDBClient());
         assertEquals(SdbOperations.PutAttributes, endpoint.getConfiguration().getOperation());
-        assertNull(endpoint.getConfiguration().getAmazonSdbEndpoint());
+        assertFalse(endpoint.getConfiguration().isConsistentRead());
+        assertNull(endpoint.getConfiguration().getMaxNumberOfDomains());
+    }
+
+    @Test
+    public void createEndpointWithOnlyAccessKeyAndSecretKey() throws Exception {
+        SdbComponent component = new SdbComponent(context);
+        SdbEndpoint endpoint = (SdbEndpoint) component.createEndpoint(
+            "aws-sdb://TestDomain?accessKey=xxx&secretKey=yyy");
+
+        assertEquals("TestDomain", endpoint.getConfiguration().getDomainName());
+        assertEquals("xxx", endpoint.getConfiguration().getAccessKey());
+        assertEquals("yyy", endpoint.getConfiguration().getSecretKey());
+        assertNull(endpoint.getConfiguration().getAmazonSDBClient());
+        assertEquals(SdbOperations.PutAttributes, endpoint.getConfiguration().getOperation());
         assertFalse(endpoint.getConfiguration().isConsistentRead());
         assertNull(endpoint.getConfiguration().getMaxNumberOfDomains());
     }
@@ -60,7 +74,6 @@ public class SdbComponentConfigurationTest extends CamelTestSupport {
         assertNull(endpoint.getConfiguration().getSecretKey());
         assertSame(mock, endpoint.getConfiguration().getAmazonSDBClient());
         assertEquals(SdbOperations.PutAttributes, endpoint.getConfiguration().getOperation());
-        assertNull(endpoint.getConfiguration().getAmazonSdbEndpoint());
         assertFalse(endpoint.getConfiguration().isConsistentRead());
         assertNull(endpoint.getConfiguration().getMaxNumberOfDomains());
     }
@@ -81,7 +94,6 @@ public class SdbComponentConfigurationTest extends CamelTestSupport {
         assertEquals("yyy", endpoint.getConfiguration().getSecretKey());
         assertNotNull(endpoint.getConfiguration().getAmazonSDBClient());
         assertEquals(SdbOperations.DeleteAttributes, endpoint.getConfiguration().getOperation());
-        assertNull(endpoint.getConfiguration().getAmazonSdbEndpoint());
         assertTrue(endpoint.getConfiguration().isConsistentRead());
         assertEquals(new Integer(5), endpoint.getConfiguration().getMaxNumberOfDomains());
     }

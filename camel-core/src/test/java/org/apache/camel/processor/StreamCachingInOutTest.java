@@ -23,10 +23,12 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 
 public class StreamCachingInOutTest extends ContextTestSupport {
     private static final String TEST_FILE = "org/apache/camel/processor/simple.txt";
 
+    @Test
     public void testStreamCachingPerRoute() throws Exception {
         MockEndpoint c = getMockEndpoint("mock:c");
         c.expectedMessageCount(1);
@@ -38,13 +40,28 @@ public class StreamCachingInOutTest extends ContextTestSupport {
         assertEquals(c.assertExchangeReceived(0).getIn().getBody(String.class), "James,Guillaume,Hiram,Rob,Roman");
     }
 
+    @Test
+    public void testStreamCachingPerRouteWithDirecVM() throws Exception {
+        MockEndpoint e = getMockEndpoint("mock:e");
+        e.expectedMessageCount(1);
+
+        InputStream message = getTestFileStream();
+        template.sendBody("direct:e", message);
+
+        assertMockEndpointsSatisfied();
+        assertEquals(e.assertExchangeReceived(0).getIn().getBody(String.class), "James,Guillaume,Hiram,Rob,Roman");
+    }
+
     @Override
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("direct:c").noStreamCaching().to("direct:d").to("mock:c");
+                context.getStreamCachingStrategy().setSpoolThreshold(1);
+                from("direct:c").noStreamCaching().to("direct:d").convertBodyTo(String.class).to("mock:c");
                 from("direct:d").streamCaching().process(new TestProcessor());
+                from("direct:e").noStreamCaching().to("direct-vm:f").convertBodyTo(String.class).to("mock:e");
+                from("direct-vm:f").streamCaching().process(new TestProcessor());
             }
         };
     }

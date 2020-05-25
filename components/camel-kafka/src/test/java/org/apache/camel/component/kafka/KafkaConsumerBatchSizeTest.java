@@ -22,11 +22,9 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class KafkaConsumerBatchSizeTest extends BaseEmbeddedKafkaTest {
@@ -34,8 +32,7 @@ public class KafkaConsumerBatchSizeTest extends BaseEmbeddedKafkaTest {
     public static final String TOPIC = "test";
 
     @EndpointInject(uri = "kafka:" + TOPIC
-            + "?groupId=group1"
-            + "&autoOffsetReset=earliest"
+            + "?autoOffsetReset=earliest"
             + "&autoCommitEnable=false"
             + "&consumerStreams=10"
     )
@@ -49,7 +46,7 @@ public class KafkaConsumerBatchSizeTest extends BaseEmbeddedKafkaTest {
     @Before
     public void before() {
         Properties props = getDefaultProperties();
-        producer = new org.apache.kafka.clients.producer.KafkaProducer<String, String>(props);
+        producer = new org.apache.kafka.clients.producer.KafkaProducer<>(props);
     }
 
     @After
@@ -76,7 +73,7 @@ public class KafkaConsumerBatchSizeTest extends BaseEmbeddedKafkaTest {
         to.expectedBodiesReceivedInAnyOrder("m1", "m2");
         for (int k = 1; k <= 2; k++) {
             String msg = "m" + k;
-            ProducerRecord<String, String> data = new ProducerRecord<String, String>(TOPIC, "1", msg);
+            ProducerRecord<String, String> data = new ProducerRecord<>(TOPIC, "1", msg);
             producer.send(data);
         }
         to.assertIsSatisfied();
@@ -92,7 +89,7 @@ public class KafkaConsumerBatchSizeTest extends BaseEmbeddedKafkaTest {
         //Second route must wake up and consume all from scratch and commit 9 consumed
         for (int k = 3; k <= 10; k++) {
             String msg = "m" + k;
-            ProducerRecord<String, String> data = new ProducerRecord<String, String>(TOPIC, "1", msg);
+            ProducerRecord<String, String> data = new ProducerRecord<>(TOPIC, "1", msg);
             producer.send(data);
         }
 

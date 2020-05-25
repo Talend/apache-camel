@@ -18,6 +18,7 @@ package org.apache.camel.model;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -36,9 +37,9 @@ public class ContextScanDefinition {
     @XmlAttribute
     private Boolean includeNonSingletons;
     @XmlElement(name = "excludes")
-    private List<String> excludes = new ArrayList<String>();
+    private List<String> excludes = new ArrayList<>();
     @XmlElement(name = "includes")
-    private List<String> includes = new ArrayList<String>();
+    private List<String> includes = new ArrayList<>();
 
     public ContextScanDefinition() {
     }

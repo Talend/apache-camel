@@ -15,21 +15,23 @@
  * limitations under the License.
  */
 package org.apache.camel.component.validator;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.impl.JndiRegistry;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ValidatorBeanCallTest extends ContextTestSupport {
 
     protected MockEndpoint validEndpoint;
     protected MockEndpoint invalidEndpoint;
 
+    @Test
     public void testCallBean() throws Exception {
         validEndpoint.expectedMessageCount(1);
         invalidEndpoint.expectedMessageCount(0);
@@ -43,7 +45,8 @@ public class ValidatorBeanCallTest extends ContextTestSupport {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
         validEndpoint = resolveMandatoryEndpoint("mock:valid", MockEndpoint.class);
@@ -71,8 +74,8 @@ public class ValidatorBeanCallTest extends ContextTestSupport {
 
     public static class MyValidatorBean {
 
-        public InputStream loadFile() throws FileNotFoundException {
-            return new FileInputStream("src/test/resources/report.xsd");
+        public InputStream loadFile() throws Exception {
+            return Files.newInputStream(Paths.get("src/test/resources/report.xsd"));
         }
 
     }

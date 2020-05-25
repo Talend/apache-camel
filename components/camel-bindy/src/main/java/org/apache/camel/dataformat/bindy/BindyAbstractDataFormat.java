@@ -23,10 +23,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.CamelContextAware;
 import org.apache.camel.dataformat.bindy.annotation.FormatFactories;
@@ -47,6 +47,7 @@ public abstract class BindyAbstractDataFormat extends ServiceSupport implements 
     private BindyAbstractFactory modelFactory;
     private Class<?> classType;
     private CamelContext camelContext;
+    private boolean unwrapSingleInstance = true;
 
     public BindyAbstractDataFormat() {
     }
@@ -69,6 +70,14 @@ public abstract class BindyAbstractDataFormat extends ServiceSupport implements 
 
     public void setLocale(String locale) {
         this.locale = locale;
+    }
+
+    public boolean isUnwrapSingleInstance() {
+        return unwrapSingleInstance;
+    }
+
+    public void setUnwrapSingleInstance(boolean unwrapSingleInstance) {
+        this.unwrapSingleInstance = unwrapSingleInstance;
     }
 
     public BindyAbstractFactory getFactory() throws Exception {
@@ -165,7 +174,7 @@ public abstract class BindyAbstractDataFormat extends ServiceSupport implements 
                 }
             }
             // if there is only 1 then dont return a list
-            if (answer.size() == 1) {
+            if (isUnwrapSingleInstance() && answer.size() == 1) {
                 return answer.get(0);
             } else {
                 return answer;

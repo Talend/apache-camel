@@ -22,16 +22,18 @@ import java.util.List;
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.JndiRegistry;
+import org.junit.Test;
 
 /**
  *
  */
 public class BeanParameterMethodCallThreeBodyOgnlTest extends ContextTestSupport {
 
+    @Test
     public void testBeanParameterValue() throws Exception {
         getMockEndpoint("mock:result").expectedBodiesReceived("3");
 
-        List<String> body = new ArrayList<String>();
+        List<String> body = new ArrayList<>();
         body.add("A");
         body.add("B");
         body.add("C");

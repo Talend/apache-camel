@@ -18,12 +18,14 @@ package org.apache.camel.component.directvm;
 
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Test;
 
 /**
  *
  */
 public class DirectVmNoPropertyPropagationTest extends ContextTestSupport {
 
+    @Test
     public void testPropertiesPropagatedOrNot() throws Exception {
         template.sendBody("direct-vm:start.noprops", "Hello World");
         template.sendBody("direct-vm:start.props", "Hello World");
@@ -36,7 +38,7 @@ public class DirectVmNoPropertyPropagationTest extends ContextTestSupport {
                 // Starters.
                 from("direct-vm:start.noprops")
                     .setProperty("abc", constant("def"))
-                    .to("direct-vm:foo.noprops?propagateProperties=false");
+                    .to("direct-vm:foo.noprops?propagateProperties=false&block=false");
                 
                 from("direct-vm:start.props")
                     .setProperty("abc", constant("def"))

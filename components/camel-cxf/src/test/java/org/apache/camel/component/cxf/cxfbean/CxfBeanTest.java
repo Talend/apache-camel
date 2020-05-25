@@ -26,7 +26,7 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.component.cxf.CXFTestSupport;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.StringHelper;
 import org.apache.camel.wsdl_first.Person;
 import org.apache.camel.wsdl_first.PersonService;
 import org.apache.http.HttpResponse;
@@ -217,7 +217,7 @@ public class CxfBeanTest extends AbstractJUnit4SpringContextTests {
             HttpResponse response = httpclient.execute(get);
             assertEquals(200, response.getStatusLine().getStatusCode());
             String customers = EntityUtils.toString(response.getEntity());
-            String before = ObjectHelper.before(customers, "</id><name>" + name + "</name></Customer>");
+            String before = StringHelper.before(customers, "</id><name>" + name + "</name></Customer>");
             String answer = before.substring(before.lastIndexOf(">") + 1, before.length());
             return answer;
         } finally {
@@ -261,10 +261,10 @@ public class CxfBeanTest extends AbstractJUnit4SpringContextTests {
             .put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                  "http://localhost:" + CXFTestSupport.getPort1() + "/CxfBeanTest/PersonService/");
         
-        Holder<String> personId = new Holder<String>();
+        Holder<String> personId = new Holder<>();
         personId.value = "hello";
-        Holder<String> ssn = new Holder<String>();
-        Holder<String> name = new Holder<String>();
+        Holder<String> ssn = new Holder<>();
+        Holder<String> name = new Holder<>();
         client.getPerson(personId, ssn, name);
         assertEquals("Get a wrong personId", "hello", personId.value);
         assertEquals("Get a wrong SSN", "000-000-0000", ssn.value);

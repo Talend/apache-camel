@@ -23,6 +23,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
+import org.junit.Test;
 
 /**
  * @version 
@@ -39,11 +40,12 @@ public class RecipientListFineGrainedErrorHandlingTest extends ContextTestSuppor
         return jndi;
     }
 
+    @Test
     public void testRecipientListOk() throws Exception {
         context.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                onException(Exception.class).maximumRedeliveries(2);
+                onException(Exception.class).redeliveryDelay(0).maximumRedeliveries(2);
 
                 from("direct:start")
                     .to("mock:a")
@@ -62,6 +64,7 @@ public class RecipientListFineGrainedErrorHandlingTest extends ContextTestSuppor
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testRecipientListErrorAggregate() throws Exception {
         counter = 0;
         tries = 0;
@@ -70,7 +73,7 @@ public class RecipientListFineGrainedErrorHandlingTest extends ContextTestSuppor
             @Override
             public void configure() throws Exception {
                 from("direct:start")
-                    .onException(Exception.class).maximumRedeliveries(3).end()
+                    .onException(Exception.class).redeliveryDelay(0).maximumRedeliveries(3).end()
                     .to("mock:a")
                     .recipientList(header("foo"))
                         .aggregationStrategy(new MyAggregationStrategy())
@@ -95,13 +98,14 @@ public class RecipientListFineGrainedErrorHandlingTest extends ContextTestSuppor
         assertEquals(3, tries);
     }
 
+    @Test
     public void testRecipientListError() throws Exception {
         counter = 0;
 
         context.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                onException(Exception.class).maximumRedeliveries(2);
+                onException(Exception.class).redeliveryDelay(0).maximumRedeliveries(2);
 
                 from("direct:start")
                     .to("mock:a")
@@ -127,6 +131,7 @@ public class RecipientListFineGrainedErrorHandlingTest extends ContextTestSuppor
         assertEquals(3, counter);
     }
 
+    @Test
     public void testRecipientListAsBeanError() throws Exception {
         counter = 0;
 
@@ -135,7 +140,7 @@ public class RecipientListFineGrainedErrorHandlingTest extends ContextTestSuppor
             public void configure() throws Exception {
                 context.setTracing(true);
 
-                onException(Exception.class).maximumRedeliveries(2);
+                onException(Exception.class).redeliveryDelay(0).maximumRedeliveries(2);
 
                 from("direct:start")
                     .to("mock:a")

@@ -31,8 +31,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static javax.servlet.http.HttpServletResponse.SC_OK;
-
 import org.apache.camel.AsyncCallback;
 import org.apache.camel.CamelExchangeException;
 import org.apache.camel.Exchange;
@@ -56,7 +54,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Jetty specific exchange which keeps track of the the request and response.
+ * Jetty specific exchange which keeps track of the request and response.
  */
 public class JettyContentExchange9 implements JettyContentExchange {
 

@@ -23,6 +23,7 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 
 /**
  * @version 
@@ -34,11 +35,14 @@ public class TimerEndpointTest extends ContextTestSupport {
         return false;
     }
 
+    @Test
     public void testTimerEndpoint() throws Exception {
         final TimerEndpoint te = new TimerEndpoint();
         te.setCamelContext(context);
         te.setTimer(new Timer(true));
         te.setEndpointUriIfNotSpecified("timer://foo");
+        te.setPeriod(10);
+        te.setDelay(10);
 
         context.addRoutes(new RouteBuilder() {
             @Override
@@ -54,9 +58,12 @@ public class TimerEndpointTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testTimerEndpointYetAgain() throws Exception {
         final TimerEndpoint te = new TimerEndpoint("timer://foo", context.getComponent("timer"), "foo");
         te.setTimer(new Timer(true));
+        te.setPeriod(10);
+        te.setDelay(10);
 
         context.addRoutes(new RouteBuilder() {
             @Override
@@ -72,6 +79,7 @@ public class TimerEndpointTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testTimerEndpointNoProducer() throws Exception {
         Endpoint te = context.getEndpoint("timer://foo");
         try {

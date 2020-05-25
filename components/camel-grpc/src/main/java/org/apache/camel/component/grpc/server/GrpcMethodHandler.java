@@ -26,8 +26,8 @@ import javassist.util.proxy.MethodHandler;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.grpc.GrpcConstants;
 import org.apache.camel.component.grpc.GrpcConsumer;
+import org.apache.camel.component.grpc.GrpcConsumerStrategy;
 import org.apache.camel.component.grpc.GrpcEndpoint;
-import org.apache.camel.component.grpc.GrpcProcessingStrategies;
 
 /**
  * gRPC server method invocation handler
@@ -44,7 +44,7 @@ public class GrpcMethodHandler implements MethodHandler {
     @Override
     @SuppressWarnings("unchecked")
     public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
-        Map<String, Object> grcpHeaders = new HashMap<String, Object>();
+        Map<String, Object> grcpHeaders = new HashMap<>();
         
         grcpHeaders.put(GrpcHeaderInterceptor.USER_AGENT_CONTEXT_KEY.toString(), GrpcHeaderInterceptor.USER_AGENT_CONTEXT_KEY.get());
         grcpHeaders.put(GrpcHeaderInterceptor.CONTENT_TYPE_CONTEXT_KEY.toString(), GrpcHeaderInterceptor.CONTENT_TYPE_CONTEXT_KEY.get());
@@ -79,12 +79,12 @@ public class GrpcMethodHandler implements MethodHandler {
             final StreamObserver<Object> responseObserver = (StreamObserver<Object>)args[0];
             StreamObserver<Object> requestObserver = null;
             
-            if (consumer.getConfiguration().getProcessingStrategy() == GrpcProcessingStrategies.AGGREGATION) {
+            if (consumer.getConfiguration().getConsumerStrategy() == GrpcConsumerStrategy.AGGREGATION) {
                 requestObserver = new GrpcRequestAggregationStreamObserver(endpoint, consumer, responseObserver, grcpHeaders);
-            } else if (consumer.getConfiguration().getProcessingStrategy() == GrpcProcessingStrategies.PROPAGATION) {
+            } else if (consumer.getConfiguration().getConsumerStrategy() == GrpcConsumerStrategy.PROPAGATION) {
                 requestObserver = new GrpcRequestPropagationStreamObserver(endpoint, consumer, responseObserver, grcpHeaders);
             } else {
-                throw new IllegalArgumentException("gRPC processing strategy not implemented " + consumer.getConfiguration().getProcessingStrategy());
+                throw new IllegalArgumentException("gRPC processing strategy not implemented " + consumer.getConfiguration().getConsumerStrategy());
             }
             
             return requestObserver;

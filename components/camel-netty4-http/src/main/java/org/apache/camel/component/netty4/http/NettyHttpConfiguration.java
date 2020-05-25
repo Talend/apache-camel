@@ -82,9 +82,9 @@ public class NettyHttpConfiguration extends NettyConfiguration {
             // clone as NettyHttpConfiguration
             NettyHttpConfiguration answer = (NettyHttpConfiguration) clone();
             // make sure the lists is copied in its own instance
-            List<ChannelHandler> encodersCopy = new ArrayList<ChannelHandler>(getEncoders());
+            List<ChannelHandler> encodersCopy = new ArrayList<>(getEncoders());
             answer.setEncoders(encodersCopy);
-            List<ChannelHandler> decodersCopy = new ArrayList<ChannelHandler>(getDecoders());
+            List<ChannelHandler> decodersCopy = new ArrayList<>(getDecoders());
             answer.setDecoders(decodersCopy);
             return answer;
         } catch (CloneNotSupportedException e) {
@@ -307,7 +307,9 @@ public class NettyHttpConfiguration extends NettyConfiguration {
     }
 
     /**
-     * The status codes which is considered a success response. The values are inclusive. The range must be defined as from-to with the dash included.
+     * The status codes which are considered a success response. The values are inclusive. Multiple ranges can be
+     * defined, separated by comma, e.g. <tt>200-204,209,301-304</tt>. Each range must be a single number or from-to with the
+     * dash included.
      * <p/>
      * The default range is <tt>200-299</tt>
      */

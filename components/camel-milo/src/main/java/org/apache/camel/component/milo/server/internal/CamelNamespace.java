@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import com.google.common.collect.Lists;
-
 import org.apache.camel.component.milo.client.MiloClientConsumer;
 import org.eclipse.milo.opcua.sdk.core.Reference;
 import org.eclipse.milo.opcua.sdk.server.OpcUaServer;
@@ -137,7 +136,7 @@ public class CamelNamespace implements Namespace {
             final DataValue value;
 
             if (node != null) {
-                value = node.readAttribute(new AttributeContext(context), id.getAttributeId(), timestamps, id.getIndexRange());
+                value = node.readAttribute(new AttributeContext(context), id.getAttributeId(), timestamps, id.getIndexRange(), null);
             } else {
                 value = new DataValue(StatusCodes.Bad_NodeIdUnknown);
             }

@@ -132,7 +132,7 @@ public class SqsConsumer extends ScheduledBatchPollingConsumer {
             LOG.trace("Received {} messages in this poll", messages.size());
         }
         
-        Queue<Exchange> answer = new LinkedList<Exchange>();
+        Queue<Exchange> answer = new LinkedList<>();
         for (Message message : messages) {
             Exchange exchange = getEndpoint().createExchange(message);
             answer.add(exchange);
@@ -160,7 +160,7 @@ public class SqsConsumer extends ScheduledBatchPollingConsumer {
             if (this.scheduledExecutor != null && visibilityTimeout != null && (visibilityTimeout.intValue() / 2) > 0) {
                 int delay = visibilityTimeout.intValue() / 2;
                 int period = visibilityTimeout.intValue();
-                int repeatSeconds = new Double(visibilityTimeout.doubleValue() * 1.5).intValue();
+                int repeatSeconds = Double.valueOf(visibilityTimeout.doubleValue() * 1.5).intValue();
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Scheduled TimeoutExtender task to start after {} delay, and run with {}/{} period/repeat (seconds), to extend exchangeId: {}",
                             new Object[]{delay, period, repeatSeconds, exchange.getExchangeId()});

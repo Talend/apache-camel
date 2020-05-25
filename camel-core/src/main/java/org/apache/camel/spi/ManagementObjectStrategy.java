@@ -27,6 +27,7 @@ import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.Route;
 import org.apache.camel.Service;
+import org.apache.camel.cluster.CamelClusterService;
 import org.apache.camel.model.ProcessorDefinition;
 
 /**
@@ -36,6 +37,8 @@ public interface ManagementObjectStrategy {
     
     Object getManagedObjectForCamelContext(CamelContext context);
 
+    Object getManagedObjectForCamelHealth(CamelContext context);
+
     Object getManagedObjectForComponent(CamelContext context, Component component, String name);
 
     Object getManagedObjectForDataFormat(CamelContext context, DataFormat dataFormat);
@@ -44,6 +47,8 @@ public interface ManagementObjectStrategy {
 
     Object getManagedObjectForErrorHandler(CamelContext context, RouteContext routeContext,
                                            Processor errorHandler, ErrorHandlerFactory errorHandlerBuilder);
+
+    Object getManagedObjectForRouteController(CamelContext context);
 
     Object getManagedObjectForRoute(CamelContext context, Route route);
 
@@ -55,6 +60,8 @@ public interface ManagementObjectStrategy {
                                         ProcessorDefinition<?> definition, Route route);
 
     Object getManagedObjectForService(CamelContext context, Service service);
+
+    Object getManagedObjectForClusterService(CamelContext context, CamelClusterService service);
 
     Object getManagedObjectForThreadPool(CamelContext context, ThreadPoolExecutor threadPool,
                                          String id, String sourceId, String routeId, String threadPoolProfileId);

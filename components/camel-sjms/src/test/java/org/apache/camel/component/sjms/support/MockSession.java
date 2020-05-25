@@ -22,6 +22,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.Queue;
 import javax.jms.Topic;
+
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQMessageTransformation;
 import org.apache.activemq.ActiveMQPrefetchPolicy;
@@ -41,7 +42,7 @@ public class MockSession extends ActiveMQSession {
     }
     public Queue createQueue(String queueName) throws JMSException {
         this.checkClosed();
-        return (Queue)(queueName.startsWith("ID:") ? new ActiveMQTempQueue(queueName) : new ActiveMQQueue(queueName));
+        return queueName.startsWith("ID:") ? new ActiveMQTempQueue(queueName) : new ActiveMQQueue(queueName);
     }
 
     public MessageConsumer createConsumer(Destination destination, String messageSelector, boolean noLocal, MessageListener messageListener) throws JMSException {
@@ -51,7 +52,6 @@ public class MockSession extends ActiveMQSession {
             return prefetchPolicy1.createConsumer(this, messageSelector, noLocal);
         } else {
             ActiveMQPrefetchPolicy prefetchPolicy = this.connection.getPrefetchPolicy();
-            boolean prefetch = false;
             int prefetch1;
             if (destination instanceof Topic) {
                 prefetch1 = prefetchPolicy.getTopicPrefetch();

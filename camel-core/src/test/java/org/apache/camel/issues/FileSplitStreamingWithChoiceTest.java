@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 package org.apache.camel.issues;
-
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @version 
@@ -27,11 +28,13 @@ import org.apache.camel.component.mock.MockEndpoint;
 public class FileSplitStreamingWithChoiceTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/filesplit");
         super.setUp();
     }
 
+    @Test
     public void testSplitStreamingWithChoice() throws Exception {
         getMockEndpoint("mock:other").expectedMessageCount(0);
 
@@ -52,7 +55,7 @@ public class FileSplitStreamingWithChoiceTest extends ContextTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("file://target/filesplit")
+                from("file://target/filesplit?initialDelay=0&delay=10")
                     .split(body().tokenize(LS)).streaming()
                     .to("mock:split")
                     .choice()

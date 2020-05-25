@@ -16,11 +16,13 @@
  */
 package org.apache.camel.management;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
 import javax.management.Attribute;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -30,12 +32,14 @@ import org.apache.camel.Processor;
 import org.apache.camel.builder.NotifyBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 
 /**
  * @version
  */
 public class ManagedThrottlerTest extends ManagementTestSupport {
 
+    @Test
     public void testManageThrottler() throws Exception {
         // JMX tests dont work well on AIX CI servers (hangs them)
         if (isPlatform("aix")) {
@@ -76,11 +80,11 @@ public class ManagedThrottlerTest extends ManagementTestSupport {
         assertEquals(10, completed.longValue());
 
         Long timePeriod = (Long) mbeanServer.getAttribute(throttlerName, "TimePeriodMillis");
-        assertEquals(1000, timePeriod.longValue());
+        assertEquals(250, timePeriod.longValue());
 
         Long total = (Long) mbeanServer.getAttribute(routeName, "TotalProcessingTime");
 
-        assertTrue("Should take at most 2.0 sec: was " + total, total < 2000);
+        assertTrue("Should take at most 1.0 sec: was " + total, total < 1000);
 
         // change the throttler using JMX
         mbeanServer.setAttribute(throttlerName, new Attribute("MaximumRequestsPerPeriod", (long) 2));
@@ -101,9 +105,10 @@ public class ManagedThrottlerTest extends ManagementTestSupport {
         assertEquals(10, completed.longValue());
         total = (Long) mbeanServer.getAttribute(routeName, "TotalProcessingTime");
 
-        assertTrue("Should be around 5 sec now: was " + total, total > 3500);
+        assertTrue("Should be around 1 sec now: was " + total, total > 1000);
     }
 
+    @Test
     public void testThrottleVisableViaJmx() throws Exception {
         // JMX tests dont work well on AIX CI servers (hangs them)
         if (isPlatform("aix")) {
@@ -116,8 +121,6 @@ public class ManagedThrottlerTest extends ManagementTestSupport {
 
         // get the stats for the route
         MBeanServer mbeanServer = getMBeanServer();
-        // get the object name for the delayer
-        ObjectName throttlerName = ObjectName.getInstance("org.apache.camel:context=camel-1,type=processors,name=\"mythrottler2\"");
 
         // use route to get the total time
         ObjectName routeName = ObjectName.getInstance("org.apache.camel:context=camel-1,type=routes,name=\"route2\"");
@@ -141,6 +144,7 @@ public class ManagedThrottlerTest extends ManagementTestSupport {
         assertEquals(10, completed.longValue());
     }
 
+    @Test
     public void testThrottleAsyncVisableViaJmx() throws Exception {
         // JMX tests dont work well on AIX CI servers (hangs them)
         if (isPlatform("aix")) {
@@ -153,8 +157,6 @@ public class ManagedThrottlerTest extends ManagementTestSupport {
 
         // get the stats for the route
         MBeanServer mbeanServer = getMBeanServer();
-        // get the object name for the delayer
-        ObjectName throttlerName = ObjectName.getInstance("org.apache.camel:context=camel-1,type=processors,name=\"mythrottler3\"");
 
         // use route to get the total time
         ObjectName routeName = ObjectName.getInstance("org.apache.camel:context=camel-1,type=routes,name=\"route3\"");
@@ -180,6 +182,7 @@ public class ManagedThrottlerTest extends ManagementTestSupport {
         assertEquals(10, completed.longValue());
     }
 
+    @Test
     public void testThrottleAsyncExceptionVisableViaJmx() throws Exception {
         // JMX tests dont work well on AIX CI servers (hangs them)
         if (isPlatform("aix")) {
@@ -192,8 +195,6 @@ public class ManagedThrottlerTest extends ManagementTestSupport {
 
         // get the stats for the route
         MBeanServer mbeanServer = getMBeanServer();
-        // get the object name for the delayer
-        ObjectName throttlerName = ObjectName.getInstance("org.apache.camel:context=camel-1,type=processors,name=\"mythrottler4\"");
 
         // use route to get the total time
         ObjectName routeName = ObjectName.getInstance("org.apache.camel:context=camel-1,type=routes,name=\"route4\"");
@@ -221,6 +222,7 @@ public class ManagedThrottlerTest extends ManagementTestSupport {
         assertEquals(0, completed.longValue());
     }
 
+    @Test
     public void testRejectedExecution() throws Exception {
         // when delaying async, we can possibly fill up the execution queue
         //. which would through a RejectedExecutionException.. we need to make
@@ -233,8 +235,6 @@ public class ManagedThrottlerTest extends ManagementTestSupport {
 
         // get the stats for the route
         MBeanServer mbeanServer = getMBeanServer();
-        // get the object name for the delayer
-        ObjectName throttlerName = ObjectName.getInstance("org.apache.camel:context=camel-1,type=processors,name=\"mythrottler2\"");
 
         // use route to get the total time
         ObjectName routeName = ObjectName.getInstance("org.apache.camel:context=camel-1,type=routes,name=\"route2\"");
@@ -256,6 +256,7 @@ public class ManagedThrottlerTest extends ManagementTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testRejectedExecutionCallerRuns() throws Exception {
         // when delaying async, we can possibly fill up the execution queue
         //. which would through a RejectedExecutionException.. we need to make
@@ -268,8 +269,6 @@ public class ManagedThrottlerTest extends ManagementTestSupport {
 
         // get the stats for the route
         MBeanServer mbeanServer = getMBeanServer();
-        // get the object name for the delayer
-        ObjectName throttlerName = ObjectName.getInstance("org.apache.camel:context=camel-1,type=processors,name=\"mythrottler2\"");
 
         // use route to get the total time
         ObjectName routeName = ObjectName.getInstance("org.apache.camel:context=camel-1,type=routes,name=\"route2\"");
@@ -295,7 +294,7 @@ public class ManagedThrottlerTest extends ManagementTestSupport {
     protected RouteBuilder createRouteBuilder() throws Exception {
         final ScheduledExecutorService badService = new ScheduledThreadPoolExecutor(1) {
             @Override
-            public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
+            public <V> ScheduledFuture<V> schedule(Callable<V> command, long delay, TimeUnit unit) {
                 throw new RejectedExecutionException();
             }
         };
@@ -305,7 +304,7 @@ public class ManagedThrottlerTest extends ManagementTestSupport {
             public void configure() throws Exception {
                 from("direct:start")
                         .to("log:foo")
-                        .throttle(10).id("mythrottler")
+                        .throttle(10).timePeriodMillis(250).id("mythrottler")
                         .to("mock:result");
 
                 from("seda:throttleCount")
@@ -320,7 +319,6 @@ public class ManagedThrottlerTest extends ManagementTestSupport {
                         .throttle(1).asyncDelayed().timePeriodMillis(250).id("mythrottler4")
                         .to("mock:endAsyncException")
                         .process(new Processor() {
-
                             @Override
                             public void process(Exchange exchange) throws Exception {
                                 throw new RuntimeException("Fail me");

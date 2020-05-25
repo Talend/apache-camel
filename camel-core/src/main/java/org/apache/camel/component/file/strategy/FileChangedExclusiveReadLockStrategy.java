@@ -40,7 +40,7 @@ public class FileChangedExclusiveReadLockStrategy extends MarkerFileExclusiveRea
     private long checkInterval = 1000;
     private long minLength = 1;
     private long minAge;
-    private LoggingLevel readLockLoggingLevel = LoggingLevel.WARN;
+    private LoggingLevel readLockLoggingLevel = LoggingLevel.DEBUG;
 
     @Override
     public boolean acquireExclusiveReadLock(GenericFileOperations<File> operations, GenericFile<File> file, Exchange exchange) throws Exception {
@@ -69,6 +69,11 @@ public class FileChangedExclusiveReadLockStrategy extends MarkerFileExclusiveRea
                     // we could not get the lock within the timeout period, so return false
                     return false;
                 }
+            }
+
+            if (!target.exists()) {
+                CamelLogger.log(LOG, readLockLoggingLevel, "Cannot acquire read lock as file no longer exists. Will skip the file: " + file);
+                return false;
             }
 
             long newLastModified = target.lastModified();

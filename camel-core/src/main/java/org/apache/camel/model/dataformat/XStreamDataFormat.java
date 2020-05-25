@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -42,7 +43,7 @@ import org.apache.camel.util.CollectionStringBuffer;
 import org.apache.camel.util.ObjectHelper;
 
 /**
- * XStream data format
+ * XSTream data format is used for unmarshal a XML payload to POJO or to marshal POJO back to XML payload.
  *
  * @version 
  */
@@ -267,7 +268,7 @@ public class XStreamDataFormat extends DataFormatDefinition {
                 return null;
             }
 
-            List<ConverterEntry> list = new ArrayList<ConverterEntry>();
+            List<ConverterEntry> list = new ArrayList<>();
             for (String str : v) {
                 ConverterEntry entry = new ConverterEntry();
                 entry.setClsName(str);
@@ -284,7 +285,7 @@ public class XStreamDataFormat extends DataFormatDefinition {
                 return null;
             }
 
-            List<String> list = new ArrayList<String>();
+            List<String> list = new ArrayList<>();
             for (ConverterEntry entry : v.getList()) {
                 list.add(entry.getClsName());
             }
@@ -332,7 +333,7 @@ public class XStreamDataFormat extends DataFormatDefinition {
                 return null;
             }
 
-            List<ImplicitCollectionEntry> list = new ArrayList<ImplicitCollectionEntry>();
+            List<ImplicitCollectionEntry> list = new ArrayList<>();
             for (Entry<String, String[]> e : v.entrySet()) {
                 ImplicitCollectionEntry entry = new ImplicitCollectionEntry(e.getKey(), e.getValue());
                 list.add(entry);
@@ -350,7 +351,7 @@ public class XStreamDataFormat extends DataFormatDefinition {
                 return null;
             }
 
-            Map<String, String[]> map = new HashMap<String, String[]>();
+            Map<String, String[]> map = new HashMap<>();
             for (ImplicitCollectionEntry entry : v.getList()) {
                 map.put(entry.getClsName(), entry.getFields());
             }
@@ -421,7 +422,7 @@ public class XStreamDataFormat extends DataFormatDefinition {
                 return null;
             }
 
-            List<AliasEntry> ret = new ArrayList<AliasEntry>(value.size());
+            List<AliasEntry> ret = new ArrayList<>(value.size());
             for (Map.Entry<String, String> entry : value.entrySet()) {
                 ret.add(new AliasEntry(entry.getKey(), entry.getValue()));
             }
@@ -436,7 +437,7 @@ public class XStreamDataFormat extends DataFormatDefinition {
                 return null;
             }
 
-            Map<String, String> answer = new HashMap<String, String>();
+            Map<String, String> answer = new HashMap<>();
             for (AliasEntry alias : value.getList()) {
                 answer.put(alias.getName(), alias.getClsName());
             }
@@ -509,7 +510,7 @@ public class XStreamDataFormat extends DataFormatDefinition {
                 return null;
             }
 
-            List<OmitFieldEntry> list = new ArrayList<OmitFieldEntry>();
+            List<OmitFieldEntry> list = new ArrayList<>();
             for (Entry<String, String[]> e : v.entrySet()) {
                 OmitFieldEntry entry = new OmitFieldEntry(e.getKey(), e.getValue());
                 list.add(entry);
@@ -527,7 +528,7 @@ public class XStreamDataFormat extends DataFormatDefinition {
                 return null;
             }
 
-            Map<String, String[]> map = new HashMap<String, String[]>();
+            Map<String, String[]> map = new HashMap<>();
             for (OmitFieldEntry entry : v.getList()) {
                 map.put(entry.getClsName(), entry.getFields());
             }

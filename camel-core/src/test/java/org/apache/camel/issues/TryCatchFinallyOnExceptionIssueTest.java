@@ -18,12 +18,14 @@ package org.apache.camel.issues;
 
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class TryCatchFinallyOnExceptionIssueTest extends ContextTestSupport {
 
+    @Test
     public void testTryCatchFinallyOnExceptionIssue() throws Exception {
         // doTry .. doCatch .. doFinally uses its own error handling so we wont get one here
         getMockEndpoint("mock:error").expectedMessageCount(0);
@@ -44,6 +46,7 @@ public class TryCatchFinallyOnExceptionIssueTest extends ContextTestSupport {
                 from("seda:start")
                     .onException(Exception.class)
                         .handled(true)
+                        .redeliveryDelay(0)
                         .maximumRedeliveries(2)
                         .to("mock:error")
                     .end()

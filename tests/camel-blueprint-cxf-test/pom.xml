@@ -24,11 +24,11 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>tests</artifactId>
-    <version>2.20.0-SNAPSHOT</version>
+    <version>2.24.2</version>
   </parent>
 
   <artifactId>camel-blueprint-cxf-test</artifactId>
-  <name>Camel :: Integration Tests :: Blueprint CXF Tests </name>
+  <name>Camel :: Integration Tests :: Blueprint CXF Tests</name>
   <description>Tests the camel-cxf blueprint features</description>
 
   <dependencies>
@@ -36,34 +36,35 @@
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm-all</artifactId>
-      <version>5.1</version>
+      <version>5.2</version>
       <scope>test</scope>
     </dependency>
 
+    <!-- TODO OSGi hell with starting up Karaf 4.x for this test -->
     <dependency>
       <groupId>org.apache.karaf.jaas</groupId>
       <artifactId>org.apache.karaf.jaas.jasypt</artifactId>
       <exclusions>
-          <exclusion>
-              <groupId>org.apache.servicemix.bundles</groupId>
-              <artifactId>org.apache.servicemix.bundles.jasypt</artifactId>
-          </exclusion>
+        <exclusion>
+          <groupId>org.apache.servicemix.bundles</groupId>
+          <artifactId>org.apache.servicemix.bundles.jasypt</artifactId>
+        </exclusion>
       </exclusions>
-      <version>${karaf-version}</version>
+      <version>${karaf2-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-        <groupId>org.jasypt</groupId>
-        <artifactId>jasypt</artifactId>
-        <version>${jasypt-version}</version>
-        <scope>test</scope>
+      <groupId>org.jasypt</groupId>
+      <artifactId>jasypt</artifactId>
+      <version>${jasypt-version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
       <scope>test</scope>
     </dependency>
-     <dependency>
+    <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-test</artifactId>
       <scope>test</scope>
@@ -86,81 +87,72 @@
       <exclusions>
         <exclusion>
           <groupId>org.apache.aries.blueprint</groupId>
-          <artifactId>org.apache.aries.blueprint.core</artifactId>         
+          <artifactId>org.apache.aries.blueprint.core</artifactId>
         </exclusion>
         <exclusion>
           <groupId>org.apache.aries.blueprint</groupId>
-          <artifactId>org.apache.aries.blueprint.api</artifactId>         
+          <artifactId>org.apache.aries.blueprint.api</artifactId>
         </exclusion>
         <exclusion>
           <groupId>org.apache.aries.quiesce</groupId>
-          <artifactId>org.apache.aries.quiesce.api</artifactId>         
+          <artifactId>org.apache.aries.quiesce.api</artifactId>
         </exclusion>
         <!--  exclude additional unneeded components -->
         <exclusion>
           <groupId>org.apache.camel</groupId>
-          <artifactId>camel-spring</artifactId>         
+          <artifactId>camel-spring</artifactId>
         </exclusion>
       </exclusions>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-transports-http</artifactId>
-      <version>${cxf-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-bindings-soap</artifactId>
-      <version>${cxf-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-transports-http-jetty</artifactId>
-      <version>${cxf-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-features-clustering</artifactId>
-      <version>${cxf-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-testutils</artifactId>
-      <version>${cxf-version}</version>
       <scope>test</scope>
     </dependency>
     <!-- for ws-* tests -->
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-ws-addr</artifactId>
-      <version>${cxf-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-ws-policy</artifactId>
-      <version>${cxf-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-ws-rm</artifactId>
-      <version>${cxf-version}</version>
       <scope>test</scope>
     </dependency>
     <!-- for jaxrs providers test -->
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-extension-providers</artifactId>
-      <version>${cxf-version}</version>
       <scope>test</scope>
-    </dependency>  
+    </dependency>
     <dependency>
       <groupId>org.codehaus.jettison</groupId>
       <artifactId>jettison</artifactId>
@@ -178,7 +170,7 @@
       <artifactId>org.osgi.compendium</artifactId>
       <scope>test</scope>
     </dependency>
-    
+
     <!-- logging -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -197,12 +189,12 @@
     </dependency>
 
   </dependencies>
-  
+
   <profiles>
     <profile>
-      <id>java9</id>
+      <id>java9+</id>
       <activation>
-        <jdk>9</jdk>
+        <jdk>[9,)</jdk>
       </activation>
       <build>
         <plugins>
@@ -211,7 +203,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <excludes>
-                <!--ignore tests until CXF-7270 is resolved and released-->
+                <!--ignore tests until CXF-7520 is resolved and released-->
                 <exclude>**/**</exclude>
               </excludes>
             </configuration>

@@ -20,12 +20,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Component;
@@ -36,9 +36,10 @@ import org.apache.camel.Processor;
 import org.apache.camel.VerifiableComponent;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
+import org.apache.camel.component.extension.ComponentVerifierExtension;
+import org.apache.camel.component.extension.verifier.ResultBuilder;
+import org.apache.camel.component.extension.verifier.ResultErrorBuilder;
 import org.apache.camel.impl.DefaultComponent;
-import org.apache.camel.impl.verifier.ResultBuilder;
-import org.apache.camel.impl.verifier.ResultErrorBuilder;
 import org.apache.camel.util.IntrospectionSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.URISupport;
@@ -55,23 +56,36 @@ public abstract class DefaultConnectorComponent extends DefaultComponent impleme
     private final CamelCatalog catalog = new DefaultCamelCatalog(false);
 
     private final String baseScheme;
-    private final String componentName;
     private final String componentScheme;
+    private final String componentName;
     private final ConnectorModel model;
-    private Map<String, Object> options;
+    private final Map<String, Object> options;
     private Processor beforeProducer;
     private Processor afterProducer;
     private Processor beforeConsumer;
     private Processor afterConsumer;
 
     protected DefaultConnectorComponent(String componentName, String className) {
-        this.model = new ConnectorModel(componentName, className);
+        this(componentName, null, loadConnectorClass(className));
+    }
+
+    protected DefaultConnectorComponent(String componentName, String componentScheme, String className) {
+        this(componentName, componentScheme, loadConnectorClass(className));
+    }
+
+    protected DefaultConnectorComponent(String componentName, Class<?> componentClass) {
+        this(componentName, null, componentClass);
+    }
+
+    protected DefaultConnectorComponent(String componentName, String componentScheme, Class<?> componentClass) {
+        this.model = new ConnectorModel(componentName, componentClass);
         this.baseScheme = this.model.getBaseScheme();
         this.componentName = componentName;
-        this.componentScheme = componentName + "-component";
+        this.componentScheme = componentScheme != null ? baseScheme + "-" + componentScheme : baseScheme + "-" + componentName + "-component";
+        this.options = new HashMap<>();
 
         // add to catalog
-        this.catalog.addComponent(componentName, className);
+        this.catalog.addComponent(componentName, componentClass.getName());
 
         // It may be a custom component so we need to register this in the camel catalog also
         if (!catalog.findComponentNames().contains(baseScheme)) {
@@ -80,8 +94,27 @@ public abstract class DefaultConnectorComponent extends DefaultComponent impleme
 
         // Add an alias for the base component so there's no clash between connectors
         // if they set options targeting the component.
-        if (!catalog.findComponentNames().contains(componentScheme)) {
-            this.catalog.addComponent(componentScheme, this.model.getBaseJavaType(), catalog.componentJSonSchema(baseScheme));
+        if (!catalog.findComponentNames().contains(this.componentScheme)) {
+            this.catalog.addComponent(this.componentScheme, this.model.getBaseJavaType(), catalog.componentJSonSchema(baseScheme));
+        }
+
+        registerExtension(this::getComponentVerifierExtension);
+    }
+
+    private static Class<?> loadConnectorClass(String className) {
+        try {
+            ClassLoader classLoader = DefaultConnectorComponent.class.getClassLoader();
+            return classLoader.loadClass(className);
+        } catch (ClassNotFoundException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    protected <T> void doAddOption(Map<String, T> options, String name, T value) {
+        log.trace("Adding option: {}={}", name, value);
+        T val = options.put(name, value);
+        if (val != null) {
+            log.debug("Options {} overridden, old value was {}", name, val);
         }
     }
 
@@ -108,7 +141,7 @@ public abstract class DefaultConnectorComponent extends DefaultComponent impleme
             log.info("Connector resolved: {} -> {}", sanitizeUri(uri), sanitizeUri(delegateUri));
         }
 
-        Endpoint answer;
+        DefaultConnectorEndpoint answer;
         // are we scheduler based?
         if ("timer".equals(model.getScheduler())) {
             SchedulerTimerConnectorEndpoint endpoint = new SchedulerTimerConnectorEndpoint(uri, this, delegate, model.getInputDataType(), model.getOutputDataType());
@@ -117,6 +150,11 @@ public abstract class DefaultConnectorComponent extends DefaultComponent impleme
         } else {
             answer = new DefaultConnectorEndpoint(uri, this, delegate, model.getInputDataType(), model.getOutputDataType());
         }
+
+        answer.setBeforeProducer(getBeforeProducer());
+        answer.setAfterProducer(getAfterProducer());
+        answer.setBeforeConsumer(getBeforeConsumer());
+        answer.setAfterConsumer(getAfterConsumer());
 
         // clean-up parameters so that validation won't fail later on
         // in DefaultConnectorComponent.validateParameters()
@@ -129,15 +167,6 @@ public abstract class DefaultConnectorComponent extends DefaultComponent impleme
     public String createEndpointUri(String scheme, Map<String, String> options) throws URISyntaxException {
         log.trace("Creating endpoint uri with scheme: {}", scheme);
         return catalog.asEndpointUri(scheme, options, false);
-    }
-
-    @Override
-    public void addConnectorOption(Map<String, String> options, String name, String value) {
-        log.trace("Adding option: {}={}", name, value);
-        Object val = options.put(name, value);
-        if (val != null) {
-            log.debug("Options {} overridden, old value was {}", name, val);
-        }
     }
 
     @Override
@@ -161,27 +190,45 @@ public abstract class DefaultConnectorComponent extends DefaultComponent impleme
     }
 
     @Override
+    public String getComponentScheme() {
+        return componentScheme;
+    }
+
+    @Override
     public Map<String, Object> getOptions() {
         return options;
     }
 
     @Override
-    public void setOptions(Map<String, Object> baseComponentOptions) {
-        // Copy the map so if the given map is externally modified the connector
-        // is not impacted.
-        this.options = Collections.unmodifiableMap(new HashMap<>(baseComponentOptions));
+    public void setOptions(Map<String, Object> options) {
+        this.options.clear();
+        this.options.putAll(options);
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
+    public void addOption(String name, Object value) {
+        doAddOption(this.options, name, value);
+    }
+
+    @Override
+    public void addOptions(Map<String, Object> options) {
+        options.forEach((name, value)->  doAddOption(this.options, name, value));
+    }
+
     @Override
     public ComponentVerifier getVerifier() {
+        return (scope, parameters) -> getExtension(ComponentVerifierExtension.class).orElseThrow(UnsupportedOperationException::new).verify(scope, parameters);
+    }
+
+    private ComponentVerifierExtension getComponentVerifierExtension() {
         try {
             // Create the component but no need to add it to the camel context
             // nor to start it.
             final Component component = createNewBaseComponent();
+            final Optional<ComponentVerifierExtension> extension = component.getExtension(ComponentVerifierExtension.class);
 
-            if (component instanceof VerifiableComponent) {
-                return (scope, map) -> {
+            if (extension.isPresent()) {
+                return (ComponentVerifierExtension.Scope scope, Map<String, Object> map) -> {
                     Map<String, Object> options;
 
                     try {
@@ -192,18 +239,18 @@ public abstract class DefaultConnectorComponent extends DefaultComponent impleme
                     } catch (URISyntaxException | NoTypeConversionAvailableException e) {
                         // If a failure is detected while reading the catalog, wrap it
                         // and stop the validation step.
-                        return ResultBuilder.withStatusAndScope(ComponentVerifier.Result.Status.OK, scope)
+                        return ResultBuilder.withStatusAndScope(ComponentVerifierExtension.Result.Status.OK, scope)
                             .error(ResultErrorBuilder.withException(e).build())
                             .build();
                     }
 
-                    return ((VerifiableComponent) component).getVerifier().verify(scope, options);
+                    return extension.get().verify(scope, options);
                 };
             } else {
                 return (scope, map) -> {
-                    return ResultBuilder.withStatusAndScope(ComponentVerifier.Result.Status.UNSUPPORTED, scope)
+                    return ResultBuilder.withStatusAndScope(ComponentVerifierExtension.Result.Status.UNSUPPORTED, scope)
                         .error(
-                            ResultErrorBuilder.withCode(ComponentVerifier.VerificationError.StandardCode.UNSUPPORTED)
+                            ResultErrorBuilder.withCode(ComponentVerifierExtension.VerificationError.StandardCode.UNSUPPORTED)
                                 .detail("camel_connector_name", getConnectorName())
                                 .detail("camel_component_name", getComponentName())
                                 .build())
@@ -212,7 +259,7 @@ public abstract class DefaultConnectorComponent extends DefaultComponent impleme
             }
         } catch (Exception e) {
             return (scope, map) -> {
-                return ResultBuilder.withStatusAndScope(ComponentVerifier.Result.Status.OK, scope)
+                return ResultBuilder.withStatusAndScope(ComponentVerifierExtension.Result.Status.OK, scope)
                     .error(ResultErrorBuilder.withException(e).build())
                     .build();
             };
@@ -239,6 +286,13 @@ public abstract class DefaultConnectorComponent extends DefaultComponent impleme
 
         Component component = createNewBaseComponent();
         if (component != null) {
+            log.info("Register component: {} (type: {}) with scheme: {}",
+                this.componentName,
+                component.getClass().getName(),
+                this.componentScheme
+            );
+
+            //String delegateComponentScheme =
             getCamelContext().removeComponent(this.componentScheme);
 
             // ensure component is started and stopped when Camel shutdown
@@ -323,15 +377,15 @@ public abstract class DefaultConnectorComponent extends DefaultComponent impleme
                 // the connector may have default values for the component level also
                 // and if so we need to prepare these values and set on this component
                 // before we can start
-                Map<String, String> defaultOptions = model.getDefaultComponentOptions();
+                Map<String, Object> defaultOptions = model.getDefaultComponentOptions();
 
                 if (!defaultOptions.isEmpty()) {
-                    for (Map.Entry<String, String> entry : defaultOptions.entrySet()) {
+                    for (Map.Entry<String, Object> entry : defaultOptions.entrySet()) {
                         String key = entry.getKey();
-                        String value = entry.getValue();
+                        Object value = entry.getValue();
                         if (value != null) {
                             // also support {{ }} placeholders so resolve those first
-                            value = getCamelContext().resolvePropertyPlaceholders(value);
+                            value = getCamelContext().resolvePropertyPlaceholders(value.toString());
 
                             log.debug("Using component option: {}={}", key, value);
                             IntrospectionSupport.setProperty(context, base, key, value);
@@ -344,10 +398,11 @@ public abstract class DefaultConnectorComponent extends DefaultComponent impleme
                     // Get the list of options from the connector catalog that
                     // are configured to target the endpoint
                     List<String> endpointOptions = model.getEndpointOptions();
+                    Map<String, Object> connectorOptions = model.getConnectorOptions();
 
                     for (Map.Entry<String, Object> entry : options.entrySet()) {
-                        // Only set options that are not targeting the endpoint
-                        if (!endpointOptions.contains(entry.getKey())) {
+                        // Only set options that are targeting the component
+                        if (!endpointOptions.contains(entry.getKey()) && !connectorOptions.containsKey(entry.getKey())) {
                             log.debug("Using component option: {}={}", entry.getKey(), entry.getValue());
                             IntrospectionSupport.setProperty(context, base, entry.getKey(), entry.getValue());
                         }
@@ -407,7 +462,7 @@ public abstract class DefaultConnectorComponent extends DefaultComponent impleme
     }
 
     private Map<String, String> buildEndpointOptions(String remaining, Map<String, Object> parameters) throws URISyntaxException, NoTypeConversionAvailableException {
-        Map<String, String> defaultOptions = model.getDefaultEndpointOptions();
+        Map<String, Object> defaultOptions = model.getDefaultEndpointOptions();
 
         // gather all options to use when building the delegate uri
         Map<String, String> options = new LinkedHashMap<>();
@@ -416,7 +471,8 @@ public abstract class DefaultConnectorComponent extends DefaultComponent impleme
         if (!defaultOptions.isEmpty()) {
             defaultOptions.forEach((key, value) -> {
                 if (isValidConnectionOption(key, value)) {
-                    addConnectorOption(options, key, value);
+                    String text = value.toString();
+                    doAddOption(options, key, text);
                 }
             });
         }
@@ -429,7 +485,7 @@ public abstract class DefaultConnectorComponent extends DefaultComponent impleme
             for (String endpointOption : endpointOptions) {
                 Object value = this.options.get(endpointOption);
                 if (value != null) {
-                    addConnectorOption(
+                    doAddOption(
                         options,
                         endpointOption,
                         getCamelContext().getTypeConverter().mandatoryConvertTo(String.class, value));
@@ -445,7 +501,7 @@ public abstract class DefaultConnectorComponent extends DefaultComponent impleme
                 value = entry.getValue().toString();
             }
             if (isValidConnectionOption(key, value)) {
-                addConnectorOption(options, key, value);
+                doAddOption(options, key, value);
             }
         }
 
@@ -456,7 +512,7 @@ public abstract class DefaultConnectorComponent extends DefaultComponent impleme
             if (extra != null && !extra.isEmpty()) {
                 extra.forEach((key, value) -> {
                     if (isValidConnectionOption(key, value)) {
-                        addConnectorOption(options, key, value);
+                        doAddOption(options, key, value);
                     }
                 });
             }
@@ -465,7 +521,7 @@ public abstract class DefaultConnectorComponent extends DefaultComponent impleme
         return options;
     }
 
-    private boolean isValidConnectionOption(String key, String value) {
+    private boolean isValidConnectionOption(String key, Object value) {
         // skip specific option if its a scheduler
         if (model.getScheduler() != null && asSchedulerKey(key) != null) {
             return false;

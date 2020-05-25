@@ -23,9 +23,7 @@ import java.util.stream.StreamSupport;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.client.MongoCollection;
-
 import org.apache.camel.builder.RouteBuilder;
-
 import org.junit.Test;
 
 public class MongoDbDynamicityTest extends AbstractMongoDbTest {
@@ -40,16 +38,16 @@ public class MongoDbDynamicityTest extends AbstractMongoDbTest {
                         .anyMatch("otherDB"::equals));
 
         String body = "{\"_id\": \"testInsertDynamicityDisabled\", \"a\" : \"1\"}";
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put(MongoDbConstants.DATABASE, "otherDB");
         headers.put(MongoDbConstants.COLLECTION, "otherCollection");
-        Object result = template.requestBodyAndHeaders("direct:noDynamicity", body, headers);
+        template.requestBodyAndHeaders("direct:noDynamicity", body, headers);
 
         DBObject b = testCollection.find(new BasicDBObject("_id", "testInsertDynamicityDisabled")).first();
         assertNotNull("No record with 'testInsertDynamicityDisabled' _id", b);
         
         body = "{\"_id\": \"testInsertDynamicityDisabledExplicitly\", \"a\" : \"1\"}";
-        result = template.requestBodyAndHeaders("direct:noDynamicityExplicit", body, headers);
+        template.requestBodyAndHeaders("direct:noDynamicityExplicit", body, headers);
 
         b = testCollection.find(new BasicDBObject("_id", "testInsertDynamicityDisabledExplicitly")).first();
         assertNotNull("No record with 'testInsertDynamicityDisabledExplicitly' _id", b);
@@ -70,9 +68,9 @@ public class MongoDbDynamicityTest extends AbstractMongoDbTest {
                         .anyMatch("otherDB"::equals));
 
         String body = "{\"_id\": \"testInsertDynamicityEnabledDBOnly\", \"a\" : \"1\"}";
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put(MongoDbConstants.DATABASE, "otherDB");
-        Object result = template.requestBodyAndHeaders("direct:dynamicityEnabled", body, headers);
+        template.requestBodyAndHeaders("direct:dynamicityEnabled", body, headers);
         
         MongoCollection<BasicDBObject> dynamicCollection = mongo.getDatabase("otherDB").getCollection(testCollection.getNamespace().getCollectionName(), BasicDBObject.class);
 
@@ -98,9 +96,9 @@ public class MongoDbDynamicityTest extends AbstractMongoDbTest {
                         .anyMatch("otherDB"::equals));
 
         String body = "{\"_id\": \"testInsertDynamicityEnabledCollectionOnly\", \"a\" : \"1\"}";
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put(MongoDbConstants.COLLECTION, "otherCollection");
-        Object result = template.requestBodyAndHeaders("direct:dynamicityEnabled", body, headers);
+        template.requestBodyAndHeaders("direct:dynamicityEnabled", body, headers);
         
         MongoCollection<BasicDBObject> dynamicCollection = db.getCollection("otherCollection", BasicDBObject.class);
 
@@ -125,10 +123,10 @@ public class MongoDbDynamicityTest extends AbstractMongoDbTest {
                         .anyMatch("otherDB"::equals));
 
         String body = "{\"_id\": \"testInsertDynamicityEnabledDBAndCollection\", \"a\" : \"1\"}";
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put(MongoDbConstants.DATABASE, "otherDB");
         headers.put(MongoDbConstants.COLLECTION, "otherCollection");
-        Object result = template.requestBodyAndHeaders("direct:dynamicityEnabled", body, headers);
+        template.requestBodyAndHeaders("direct:dynamicityEnabled", body, headers);
         
         MongoCollection<BasicDBObject> dynamicCollection = mongo.getDatabase("otherDB").getCollection("otherCollection", BasicDBObject.class);
 

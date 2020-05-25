@@ -35,7 +35,8 @@ import org.slf4j.LoggerFactory;
 import scala.Option;
 import scala.collection.mutable.Buffer;
 
-import static org.apache.camel.component.kafka.embedded.TestUtils.*;
+import static org.apache.camel.component.kafka.embedded.TestUtils.constructTempDir;
+import static org.apache.camel.component.kafka.embedded.TestUtils.perTest;
 
 public class EmbeddedKafkaBroker extends ExternalResource {
 
@@ -50,6 +51,7 @@ public class EmbeddedKafkaBroker extends ExternalResource {
 
     private KafkaServer kafkaServer;
     private File logDir;
+    private ZkUtils zkUtils;
 
     public EmbeddedKafkaBroker(int brokerId, String zkConnection) {
         this(brokerId, AvailablePortFinder.getNextAvailable(), zkConnection, new Properties());
@@ -66,7 +68,7 @@ public class EmbeddedKafkaBroker extends ExternalResource {
     }
 
     public ZkUtils getZkUtils() {
-        return kafkaServer.zkUtils();
+        return zkUtils;
     }
 
     public void createTopic(String topic, int partitionCount) {
@@ -87,12 +89,18 @@ public class EmbeddedKafkaBroker extends ExternalResource {
         properties.setProperty("auto.create.topics.enable", String.valueOf(Boolean.TRUE));
         log.info("log directory: " + logDir.getAbsolutePath());
         properties.setProperty("log.flush.interval.messages", String.valueOf(1));
+        properties.setProperty("offsets.topic.replication.factor", String.valueOf(1));
 
         kafkaServer = startBroker(properties);
     }
 
 
     private KafkaServer startBroker(Properties props) {
+        zkUtils = ZkUtils.apply(
+                zkConnection,
+                30000,
+                30000,
+                false);
         List<KafkaMetricsReporter> kmrList = new ArrayList<>();
         Buffer<KafkaMetricsReporter> metricsList = scala.collection.JavaConversions.asScalaBuffer(kmrList);
         KafkaServer server = new KafkaServer(new KafkaConfig(props), new SystemTime(), Option.<String>empty(), metricsList);

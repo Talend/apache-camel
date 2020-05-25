@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.camel.util.ObjectHelper;
-
 import quickfix.Field;
 import quickfix.FieldMap;
 import quickfix.FieldNotFound;
@@ -31,8 +30,8 @@ import quickfix.field.SenderCompID;
 import quickfix.field.TargetCompID;
 
 public class MessagePredicate {
-    private final List<Field<String>> headerCriteria = new ArrayList<Field<String>>();
-    private final List<Field<String>> bodyCriteria = new ArrayList<Field<String>>();
+    private final List<Field<String>> headerCriteria = new ArrayList<>();
+    private final List<Field<String>> bodyCriteria = new ArrayList<>();
     
     public MessagePredicate(SessionID requestingSessionID, String msgType) {
         // TODO may need to optionally include subID and locationID
@@ -69,17 +68,17 @@ public class MessagePredicate {
     }
 
     public MessagePredicate withField(int tag, String value) {
-        bodyCriteria.add(new Field<String>(tag, value));
+        bodyCriteria.add(new Field<>(tag, value));
         return this;
     }
 
     public MessagePredicate withHeaderField(int tag, String value) {
-        headerCriteria.add(new Field<String>(tag, value));
+        headerCriteria.add(new Field<>(tag, value));
         return this;
     }
 
     private MessagePredicate withMessageType(String msgType) {
-        headerCriteria.add(new Field<String>(MsgType.FIELD, msgType));
+        headerCriteria.add(new Field<>(MsgType.FIELD, msgType));
         return this;
     }
 }

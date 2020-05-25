@@ -24,7 +24,6 @@ import io.fabric8.kubernetes.api.model.ServiceAccountList;
 import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.FilterWatchListMultiDeletable;
-import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 
@@ -96,6 +95,7 @@ public class KubernetesServiceAccountsProducer extends DefaultProducer {
     protected void doList(Exchange exchange, String operation) throws Exception {
         ServiceAccountList saList = getEndpoint().getKubernetesClient().serviceAccounts().inAnyNamespace()
                 .list();
+        MessageHelper.copyHeaders(exchange.getIn(), exchange.getOut(), true);
         exchange.getOut().setBody(saList.getItems());
     }
 
@@ -168,8 +168,6 @@ public class KubernetesServiceAccountsProducer extends DefaultProducer {
             throw new IllegalArgumentException(
                     "Create a specific Service Account require specify a Service Account bean");
         }
-        Map<String, String> labels = exchange.getIn().getHeader(
-                KubernetesConstants.KUBERNETES_SERVICE_ACCOUNTS_LABELS, Map.class);
         sa = getEndpoint().getKubernetesClient().serviceAccounts()
                 .inNamespace(namespaceName).create(saToCreate);
         

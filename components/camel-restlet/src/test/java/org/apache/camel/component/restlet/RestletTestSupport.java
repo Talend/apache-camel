@@ -17,6 +17,7 @@
 package org.apache.camel.component.restlet;
 
 import java.io.IOException;
+import java.util.logging.Level;
 
 import org.apache.camel.test.AvailablePortFinder;
 import org.apache.camel.test.junit4.CamelTestSupport;
@@ -30,36 +31,38 @@ import org.apache.http.util.EntityUtils;
 import org.junit.BeforeClass;
 
 /**
- *
- * @version 
+ * @version
  */
 public abstract class RestletTestSupport extends CamelTestSupport {
     protected static int portNum;
-    
+
     @BeforeClass
     public static void initializePortNum() {
+        // restlet uses the JUL logger which is a pain to configure/install
+        // we should not see WARN logs
+        java.util.logging.LogManager.getLogManager().getLogger("").setLevel(Level.INFO);
+
         portNum = AvailablePortFinder.getNextAvailable();
     }
-    
+
     public HttpResponse doExecute(HttpUriRequest method) throws Exception {
         CloseableHttpClient client = HttpClientBuilder.create().build();
         try {
             HttpResponse response = client.execute(method);
-            response.setEntity(new BufferedHttpEntity(response.getEntity()));
+            if (response.getEntity() != null) {
+                response.setEntity(new BufferedHttpEntity(response.getEntity()));
+            }
             return response;
         } finally {
             client.close();
         }
     }
 
-    public static void assertHttpResponse(HttpResponse response, int expectedStatusCode,
-                                          String expectedContentType) throws ParseException, IOException {
+    public static void assertHttpResponse(HttpResponse response, int expectedStatusCode, String expectedContentType) throws ParseException, IOException {
         assertHttpResponse(response, expectedStatusCode, expectedContentType, null);
     }
 
-    public static void assertHttpResponse(HttpResponse response, int expectedStatusCode,
-                                          String expectedContentType, String expectedBody)
-        throws ParseException, IOException {
+    public static void assertHttpResponse(HttpResponse response, int expectedStatusCode, String expectedContentType, String expectedBody) throws ParseException, IOException {
         assertEquals(expectedStatusCode, response.getStatusLine().getStatusCode());
         assertTrue(response.getFirstHeader("Content-Type").getValue().startsWith(expectedContentType));
         if (expectedBody != null) {

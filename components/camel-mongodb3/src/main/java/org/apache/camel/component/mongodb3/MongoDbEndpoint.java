@@ -30,7 +30,6 @@ import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-
 import org.apache.camel.Consumer;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -103,10 +102,10 @@ public class MongoDbEndpoint extends DefaultEndpoint {
     private String tailTrackCollection;
     @UriParam(label = "tail")
     private String tailTrackField;
-    private MongoDbTailTrackingConfig tailTrackingConfig;
-
-    @UriParam
+    @UriParam(label = "common")
     private MongoDbOutputType outputType;
+    
+    private MongoDbTailTrackingConfig tailTrackingConfig;
 
     private MongoDatabase mongoDatabase;
     private MongoCollection<Document> mongoCollection;
@@ -209,7 +208,7 @@ public class MongoDbEndpoint extends DefaultEndpoint {
      * @throws CamelMongoDbException
      */
     public void initializeConnection() throws CamelMongoDbException {
-        LOG.info("Initialising MongoDb endpoint: {}", this.toString());
+        LOG.info("Initialising MongoDb endpoint: {}", this);
         if (database == null || (collection == null && !(getDbStats.equals(operation) || command.equals(operation)))) {
             throw new CamelMongoDbException("Missing required endpoint configuration: database and/or collection");
         }
@@ -303,15 +302,6 @@ public class MongoDbEndpoint extends DefaultEndpoint {
         super.doStart();
     }
     
-    @Override
-    protected void doStop() throws Exception {
-        super.doStop();
-        if (mongoConnection != null) {
-            LOG.debug("Closing connection");
-            mongoConnection.close();
-        }
-    }
-
     // ======= Getters and setters
     // ===============================================
 
@@ -623,10 +613,8 @@ public class MongoDbEndpoint extends DefaultEndpoint {
     }
 
     /**
-     * Convert the output of the producer to the selected type : "DocumentList",
-     * "Document" or "MongoIterable". DocumentList or Document applies to
-     * findAll. MongoIterable applies to all other operations.
-     * 
+     * Convert the output of the producer to the selected type : DocumentList Document or MongoIterable. 
+     * DocumentList or MongoIterable applies to findAll and aggregate. Document applies to all other operations.
      * @param outputType
      */
     public void setOutputType(MongoDbOutputType outputType) {

@@ -81,40 +81,18 @@ public final class IOConverter {
         return IOHelper.buffered(new FileInputStream(file));
     }
 
+    /**
+     * Converts the given {@link File} with the given charset to {@link InputStream} with the JVM default charset
+     *
+     * @param file the file to be converted
+     * @param charset the charset the file is read with
+     * @return the input stream with the JVM default charset
+     */
     public static InputStream toInputStream(File file, String charset) throws IOException {
         if (charset != null) {
-            final BufferedReader reader = toReader(file, charset);
-            final Charset defaultStreamCharset = defaultCharset.get();
-            return new InputStream() {
-                private ByteBuffer bufferBytes;
-                private CharBuffer bufferedChars = CharBuffer.allocate(4096);
-
-                @Override
-                public int read() throws IOException {
-                    if (bufferBytes == null || bufferBytes.remaining() <= 0) {
-                        bufferedChars.clear();
-                        int len = reader.read(bufferedChars);
-                        bufferedChars.flip();
-                        if (len == -1) {
-                            return -1;
-                        }
-                        bufferBytes = defaultStreamCharset.encode(bufferedChars);
-                    }
-                    return bufferBytes.get();
-                }
-
-                @Override
-                public void close() throws IOException {
-                    reader.close();
-                }
-
-                @Override
-                public void reset() throws IOException {
-                    reader.reset();
-                }
-            };
+            return new EncodingInputStream(file, charset);
         } else {
-            return IOHelper.buffered(new FileInputStream(file));
+            return toInputStream(file);
         }
     }
 
@@ -180,6 +158,11 @@ public final class IOConverter {
     @Converter
     public static Reader toReader(InputStream in, Exchange exchange) throws IOException {
         return IOHelper.buffered(new InputStreamReader(in, IOHelper.getCharsetName(exchange)));
+    }
+
+    @Converter
+    public static Reader toReader(byte[] data, Exchange exchange) throws IOException {
+        return toReader(new ByteArrayInputStream(data), exchange);
     }
 
     /**
@@ -424,6 +407,13 @@ public final class IOConverter {
         return os.toByteArray();
     }
 
+    @Converter
+    public static ByteBuffer covertToByteBuffer(InputStream is) throws IOException {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        IOHelper.copyAndCloseInput(is, os);
+        return ByteBuffer.wrap(os.toByteArray());
+    }
+
     /**
      * @deprecated will be removed in Camel 3.0. Use the method which has 2 parameters.
      */
@@ -486,6 +476,53 @@ public final class IOConverter {
     @Deprecated
     public static String getCharsetName(Exchange exchange) {
         return getCharsetName(exchange, true);
+    }
+
+    /**
+     * Encoding-aware input stream.
+     */
+    public static class EncodingInputStream extends InputStream {
+
+        private final File file;
+        private final BufferedReader reader;
+        private final Charset defaultStreamCharset;
+
+        private ByteBuffer bufferBytes;
+        private CharBuffer bufferedChars = CharBuffer.allocate(4096);
+
+        public EncodingInputStream(File file, String charset) throws IOException {
+            this.file = file;
+            reader = toReader(file, charset);
+            defaultStreamCharset = defaultCharset.get();
+        }
+
+        @Override
+        public int read() throws IOException {
+            if (bufferBytes == null || bufferBytes.remaining() <= 0) {
+                bufferedChars.clear();
+                int len = reader.read(bufferedChars);
+                bufferedChars.flip();
+                if (len == -1) {
+                    return -1;
+                }
+                bufferBytes = defaultStreamCharset.encode(bufferedChars);
+            }
+            return bufferBytes.get();
+        }
+
+        @Override
+        public void close() throws IOException {
+            reader.close();
+        }
+
+        @Override
+        public void reset() throws IOException {
+            reader.reset();
+        }
+
+        public InputStream toOriginalInputStream() throws FileNotFoundException {
+            return new FileInputStream(file);
+        }
     }
 
     /**

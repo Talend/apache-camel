@@ -17,6 +17,7 @@
 package org.apache.camel.management.mbean;
 
 import java.util.Map;
+
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
 import javax.management.openmbean.CompositeType;
@@ -93,6 +94,14 @@ public class ManagedSendDynamicProcessor extends ManagedProcessor implements Man
 
     public Boolean isIgnoreInvalidEndpoint() {
         return processor.isIgnoreInvalidEndpoint();
+    }
+
+    public Boolean isAllowOptimisedComponents() {
+        return processor.isAllowOptimisedComponents();
+    }
+
+    public Boolean isOptimised() {
+        return processor.getDynamicAware() != null;
     }
 
     @Override

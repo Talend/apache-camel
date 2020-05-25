@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.runtimecatalog;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,7 +60,7 @@ public class RuntimeCamelCatalogTest {
 
     @Test
     public void testAsEndpointUriMapFile() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("directoryName", "src/data/inbox");
         map.put("noop", "true");
         map.put("delay", "5000");
@@ -75,7 +74,7 @@ public class RuntimeCamelCatalogTest {
 
     @Test
     public void testAsEndpointUriTimer() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("timerName", "foo");
         map.put("period", "5000");
 
@@ -85,7 +84,7 @@ public class RuntimeCamelCatalogTest {
 
     @Test
     public void testAsEndpointUriPropertiesPlaceholders() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("timerName", "foo");
         map.put("period", "{{howoften}}");
         map.put("repeatCount", "5");
@@ -99,7 +98,7 @@ public class RuntimeCamelCatalogTest {
 
     @Test
     public void testAsEndpointUriBeanLookup() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("resourceUri", "foo.xslt");
         map.put("converter", "#myConverter");
 
@@ -123,7 +122,7 @@ public class RuntimeCamelCatalogTest {
 
     @Test
     public void testAsEndpointUriLog() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("loggerName", "foo");
         map.put("loggerLevel", "WARN");
         map.put("multiline", "true");
@@ -138,7 +137,7 @@ public class RuntimeCamelCatalogTest {
 
     @Test
     public void testAsEndpointUriLogShort() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("loggerName", "foo");
         map.put("loggerLevel", "DEBUG");
 
@@ -147,7 +146,7 @@ public class RuntimeCamelCatalogTest {
 
     @Test
     public void testAsEndpointUriWithplaceholder() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("name", "foo");
         map.put("blockWhenFull", "{{block}}");
         assertEquals("seda:foo?blockWhenFull={{block}}", catalog.asEndpointUri("seda", map, false));

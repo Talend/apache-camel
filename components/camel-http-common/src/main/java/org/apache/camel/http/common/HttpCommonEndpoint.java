@@ -18,7 +18,10 @@ package org.apache.camel.http.common;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 
+import org.apache.camel.cloud.DiscoverableService;
+import org.apache.camel.cloud.ServiceDefinition;
 import org.apache.camel.http.common.cookie.CookieHandler;
 import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.camel.spi.HeaderFilterStrategy;
@@ -26,8 +29,9 @@ import org.apache.camel.spi.HeaderFilterStrategyAware;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriPath;
+import org.apache.camel.util.CollectionHelper;
 
-public abstract class HttpCommonEndpoint extends DefaultEndpoint implements HeaderFilterStrategyAware {
+public abstract class HttpCommonEndpoint extends DefaultEndpoint implements HeaderFilterStrategyAware, DiscoverableService {
 
     // Note: all options must be documented with description in annotations so extended components can access the documentation
 
@@ -115,7 +119,8 @@ public abstract class HttpCommonEndpoint extends DefaultEndpoint implements Head
             + " Setting this to false will avoid the HTTP Form Encoded body mapping.")
     boolean mapHttpMessageFormUrlEncodedBody = true;
     @UriParam(label = "producer,advanced", defaultValue = "200-299",
-            description = "The status codes which is considered a success response. The values are inclusive. The range must be defined as from-to with the dash included.")
+            description = "The status codes which are considered a success response. The values are inclusive. Multiple ranges can be"
+                    + " defined, separated by comma, e.g. 200-204,209,301-304. Each range must be a single number or from-to with the dash included.")
     private String okStatusCodeRange = "200-299";
     @UriParam(label = "producer,advanced",
             description = "Refers to a custom org.apache.camel.component.http.UrlRewrite which allows you to rewrite urls when you bridge/proxy endpoints."
@@ -178,6 +183,10 @@ public abstract class HttpCommonEndpoint extends DefaultEndpoint implements Head
         component.disconnect(consumer);
     }
 
+    public boolean canConnect(HttpConsumer consumer) throws Exception {
+        return component.canConnect(consumer);
+    }
+
     @Override
     public HttpCommonComponent getComponent() {
         return (HttpCommonComponent) super.getComponent();
@@ -192,6 +201,17 @@ public abstract class HttpCommonEndpoint extends DefaultEndpoint implements Head
         return true;
     }
 
+    // Service Registration
+    //-------------------------------------------------------------------------
+
+    @Override
+    public Map<String, String> getServiceProperties() {
+        return CollectionHelper.immutableMapOf(
+            ServiceDefinition.SERVICE_META_PORT, Integer.toString(getPort()),
+            ServiceDefinition.SERVICE_META_PATH, getPath(),
+            ServiceDefinition.SERVICE_META_PROTOCOL, getProtocol()
+        );
+    }
 
     // Properties
     //-------------------------------------------------------------------------
@@ -487,7 +507,9 @@ public abstract class HttpCommonEndpoint extends DefaultEndpoint implements Head
     }
 
     /**
-     * The status codes which is considered a success response. The values are inclusive. The range must be defined as from-to with the dash included.
+     * The status codes which are considered a success response. The values are inclusive. Multiple ranges can be
+     * defined, separated by comma, e.g. <tt>200-204,209,301-304</tt>. Each range must be a single number or from-to with the
+     * dash included.
      * <p/>
      * The default range is <tt>200-299</tt>
      */

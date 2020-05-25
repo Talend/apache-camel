@@ -27,7 +27,6 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
-
 import org.apache.camel.component.netty4.handlers.ClientChannelHandler;
 import org.apache.camel.component.netty4.ssl.SSLEngineFactory;
 import org.apache.camel.util.ObjectHelper;
@@ -94,7 +93,6 @@ public class DefaultClientInitializerFactory extends ClientInitializerFactory  {
         addToPipeline("handler", channelPipeline, new ClientChannelHandler(producer));
 
         LOG.trace("Created ChannelPipeline: {}", channelPipeline);
-        
     }
 
     private void addToPipeline(String name, ChannelPipeline pipeline, ChannelHandler handler) {

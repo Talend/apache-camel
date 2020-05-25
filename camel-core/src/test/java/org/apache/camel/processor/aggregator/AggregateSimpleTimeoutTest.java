@@ -19,12 +19,14 @@ package org.apache.camel.processor.aggregator;
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.processor.BodyInAggregatingStrategy;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class AggregateSimpleTimeoutTest extends ContextTestSupport {
 
+    @Test
     public void testAggregateSimpleTimeout() throws Exception {
         getMockEndpoint("mock:aggregated").expectedBodiesReceived("A+B+C");
 
@@ -44,9 +46,9 @@ public class AggregateSimpleTimeoutTest extends ContextTestSupport {
                 from("direct:start")
                     // aggregate all exchanges correlated by the id header.
                     // Aggregate them using the BodyInAggregatingStrategy strategy which
-                    // and after 3 seconds of inactivity them timeout and complete the aggregation
+                    // and after 0.1 second of inactivity them timeout and complete the aggregation
                     // and send it to mock:aggregated
-                    .aggregate(header("id"), new BodyInAggregatingStrategy()).completionTimeout(3000)
+                    .aggregate(header("id"), new BodyInAggregatingStrategy()).completionTimeout(100).completionTimeoutCheckerInterval(10)
                         .to("mock:aggregated");
                 // END SNIPPET: e1
             }

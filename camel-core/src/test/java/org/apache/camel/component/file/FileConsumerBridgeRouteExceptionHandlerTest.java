@@ -24,6 +24,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.JndiRegistry;
+import org.junit.Test;
 
 /**
  *
@@ -32,6 +33,7 @@ public class FileConsumerBridgeRouteExceptionHandlerTest extends ContextTestSupp
 
     private MyReadLockStrategy myReadLockStrategy = new MyReadLockStrategy();
 
+    @Test
     public void testCustomExceptionHandler() throws Exception {
         getMockEndpoint("mock:result").expectedMessageCount(2);
         getMockEndpoint("mock:error").expectedBodiesReceived("Error Forced to simulate no space on device");
@@ -66,7 +68,7 @@ public class FileConsumerBridgeRouteExceptionHandlerTest extends ContextTestSupp
 
                 // this is the file route that pickup files, notice how we bridge the consumer to use the Camel routing error handler
                 // the exclusiveReadLockStrategy is only configured because this is from an unit test, so we use that to simulate exceptions
-                from("file:target/nospace?exclusiveReadLockStrategy=#myReadLockStrategy&consumer.bridgeErrorHandler=true")
+                from("file:target/nospace?exclusiveReadLockStrategy=#myReadLockStrategy&consumer.bridgeErrorHandler=true&initialDelay=0&delay=10")
                     .convertBodyTo(String.class)
                     .to("mock:result");
             }

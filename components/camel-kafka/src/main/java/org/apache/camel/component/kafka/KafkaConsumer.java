@@ -18,25 +18,38 @@ package org.apache.camel.component.kafka;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.regex.Pattern;
+import java.util.stream.StreamSupport;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.camel.component.kafka.serde.KafkaHeaderDeserializer;
 import org.apache.camel.impl.DefaultConsumer;
+import org.apache.camel.spi.HeaderFilterStrategy;
 import org.apache.camel.spi.StateRepository;
+import org.apache.camel.support.ServiceSupport;
 import org.apache.camel.util.IOHelper;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.ServiceHelper;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.InterruptException;
+import org.apache.kafka.common.header.Header;
 
 public class KafkaConsumer extends DefaultConsumer {
 
@@ -46,6 +59,7 @@ public class KafkaConsumer extends DefaultConsumer {
     private final Long pollTimeoutMs;
     // This list helps working around the infinite loop of KAFKA-1894
     private final List<KafkaFetchRecords> tasks = new ArrayList<>();
+    private volatile boolean stopOffsetRepo;
 
     public KafkaConsumer(KafkaEndpoint endpoint, Processor processor) {
         super(endpoint, processor);
@@ -61,10 +75,6 @@ public class KafkaConsumer extends DefaultConsumer {
         if (ObjectHelper.isEmpty(brokers)) {
             throw new IllegalArgumentException("Brokers must be configured");
         }
-
-        if (endpoint.getConfiguration().getGroupId() == null) {
-            throw new IllegalArgumentException("groupId must not be null");
-        }
     }
 
     Properties getProps() {
@@ -76,21 +86,54 @@ public class KafkaConsumer extends DefaultConsumer {
         if (brokers == null) {
             brokers = endpoint.getComponent().getBrokers();
         }
+        if (brokers == null) {
+            throw new IllegalArgumentException("URL to the Kafka brokers must be configured with the brokers option on either the component or endpoint.");
+        }
 
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, endpoint.getConfiguration().getGroupId());
+
+        if (endpoint.getConfiguration().getGroupId() != null) {
+            String groupId = endpoint.getConfiguration().getGroupId();
+            props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+            log.debug("Kafka consumer groupId is {}", groupId);
+        } else {
+            String randomGroupId = UUID.randomUUID().toString();
+            props.put(ConsumerConfig.GROUP_ID_CONFIG, randomGroupId);
+            log.debug("Kafka consumer groupId is {} (generated)", randomGroupId);
+        }
         return props;
     }
 
     @Override
     protected void doStart() throws Exception {
         log.info("Starting Kafka consumer on topic: {} with breakOnFirstError: {}",
-            endpoint.getConfiguration().getTopic(), endpoint.getConfiguration().isBreakOnFirstError());
+                endpoint.getConfiguration().getTopic(), endpoint.getConfiguration().isBreakOnFirstError());
         super.doStart();
 
+        // is the offset repository already started?
+        StateRepository repo = endpoint.getConfiguration().getOffsetRepository();
+        if (repo instanceof ServiceSupport) {
+            boolean started = ((ServiceSupport) repo).isStarted();
+            // if not already started then we would do that and also stop it
+            if (!started) {
+                stopOffsetRepo = true;
+                log.debug("Starting OffsetRepository: {}", repo);
+                ServiceHelper.startService(endpoint.getConfiguration().getOffsetRepository());
+            }
+        }
+
         executor = endpoint.createExecutor();
+
+        String topic = endpoint.getConfiguration().getTopic();
+        Pattern pattern = null;
+        if (endpoint.getConfiguration().isTopicIsPattern()) {
+            pattern = Pattern.compile(topic);
+        }
+
         for (int i = 0; i < endpoint.getConfiguration().getConsumersCount(); i++) {
-            KafkaFetchRecords task = new KafkaFetchRecords(endpoint.getConfiguration().getTopic(), i + "", getProps());
+            KafkaFetchRecords task = new KafkaFetchRecords(topic, pattern, i + "", getProps());
+            // pre-initialize task during startup so if there is any error we have it thrown asap
+            task.preInit();
             executor.submit(task);
             tasks.add(task);
         }
@@ -114,18 +157,27 @@ public class KafkaConsumer extends DefaultConsumer {
         tasks.clear();
         executor = null;
 
+        if (stopOffsetRepo) {
+            StateRepository repo = endpoint.getConfiguration().getOffsetRepository();
+            log.debug("Stopping OffsetRepository: {}", repo);
+            ServiceHelper.stopAndShutdownService(repo);
+        }
+
         super.doStop();
     }
 
-    class KafkaFetchRecords implements Runnable {
+    class KafkaFetchRecords implements Runnable, ConsumerRebalanceListener {
 
         private org.apache.kafka.clients.consumer.KafkaConsumer consumer;
         private final String topicName;
+        private final Pattern topicPattern;
         private final String threadId;
         private final Properties kafkaProps;
+        private final Map<String, Long> lastProcessedOffset = new ConcurrentHashMap<>();
 
-        KafkaFetchRecords(String topicName, String id, Properties kafkaProps) {
+        KafkaFetchRecords(String topicName, Pattern topicPattern, String id, Properties kafkaProps) {
             this.topicName = topicName;
+            this.topicPattern = topicPattern;
             this.threadId = topicName + "-" + "Thread " + id;
             this.kafkaProps = kafkaProps;
         }
@@ -136,15 +188,14 @@ public class KafkaConsumer extends DefaultConsumer {
             boolean reConnect = true;
 
             while (reConnect) {
-
-                // create consumer
-                ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader();
                 try {
-                    // Kafka uses reflection for loading authentication settings, use its classloader
-                    Thread.currentThread().setContextClassLoader(org.apache.kafka.clients.consumer.KafkaConsumer.class.getClassLoader());
-                    this.consumer = new org.apache.kafka.clients.consumer.KafkaConsumer(kafkaProps);
-                } finally {
-                    Thread.currentThread().setContextClassLoader(threadClassLoader);
+                    if (!first) {
+                        // re-initialize on re-connect so we have a fresh consumer
+                        doInit();
+                    }
+                } catch (Throwable e) {
+                    // ensure this is logged so users can see the problem
+                    log.warn("Error creating org.apache.kafka.clients.consumer.KafkaConsumer due {}", e.getMessage(), e);
                 }
 
                 if (!first) {
@@ -165,14 +216,37 @@ public class KafkaConsumer extends DefaultConsumer {
             }
         }
 
+        void preInit() {
+            doInit();
+        }
+
+        protected void doInit() {
+            // create consumer
+            ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader();
+            try {
+                // Kafka uses reflection for loading authentication settings, use its classloader
+                Thread.currentThread().setContextClassLoader(org.apache.kafka.clients.consumer.KafkaConsumer.class.getClassLoader());
+                // this may throw an exception if something is wrong with kafka consumer
+                this.consumer = new org.apache.kafka.clients.consumer.KafkaConsumer(kafkaProps);
+            } finally {
+                Thread.currentThread().setContextClassLoader(threadClassLoader);
+            }
+        }
+
         @SuppressWarnings("unchecked")
         protected boolean doRun() {
             // allow to re-connect thread in case we use that to retry failed messages
             boolean reConnect = false;
+            boolean unsubscribing = false;
 
             try {
-                log.info("Subscribing {} to topic {}", threadId, topicName);
-                consumer.subscribe(Arrays.asList(topicName.split(",")));
+                if (topicPattern != null) {
+                    log.info("Subscribing {} to topic pattern {}", threadId, topicName);
+                    consumer.subscribe(topicPattern, this);
+                } else {
+                    log.info("Subscribing {} to topic {}", threadId, topicName);
+                    consumer.subscribe(Arrays.asList(topicName.split(",")), this);
+                }
 
                 StateRepository<String, String> offsetRepository = endpoint.getConfiguration().getOffsetRepository();
                 if (offsetRepository != null) {
@@ -223,6 +297,7 @@ public class KafkaConsumer extends DefaultConsumer {
                         long partitionLastOffset = -1;
 
                         Iterator<ConsumerRecord<Object, Object>> recordIterator = allRecords.records(partition).iterator();
+                        log.debug("Records count {} received for partition {}", allRecords.records(partition).size(), partition);
                         if (!breakOnErrorHit && recordIterator.hasNext()) {
                             ConsumerRecord<Object, Object> record;
 
@@ -230,11 +305,21 @@ public class KafkaConsumer extends DefaultConsumer {
                                 record = recordIterator.next();
                                 if (log.isTraceEnabled()) {
                                     log.trace("Partition = {}, offset = {}, key = {}, value = {}", record.partition(), record.offset(), record.key(),
-                                              record.value());
+                                            record.value());
                                 }
                                 Exchange exchange = endpoint.createKafkaExchange(record);
-                                if (endpoint.getConfiguration().isAutoCommitEnable() != null && !endpoint.getConfiguration().isAutoCommitEnable()) {
+
+                                propagateHeaders(record, exchange, endpoint.getConfiguration());
+
+                                // if not auto commit then we have additional information on the exchange
+                                if (!isAutoCommitEnabled()) {
                                     exchange.getIn().setHeader(KafkaConstants.LAST_RECORD_BEFORE_COMMIT, !recordIterator.hasNext());
+                                }
+                                if (endpoint.getConfiguration().isAllowManualCommit()) {
+                                    // allow Camel users to access the Kafka consumer API to be able to do for example manual commits
+                                    KafkaManualCommit manual = endpoint.getComponent().getKafkaManualCommitFactory().newInstance(exchange, consumer, topicName, threadId,
+                                            offsetRepository, partition, record.offset());
+                                    exchange.getIn().setHeader(KafkaConstants.MANUAL_COMMIT, manual);
                                 }
 
                                 try {
@@ -248,7 +333,7 @@ public class KafkaConsumer extends DefaultConsumer {
                                     if (endpoint.getConfiguration().isBreakOnFirstError()) {
                                         // we are failing and we should break out
                                         log.warn("Error during processing {} from topic: {}. Will seek consumer to offset: {} and re-connect and start polling again.",
-                                            exchange, topicName, partitionLastOffset);
+                                                exchange, topicName, partitionLastOffset);
                                         // force commit so we resume on next poll where we failed
                                         commitOffset(offsetRepository, partition, partitionLastOffset, true);
                                         // continue to next partition
@@ -260,6 +345,8 @@ public class KafkaConsumer extends DefaultConsumer {
                                 } else {
                                     // record was success so remember its offset
                                     partitionLastOffset = record.offset();
+                                    //lastOffsetProcessed would be used by Consumer re-balance listener to preserve offset state upon partition revoke
+                                    lastProcessedOffset.put(serializeOffsetKey(partition), partitionLastOffset);
                                 }
                             }
 
@@ -277,7 +364,7 @@ public class KafkaConsumer extends DefaultConsumer {
                 }
 
                 if (!reConnect) {
-                    if (endpoint.getConfiguration().isAutoCommitEnable() != null && endpoint.getConfiguration().isAutoCommitEnable()) {
+                    if (isAutoCommitEnabled()) {
                         if ("async".equals(endpoint.getConfiguration().getAutoCommitOnStop())) {
                             log.info("Auto commitAsync on stop {} from topic {}", threadId, topicName);
                             consumer.commitAsync();
@@ -289,16 +376,26 @@ public class KafkaConsumer extends DefaultConsumer {
                 }
 
                 log.info("Unsubscribing {} from topic {}", threadId, topicName);
+                // we are unsubscribing so do not re connect
+                unsubscribing = true;
                 consumer.unsubscribe();
             } catch (InterruptException e) {
                 getExceptionHandler().handleException("Interrupted while consuming " + threadId + " from kafka topic", e);
                 log.info("Unsubscribing {} from topic {}", threadId, topicName);
                 consumer.unsubscribe();
                 Thread.currentThread().interrupt();
+            } catch (KafkaException e) {
+                // some kind of error in kafka, it may happen during unsubscribing or during normal processing
+                if (unsubscribing) {
+                    getExceptionHandler().handleException("Error unsubscribing " + threadId + " from kafka topic " + topicName, e);
+                } else {
+                    log.warn("KafkaException consuming {} from topic {}. Will attempt to re-connect on next run", threadId, topicName);
+                    reConnect = true;
+                }
             } catch (Exception e) {
                 getExceptionHandler().handleException("Error consuming " + threadId + " from kafka topic", e);
             } finally {
-                log.debug("Closing {} ", threadId);
+                log.debug("Closing {}", threadId);
                 IOHelper.close(consumer);
             }
 
@@ -307,13 +404,11 @@ public class KafkaConsumer extends DefaultConsumer {
 
         private void commitOffset(StateRepository<String, String> offsetRepository, TopicPartition partition, long partitionLastOffset, boolean forceCommit) {
             if (partitionLastOffset != -1) {
-                if (offsetRepository != null) {
+                if (!endpoint.getConfiguration().isAllowManualCommit() && offsetRepository != null) {
+                    log.debug("Saving offset repository state {} from topic {} with offset: {}", threadId, topicName, partitionLastOffset);
                     offsetRepository.setState(serializeOffsetKey(partition), serializeOffsetValue(partitionLastOffset));
                 } else if (forceCommit) {
                     log.debug("Forcing commitSync {} from topic {} with offset: {}", threadId, topicName, partitionLastOffset);
-                    consumer.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(partitionLastOffset + 1)));
-                } else if (endpoint.getConfiguration().isAutoCommitEnable() != null && !endpoint.getConfiguration().isAutoCommitEnable()) {
-                    log.debug("Auto commitSync {} from topic {} with offset: {}", threadId, topicName, partitionLastOffset);
                     consumer.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(partitionLastOffset + 1)));
                 }
             }
@@ -323,6 +418,57 @@ public class KafkaConsumer extends DefaultConsumer {
             // As advised in the KAFKA-1894 ticket, calling this wakeup method breaks the infinite loop
             consumer.wakeup();
         }
+
+        @Override
+        public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+            log.debug("onPartitionsRevoked: {} from topic {}", threadId, topicName);
+
+            StateRepository<String, String> offsetRepository = endpoint.getConfiguration().getOffsetRepository();
+                for (TopicPartition partition : partitions) {
+                String offsetKey = serializeOffsetKey(partition);
+                Long offset = lastProcessedOffset.get(offsetKey);
+                if (offset == null) {
+                    offset = -1l;
+                }
+                log.debug("Saving offset repository state {} from offsetKey {} with offset: {}", threadId, offsetKey, offset);
+                commitOffset(offsetRepository, partition, offset, true);
+                lastProcessedOffset.remove(offsetKey);
+            }
+        }
+
+        @Override
+        public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+            log.debug("onPartitionsAssigned: {} from topic {}", threadId, topicName);
+
+            StateRepository<String, String> offsetRepository = endpoint.getConfiguration().getOffsetRepository();
+            if (offsetRepository != null) {
+                for (TopicPartition partition : partitions) {
+                    String offsetState = offsetRepository.getState(serializeOffsetKey(partition));
+                    if (offsetState != null && !offsetState.isEmpty()) {
+                        // The state contains the last read offset so you need to seek from the next one
+                        long offset = deserializeOffsetValue(offsetState) + 1;
+                        log.debug("Resuming partition {} from offset {} from state", partition.partition(), offset);
+                        consumer.seek(partition, offset);
+                    }
+                }
+            }
+        }
+    }
+
+    private void propagateHeaders(ConsumerRecord<Object, Object> record, Exchange exchange, KafkaConfiguration kafkaConfiguration) {
+        HeaderFilterStrategy headerFilterStrategy = kafkaConfiguration.getHeaderFilterStrategy();
+        KafkaHeaderDeserializer headerDeserializer = kafkaConfiguration.getKafkaHeaderDeserializer();
+        StreamSupport.stream(record.headers().spliterator(), false)
+                .filter(header -> shouldBeFiltered(header, exchange, headerFilterStrategy))
+                .forEach(header -> exchange.getIn().setHeader(header.key(), headerDeserializer.deserialize(header.key(), header.value())));
+    }
+
+    private boolean shouldBeFiltered(Header header, Exchange exchange, HeaderFilterStrategy headerFilterStrategy) {
+        return !headerFilterStrategy.applyFilterToCamelHeaders(header.key(), header.value(), exchange);
+    }
+
+    private boolean isAutoCommitEnabled() {
+        return endpoint.getConfiguration().isAutoCommitEnable() != null && endpoint.getConfiguration().isAutoCommitEnable();
     }
 
     protected String serializeOffsetKey(TopicPartition topicPartition) {

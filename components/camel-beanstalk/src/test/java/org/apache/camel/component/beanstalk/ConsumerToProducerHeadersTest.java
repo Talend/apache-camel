@@ -27,7 +27,8 @@ import org.apache.camel.component.mock.MockEndpoint;
 
 import org.junit.Test;
 
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -53,7 +54,7 @@ public class ConsumerToProducerHeadersTest extends BeanstalkMockTestSupport {
         final Job jobMock = mock(Job.class);
         // stats that may be set in the consumer:
         // mock stats : "tube", "state", "age", "time-left", "timeouts", "releases", "buries", "kicks"
-        Map<String, String> stats = new HashMap<String, String>();
+        Map<String, String> stats = new HashMap<>();
         stats.put("tube", "A");
         stats.put("state", "Test");
         stats.put("age", "0");
@@ -68,7 +69,7 @@ public class ConsumerToProducerHeadersTest extends BeanstalkMockTestSupport {
         when(client.reserve(anyInt()))
                 .thenReturn(jobMock)
                 .thenReturn(null);
-        when(client.statsJob(anyInt())).thenReturn(stats);
+        when(client.statsJob(anyLong())).thenReturn(stats);
         
         when(client.put(BeanstalkComponent.DEFAULT_PRIORITY, 
                         BeanstalkComponent.DEFAULT_DELAY, 
@@ -87,7 +88,7 @@ public class ConsumerToProducerHeadersTest extends BeanstalkMockTestSupport {
         result.assertIsSatisfied();
 
         verify(client, atLeastOnce()).reserve(anyInt());
-        verify(client, atLeastOnce()).statsJob(anyInt());
+        verify(client, atLeastOnce()).statsJob(anyLong());
      
         assertEquals(((TestExchangeCopyProcessor)a).getExchangeCopy().getIn().getHeaders(),
                      ((TestExchangeCopyProcessor)b).getExchangeCopy().getIn().getHeaders());

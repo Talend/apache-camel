@@ -20,12 +20,16 @@ import java.util.List;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.component.twitter.TwitterEndpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import twitter4j.Paging;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
 
 public abstract class AbstractTwitterConsumerHandler {
+
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Instance of TwitterEndpoint.
@@ -80,6 +84,14 @@ public abstract class AbstractTwitterConsumerHandler {
     }
 
     protected Paging getLastIdPaging() {
-        return new Paging(lastId);
+        Integer pages = endpoint.getProperties().getNumberOfPages();
+        Integer count = endpoint.getProperties().getCount();
+        if (pages != null && count != null) {
+            return new Paging(pages, count, lastId);
+        } else if (pages != null) {
+            return new Paging(pages, lastId);
+        } else {
+            return new Paging(lastId);
+        }
     }
 }

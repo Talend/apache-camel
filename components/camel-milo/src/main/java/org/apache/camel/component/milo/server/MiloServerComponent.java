@@ -57,6 +57,7 @@ import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateManager;
 import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateValidator;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
+import org.eclipse.milo.opcua.stack.core.types.enumerated.UserTokenType;
 import org.eclipse.milo.opcua.stack.core.types.structured.BuildInfo;
 import org.eclipse.milo.opcua.stack.core.types.structured.UserTokenPolicy;
 import org.slf4j.Logger;
@@ -104,7 +105,7 @@ public class MiloServerComponent extends DefaultComponent {
         }
 
         @Override
-        public void verifyTrustChain(final X509Certificate certificate, final List<X509Certificate> chain) throws UaException {
+        public void verifyTrustChain(List<X509Certificate> certificateChain) throws UaException {
             throw new UaException(StatusCodes.Bad_CertificateUseNotAllowed);
         }
     }
@@ -121,6 +122,8 @@ public class MiloServerComponent extends DefaultComponent {
     private Boolean enableAnonymousAuthentication;
 
     private Map<String, String> userMap;
+
+    private String usernameSecurityPolicyUri = OpcUaServerConfig.USER_TOKEN_POLICY_USERNAME.getSecurityPolicyUri();
 
     private List<String> bindAddresses;
 
@@ -157,7 +160,7 @@ public class MiloServerComponent extends DefaultComponent {
             // set identity validator
 
             final Map<String, String> userMap = this.userMap != null ? new HashMap<>(this.userMap) : Collections.emptyMap();
-            final boolean allowAnonymous = this.enableAnonymousAuthentication != null ? this.enableAnonymousAuthentication : false;
+            final boolean allowAnonymous = Boolean.TRUE.equals(this.enableAnonymousAuthentication);
             final IdentityValidator identityValidator = new UsernameIdentityValidator(allowAnonymous, challenge -> {
                 final String pwd = userMap.get(challenge.getUsername());
                 if (pwd == null) {
@@ -170,11 +173,11 @@ public class MiloServerComponent extends DefaultComponent {
             // add token policies
 
             final List<UserTokenPolicy> tokenPolicies = new LinkedList<>();
-            if (Boolean.TRUE.equals(this.enableAnonymousAuthentication)) {
+            if (allowAnonymous) {
                 tokenPolicies.add(OpcUaServerConfig.USER_TOKEN_POLICY_ANONYMOUS);
             }
             if (userMap != null) {
-                tokenPolicies.add(OpcUaServerConfig.USER_TOKEN_POLICY_USERNAME);
+                tokenPolicies.add(getUsernamePolicy());
             }
             this.serverConfig.setUserTokenPolicies(tokenPolicies);
         }
@@ -202,6 +205,18 @@ public class MiloServerComponent extends DefaultComponent {
         // build final configuration
 
         return this.serverConfig.build();
+    }
+
+    /**
+     * Get the user token policy for using with username authentication
+     * 
+     * @return the user token policy to use for username authentication
+     */
+    private UserTokenPolicy getUsernamePolicy() {
+        if (this.usernameSecurityPolicyUri == null || this.usernameSecurityPolicyUri.isEmpty()) {
+            return OpcUaServerConfig.USER_TOKEN_POLICY_USERNAME;
+        }
+        return new UserTokenPolicy("username", UserTokenType.UserName, null, null, this.usernameSecurityPolicyUri);
     }
 
     private void runOnStop(final Runnable runnable) {
@@ -298,7 +313,7 @@ public class MiloServerComponent extends DefaultComponent {
      * Server hostname
      */
     public void setHostname(final String hostname) {
-        this.serverConfig.setHostname(hostname);
+        this.serverConfig.setServerName(hostname);
     }
 
     /**
@@ -355,7 +370,7 @@ public class MiloServerComponent extends DefaultComponent {
                     try {
                         this.userMap.put(URLDecoder.decode(toks[0], URL_CHARSET), URLDecoder.decode(toks[1], URL_CHARSET));
                     } catch (final UnsupportedEncodingException e) {
-                        // FIXME: do log
+                        LOG.warn("Failed to decode user map entry", e);
                     }
                 }
             }
@@ -369,6 +384,20 @@ public class MiloServerComponent extends DefaultComponent {
      */
     public void setEnableAnonymousAuthentication(final boolean enableAnonymousAuthentication) {
         this.enableAnonymousAuthentication = enableAnonymousAuthentication;
+    }
+
+    /**
+     * Set the {@link UserTokenPolicy} used when
+     */
+    public void setUsernameSecurityPolicyUri(final SecurityPolicy usernameSecurityPolicy) {
+        this.usernameSecurityPolicyUri = usernameSecurityPolicy.getSecurityPolicyUri();
+    }
+
+    /**
+     * Set the {@link UserTokenPolicy} used when
+     */
+    public void setUsernameSecurityPolicyUri(String usernameSecurityPolicyUri) {
+        this.usernameSecurityPolicyUri = usernameSecurityPolicyUri;
     }
 
     /**

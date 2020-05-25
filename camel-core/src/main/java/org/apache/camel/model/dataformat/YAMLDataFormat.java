@@ -18,6 +18,7 @@ package org.apache.camel.model.dataformat;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -33,7 +34,7 @@ import org.apache.camel.spi.RouteContext;
 import org.apache.camel.util.ObjectHelper;
 
 /**
- * YAML data format
+ * YAML is a data format to marshal and unmarshal Java objects to and from YAML.
  *
  * @version 
  */

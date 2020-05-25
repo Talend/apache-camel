@@ -42,6 +42,7 @@ import org.apache.camel.model.rest.RestDefinition;
 import org.apache.camel.model.rest.RestsDefinition;
 import org.apache.camel.spi.RestConfiguration;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +100,7 @@ public abstract class RouteBuilder extends BuilderSupport implements RoutesBuild
      */
     public RestConfigurationDefinition restConfiguration(String component) {
         if (restConfigurations == null) {
-            restConfigurations = new HashMap<String, RestConfigurationDefinition>();
+            restConfigurations = new HashMap<>();
         }
         RestConfigurationDefinition restConfiguration = restConfigurations.get(component);
         if (restConfiguration == null) {
@@ -246,7 +247,7 @@ public abstract class RouteBuilder extends BuilderSupport implements RoutesBuild
      * @throws Exception is thrown if property with key not found or error converting to the given type.
      */
     public <T> T propertyInject(String key, Class<T> type) throws Exception {
-        ObjectHelper.notEmpty(key, "key");
+        StringHelper.notEmpty(key, "key");
         ObjectHelper.notNull(type, "Class type");
 
         // the properties component is mandatory
@@ -424,7 +425,9 @@ public abstract class RouteBuilder extends BuilderSupport implements RoutesBuild
      * @param routes other builder with routes to include
      *
      * @throws Exception can be thrown during configuration
+     * @deprecated do not use, will be removed in Camel 3
      */
+    @Deprecated
     public void includeRoutes(RoutesBuilder routes) throws Exception {
         // TODO: We should support including multiple routes so I think invoking configure()
         // needs to be deferred to later
@@ -498,7 +501,7 @@ public abstract class RouteBuilder extends BuilderSupport implements RoutesBuild
         camelContext.addRestDefinitions(getRestCollection().getRests());
 
         // convert rests into routes so we they are routes for runtime
-        List<RouteDefinition> routes = new ArrayList<RouteDefinition>();
+        List<RouteDefinition> routes = new ArrayList<>();
         for (RestDefinition rest : getRestCollection().getRests()) {
             List<RouteDefinition> list = rest.asRouteDefinition(getContext());
             routes.addAll(list);

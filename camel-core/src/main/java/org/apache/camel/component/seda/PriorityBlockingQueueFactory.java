@@ -17,7 +17,6 @@
 package org.apache.camel.component.seda;
 
 import java.util.Comparator;
-
 import java.util.concurrent.PriorityBlockingQueue;
 
 /**
@@ -41,15 +40,15 @@ public class PriorityBlockingQueueFactory<E> implements BlockingQueueFactory<E> 
     @Override
     public PriorityBlockingQueue<E> create() {
         return comparator == null 
-            ? new PriorityBlockingQueue<E>()
+            ? new PriorityBlockingQueue<>()
             // PriorityQueue as a default capacity of 11
-            : new PriorityBlockingQueue<E>(11, comparator);
+            : new PriorityBlockingQueue<>(11, comparator);
     }
 
     @Override
     public PriorityBlockingQueue<E> create(int capacity) {
         return comparator == null
-            ? new PriorityBlockingQueue<E>(capacity)
-            : new PriorityBlockingQueue<E>(capacity, comparator);
+            ? new PriorityBlockingQueue<>(capacity)
+            : new PriorityBlockingQueue<>(capacity, comparator);
     }
 }

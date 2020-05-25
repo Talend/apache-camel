@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
 import javax.jms.ConnectionFactory;
 import javax.naming.Context;
 
@@ -61,7 +62,7 @@ public class NettyAsyncRequestReplyTest extends CamelTestSupport {
         ExecutorService executor = Executors.newFixedThreadPool(20);
         // we access the responses Map below only inside the main thread,
         // so no need for a thread-safe Map implementation
-        Map<Integer, Future<String>> responses = new HashMap<Integer, Future<String>>();
+        Map<Integer, Future<String>> responses = new HashMap<>();
         for (int i = 0; i < size; i++) {
             final int index = i;
             Future<String> out = executor.submit(new Callable<String>() {
@@ -76,7 +77,7 @@ public class NettyAsyncRequestReplyTest extends CamelTestSupport {
         }
 
         // get all responses
-        Set<String> unique = new HashSet<String>();
+        Set<String> unique = new HashSet<>();
         for (Future<String> future : responses.values()) {
             String reply = future.get(120, TimeUnit.SECONDS);
             assertNotNull("Should get a reply", reply);

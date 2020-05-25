@@ -19,11 +19,15 @@ package org.apache.camel.parser;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.camel.parser.helper.CamelJavaParserHelper;
+import org.apache.camel.parser.helper.CamelJavaTreeParserHelper;
 import org.apache.camel.parser.model.CamelEndpointDetails;
+import org.apache.camel.parser.model.CamelNodeDetails;
 import org.apache.camel.parser.model.CamelRouteDetails;
 import org.apache.camel.parser.model.CamelSimpleExpressionDetails;
 import org.jboss.forge.roaster._shade.org.eclipse.jdt.core.dom.ASTNode;
@@ -45,6 +49,42 @@ import org.jboss.forge.roaster.model.util.Strings;
 public final class RouteBuilderParser {
 
     private RouteBuilderParser() {
+    }
+
+    /**
+     * Parses the java source class and build a route model (tree) of the discovered routes in the java source class.
+     *
+     * @param clazz                   the java source class
+     * @param baseDir                 the base of the source code
+     * @param fullyQualifiedFileName  the fully qualified source code file name
+     * @return a list of route model (tree) of each discovered route
+     */
+    public static List<CamelNodeDetails> parseRouteBuilderTree(JavaClassSource clazz, String baseDir, String fullyQualifiedFileName,
+                                                               boolean includeInlinedRouteBuilders) {
+
+        List<MethodSource<JavaClassSource>> methods = new ArrayList<>();
+        MethodSource<JavaClassSource> method = CamelJavaParserHelper.findConfigureMethod(clazz);
+        if (method != null) {
+            methods.add(method);
+        }
+        if (includeInlinedRouteBuilders) {
+            List<MethodSource<JavaClassSource>> inlinedMethods = CamelJavaParserHelper.findInlinedConfigureMethods(clazz);
+            if (!inlinedMethods.isEmpty()) {
+                methods.addAll(inlinedMethods);
+            }
+        }
+
+        CamelJavaTreeParserHelper parser = new CamelJavaTreeParserHelper();
+        List<CamelNodeDetails> list = new ArrayList<>();
+        for (MethodSource<JavaClassSource> configureMethod : methods) {
+            // there may be multiple route builder configure methods
+            List<CamelNodeDetails> details = parser.parseCamelRouteTree(clazz, baseDir, fullyQualifiedFileName, configureMethod);
+            list.addAll(details);
+        }
+        // we end up parsing bottom->up so reverse list
+        Collections.reverse(list);
+
+        return list;
     }
 
     /**
@@ -122,9 +162,19 @@ public final class RouteBuilderParser {
                 // find position of field/expression
                 if (internal instanceof ASTNode) {
                     int pos = ((ASTNode) internal).getStartPosition();
-                    int line = findLineNumber(fullyQualifiedFileName, pos);
+                    int len = ((ASTNode) internal).getLength();
+                    int line = findLineNumber(clazz.toUnformattedString(), pos);
                     if (line > -1) {
                         detail.setLineNumber("" + line);
+                    }
+                    int endLine = findLineNumber(clazz.toUnformattedString(), pos + len);
+                    if (endLine > -1) {
+                        detail.setLineNumberEnd("" + endLine);
+                    }
+                    detail.setAbsolutePosition(pos);
+                    int linePos = findLinePosition(clazz.toUnformattedString(), pos);
+                    if (linePos > -1) {
+                        detail.setLinePosition(linePos);
                     }
                 }
                 // we do not know if this field is used as consumer or producer only, but we try
@@ -157,31 +207,34 @@ public final class RouteBuilderParser {
                         unparsable.add(result.getElement());
                     }
                 } else {
-                    CamelEndpointDetails detail = findEndpointByUri(endpoints, result.getElement());
-                    if (detail != null) {
-                        // its a consumer only
-                        detail.setConsumerOnly(true);
-                    } else {
-                        String fileName = fullyQualifiedFileName;
-                        if (fileName.startsWith(baseDir)) {
-                            fileName = fileName.substring(baseDir.length() + 1);
-                        }
-
-                        detail = new CamelEndpointDetails();
-                        detail.setFileName(fileName);
-                        detail.setClassName(clazz.getQualifiedName());
-                        detail.setMethodName(configureMethod.getName());
-                        detail.setEndpointInstance(null);
-                        detail.setEndpointUri(result.getElement());
-                        int line = findLineNumber(fullyQualifiedFileName, result.getPosition());
-                        if (line > -1) {
-                            detail.setLineNumber("" + line);
-                        }
-                        detail.setEndpointComponentName(endpointComponentName(result.getElement()));
-                        detail.setConsumerOnly(true);
-                        detail.setProducerOnly(false);
-                        endpoints.add(detail);
+                    String fileName = fullyQualifiedFileName;
+                    if (fileName.startsWith(baseDir)) {
+                        fileName = fileName.substring(baseDir.length() + 1);
                     }
+
+                    CamelEndpointDetails detail = new CamelEndpointDetails();
+                    detail.setFileName(fileName);
+                    detail.setClassName(clazz.getQualifiedName());
+                    detail.setMethodName(configureMethod.getName());
+                    detail.setEndpointInstance(null);
+                    detail.setEndpointUri(result.getElement());
+                    int line = findLineNumber(clazz.toUnformattedString(), result.getPosition());
+                    if (line > -1) {
+                        detail.setLineNumber("" + line);
+                    }
+                    int lineEnd = findLineNumber(clazz.toUnformattedString(), result.getPosition() + result.getLength());
+                    if (lineEnd > -1) {
+                        detail.setLineNumberEnd("" + lineEnd);
+                    }
+                    detail.setAbsolutePosition(result.getPosition());
+                    int linePos = findLinePosition(clazz.toUnformattedString(), result.getPosition());
+                    if (linePos > -1) {
+                        detail.setLinePosition(linePos);
+                    }
+                    detail.setEndpointComponentName(endpointComponentName(result.getElement()));
+                    detail.setConsumerOnly(true);
+                    detail.setProducerOnly(false);
+                    endpoints.add(detail);
                 }
             }
             // producer only
@@ -192,17 +245,6 @@ public final class RouteBuilderParser {
                         unparsable.add(result.getElement());
                     }
                 } else {
-                    CamelEndpointDetails detail = findEndpointByUri(endpoints, result.getElement());
-                    if (detail != null) {
-                        if (detail.isConsumerOnly()) {
-                            // its both a consumer and producer
-                            detail.setConsumerOnly(false);
-                            detail.setProducerOnly(false);
-                        } else {
-                            // its a producer only
-                            detail.setProducerOnly(true);
-                        }
-                    }
                     // the same endpoint uri may be used in multiple places in the same route
                     // so we should maybe add all of them
                     String fileName = fullyQualifiedFileName;
@@ -210,15 +252,24 @@ public final class RouteBuilderParser {
                         fileName = fileName.substring(baseDir.length() + 1);
                     }
 
-                    detail = new CamelEndpointDetails();
+                    CamelEndpointDetails detail = new CamelEndpointDetails();
                     detail.setFileName(fileName);
                     detail.setClassName(clazz.getQualifiedName());
                     detail.setMethodName(configureMethod.getName());
                     detail.setEndpointInstance(null);
                     detail.setEndpointUri(result.getElement());
-                    int line = findLineNumber(fullyQualifiedFileName, result.getPosition());
+                    int line = findLineNumber(clazz.toUnformattedString(), result.getPosition());
                     if (line > -1) {
                         detail.setLineNumber("" + line);
+                    }
+                    int endLine = findLineNumber(clazz.toUnformattedString(), result.getPosition() + result.getLength());
+                    if (endLine > -1) {
+                        detail.setLineNumberEnd("" + endLine);
+                    }
+                    detail.setAbsolutePosition(result.getPosition());
+                    int linePos = findLinePosition(clazz.toUnformattedString(), result.getPosition());
+                    if (linePos > -1) {
+                        detail.setLinePosition(linePos);
                     }
                     detail.setEndpointComponentName(endpointComponentName(result.getElement()));
                     detail.setConsumerOnly(false);
@@ -254,9 +305,18 @@ public final class RouteBuilderParser {
                     detail.setFileName(fileName);
                     detail.setClassName(clazz.getQualifiedName());
                     detail.setMethodName("configure");
-                    int line = findLineNumber(fullyQualifiedFileName, result.getPosition());
+                    int line = findLineNumber(clazz.toUnformattedString(), result.getPosition());
                     if (line > -1) {
                         detail.setLineNumber("" + line);
+                    }
+                    int endLine = findLineNumber(clazz.toUnformattedString(), result.getPosition() + result.getLength());
+                    if (endLine > -1) {
+                        detail.setLineNumberEnd("" + endLine);
+                    }
+                    detail.setAbsolutePosition(result.getPosition());
+                    int linePos = findLinePosition(clazz.toUnformattedString(), result.getPosition());
+                    if (linePos > -1) {
+                        detail.setLinePosition(linePos);
                     }
                     detail.setSimple(result.getElement());
 
@@ -284,10 +344,10 @@ public final class RouteBuilderParser {
 
         MethodSource<JavaClassSource> method = CamelJavaParserHelper.findConfigureMethod(clazz);
         if (method != null) {
-            List<ParserResult> expressions = CamelJavaParserHelper.parseCamelConsumerUris(method, true, false);
+            List<ParserResult> expressions = CamelJavaParserHelper.parseCamelRouteIds(method);
             for (ParserResult result : expressions) {
                 // route ids is assigned in java dsl using the routeId method
-                if (result.isParsed() && "routeId".equals(result.getNode())) {
+                if (result.isParsed()) {
                     String fileName = fullyQualifiedFileName;
                     if (fileName.startsWith(baseDir)) {
                         fileName = fileName.substring(baseDir.length() + 1);
@@ -297,9 +357,13 @@ public final class RouteBuilderParser {
                     detail.setFileName(fileName);
                     detail.setClassName(clazz.getQualifiedName());
                     detail.setMethodName("configure");
-                    int line = findLineNumber(fullyQualifiedFileName, result.getPosition());
+                    int line = findLineNumber(clazz.toUnformattedString(), result.getPosition());
                     if (line > -1) {
                         detail.setLineNumber("" + line);
+                    }
+                    int endLine = findLineNumber(clazz.toUnformattedString(), result.getPosition() + result.getLength());
+                    if (endLine > -1) {
+                        detail.setLineNumberEnd("" + endLine);
                     }
                     detail.setRouteId(result.getElement());
 
@@ -318,18 +382,45 @@ public final class RouteBuilderParser {
         return null;
     }
 
-    private static int findLineNumber(String fullyQualifiedFileName, int position) {
+    private static int findLineNumber(String content, int position) {
         int lines = 0;
 
         try {
             int current = 0;
-            try (BufferedReader br = new BufferedReader(new FileReader(new File(fullyQualifiedFileName)))) {
+            try (BufferedReader br = new BufferedReader(new StringReader(content))) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     lines++;
                     current += line.length() + 1; // add 1 for line feed
                     if (current >= position) {
                         return lines;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // ignore
+            return -1;
+        }
+
+        return lines;
+    }
+
+    private static int findLinePosition(String content, int position) {
+        int lines = 0;
+
+        try {
+            int current = 0;
+            try (BufferedReader br = new BufferedReader(new StringReader(content))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    lines++;
+                    current += line.length() + 1; // add 1 for line feed
+                    if (current >= position) {
+                        int prev = current - (line.length() + 1);
+                        // find relative position now
+                        int rel = position - prev;
+                        // add +1
+                        return rel + 1;
                     }
                 }
             }

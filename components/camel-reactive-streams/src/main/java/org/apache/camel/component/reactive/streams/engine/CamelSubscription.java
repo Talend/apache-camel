@@ -58,9 +58,9 @@ public class CamelSubscription implements Subscription {
     /**
      * The lock is used just for the time necessary to read/write shared variables.
      */
-    private Lock mutex = new ReentrantLock(true);
+    private final Lock mutex = new ReentrantLock(true);
 
-    private LinkedList<Exchange> buffer = new LinkedList<>();
+    private final LinkedList<Exchange> buffer = new LinkedList<>();
 
     /**
      * The current number of exchanges requested by the subscriber.
@@ -159,7 +159,7 @@ public class CamelSubscription implements Subscription {
                 return;
             }
 
-            int amount = (int) Math.min(requested, (long) buffer.size());
+            int amount = (int) Math.min(requested, buffer.size());
             if (amount > 0) {
                 this.requested -= amount;
                 sendingQueue = new LinkedList<>();

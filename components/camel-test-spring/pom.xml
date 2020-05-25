@@ -24,12 +24,12 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>components</artifactId>
-    <version>2.20.0-SNAPSHOT</version>
+    <version>2.24.2</version>
   </parent>
 
   <artifactId>camel-test-spring</artifactId>
   <packaging>jar</packaging>
-  <name>Camel :: Test :: Spring 4.1+</name>
+  <name>Camel :: Test :: Spring</name>
   <description>Camel unit testing with Spring</description>
 
   <properties>
@@ -38,7 +38,7 @@
     <label>testing,java,spring</label>
 
     <camel.osgi.export.pkg>org.apache.camel.test.spring.*</camel.osgi.export.pkg>
-    <spring-version>${spring4-version}</spring-version>
+    <spring-version>${spring5-version}</spring-version>
   </properties>
 
   <dependencies>
@@ -76,9 +76,9 @@
   
   <profiles>
     <profile>
-      <id>jdk9-build</id>
+      <id>jdk9+-build</id>
       <activation>
-        <jdk>9</jdk>
+        <jdk>[9,)</jdk>
       </activation>
       <build>
         <plugins>

@@ -37,6 +37,8 @@ import org.slf4j.LoggerFactory;
 public class RabbitMQMessageConverter {
     protected static final Logger LOG = LoggerFactory.getLogger(RabbitMQMessageConverter.class);
 
+    private boolean allowNullHeaders;
+    
     /**
      * Will take an {@link Exchange} and add header values back to the {@link Exchange#getIn()}
      */
@@ -77,6 +79,9 @@ public class RabbitMQMessageConverter {
         }
         if (properties.getUserId() != null) {
             exchange.getIn().setHeader(RabbitMQConstants.USERID, properties.getUserId());
+        }
+        if (properties.getDeliveryMode() != null) {
+            exchange.getIn().setHeader(RabbitMQConstants.DELIVERY_MODE, properties.getDeliveryMode());
         }
     }
 
@@ -162,11 +167,15 @@ public class RabbitMQMessageConverter {
         for (Map.Entry<String, Object> header : headers.entrySet()) {
             // filter header values.
             Object value = getValidRabbitMQHeaderValue(header.getValue());
-            if (value != null) {
+
+            // additionaly filter out the OVERRIDE header so it does not propagate
+            if ((value != null || isAllowNullHeaders()) && !header.getKey().equals(RabbitMQConstants.EXCHANGE_OVERRIDE_NAME)) {
                 filteredHeaders.put(header.getKey(), header.getValue());
             } else if (LOG.isDebugEnabled()) {
                 if (header.getValue() == null) {
                     LOG.debug("Ignoring header: {} with null value", header.getKey());
+                } else if (header.getKey().equals(RabbitMQConstants.EXCHANGE_OVERRIDE_NAME)) {
+                    LOG.debug("Preventing header propagation: {} with value {}:", header.getKey(), header.getValue());
                 } else {
                     LOG.debug("Ignoring header: {} of class: {} with value: {}",
                               header.getKey(), ObjectHelper.classCanonicalName(header.getValue()), header.getValue());
@@ -247,6 +256,7 @@ public class RabbitMQMessageConverter {
             message.setHeader(RabbitMQConstants.ROUTING_KEY, envelope.getRoutingKey());
             message.setHeader(RabbitMQConstants.EXCHANGE_NAME, envelope.getExchange());
             message.setHeader(RabbitMQConstants.DELIVERY_TAG, envelope.getDeliveryTag());
+            message.setHeader(RabbitMQConstants.REDELIVERY_TAG, envelope.isRedeliver());
         }
     }
 
@@ -300,5 +310,13 @@ public class RabbitMQMessageConverter {
 
     private Object isSerializeHeaderEnabled(final AMQP.BasicProperties properties) {
         return properties.getHeaders().get(RabbitMQEndpoint.SERIALIZE_HEADER);
+    }
+
+    public boolean isAllowNullHeaders() {
+        return allowNullHeaders;
+    }
+
+    public void setAllowNullHeaders(boolean allowNullHeaders) {
+        this.allowNullHeaders = allowNullHeaders;
     }
 }

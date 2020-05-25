@@ -90,6 +90,10 @@ public class MasterConsumer extends DefaultConsumer {
         String path = endpoint.getComponent().getCamelClusterPath(endpoint.getGroupName());
         this.groupListener = new ZookeeperGroupListenerSupport(path, endpoint, onLockOwned(), onDisconnected());
         this.groupListener.setCamelContext(endpoint.getCamelContext());
+        this.groupListener.setZooKeeperUrl(endpoint.getComponent().getZooKeeperUrl());
+        this.groupListener.setZooKeeperPassword(endpoint.getComponent().getZooKeeperPassword());
+        this.groupListener.setCurator(endpoint.getComponent().getCurator());
+        this.groupListener.setMaximumConnectionTimeout(endpoint.getComponent().getMaximumConnectionTimeout());
         ServiceHelper.startService(groupListener);
 
         LOG.info("Attempting to become master for endpoint: " + endpoint + " in " + endpoint.getCamelContext() + " with singletonID: " + endpoint.getGroupName());
@@ -159,7 +163,7 @@ public class MasterConsumer extends DefaultConsumer {
 
                     ServiceHelper.startService(delegate);
                 } catch (Exception e) {
-                    LOG.error("Failed to start master consumer for: " + endpoint, e);
+                    LOG.error("Failed to start master consumer for: {}", endpoint, e);
                 }
 
                 LOG.info("Elected as master. Consumer started: {}", endpoint.getConsumerEndpoint());
@@ -172,7 +176,7 @@ public class MasterConsumer extends DefaultConsumer {
             try {
                 stopConsumer();
             } catch (Exception e) {
-                LOG.warn("Failed to stop master consumer for: " + endpoint, e);
+                LOG.warn("Failed to stop master consumer for: {}", endpoint, e);
             }
         };
     }

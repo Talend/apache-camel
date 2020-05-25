@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @version 
@@ -27,18 +28,23 @@ import org.apache.camel.component.mock.MockEndpoint;
 public class FileProducerFileExistAppendTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/file");
         super.setUp();
-        template.sendBodyAndHeader("file://target/file", "Hello World\n", Exchange.FILE_NAME, "hello.txt");
     }
 
+    @Test
     public void testAppend() throws Exception {
+        template.sendBodyAndHeader("file://target/file", "Hello World\n", Exchange.FILE_NAME, "hello.txt");
+
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodiesReceived("Hello World\nBye World");
         mock.expectedFileExists("target/file/hello.txt", "Hello World\nBye World");
 
         template.sendBodyAndHeader("file://target/file?fileExist=Append", "Bye World", Exchange.FILE_NAME, "hello.txt");
+
+        context.startAllRoutes();
 
         assertMockEndpointsSatisfied();
     }
@@ -48,7 +54,8 @@ public class FileProducerFileExistAppendTest extends ContextTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("file://target/file?noop=true&delay=1000").convertBodyTo(String.class).to("mock:result");
+                from("file://target/file?noop=true&initialDelay=0&delay=10").noAutoStartup()
+                    .convertBodyTo(String.class).to("mock:result");
             }
         };
     }

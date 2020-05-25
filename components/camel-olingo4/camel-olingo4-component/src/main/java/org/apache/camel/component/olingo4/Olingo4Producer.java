@@ -18,12 +18,12 @@ package org.apache.camel.component.olingo4;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.camel.AsyncCallback;
 import org.apache.camel.Exchange;
 import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.component.olingo4.api.Olingo4ResponseHandler;
 import org.apache.camel.component.olingo4.internal.Olingo4ApiName;
+import org.apache.camel.component.olingo4.internal.Olingo4Constants;
 import org.apache.camel.component.olingo4.internal.Olingo4PropertiesHelper;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.component.AbstractApiProducer;
@@ -38,6 +38,8 @@ public class Olingo4Producer extends AbstractApiProducer<Olingo4ApiName, Olingo4
 
     private static final Logger LOG = LoggerFactory.getLogger(Olingo4Producer.class);
 
+    private Olingo4Index resultIndex;
+
     public Olingo4Producer(Olingo4Endpoint endpoint) {
         super(endpoint, Olingo4PropertiesHelper.getHelper());
     }
@@ -45,7 +47,7 @@ public class Olingo4Producer extends AbstractApiProducer<Olingo4ApiName, Olingo4
     @Override
     public boolean process(final Exchange exchange, final AsyncCallback callback) {
         // properties for method arguments
-        final Map<String, Object> properties = new HashMap<String, Object>();
+        final Map<String, Object> properties = new HashMap<>();
         properties.putAll(endpoint.getEndpointProperties());
         propertiesHelper.getExchangeProperties(exchange, properties);
 
@@ -56,12 +58,19 @@ public class Olingo4Producer extends AbstractApiProducer<Olingo4ApiName, Olingo4
         // create response handler
         properties.put(Olingo4Endpoint.RESPONSE_HANDLER_PROPERTY, new Olingo4ResponseHandler<Object>() {
             @Override
-            public void onResponse(Object response) {
+            public void onResponse(Object response, Map<String, String> responseHeaders) {
+                if (resultIndex != null) {
+                    response = resultIndex.filterResponse(response);
+                }
+
                 // producer returns a single response, even for methods with
                 // List return types
                 exchange.getOut().setBody(response);
                 // copy headers
                 exchange.getOut().setHeaders(exchange.getIn().getHeaders());
+                
+                // Add http response headers
+                exchange.getOut().setHeader(Olingo4Constants.PROPERTY_PREFIX + Olingo4Constants.RESPONSE_HTTP_HEADERS, responseHeaders);
 
                 interceptResult(response, exchange);
 
@@ -102,5 +111,32 @@ public class Olingo4Producer extends AbstractApiProducer<Olingo4ApiName, Olingo4
         }
         return false;
 
+    }
+
+    @Override
+    public void interceptProperties(Map<String, Object> properties) {
+        //
+        // If we have a filterAlreadySeen property then initialise the filter index
+        //
+        Object value = properties.get(Olingo4Endpoint.FILTER_ALREADY_SEEN);
+        if (value == null) {
+            return;
+        }
+
+        //
+        // Initialise the index if not already and if filterAlreadySeen has been set
+        //
+        if (Boolean.parseBoolean(value.toString()) && resultIndex == null) {
+            resultIndex = new Olingo4Index();
+        }
+    }
+
+    @Override
+    public void interceptResult(Object result, Exchange resultExchange) {
+        if (resultIndex == null) {
+            return;
+        }
+
+        resultIndex.index(result);
     }
 }

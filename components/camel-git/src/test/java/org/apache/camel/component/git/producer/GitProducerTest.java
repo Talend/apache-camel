@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
@@ -30,6 +32,7 @@ import org.apache.camel.component.git.GitConstants;
 import org.apache.camel.component.git.GitTestSupport;
 import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.RemoteAddCommand;
 import org.eclipse.jgit.api.Status;
@@ -703,6 +706,105 @@ public class GitProducerTest extends GitTestSupport {
         assertEquals(gitRemoteConfigs.get(0).getURIs(), remoteConfigs.get(0).getURIs());
         git.close();
     }
+    
+    @Test
+    public void cleanTest() throws Exception {
+        Git git = getGitTestRepository();
+        File fileToAdd = new File(gitLocalRepo, filenameToAdd);
+        fileToAdd.createNewFile();
+
+        // Test camel-git add
+        Set<String> cleaned = template.requestBodyAndHeader("direct:clean", "", GitConstants.GIT_FILE_NAME, filenameToAdd, Set.class);
+
+        File gitDir = new File(gitLocalRepo, ".git");
+        assertEquals(gitDir.exists(), true);
+        assertTrue(cleaned.contains(filenameToAdd));
+        git.close();
+    }
+    
+    @Test
+    public void gcTest() throws Exception {
+        Git git = getGitTestRepository();
+        File gitDir = new File(gitLocalRepo, ".git");
+        assertEquals(gitDir.exists(), true);
+        File fileToAdd = new File(gitLocalRepo, filenameToAdd);
+        fileToAdd.createNewFile();
+        git.add().addFilepattern(filenameToAdd).call();
+        Status status = git.status().call();
+        assertTrue(status.getAdded().contains(filenameToAdd));
+        git.commit().setMessage(commitMessage).call();
+
+        // Test camel-git commit (with no changes)
+        template.requestBodyAndHeader("direct:commit", "", GitConstants.GIT_COMMIT_MESSAGE, commitMessage);
+
+        // Check that it has been commited twice
+        validateGitLogs(git, commitMessage, commitMessage);
+
+        // Test camel-git add
+        Properties gcResult = template.requestBodyAndHeader("direct:gc", "", GitConstants.GIT_FILE_NAME, filenameToAdd, Properties.class);
+
+
+        assertNotNull(gcResult);
+        git.close();
+    }
+    
+    @Test
+    public void mergeTest() throws Exception {
+        // Init
+        Git git = getGitTestRepository();
+        File gitDir = new File(gitLocalRepo, ".git");
+        assertEquals(gitDir.exists(), true);
+        File fileToAdd = new File(gitLocalRepo, filenameToAdd);
+        fileToAdd.createNewFile();
+        git.add().addFilepattern(filenameToAdd).call();
+        Status status = git.status().call();
+        assertTrue(status.getAdded().contains(filenameToAdd));
+        git.commit().setMessage(commitMessage).call();
+        validateGitLogs(git, commitMessage);
+        git.checkout().setCreateBranch(true).setName(branchTest).setUpstreamMode(SetupUpstreamMode.SET_UPSTREAM).call();
+
+        // Test camel-git commit (with branch)
+        template.send("direct:commit-branch", new Processor() {
+            @Override
+            public void process(Exchange exchange) throws Exception {
+                exchange.getIn().setHeader(GitConstants.GIT_COMMIT_MESSAGE, commitMessageBranch);
+            }
+        });
+        validateGitLogs(git, commitMessageBranch, commitMessage);
+        
+        // Test camel-git commit (with branch)
+        MergeResult result = template.requestBody("direct:merge", "", MergeResult.class);
+        assertEquals(result.getMergeStatus().toString(), "Fast-forward");
+        git.close();
+    }
+    
+    @Test
+    public void showTagsTest() throws Exception {
+        // Init
+        Git git = getGitTestRepository();
+        File fileToAdd = new File(gitLocalRepo, filenameToAdd);
+        fileToAdd.createNewFile();
+        git.add().addFilepattern(filenameToAdd).call();
+        File gitDir = new File(gitLocalRepo, ".git");
+        assertEquals(gitDir.exists(), true);
+        Status status = git.status().call();
+        assertTrue(status.getAdded().contains(filenameToAdd));
+        git.commit().setMessage(commitMessage).call();
+
+        // Test camel-git create tag
+        template.sendBody("direct:create-tag", "");
+
+        // Check
+        List<Ref> result = template.requestBody("direct:show-tags", "", List.class);
+        boolean tagCreated = false;
+        for (Ref refInternal : result) {
+            if (refInternal.getName().equals("refs/tags/" + tagTest)) {
+                tagCreated = true;
+            }
+        }
+        assertEquals(true, tagCreated);
+        git.close();
+    }
 
     @Override
     protected RouteBuilder createRouteBuilder() throws Exception {
@@ -735,8 +837,12 @@ public class GitProducerTest extends GitTestSupport {
                 from("direct:cherrypick").to("git://" + gitLocalRepo + "?operation=cherryPick&branchName=" + branchTest);
                 from("direct:cherrypick-master").to("git://" + gitLocalRepo + "?operation=cherryPick&branchName=refs/heads/master");
                 from("direct:pull").to("git://" + gitLocalRepo + "?remoteName=origin&operation=pull");
+                from("direct:clean").to("git://" + gitLocalRepo + "?operation=clean");
+                from("direct:gc").to("git://" + gitLocalRepo + "?operation=gc");
                 from("direct:remoteAdd").to("git://" + gitLocalRepo + "?operation=remoteAdd&remotePath=https://github.com/oscerd/json-webserver-example.git&remoteName=origin");
                 from("direct:remoteList").to("git://" + gitLocalRepo + "?operation=remoteList");
+                from("direct:merge").to("git://" + gitLocalRepo + "?operation=merge&branchName=" + branchTest);
+                from("direct:show-tags").to("git://" + gitLocalRepo + "?operation=showTags");
             }
         };
     }

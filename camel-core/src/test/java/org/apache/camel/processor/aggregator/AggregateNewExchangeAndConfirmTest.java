@@ -16,6 +16,8 @@
  */
 package org.apache.camel.processor.aggregator;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
@@ -23,6 +25,9 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
 import org.apache.camel.processor.aggregate.MemoryAggregationRepository;
+import org.junit.Test;
+
+import static org.awaitility.Awaitility.await;
 
 /**
  * Testing CAMEL-3139
@@ -33,6 +38,7 @@ public class AggregateNewExchangeAndConfirmTest extends ContextTestSupport {
 
     private MyRepo repo = new MyRepo();
 
+    @Test
     public void testAggregateNewExchangeAndConfirm() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:aggregated");
         mock.expectedBodiesReceived("ABC");
@@ -44,7 +50,7 @@ public class AggregateNewExchangeAndConfirmTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
 
         // give UoW time to complete and confirm
-        Thread.sleep(500);
+        await().atMost(1, TimeUnit.SECONDS).until(() -> repo.getId() != null);
 
         // must have confirmed
         assertEquals(mock.getReceivedExchanges().get(0).getExchangeId(), repo.getId());

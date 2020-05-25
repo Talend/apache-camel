@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
+import org.apache.camel.ExchangePattern;
 import org.apache.camel.component.jackson.JacksonConstants;
 import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.test.junit4.CamelTestSupport;
@@ -45,7 +46,7 @@ public class JacksonConversionsSimpleTest extends CamelTestSupport {
     public void shouldNotConvertMapToString() {
         Exchange exchange = new DefaultExchange(context);
 
-        Map<String, String> body = new HashMap<String, String>();
+        Map<String, String> body = new HashMap<>();
         Object convertedObject = context.getTypeConverter().convertTo(String.class, exchange, body);
         // will do a toString which is an empty map
         assertEquals(body.toString(), convertedObject);
@@ -65,6 +66,15 @@ public class JacksonConversionsSimpleTest extends CamelTestSupport {
         Object convertedObject = context.getTypeConverter().convertTo(long.class, exchange, new HashMap<String, String>());
 
         assertNull(convertedObject);
+    }
+
+    @Test
+    public void shouldNotConvertStringToEnum() {
+        Exchange exchange = new DefaultExchange(context);
+
+        Object convertedObject = context.getTypeConverter().convertTo(ExchangePattern.class, exchange, "InOnly");
+
+        assertEquals(ExchangePattern.InOnly, convertedObject);
     }
 
 }

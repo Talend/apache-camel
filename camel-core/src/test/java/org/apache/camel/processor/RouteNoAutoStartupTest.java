@@ -19,30 +19,31 @@ package org.apache.camel.processor;
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class RouteNoAutoStartupTest extends ContextTestSupport {
 
+    @Test
     public void testRouteNotAutoStarted() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(0);
+        mock.setAssertPeriod(50);
 
         template.sendBody("direct:start", "Hello World");
-
-        Thread.sleep(100);
 
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testRouteNotAutoStartedThenStarted() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(0);
+        mock.setAssertPeriod(50);
 
         template.sendBody("direct:start", "Hello World");
-
-        Thread.sleep(100);
 
         assertMockEndpointsSatisfied();
 

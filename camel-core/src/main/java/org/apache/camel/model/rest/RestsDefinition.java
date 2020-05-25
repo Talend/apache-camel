@@ -18,6 +18,7 @@ package org.apache.camel.model.rest;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElementRef;
@@ -36,7 +37,7 @@ import org.apache.camel.spi.Metadata;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RestsDefinition extends OptionalIdentifiedDefinition<RestsDefinition> implements RestContainer {
     @XmlElementRef
-    private List<RestDefinition> rests = new ArrayList<RestDefinition>();
+    private List<RestDefinition> rests = new ArrayList<>();
     @XmlTransient
     private ModelCamelContext camelContext;
 
@@ -46,6 +47,11 @@ public class RestsDefinition extends OptionalIdentifiedDefinition<RestsDefinitio
     @Override
     public String toString() {
         return "Rests: " + rests;
+    }
+
+    @Override
+    public String getShortName() {
+        return "rests";
     }
 
     public String getLabel() {

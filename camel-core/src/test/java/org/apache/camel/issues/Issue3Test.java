@@ -21,6 +21,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Test;
 
 /**
  * @version 
@@ -28,8 +29,9 @@ import org.apache.camel.builder.RouteBuilder;
 public class Issue3Test extends ContextTestSupport {
     protected String fromQueue = "direct:A";
 
+    @Test
     public void testIssue() throws Exception {
-        sendBody(fromQueue, "ha!");
+        sendBody(fromQueue, "cluster!");
     }
 
     @Override

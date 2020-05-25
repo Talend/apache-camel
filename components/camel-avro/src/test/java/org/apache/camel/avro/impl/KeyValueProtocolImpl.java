@@ -21,14 +21,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.avro.AvroRemoteException;
-
 import org.apache.camel.avro.generated.Key;
 import org.apache.camel.avro.generated.KeyValueProtocol;
 import org.apache.camel.avro.generated.Value;
 
 public class KeyValueProtocolImpl implements KeyValueProtocol {
 
-    private Map<Key, Value> store = new HashMap<Key, Value>();
+    private Map<Key, Value> store = new HashMap<>();
 
     @Override
     public Void put(Key key, Value value) throws AvroRemoteException {

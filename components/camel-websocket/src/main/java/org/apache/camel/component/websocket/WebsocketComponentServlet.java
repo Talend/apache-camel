@@ -19,6 +19,7 @@ package org.apache.camel.component.websocket;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
@@ -35,7 +36,7 @@ public class WebsocketComponentServlet extends WebSocketServlet {
     private WebsocketConsumer consumer;
     private String pathSpec;
 
-    private ConcurrentMap<String, WebsocketConsumer> consumers = new ConcurrentHashMap<String, WebsocketConsumer>();
+    private ConcurrentMap<String, WebsocketConsumer> consumers = new ConcurrentHashMap<>();
     private Map<String, WebSocketFactory> socketFactory;
 
     public WebsocketComponentServlet(NodeSynchronization sync, String pathSpec, Map<String, WebSocketFactory> socketFactory) {

@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Stack;
+
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParser;
@@ -28,6 +30,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
@@ -105,11 +108,13 @@ public final class XmlLineNumberParser {
         final Document doc;
         SAXParser parser;
         final SAXParserFactory factory = SAXParserFactory.newInstance();
+        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
         parser = factory.newSAXParser();
         final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         // turn off validator and loading external dtd
         dbf.setValidating(false);
         dbf.setNamespaceAware(true);
+        dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
         dbf.setFeature("http://xml.org/sax/features/namespaces", false);
         dbf.setFeature("http://xml.org/sax/features/validation", false);
         dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
@@ -119,7 +124,7 @@ public final class XmlLineNumberParser {
         final DocumentBuilder docBuilder = dbf.newDocumentBuilder();
         doc = docBuilder.newDocument();
 
-        final Stack<Element> elementStack = new Stack<Element>();
+        final Stack<Element> elementStack = new Stack<>();
         final StringBuilder textBuffer = new StringBuilder();
         final DefaultHandler handler = new DefaultHandler() {
             private Locator locator;

@@ -36,10 +36,8 @@ import org.apache.camel.impl.DefaultConsumer;
 import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.camel.impl.DefaultProducer;
 import org.apache.camel.util.ObjectHelper;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import quickfix.Message;
 import quickfix.Message.Header;
 import quickfix.SessionID;
@@ -58,7 +56,7 @@ import quickfix.field.TargetSubID;
 public class TradeExecutorComponent extends DefaultComponent {
     private static final Logger LOG = LoggerFactory.getLogger(TradeExecutorComponent.class);
 
-    private Map<String, TradeExecutorEndpoint> endpoints = new HashMap<String, TradeExecutorEndpoint>();
+    private Map<String, TradeExecutorEndpoint> endpoints = new HashMap<>();
     private final Executor executor;
 
     public TradeExecutorComponent() {
@@ -93,7 +91,7 @@ public class TradeExecutorComponent extends DefaultComponent {
 
     private class TradeExecutorEndpoint extends DefaultEndpoint {
         private final TradeExecutor tradeExecutor;
-        private List<Processor> processors = new CopyOnWriteArrayList<Processor>();
+        private List<Processor> processors = new CopyOnWriteArrayList<>();
         
         TradeExecutorEndpoint(String uri, TradeExecutor tradeExecutor) {
             super(uri, TradeExecutorComponent.this);

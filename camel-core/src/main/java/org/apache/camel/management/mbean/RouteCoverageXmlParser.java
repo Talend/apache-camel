@@ -18,6 +18,8 @@ package org.apache.camel.management.mbean;
 
 import java.io.InputStream;
 import java.util.Stack;
+
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParser;
@@ -26,6 +28,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
@@ -60,12 +63,14 @@ public final class RouteCoverageXmlParser {
      */
     public static Document parseXml(final CamelContext camelContext, final InputStream is) throws Exception {
         final SAXParserFactory factory = SAXParserFactory.newInstance();
+        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
         final SAXParser parser = factory.newSAXParser();
         final DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+        docBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
         final DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
         final Document doc = docBuilder.newDocument();
 
-        final Stack<Element> elementStack = new Stack<Element>();
+        final Stack<Element> elementStack = new Stack<>();
         final StringBuilder textBuffer = new StringBuilder();
         final DefaultHandler handler = new DefaultHandler() {
 
@@ -96,7 +101,20 @@ public final class RouteCoverageXmlParser {
                                 el.setAttribute("totalProcessingTime", "" + totalTime);
                             }
                         } else if ("from".equals(qName)) {
-                            // TODO: include the stats from the route mbean as that would be the same
+                            // grab statistics from the parent route as from would be the same
+                            Element parent = elementStack.peek();
+                            if (parent != null) {
+                                String routeId = parent.getAttribute("id");
+                                ManagedRouteMBean route = camelContext.getManagedRoute(routeId, ManagedRouteMBean.class);
+                                if (route != null) {
+                                    long total = route.getExchangesTotal();
+                                    el.setAttribute("exchangesTotal", "" + total);
+                                    long totalTime = route.getTotalProcessingTime();
+                                    el.setAttribute("totalProcessingTime", "" + totalTime);
+                                    // from is index-0
+                                    el.setAttribute("index", "0");
+                                }
+                            }
                         } else {
                             ManagedProcessorMBean processor = camelContext.getManagedProcessor(id, ManagedProcessorMBean.class);
                             if (processor != null) {
@@ -104,6 +122,8 @@ public final class RouteCoverageXmlParser {
                                 el.setAttribute("exchangesTotal", "" + total);
                                 long totalTime = processor.getTotalProcessingTime();
                                 el.setAttribute("totalProcessingTime", "" + totalTime);
+                                int index = processor.getIndex();
+                                el.setAttribute("index", "" + index);
                             }
                         }
                     } catch (Exception e) {
@@ -111,8 +131,10 @@ public final class RouteCoverageXmlParser {
                     }
                 }
 
-                // we do not want customId in output
-                el.removeAttribute("customId");
+                // we do not want customId in output of the EIPs
+                if (!"route".equals(qName)) {
+                    el.removeAttribute("customId");
+                }
 
                 elementStack.push(el);
             }

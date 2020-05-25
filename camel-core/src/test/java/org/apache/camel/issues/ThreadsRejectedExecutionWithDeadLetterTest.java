@@ -16,9 +16,15 @@
  */
 package org.apache.camel.issues;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.camel.ContextTestSupport;
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 import org.apache.camel.ThreadPoolRejectedPolicy;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Test;
 
 /**
  * @version
@@ -30,7 +36,10 @@ public class ThreadsRejectedExecutionWithDeadLetterTest extends ContextTestSuppo
         return false;
     }
 
+    @Test
     public void testThreadsRejectedExecution() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(3);
+
         context.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
@@ -42,7 +51,12 @@ public class ThreadsRejectedExecutionWithDeadLetterTest extends ContextTestSuppo
                         .maxQueueSize(1)            // 1 queued task
                         //(Test fails whatever the chosen policy below)
                         .rejectedPolicy(ThreadPoolRejectedPolicy.Abort)
-                        .delay(1000)
+                        .process(new Processor() {
+                            @Override
+                            public void process(Exchange exchange) throws Exception {
+                                latch.await(5, TimeUnit.SECONDS);
+                            }
+                        })
                         .to("log:after")
                         .to("mock:result");
             }
@@ -56,14 +70,21 @@ public class ThreadsRejectedExecutionWithDeadLetterTest extends ContextTestSuppo
         template.sendBody("seda:start", "Hi World");    // will be queued
         template.sendBody("seda:start", "Bye World");   // will be rejected
 
+        latch.countDown();
+        latch.countDown();
+        latch.countDown();
+
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testThreadsRejectedExecutionWithRedelivery() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(3);
+
         context.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("seda:start").errorHandler(deadLetterChannel("mock:failed").maximumRedeliveries(5))
+                from("seda:start").errorHandler(deadLetterChannel("mock:failed").maximumRedeliveries(10).redeliveryDelay(10))
                         .to("log:before")
                         // will use our custom pool
                         .threads()
@@ -71,7 +92,12 @@ public class ThreadsRejectedExecutionWithDeadLetterTest extends ContextTestSuppo
                         .maxQueueSize(1)            // 1 queued task
                         //(Test fails whatever the chosen policy below)
                         .rejectedPolicy(ThreadPoolRejectedPolicy.Abort)
-                        .delay(1000)
+                        .process(new Processor() {
+                            @Override
+                            public void process(Exchange exchange) throws Exception {
+                                latch.await(5, TimeUnit.SECONDS);
+                            }
+                        })
                         .to("log:after")
                         .to("mock:result");
             }
@@ -84,6 +110,10 @@ public class ThreadsRejectedExecutionWithDeadLetterTest extends ContextTestSuppo
         template.sendBody("seda:start", "Hello World"); // will block
         template.sendBody("seda:start", "Hi World");    // will be queued
         template.sendBody("seda:start", "Bye World");   // will be rejected and queued on redelivery later
+
+        latch.countDown();
+        latch.countDown();
+        latch.countDown();
 
         assertMockEndpointsSatisfied();
     }

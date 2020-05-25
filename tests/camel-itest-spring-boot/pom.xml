@@ -24,12 +24,17 @@
   <parent>
     <artifactId>tests</artifactId>
     <groupId>org.apache.camel</groupId>
-    <version>2.20.0-SNAPSHOT</version>
+    <version>2.24.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-itest-spring-boot</artifactId>
   <name>Camel :: Integration Tests :: Spring-Boot</name>
   <description>Spring-Boot Camel test</description>
+
+  <properties>
+    <!-- Upgrading to 2.20 activates this bug: https://issues.apache.org/jira/browse/SUREFIRE-1382 -->
+    <maven-surefire-plugin-version>2.19</maven-surefire-plugin-version>
+  </properties>
 
   <dependencies>
 
@@ -82,6 +87,12 @@
       <version>${aether-version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.eclipse.aether</groupId>
+      <artifactId>aether-connector-basic</artifactId>
+      <version>${aether-version}</version>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.jboss.arquillian.junit</groupId>
@@ -115,6 +126,12 @@
       <artifactId>shrinkwrap-resolver-api</artifactId>
       <version>${shrinkwrap-resolver-version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.maven.resolver</groupId>
+          <artifactId>maven-resolver-connector-basic</artifactId>
+        </exclusion>
+      </exclusions> 
     </dependency>
 
     <dependency>
@@ -187,11 +204,15 @@
             </property>
             <property>
               <name>itest.springboot.includeTestDependencies</name>
-              <value>true</value>
+              <value>false</value>
             </property>
             <property>
               <name>itest.springboot.mavenOfflineResolution</name>
               <value>false</value>
+            </property>
+            <property>
+              <name>itest.springboot.springBootVersion</name>
+              <value>${spring-boot-version}</value>
             </property>
 
           </systemProperties>

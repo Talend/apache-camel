@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
 import javax.xml.bind.Binder;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -81,6 +82,7 @@ public final class ModelHelper {
 
         Marshaller marshaller = jaxbContext.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
         StringWriter buffer = new StringWriter();
         marshaller.marshal(definition, buffer);
 
@@ -104,6 +106,7 @@ public final class ModelHelper {
         Properties outputProperties = new Properties();
         outputProperties.put(OutputKeys.INDENT, "yes");
         outputProperties.put(OutputKeys.STANDALONE, "yes");
+        outputProperties.put(OutputKeys.ENCODING, "UTF-8");
         try {
             return xmlConverter.toStringFromDocument(dom, outputProperties);
         } catch (TransformerException e) {

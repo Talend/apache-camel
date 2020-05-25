@@ -24,6 +24,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.processor.aggregate.AbstractListAggregationStrategy;
+import org.junit.Test;
 
 /**
  *
@@ -32,6 +33,7 @@ public class CustomListAggregationStrategyEmptySplitTest extends
         ContextTestSupport {
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testCustomAggregationStrategy() throws Exception {
         getMockEndpoint("mock:line").expectedBodiesReceived();
 
@@ -39,7 +41,7 @@ public class CustomListAggregationStrategyEmptySplitTest extends
         result.expectedMessageCount(1);
         result.message(0).body().isInstanceOf(List.class);
 
-        List<String> body = new ArrayList<String>();
+        List<String> body = new ArrayList<>();
 
         template.sendBody("direct:start", body);
 

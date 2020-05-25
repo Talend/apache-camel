@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -58,7 +60,7 @@ import org.apache.camel.util.ObjectHelper;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OnExceptionDefinition extends ProcessorDefinition<OnExceptionDefinition> {
     @XmlElement(name = "exception", required = true)
-    private List<String> exceptions = new ArrayList<String>();
+    private List<String> exceptions = new ArrayList<>();
     @XmlElement(name = "onWhen") @AsPredicate
     private WhenDefinition onWhen;
     @XmlElement(name = "retryWhile") @AsPredicate
@@ -78,9 +80,7 @@ public class OnExceptionDefinition extends ProcessorDefinition<OnExceptionDefini
     @XmlAttribute(name = "useOriginalMessage")
     private Boolean useOriginalMessagePolicy;
     @XmlElementRef
-    private List<ProcessorDefinition<?>> outputs = new ArrayList<ProcessorDefinition<?>>();
-    @XmlTransient
-    private List<Class<? extends Throwable>> exceptionClasses;
+    private List<ProcessorDefinition<?>> outputs = new ArrayList<>();
     @XmlTransient
     private Predicate handledPolicy;
     @XmlTransient
@@ -95,7 +95,7 @@ public class OnExceptionDefinition extends ProcessorDefinition<OnExceptionDefini
     private Boolean routeScoped;
     // TODO: in Camel 3.0 the OnExceptionDefinition should not contain state and ErrorHandler processors
     @XmlTransient
-    private final Map<String, Processor> errorHandlers = new HashMap<String, Processor>();
+    private final Map<String, Processor> errorHandlers = new HashMap<>();
     @XmlTransient
     private RedeliveryPolicy redeliveryPolicy;
 
@@ -103,12 +103,11 @@ public class OnExceptionDefinition extends ProcessorDefinition<OnExceptionDefini
     }
 
     public OnExceptionDefinition(List<Class<? extends Throwable>> exceptionClasses) {
-        this.exceptionClasses = exceptionClasses;
+        this.exceptions.addAll(exceptionClasses.stream().map(Class::getName).collect(Collectors.toList()));
     }
 
     public OnExceptionDefinition(Class<? extends Throwable> exceptionType) {
-        exceptionClasses = new ArrayList<Class<? extends Throwable>>();
-        exceptionClasses.add(exceptionType);
+        this.exceptions.add(exceptionType.getName());
     }
 
     public void setRouteScoped(boolean routeScoped) {
@@ -126,7 +125,12 @@ public class OnExceptionDefinition extends ProcessorDefinition<OnExceptionDefini
     }
     
     protected String description() {
-        return getExceptionClasses() + (onWhen != null ? " " + onWhen : "");
+        return getExceptions() + (onWhen != null ? " " + onWhen : "");
+    }
+
+    @Override
+    public String getShortName() {
+        return "onException";
     }
 
     @Override
@@ -187,11 +191,6 @@ public class OnExceptionDefinition extends ProcessorDefinition<OnExceptionDefini
         setOnRedeliveryFromRedeliveryRef(routeContext);
         setOnExceptionOccurredFromOnExceptionOccurredRef(routeContext);
 
-        // load exception classes
-        if (exceptions != null && !exceptions.isEmpty()) {
-            exceptionClasses = createExceptionClasses(routeContext.getCamelContext().getClassResolver());
-        }
-
         // must validate configuration before creating processor
         validateConfiguration();
 
@@ -217,6 +216,7 @@ public class OnExceptionDefinition extends ProcessorDefinition<OnExceptionDefini
     @Override
     public CatchProcessor createProcessor(RouteContext routeContext) throws Exception {
         // load exception classes
+        List<Class<? extends Throwable>> exceptionClasses = null;
         if (exceptions != null && !exceptions.isEmpty()) {
             exceptionClasses = createExceptionClasses(routeContext.getCamelContext().getClassResolver());
         }
@@ -241,7 +241,7 @@ public class OnExceptionDefinition extends ProcessorDefinition<OnExceptionDefini
             handle = handled.createPredicate(routeContext);
         }
 
-        return new CatchProcessor(getExceptionClasses(), childProcessor, when, handle);
+        return new CatchProcessor(exceptionClasses, childProcessor, when, handle);
     }
 
     protected void validateConfiguration() {
@@ -249,7 +249,6 @@ public class OnExceptionDefinition extends ProcessorDefinition<OnExceptionDefini
             throw new IllegalArgumentException(this + " cannot have the inheritErrorHandler option set to true");
         }
 
-        List<Class<? extends Throwable>> exceptions = getExceptionClasses();
         if (exceptions == null || exceptions.isEmpty()) {
             throw new IllegalArgumentException("At least one exception must be configured on " + this);
         }
@@ -281,7 +280,7 @@ public class OnExceptionDefinition extends ProcessorDefinition<OnExceptionDefini
 
     @Override
     public OnExceptionDefinition onException(Class<? extends Throwable> exceptionType) {
-        getExceptionClasses().add(exceptionType);
+        getExceptions().add(exceptionType.getName());
         return this;
     }
 
@@ -707,7 +706,7 @@ public class OnExceptionDefinition extends ProcessorDefinition<OnExceptionDefini
     }
 
     /**
-     * Turn on exponential backk off
+     * Turn on exponential back off
      *
      * @return the builder
      */
@@ -786,8 +785,8 @@ public class OnExceptionDefinition extends ProcessorDefinition<OnExceptionDefini
      * <p/>
      * <b>Notice:</b> this only applies when all redeliveries attempt have failed and the {@link org.apache.camel.Exchange} is doomed for failure.
      * <br/>
-     * Instead of using the current inprogress {@link org.apache.camel.Exchange} IN body we use the original IN body instead. This allows
-     * you to store the original input in the dead letter queue instead of the inprogress snapshot of the IN body.
+     * Instead of using the current in-progress {@link org.apache.camel.Exchange} IN body we use the original IN body instead. This allows
+     * you to store the original input in the dead letter queue instead of the in-progress snapshot of the IN body.
      * For instance if you route transform the IN body during routing and then failed. With the original exchange
      * store in the dead letter queue it might be easier to manually re submit the {@link org.apache.camel.Exchange} again as the IN body
      * is the same as when Camel received it. So you should be able to send the {@link org.apache.camel.Exchange} to the same input.
@@ -862,14 +861,6 @@ public class OnExceptionDefinition extends ProcessorDefinition<OnExceptionDefini
         return true;
     }
 
-    public List<Class<? extends Throwable>> getExceptionClasses() {
-        return exceptionClasses;
-    }
-
-    public void setExceptionClasses(List<Class<? extends Throwable>> exceptionClasses) {
-        this.exceptionClasses = exceptionClasses;
-    }
-
     public List<String> getExceptions() {
         return exceptions;
     }
@@ -901,6 +892,9 @@ public class OnExceptionDefinition extends ProcessorDefinition<OnExceptionDefini
         return redeliveryPolicyType;
     }
 
+    /**
+     * Used for configuring redelivery options
+     */
     public void setRedeliveryPolicyType(RedeliveryPolicyDefinition redeliveryPolicyType) {
         this.redeliveryPolicyType = redeliveryPolicyType;
     }
@@ -1028,7 +1022,7 @@ public class OnExceptionDefinition extends ProcessorDefinition<OnExceptionDefini
 
     protected List<Class<? extends Throwable>> createExceptionClasses(ClassResolver resolver) throws ClassNotFoundException {
         List<String> list = getExceptions();
-        List<Class<? extends Throwable>> answer = new ArrayList<Class<? extends Throwable>>(list.size());
+        List<Class<? extends Throwable>> answer = new ArrayList<>(list.size());
         for (String name : list) {
             Class<? extends Throwable> type = resolver.resolveMandatoryClass(name, Throwable.class);
             answer.add(type);

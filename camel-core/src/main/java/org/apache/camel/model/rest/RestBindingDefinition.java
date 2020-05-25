@@ -17,7 +17,9 @@
 package org.apache.camel.model.rest;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -47,6 +49,15 @@ public class RestBindingDefinition extends OptionalIdentifiedDefinition<RestBind
     @XmlTransient
     private Map<String, String> defaultValues;
 
+    @XmlTransient
+    private Boolean requiredBody;
+
+    @XmlTransient
+    private Set<String> requiredHeaders;
+
+    @XmlTransient
+    private Set<String> requiredQueryParameters;
+
     @XmlAttribute
     private String consumes;
 
@@ -65,6 +76,9 @@ public class RestBindingDefinition extends OptionalIdentifiedDefinition<RestBind
 
     @XmlAttribute
     private Boolean skipBindingOnErrorCode;
+
+    @XmlAttribute
+    private Boolean clientRequestValidation;
 
     @XmlAttribute
     private Boolean enableCORS;
@@ -98,115 +112,124 @@ public class RestBindingDefinition extends OptionalIdentifiedDefinition<RestBind
         if (skipBindingOnErrorCode != null) {
             skip = skipBindingOnErrorCode;
         }
+        boolean validation = config.isClientRequestValidation();
+        if (clientRequestValidation != null) {
+            validation = clientRequestValidation;
+        }
 
         // cors headers
         Map<String, String> corsHeaders = config.getCorsHeaders();
 
         if (mode == null || "off".equals(mode)) {
             // binding mode is off, so create a off mode binding processor
-            return new RestBindingAdvice(context, null, null, null, null, consumes, produces, mode, skip, cors, corsHeaders, defaultValues);
+            return new RestBindingAdvice(context, null, null, null, null, consumes, produces, mode, skip, validation,
+                cors, corsHeaders, defaultValues, requiredBody != null ? requiredBody : false, requiredQueryParameters, requiredHeaders);
         }
 
         // setup json data format
-        String name = config.getJsonDataFormat();
-        if (name != null) {
-            // must only be a name, not refer to an existing instance
-            Object instance = context.getRegistry().lookupByName(name);
-            if (instance != null) {
-                throw new IllegalArgumentException("JsonDataFormat name: " + name + " must not be an existing bean instance from the registry");
+        DataFormat json = null;
+        DataFormat outJson = null;
+        if (mode.contains("json") || "auto".equals(mode)) {
+            String name = config.getJsonDataFormat();
+            if (name != null) {
+                // must only be a name, not refer to an existing instance
+                Object instance = context.getRegistry().lookupByName(name);
+                if (instance != null) {
+                    throw new IllegalArgumentException("JsonDataFormat name: " + name + " must not be an existing bean instance from the registry");
+                }
+            } else {
+                name = "json-jackson";
             }
-        } else {
-            name = "json-jackson";
-        }
-        // this will create a new instance as the name was not already pre-created
-        DataFormat json = context.resolveDataFormat(name);
-        DataFormat outJson = context.resolveDataFormat(name);
+            // this will create a new instance as the name was not already pre-created
+            json = context.resolveDataFormat(name);
+            outJson = context.resolveDataFormat(name);
 
-        // is json binding required?
-        if (mode.contains("json") && json == null) {
-            throw new IllegalArgumentException("JSon DataFormat " + name + " not found.");
-        }
+            if (json != null) {
+                Class<?> clazz = null;
+                if (type != null) {
+                    String typeName = type.endsWith("[]") ? type.substring(0, type.length() - 2) : type;
+                    clazz = context.getClassResolver().resolveMandatoryClass(typeName);
+                }
+                if (clazz != null) {
+                    IntrospectionSupport.setProperty(context.getTypeConverter(), json, "unmarshalType", clazz);
+                    IntrospectionSupport.setProperty(context.getTypeConverter(), json, "useList", type.endsWith("[]"));
+                }
+                setAdditionalConfiguration(config, context, json, "json.in.");
 
-        if (json != null) {
-            Class<?> clazz = null;
-            if (type != null) {
-                String typeName = type.endsWith("[]") ? type.substring(0, type.length() - 2) : type;
-                clazz = context.getClassResolver().resolveMandatoryClass(typeName);
+                Class<?> outClazz = null;
+                if (outType != null) {
+                    String typeName = outType.endsWith("[]") ? outType.substring(0, outType.length() - 2) : outType;
+                    outClazz = context.getClassResolver().resolveMandatoryClass(typeName);
+                }
+                if (outClazz != null) {
+                    IntrospectionSupport.setProperty(context.getTypeConverter(), outJson, "unmarshalType", outClazz);
+                    IntrospectionSupport.setProperty(context.getTypeConverter(), outJson, "useList", outType.endsWith("[]"));
+                }
+                setAdditionalConfiguration(config, context, outJson, "json.out.");
             }
-            if (clazz != null) {
-                IntrospectionSupport.setProperty(context.getTypeConverter(), json, "unmarshalType", clazz);
-                IntrospectionSupport.setProperty(context.getTypeConverter(), json, "useList", type.endsWith("[]"));
-            }
-            setAdditionalConfiguration(config, context, json, "json.in.");
-
-            Class<?> outClazz = null;
-            if (outType != null) {
-                String typeName = outType.endsWith("[]") ? outType.substring(0, outType.length() - 2) : outType;
-                outClazz = context.getClassResolver().resolveMandatoryClass(typeName);
-            }
-            if (outClazz != null) {
-                IntrospectionSupport.setProperty(context.getTypeConverter(), outJson, "unmarshalType", outClazz);
-                IntrospectionSupport.setProperty(context.getTypeConverter(), outJson, "useList", outType.endsWith("[]"));
-            }
-            setAdditionalConfiguration(config, context, outJson, "json.out.");
         }
 
         // setup xml data format
-        name = config.getXmlDataFormat();
-        if (name != null) {
-            // must only be a name, not refer to an existing instance
-            Object instance = context.getRegistry().lookupByName(name);
-            if (instance != null) {
-                throw new IllegalArgumentException("XmlDataFormat name: " + name + " must not be an existing bean instance from the registry");
+        DataFormat jaxb = null;
+        DataFormat outJaxb = null;
+        if (mode.contains("xml") || "auto".equals(mode)) {
+            String name = config.getXmlDataFormat();
+            if (name != null) {
+                // must only be a name, not refer to an existing instance
+                Object instance = context.getRegistry().lookupByName(name);
+                if (instance != null) {
+                    throw new IllegalArgumentException("XmlDataFormat name: " + name + " must not be an existing bean instance from the registry");
+                }
+            } else {
+                name = "jaxb";
             }
-        } else {
-            name = "jaxb";
+            // this will create a new instance as the name was not already pre-created
+            jaxb = context.resolveDataFormat(name);
+            outJaxb = context.resolveDataFormat(name);
+
+            // is xml binding required?
+            if (mode.contains("xml") && jaxb == null) {
+                throw new IllegalArgumentException("XML DataFormat " + name + " not found.");
+            }
+
+            if (jaxb != null) {
+                Class<?> clazz = null;
+                if (type != null) {
+                    String typeName = type.endsWith("[]") ? type.substring(0, type.length() - 2) : type;
+                    clazz = context.getClassResolver().resolveMandatoryClass(typeName);
+                }
+                if (clazz != null) {
+                    JAXBContext jc = JAXBContext.newInstance(clazz);
+                    IntrospectionSupport.setProperty(context.getTypeConverter(), jaxb, "context", jc);
+                }
+                setAdditionalConfiguration(config, context, jaxb, "xml.in.");
+
+                Class<?> outClazz = null;
+                if (outType != null) {
+                    String typeName = outType.endsWith("[]") ? outType.substring(0, outType.length() - 2) : outType;
+                    outClazz = context.getClassResolver().resolveMandatoryClass(typeName);
+                }
+                if (outClazz != null) {
+                    JAXBContext jc = JAXBContext.newInstance(outClazz);
+                    IntrospectionSupport.setProperty(context.getTypeConverter(), outJaxb, "context", jc);
+                } else if (clazz != null) {
+                    // fallback and use the context from the input
+                    JAXBContext jc = JAXBContext.newInstance(clazz);
+                    IntrospectionSupport.setProperty(context.getTypeConverter(), outJaxb, "context", jc);
+                }
+                setAdditionalConfiguration(config, context, outJaxb, "xml.out.");
+            }
         }
-        // this will create a new instance as the name was not already pre-created
-        DataFormat jaxb = context.resolveDataFormat(name);
-        DataFormat outJaxb = context.resolveDataFormat(name);
 
-        // is xml binding required?
-        if (mode.contains("xml") && jaxb == null) {
-            throw new IllegalArgumentException("XML DataFormat " + name + " not found.");
-        }
-
-        if (jaxb != null) {
-            Class<?> clazz = null;
-            if (type != null) {
-                String typeName = type.endsWith("[]") ? type.substring(0, type.length() - 2) : type;
-                clazz = context.getClassResolver().resolveMandatoryClass(typeName);
-            }
-            if (clazz != null) {
-                JAXBContext jc = JAXBContext.newInstance(clazz);
-                IntrospectionSupport.setProperty(context.getTypeConverter(), jaxb, "context", jc);
-            }
-            setAdditionalConfiguration(config, context, jaxb, "xml.in.");
-
-            Class<?> outClazz = null;
-            if (outType != null) {
-                String typeName = outType.endsWith("[]") ? outType.substring(0, outType.length() - 2) : outType;
-                outClazz = context.getClassResolver().resolveMandatoryClass(typeName);
-            }
-            if (outClazz != null) {
-                JAXBContext jc = JAXBContext.newInstance(outClazz);
-                IntrospectionSupport.setProperty(context.getTypeConverter(), outJaxb, "context", jc);
-            } else if (clazz != null) {
-                // fallback and use the context from the input
-                JAXBContext jc = JAXBContext.newInstance(clazz);
-                IntrospectionSupport.setProperty(context.getTypeConverter(), outJaxb, "context", jc);
-            }
-            setAdditionalConfiguration(config, context, outJaxb, "xml.out.");
-        }
-
-        return new RestBindingAdvice(context, json, jaxb, outJson, outJaxb, consumes, produces, mode, skip, cors, corsHeaders, defaultValues);
+        return new RestBindingAdvice(context, json, jaxb, outJson, outJaxb, consumes, produces, mode, skip, validation,
+            cors, corsHeaders, defaultValues, requiredBody != null ? requiredBody : false, requiredQueryParameters, requiredHeaders);
     }
 
     private void setAdditionalConfiguration(RestConfiguration config, CamelContext context,
                                             DataFormat dataFormat, String prefix) throws Exception {
         if (config.getDataFormatProperties() != null && !config.getDataFormatProperties().isEmpty()) {
             // must use a copy as otherwise the options gets removed during introspection setProperties
-            Map<String, Object> copy = new HashMap<String, Object>();
+            Map<String, Object> copy = new HashMap<>();
 
             // filter keys on prefix
             // - either its a known prefix and must match the prefix parameter
@@ -249,9 +272,41 @@ public class RestBindingDefinition extends OptionalIdentifiedDefinition<RestBind
      */
     public void addDefaultValue(String paramName, String defaultValue) {
         if (defaultValues == null) {
-            defaultValues = new HashMap<String, String>();
+            defaultValues = new HashMap<>();
         }
         defaultValues.put(paramName, defaultValue);
+    }
+
+    /**
+     * Adds a required query parameter
+     *
+     * @param paramName   query parameter name
+     */
+    public void addRequiredQueryParameter(String paramName) {
+        if (requiredQueryParameters == null) {
+            requiredQueryParameters = new HashSet<>();
+        }
+        requiredQueryParameters.add(paramName);
+    }
+
+    /**
+     * Adds a required HTTP header
+     *
+     * @param headerName   HTTP header name
+     */
+    public void addRequiredHeader(String headerName) {
+        if (requiredHeaders == null) {
+            requiredHeaders = new HashSet<>();
+        }
+        requiredHeaders.add(headerName);
+    }
+
+    public Boolean getRequiredBody() {
+        return requiredBody;
+    }
+
+    public void setRequiredBody(Boolean requiredBody) {
+        this.requiredBody = requiredBody;
     }
 
     /**
@@ -343,6 +398,22 @@ public class RestBindingDefinition extends OptionalIdentifiedDefinition<RestBind
         this.skipBindingOnErrorCode = skipBindingOnErrorCode;
     }
 
+    public Boolean getClientRequestValidation() {
+        return clientRequestValidation;
+    }
+
+    /**
+     * Whether to enable validation of the client request to check whether the Content-Type and Accept headers from
+     * the client is supported by the Rest-DSL configuration of its consumes/produces settings.
+     * <p/>
+     * This can be turned on, to enable this check. In case of validation error, then HTTP Status codes 415 or 406 is returned.
+     * <p/>
+     * The default value is false.
+     */
+    public void setClientRequestValidation(Boolean clientRequestValidation) {
+        this.clientRequestValidation = clientRequestValidation;
+    }
+
     public Boolean getEnableCORS() {
         return enableCORS;
     }
@@ -354,6 +425,11 @@ public class RestBindingDefinition extends OptionalIdentifiedDefinition<RestBind
      */
     public void setEnableCORS(Boolean enableCORS) {
         this.enableCORS = enableCORS;
+    }
+
+    @Override
+    public String getShortName() {
+        return "restBinding";
     }
 
     @Override

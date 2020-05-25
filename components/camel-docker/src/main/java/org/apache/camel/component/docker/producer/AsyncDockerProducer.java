@@ -243,9 +243,9 @@ public class AsyncDockerProducer extends DefaultAsyncProducer {
 
         BuildImageCmd buildImageCmd;
 
-        if (body != null && body instanceof InputStream) {
+        if (body instanceof InputStream) {
             buildImageCmd = client.buildImageCmd((InputStream)body);
-        } else if (body != null && body instanceof File) {
+        } else if (body instanceof File) {
             buildImageCmd = client.buildImageCmd((File)body);
         } else {
             throw new DockerException("Unable to location source Image");
@@ -487,7 +487,7 @@ public class AsyncDockerProducer extends DefaultAsyncProducer {
      */
     private ExecStartCmd executeExecStartRequest(DockerClient client, Message message) {
 
-        LOGGER.debug("Executing Docker Exec Create Request");
+        LOGGER.debug("Executing Docker Exec Start Request");
 
         String execId = DockerHelper.getProperty(DockerConstants.DOCKER_EXEC_ID, configuration, message, String.class);
 

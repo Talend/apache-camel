@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -62,6 +63,11 @@ public class TryDefinition extends OutputDefinition<TryDefinition> {
     }
 
     @Override
+    public String getShortName() {
+        return "doTry";
+    }
+
+    @Override
     public String getLabel() {
         return "doTry";
     }
@@ -73,7 +79,7 @@ public class TryDefinition extends OutputDefinition<TryDefinition> {
             throw new IllegalArgumentException("Definition has no children on " + this);
         }
 
-        List<Processor> catchProcessors = new ArrayList<Processor>();
+        List<Processor> catchProcessors = new ArrayList<>();
         if (catchClauses != null) {
             for (CatchDefinition catchClause : catchClauses) {
                 catchProcessors.add(createProcessor(routeContext, catchClause));
@@ -257,8 +263,8 @@ public class TryDefinition extends OutputDefinition<TryDefinition> {
     protected void checkInitialized() {
         if (!initialized) {
             initialized = true;
-            outputsWithoutCatches = new ArrayList<ProcessorDefinition<?>>();
-            catchClauses = new ArrayList<CatchDefinition>();
+            outputsWithoutCatches = new ArrayList<>();
+            catchClauses = new ArrayList<>();
             finallyClause = null;
 
             for (ProcessorDefinition<?> output : outputs) {

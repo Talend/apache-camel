@@ -44,9 +44,9 @@ public class HawtDBFile extends TxPageFileFactory implements Service {
     private static final Logger LOG = LoggerFactory.getLogger(HawtDBFile.class);
 
     // the root which contains an index with name -> page for the real indexes
-    private static final BTreeIndexFactory<String, Integer> ROOT_INDEXES_FACTORY = new BTreeIndexFactory<String, Integer>();
+    private static final BTreeIndexFactory<String, Integer> ROOT_INDEXES_FACTORY = new BTreeIndexFactory<>();
     // the real indexes where we store persisted data in buffers
-    private static final BTreeIndexFactory<Buffer, Buffer> INDEX_FACTORY = new BTreeIndexFactory<Buffer, Buffer>();
+    private static final BTreeIndexFactory<Buffer, Buffer> INDEX_FACTORY = new BTreeIndexFactory<>();
 
     private TxPageFile pageFile;
 
@@ -84,7 +84,7 @@ public class HawtDBFile extends TxPageFileFactory implements Service {
                 if (!tx.allocator().isAllocated(0)) {
                     // if we just created the file, first allocated page should be 0
                     ROOT_INDEXES_FACTORY.create(tx);
-                    LOG.info("Aggregation repository data store created using file: " + getFile());
+                    LOG.info("Aggregation repository data store created using file: {}", getFile());
                 } else {
                     SortedIndex<String, Integer> indexes = ROOT_INDEXES_FACTORY.open(tx);
                     LOG.info("Aggregation repository data store loaded using file: " + getFile()

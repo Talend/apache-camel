@@ -173,7 +173,7 @@ public class PackageOtherMojo extends AbstractMojo {
 
             log.debug("Generated " + out + " containing JSon schema for " + name + " other");
         } catch (Exception e) {
-            throw new MojoExecutionException("Error loading language model from camel-core. Reason: " + e, e);
+            throw new MojoExecutionException("Error loading other model. Reason: " + e, e);
         }
 
         // now create properties file
@@ -256,6 +256,7 @@ public class PackageOtherMojo extends AbstractMojo {
         private String title;
         private String description;
         private String deprecated;
+        private String deprecationNote;
         private String firstVersion;
         private String label;
         private String groupId;
@@ -292,6 +293,14 @@ public class PackageOtherMojo extends AbstractMojo {
 
         public void setDeprecated(String deprecated) {
             this.deprecated = deprecated;
+        }
+
+        public String getDeprecationNote() {
+            return deprecationNote;
+        }
+
+        public void setDeprecationNote(String deprecationNote) {
+            this.deprecationNote = deprecationNote;
         }
 
         public String getFirstVersion() {

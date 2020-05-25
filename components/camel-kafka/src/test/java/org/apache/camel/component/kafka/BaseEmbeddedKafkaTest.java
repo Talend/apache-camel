@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.kafka;
-
 import java.util.Properties;
 
 import org.apache.camel.CamelContext;
@@ -80,7 +79,7 @@ public class BaseEmbeddedKafkaTest extends CamelTestSupport {
         CamelContext context = super.createCamelContext();
         context.addComponent("properties", new PropertiesComponent("ref:prop"));
 
-        KafkaComponent kafka = new KafkaComponent();
+        KafkaComponent kafka = new KafkaComponent(context);
         kafka.setBrokers("localhost:" + getKafkaPort());
         context.addComponent("kafka", kafka);
 

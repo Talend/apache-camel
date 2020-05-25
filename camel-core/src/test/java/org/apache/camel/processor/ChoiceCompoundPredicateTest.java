@@ -23,6 +23,8 @@ import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Predicate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
+
 import static org.apache.camel.builder.PredicateBuilder.and;
 import static org.apache.camel.builder.PredicateBuilder.or;
 
@@ -31,6 +33,7 @@ import static org.apache.camel.builder.PredicateBuilder.or;
  */
 public class ChoiceCompoundPredicateTest extends ContextTestSupport {
 
+    @Test
     public void testGuest() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:guest");
         mock.expectedMessageCount(1);
@@ -40,6 +43,7 @@ public class ChoiceCompoundPredicateTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testUser() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:user");
         mock.expectedMessageCount(1);
@@ -49,11 +53,12 @@ public class ChoiceCompoundPredicateTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testAdmin() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:admin");
         mock.expectedMessageCount(1);
 
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put("username", "donald");
         headers.put("admin", "true");
         template.sendBodyAndHeaders("direct:start", "Hello World", headers);
@@ -61,11 +66,12 @@ public class ChoiceCompoundPredicateTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testGod() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:god");
         mock.expectedMessageCount(1);
 
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put("username", "pluto");
         headers.put("admin", "true");
         headers.put("type", "god");
@@ -74,11 +80,12 @@ public class ChoiceCompoundPredicateTest extends ContextTestSupport {
         assertMockEndpointsSatisfied();
     }
 
+    @Test
     public void testRiderGod() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:god");
         mock.expectedMessageCount(1);
 
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put("username", "Camel");
         headers.put("admin", "true");
         template.sendBodyAndHeaders("direct:start", "Hello Camel Rider", headers);

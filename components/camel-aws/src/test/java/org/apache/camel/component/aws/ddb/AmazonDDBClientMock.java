@@ -22,8 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.AbstractAmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.BatchGetItemRequest;
 import com.amazonaws.services.dynamodbv2.model.BatchGetItemResult;
@@ -56,7 +55,7 @@ import com.amazonaws.services.dynamodbv2.model.UpdateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.UpdateTableResult;
 
 
-public class AmazonDDBClientMock extends AmazonDynamoDBClient {
+public class AmazonDDBClientMock extends AbstractAmazonDynamoDB {
     public static final long NOW = 1327709390233L;
     DescribeTableRequest describeTableRequest;
     CreateTableRequest createTableRequest;
@@ -71,7 +70,7 @@ public class AmazonDDBClientMock extends AmazonDynamoDBClient {
     QueryRequest queryRequest;
 
     public AmazonDDBClientMock() {
-        super(new BasicAWSCredentials("user", "secret"));
+        super();
     }
 
     @Override
@@ -134,7 +133,7 @@ public class AmazonDDBClientMock extends AmazonDynamoDBClient {
     }
 
     private Map<String, AttributeValue> getAttributes() {
-        Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
+        Map<String, AttributeValue> attributes = new HashMap<>();
         attributes.put("attrName", new AttributeValue("attrValue"));
         return attributes;
     }
@@ -161,13 +160,13 @@ public class AmazonDDBClientMock extends AmazonDynamoDBClient {
     @Override
     public BatchGetItemResult batchGetItem(BatchGetItemRequest batchGetItemRequest) {
         this.batchGetItemRequest = batchGetItemRequest;
-        Map<String, List<Map<String, AttributeValue>>> responseMap = new HashMap<String, List<Map<String, AttributeValue>>>();
-        List<Map<String, AttributeValue>> p = new ArrayList<Map<String, AttributeValue>>();
+        Map<String, List<Map<String, AttributeValue>>> responseMap = new HashMap<>();
+        List<Map<String, AttributeValue>> p = new ArrayList<>();
         p.add(getAttributes());
         responseMap.put("DOMAIN1", p);
-        Map<String, AttributeValue> keysMap = new HashMap<String, AttributeValue>();
+        Map<String, AttributeValue> keysMap = new HashMap<>();
         keysMap.put("1", new AttributeValue("UNPROCESSED_KEY"));
-        Map<String, KeysAndAttributes> unprocessedKeys = new HashMap<String, KeysAndAttributes>();
+        Map<String, KeysAndAttributes> unprocessedKeys = new HashMap<>();
         unprocessedKeys.put("DOMAIN1", new KeysAndAttributes().withKeys(keysMap));
 
         return new BatchGetItemResult()
@@ -181,7 +180,7 @@ public class AmazonDDBClientMock extends AmazonDynamoDBClient {
         this.scanRequest = scanRequest;
         ConsumedCapacity consumed = new ConsumedCapacity();
         consumed.setCapacityUnits(1.0);
-        Map<String, AttributeValue> lastEvaluatedKey = new HashMap<String, AttributeValue>();
+        Map<String, AttributeValue> lastEvaluatedKey = new HashMap<>();
         lastEvaluatedKey.put("1", new AttributeValue("LAST_KEY"));
         return new ScanResult()
                 .withConsumedCapacity(consumed)
@@ -197,7 +196,7 @@ public class AmazonDDBClientMock extends AmazonDynamoDBClient {
         this.queryRequest = queryRequest;
         ConsumedCapacity consumed = new ConsumedCapacity();
         consumed.setCapacityUnits(1.0);
-        Map<String, AttributeValue> lastEvaluatedKey = new HashMap<String, AttributeValue>();
+        Map<String, AttributeValue> lastEvaluatedKey = new HashMap<>();
         lastEvaluatedKey.put("1", new AttributeValue("LAST_KEY"));
         return new QueryResult()
                 .withConsumedCapacity(consumed)

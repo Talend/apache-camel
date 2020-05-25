@@ -19,6 +19,7 @@ package org.apache.camel.component.jms;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.ExceptionListener;
@@ -49,7 +50,7 @@ import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriPath;
-import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.StringHelper;
 import org.apache.camel.util.UnsafeUriCharactersEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,7 @@ import org.springframework.util.ErrorHandler;
 /**
  * The jms component allows messages to be sent to (or consumed from) a JMS Queue or Topic.
  *
- * This component uses Spring JMS.
+ * This component uses Spring JMS and supports JMS 1.1 and 2.0 API.
  */
 @ManagedResource(description = "Managed JMS Endpoint")
 @UriEndpoint(firstVersion = "1.0.0", scheme = "jms", title = "JMS", syntax = "jms:destinationType:destinationName", consumerClass = JmsConsumer.class, label = "messaging")
@@ -238,6 +239,17 @@ public class JmsEndpoint extends DefaultEndpoint implements AsyncEndpoint, Heade
                 ((DefaultMessageListenerContainer) listenerContainer).setTransactionName(consumerName);
             }
         }
+
+        // now configure the JMS 2.0 API
+        if (configuration.getDurableSubscriptionName() != null) {
+            listenerContainer.setDurableSubscriptionName(configuration.getDurableSubscriptionName());
+        } else if (configuration.isSubscriptionDurable()) {
+            listenerContainer.setSubscriptionDurable(true);
+            if (configuration.getSubscriptionName() != null) {
+                listenerContainer.setSubscriptionName(configuration.getSubscriptionName());
+            }
+        }
+        listenerContainer.setSubscriptionShared(configuration.isSubscriptionShared());
     }
 
     private void setContainerTaskExecutor(AbstractMessageListenerContainer listenerContainer, Executor executor) {
@@ -254,10 +266,10 @@ public class JmsEndpoint extends DefaultEndpoint implements AsyncEndpoint, Heade
      * @return the destination name resolved from the endpoint uri
      */
     public String getEndpointConfiguredDestinationName() {
-        String remainder = ObjectHelper.after(getEndpointKey(), "//");
+        String remainder = StringHelper.after(getEndpointKey(), "//");
         if (remainder != null && remainder.contains("?")) {
             // remove parameters
-            remainder = ObjectHelper.before(remainder, "?");
+            remainder = StringHelper.before(remainder, "?");
         }
         return JmsMessageHelper.normalizeDestinationName(remainder);
     }
@@ -770,12 +782,6 @@ public class JmsEndpoint extends DefaultEndpoint implements AsyncEndpoint, Heade
     }
 
     @ManagedAttribute
-    @Deprecated
-    public boolean isSubscriptionDurable() {
-        return getConfiguration().isSubscriptionDurable();
-    }
-
-    @ManagedAttribute
     public boolean isTransacted() {
         return getConfiguration().isTransacted();
     }
@@ -1017,12 +1023,6 @@ public class JmsEndpoint extends DefaultEndpoint implements AsyncEndpoint, Heade
         getConfiguration().setRequestTimeout(requestTimeout);
     }
 
-    @ManagedAttribute
-    @Deprecated
-    public void setSubscriptionDurable(boolean subscriptionDurable) {
-        getConfiguration().setSubscriptionDurable(subscriptionDurable);
-    }
-
     public void setTaskExecutor(TaskExecutor taskExecutor) {
         getConfiguration().setTaskExecutor(taskExecutor);
     }
@@ -1234,6 +1234,16 @@ public class JmsEndpoint extends DefaultEndpoint implements AsyncEndpoint, Heade
         configuration.setDefaultTaskExecutorType(type);
     }
 
+    @ManagedAttribute
+    public String getAllowAdditionalHeaders() {
+        return configuration.getAllowAdditionalHeaders();
+    }
+
+    @ManagedAttribute
+    public void setAllowAdditionalHeaders(String allowAdditionalHeaders) {
+        configuration.setAllowAdditionalHeaders(allowAdditionalHeaders);
+    }
+
     public MessageListenerContainerFactory getMessageListenerContainerFactory() {
         return configuration.getMessageListenerContainerFactory();
     }
@@ -1242,6 +1252,37 @@ public class JmsEndpoint extends DefaultEndpoint implements AsyncEndpoint, Heade
         configuration.setMessageListenerContainerFactory(messageListenerContainerFactory);
         configuration.setConsumerType(ConsumerType.Custom);
     }
+
+    @ManagedAttribute
+    public boolean isSubscriptionDurable() {
+        return getConfiguration().isSubscriptionDurable();
+    }
+
+    @ManagedAttribute
+    public void setSubscriptionDurable(boolean subscriptionDurable) {
+        getConfiguration().setSubscriptionDurable(subscriptionDurable);
+    }
+
+    @ManagedAttribute
+    public boolean isSubscriptionShared() {
+        return getConfiguration().isSubscriptionShared();
+    }
+
+    @ManagedAttribute
+    public void setSubscriptionShared(boolean subscriptionShared) {
+        getConfiguration().setSubscriptionShared(subscriptionShared);
+    }
+
+    @ManagedAttribute
+    public String getSubscriptionName() {
+        return getConfiguration().getSubscriptionName();
+    }
+
+    @ManagedAttribute
+    public void setSubscriptionName(String subscriptionName) {
+        getConfiguration().setSubscriptionName(subscriptionName);
+    }
+
 
     @ManagedAttribute
     public String getReplyToType() {
@@ -1290,6 +1331,16 @@ public class JmsEndpoint extends DefaultEndpoint implements AsyncEndpoint, Heade
     @ManagedAttribute
     public void setWaitForProvisionCorrelationToBeUpdatedThreadSleepingTime(long sleepingTime) {
         configuration.setWaitForProvisionCorrelationToBeUpdatedThreadSleepingTime(sleepingTime);
+    }
+
+    @ManagedAttribute
+    public boolean isFormatDateHeadersToIso8601() {
+        return configuration.isFormatDateHeadersToIso8601();
+    }
+
+    @ManagedAttribute
+    public void setFormatDateHeadersToIso8601(boolean formatDateHeadersToIso8601) {
+        configuration.setFormatDateHeadersToIso8601(formatDateHeadersToIso8601);
     }
 
     // Implementation methods

@@ -53,6 +53,7 @@ import org.apache.camel.util.ExchangeHelper;
 import org.apache.camel.util.IOHelper;
 import org.apache.camel.util.MessageHelper;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.StringHelper;
 import org.apache.camel.util.URISupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +72,7 @@ public class DefaultNettyHttpBinding implements NettyHttpBinding, Cloneable {
     public DefaultNettyHttpBinding(HeaderFilterStrategy headerFilterStrategy) {
         this.headerFilterStrategy = headerFilterStrategy;
     }
-    
+
     public DefaultNettyHttpBinding copy() {
         try {
             return (DefaultNettyHttpBinding)this.clone();
@@ -113,7 +114,7 @@ public class DefaultNettyHttpBinding implements NettyHttpBinding, Cloneable {
         // strip query parameters from the uri
         String s = request.uri();
         if (s.contains("?")) {
-            s = ObjectHelper.before(s, "?");
+            s = StringHelper.before(s, "?");
         }
 
         // we want the full path for the url, as the client may provide the url in the HTTP headers as absolute or relative, eg
@@ -184,7 +185,7 @@ public class DefaultNettyHttpBinding implements NettyHttpBinding, Cloneable {
 
         // add uri parameters as headers to the Camel message
         if (request.uri().contains("?")) {
-            String query = ObjectHelper.after(request.uri(), "?");
+            String query = StringHelper.after(request.uri(), "?");
             Map<String, Object> uriParameters = URISupport.parseQuery(query, false, true);
 
             for (Map.Entry<String, Object> entry : uriParameters.entrySet()) {
@@ -329,7 +330,7 @@ public class DefaultNettyHttpBinding implements NettyHttpBinding, Cloneable {
         int defaultCode = failed ? 500 : 200;
 
         int code = message.getHeader(Exchange.HTTP_RESPONSE_CODE, defaultCode, int.class);
-        
+
         LOG.trace("HTTP Status Code: {}", code);
 
         // if there was an exception then use that as body
@@ -384,16 +385,16 @@ public class DefaultNettyHttpBinding implements NettyHttpBinding, Cloneable {
                 }
             }
         }
-        
+
         HttpResponse response;
-        
+
         if (buffer != null) {
             response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(code), buffer);
             // We just need to reset the readerIndex this time
             if (buffer.readerIndex() == buffer.writerIndex()) {
                 buffer.setIndex(0, buffer.writerIndex());
             }
-            // TODO How to enable the chunk transport 
+            // TODO How to enable the chunk transport
             int len = buffer.readableBytes();
             // set content-length
             response.headers().set(HttpHeaderNames.CONTENT_LENGTH.toString(), len);
@@ -401,7 +402,7 @@ public class DefaultNettyHttpBinding implements NettyHttpBinding, Cloneable {
         } else {
             response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(code));
         }
-        
+
         TypeConverter tc = message.getExchange().getContext().getTypeConverter();
 
         // append headers
@@ -465,15 +466,12 @@ public class DefaultNettyHttpBinding implements NettyHttpBinding, Cloneable {
 
         String uriForRequest = uri;
         if (configuration.isUseRelativePath()) {
-            int indexOfPath = uri.indexOf((new URI(uri)).getPath());
-            if (indexOfPath > 0) {
-                uriForRequest = uri.substring(indexOfPath);               
-            } 
+            uriForRequest = URISupport.pathAndQueryOf(new URI(uriForRequest));
         }
-        
+
         // just assume GET for now, we will later change that to the actual method to use
         HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uriForRequest);
-        
+
         Object body = message.getBody();
         if (body != null) {
             // support bodies as native Netty
@@ -504,7 +502,7 @@ public class DefaultNettyHttpBinding implements NettyHttpBinding, Cloneable {
         // update HTTP method accordingly as we know if we have a body or not
         HttpMethod method = NettyHttpHelper.createMethod(message, body != null);
         request.setMethod(method);
-        
+
         TypeConverter tc = message.getExchange().getContext().getTypeConverter();
 
         // if we bridge endpoint then we need to skip matching headers with the HTTP_QUERY to avoid sending

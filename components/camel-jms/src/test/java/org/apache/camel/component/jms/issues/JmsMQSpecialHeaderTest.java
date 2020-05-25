@@ -18,6 +18,7 @@ package org.apache.camel.component.jms.issues;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.jms.ConnectionFactory;
 
 import org.apache.camel.CamelContext;
@@ -51,7 +52,7 @@ public class JmsMQSpecialHeaderTest extends CamelTestSupport {
         mock.expectedBodiesReceived("Hello IBM");
         mock.message(0).header("JMS_IBM_Character_Set").isEqualTo("ISO8859_1");
         
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put("JMSPriority", 3);
         headers.put("JMS_IBM_Character_Set", "ISO8859_1");
 

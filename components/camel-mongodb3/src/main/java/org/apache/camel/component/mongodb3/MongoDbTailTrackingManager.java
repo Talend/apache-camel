@@ -18,8 +18,9 @@ package org.apache.camel.component.mongodb3;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.FindOneAndUpdateOptions;
+import com.mongodb.client.model.ReturnDocument;
 import com.mongodb.client.model.Updates;
-
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
@@ -70,8 +71,9 @@ public class MongoDbTailTrackingManager {
         }
 
         Bson updateObj = Updates.set(config.field, lastVal);
-        dbCol.updateOne(trackingObj, updateObj);
-        trackingObj = dbCol.find().first();
+        FindOneAndUpdateOptions options = new FindOneAndUpdateOptions()
+        .returnDocument(ReturnDocument.AFTER);
+        trackingObj = dbCol.findOneAndUpdate(trackingObj, updateObj, options);
     }
 
     public synchronized Object recoverFromStore() {

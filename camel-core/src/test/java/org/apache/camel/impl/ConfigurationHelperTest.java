@@ -170,7 +170,7 @@ public class ConfigurationHelperTest {
         Field[] fields = clazz.getDeclaredFields();
         
         // Put the Fields in a Map first for a prettier print
-        Map<String, Field> map = new HashMap<String, Field>();
+        Map<String, Field> map = new HashMap<>();
 
         URIField anno = null;
         for (final Field field : fields) {
@@ -213,7 +213,7 @@ public class ConfigurationHelperTest {
         if (anno != null) {
             LOG.info("  @URIField(component = \"{}\", parameter = \"{}\")", anno.component(), anno.parameter());
         }
-        LOG.info("  {} {}={}", new Object[] {field.getType().getName(), field.getName(), config.getParameter(field.getName())});
+        LOG.info("  {} {}={}", field.getType().getName(), field.getName(), config.getParameter(field.getName()));
     }
 
     private static class ConfiguredComponent implements Component {

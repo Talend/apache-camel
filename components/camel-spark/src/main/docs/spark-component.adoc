@@ -1,4 +1,5 @@
-## Apache Spark Component
+[[spark-component]]
+== Apache Spark Component
 
 *Available as of Camel version 2.17*
 
@@ -15,12 +16,12 @@ results of the execution back to the Camel pipeline.
 Spark component can be used as a driver application deployed into an
 application server (or executed as a fat jar).
 
-image:apache-spark.data/camel_spark_driver.png[image] +
+image:camel_spark_driver.png[image]
 
 Spark component can also be submitted as a job directly into the Spark
 cluster.
 
-image:apache-spark.data/camel_spark_cluster.png[image] +
+image:camel_spark_cluster.png[image]
 
 While Spark component is primary designed to work as a _long running
 job_ serving as an bridge between Spark cluster and the other endpoints,
@@ -51,17 +52,17 @@ spark:{rdd|dataframe|hive}
 
 
 // component options: START
-The Apache Spark component supports 3 options which are listed below.
+The Apache Spark component supports 3 options, which are listed below.
 
 
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **rdd** (producer) | RDD to compute against. |  | JavaRDDLike
-| **rddCallback** (producer) | Function performing action against an RDD. |  | RddCallback
-| **resolveProperty Placeholders** (advanced) | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | boolean
-|=======================================================================
+| *rdd* (producer) | RDD to compute against. |  | JavaRDDLike
+| *rddCallback* (producer) | Function performing action against an RDD. |  | RddCallback
+| *resolveProperty Placeholders* (advanced) | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | boolean
+|===
 // component options: END
 
 
@@ -70,31 +71,54 @@ The Apache Spark component supports 3 options which are listed below.
 // endpoint options: START
 The Apache Spark endpoint is configured using URI syntax:
 
-    spark:endpointType
+----
+spark:endpointType
+----
 
 with the following path and query parameters:
 
-#### Path Parameters (1 parameters):
+==== Path Parameters (1 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **endpointType** | *Required* Type of the endpoint (rdd dataframe hive). |  | EndpointType
-|=======================================================================
+| *endpointType* | *Required* Type of the endpoint (rdd, dataframe, hive). |  | EndpointType
+|===
 
-#### Query Parameters (6 parameters):
+
+==== Query Parameters (6 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **collect** (producer) | Indicates if results should be collected or counted. | true | boolean
-| **dataFrame** (producer) | DataFrame to compute against. |  | DataFrame
-| **dataFrameCallback** (producer) | Function performing action against an DataFrame. |  | DataFrameCallback
-| **rdd** (producer) | RDD to compute against. |  | JavaRDDLike
-| **rddCallback** (producer) | Function performing action against an RDD. |  | RddCallback
-| **synchronous** (advanced) | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported). | false | boolean
-|=======================================================================
+| *collect* (producer) | Indicates if results should be collected or counted. | true | boolean
+| *dataFrame* (producer) | DataFrame to compute against. |  | Dataset
+| *dataFrameCallback* (producer) | Function performing action against an DataFrame. |  | DataFrameCallback
+| *rdd* (producer) | RDD to compute against. |  | JavaRDDLike
+| *rddCallback* (producer) | Function performing action against an RDD. |  | RddCallback
+| *synchronous* (advanced) | Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported). | false | boolean
+|===
 // endpoint options: END
+// spring-boot-auto-configure options: START
+=== Spring Boot Auto-Configuration
+
+
+The component supports 4 options, which are listed below.
+
+
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Name | Description | Default | Type
+| *camel.component.spark.enabled* | Enable spark component | true | Boolean
+| *camel.component.spark.rdd* | RDD to compute against. The option is a org.apache.spark.api.java.JavaRDDLike type. |  | String
+| *camel.component.spark.rdd-callback* | Function performing action against an RDD. The option is a org.apache.camel.component.spark.RddCallback type. |  | String
+| *camel.component.spark.resolve-property-placeholders* | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | Boolean
+|===
+// spring-boot-auto-configure options: END
+
 
  
 ### RDD jobs 
@@ -291,7 +315,7 @@ spark:dataframe?dataFrame=#testDataFrame&dataFrameCallback=#transformation
 --------------------------------------------------------------------------
 
  Where `dataFrame` option refers to the name of an DataFrame instance
-(`instance of of org.apache.spark.sql.DataFrame`) from a Camel registry,
+(`instances of org.apache.spark.sql.Dataset and org.apache.spark.sql.Row`) from a Camel registry,
 while `dataFrameCallback` refers to the implementation
 of `org.apache.camel.component.spark.DataFrameCallback` interface (also
 from a registry). DataFrame callback provides a single method used to
@@ -303,7 +327,7 @@ computations are saved as a body to an exchange.
 [source,java]
 -----------------------------------------------------------
 public interface DataFrameCallback<T> {
-    T onDataFrame(DataFrame dataFrame, Object... payloads);
+    T onDataFrame(Dataset<Row> dataFrame, Object... payloads);
 }
 -----------------------------------------------------------
 
@@ -329,7 +353,7 @@ could look as follows:
 RddCallback<Long> findCarWithModel() {
     return new DataFrameCallback<Long>() {
         @Override
-        public Long onDataFrame(DataFrame dataFrame, Object... payloads) {
+        public Long onDataFrame(Dataset<Row> dataFrame, Object... payloads) {
             String model = (String) payloads[0];
             return dataFrame.where(dataFrame.col("model").eqNullSafe(model)).count();
         }
@@ -344,8 +368,8 @@ The DataFrame definition in Spring could looks as follows:
 [source,java]
 ------------------------------------------------------------------------
 @Bean
-DataFrame cars(HiveContext hiveContext) {
-    DataFrame jsonCars = hiveContext.read().json("/var/data/cars.json");
+Dataset<Row> cars(HiveContext hiveContext) {
+    Dataset<Row> jsonCars = hiveContext.read().json("/var/data/cars.json");
     jsonCars.registerTempTable("cars");
     return jsonCars;
 }
@@ -384,8 +408,8 @@ could look as follows:
 [source,java]
 ------------------------------------------------------------------------
 @Bean
-DataFrame cars(HiveContext hiveContext) {
-    DataFrame jsonCars = hiveContext.read().json("/var/data/cars.json");
+Dataset<Row> cars(HiveContext hiveContext) {
+     jsonCars = hiveContext.read().json("/var/data/cars.json");
     jsonCars.registerTempTable("cars");
     return jsonCars;
 }
@@ -393,7 +417,7 @@ DataFrame cars(HiveContext hiveContext) {
 
 ### See Also
 
-* link:configuring-camel.html[Configuring Camel]
-* link:component.html[Component]
-* link:endpoint.html[Endpoint]
-* link:getting-started.html[Getting Started]
+* Configuring Camel
+* Component
+* Endpoint
+* Getting Started

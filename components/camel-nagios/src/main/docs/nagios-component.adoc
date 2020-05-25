@@ -1,8 +1,9 @@
-## Nagios Component
+[[nagios-component]]
+== Nagios Component
 
 *Available as of Camel version 2.3*
 
-The link:nagios.html[Nagios] component allows you to send passive checks
+The <<nagios-component,Nagios>> component allows you to send passive checks
 to http://nagios.org[Nagios].
 
 Maven users will need to add the following dependency to their `pom.xml`
@@ -25,10 +26,10 @@ for this component:
 nagios://host[:port][?Options]
 ------------------------------
 
-Camel provides two abilities with the link:nagios.html[Nagios]
+Camel provides two abilities with the <<nagios-component,Nagios>>
 component. You can send passive check messages by sending a message to
 its endpoint. +
- Camel also provides a link:camel-jmx.html[EventNotifer] which allows
+ Camel also provides a EventNotifer which allows
 you to send notifications to Nagios.
 
 ### Options
@@ -38,16 +39,16 @@ you to send notifications to Nagios.
 
 
 // component options: START
-The Nagios component supports 2 options which are listed below.
+The Nagios component supports 2 options, which are listed below.
 
 
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **configuration** (advanced) | To use a shared NagiosConfiguration |  | NagiosConfiguration
-| **resolveProperty Placeholders** (advanced) | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | boolean
-|=======================================================================
+| *configuration* (advanced) | To use a shared NagiosConfiguration |  | NagiosConfiguration
+| *resolveProperty Placeholders* (advanced) | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | boolean
+|===
 // component options: END
 
 
@@ -59,32 +60,62 @@ The Nagios component supports 2 options which are listed below.
 // endpoint options: START
 The Nagios endpoint is configured using URI syntax:
 
-    nagios:host:port
+----
+nagios:host:port
+----
 
 with the following path and query parameters:
 
-#### Path Parameters (2 parameters):
+==== Path Parameters (2 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **host** | *Required* This is the address of the Nagios host where checks should be send. |  | String
-| **port** | *Required* The port number of the host. |  | int
-|=======================================================================
+| *host* | *Required* This is the address of the Nagios host where checks should be send. |  | String
+| *port* | *Required* The port number of the host. |  | int
+|===
 
-#### Query Parameters (6 parameters):
+
+==== Query Parameters (7 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **connectionTimeout** (producer) | Connection timeout in millis. | 5000 | int
-| **sendSync** (producer) | Whether or not to use synchronous when sending a passive check. Setting it to false will allow Camel to continue routing the message and the passive check message will be send asynchronously. | true | boolean
-| **timeout** (producer) | Sending timeout in millis. | 5000 | int
-| **synchronous** (advanced) | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported). | false | boolean
-| **encryptionMethod** (security) | To specify an encryption method. |  | NagiosEncryptionMethod
-| **password** (security) | Password to be authenticated when sending checks to Nagios. |  | String
-|=======================================================================
+| *connectionTimeout* (producer) | Connection timeout in millis. | 5000 | int
+| *sendSync* (producer) | Whether or not to use synchronous when sending a passive check. Setting it to false will allow Camel to continue routing the message and the passive check message will be send asynchronously. | true | boolean
+| *timeout* (producer) | Sending timeout in millis. | 5000 | int
+| *synchronous* (advanced) | Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported). | false | boolean
+| *encryption* (security) | To specify an encryption method. |  | Encryption
+| *encryptionMethod* (security) | *Deprecated* To specify an encryption method. |  | NagiosEncryptionMethod
+| *password* (security) | Password to be authenticated when sending checks to Nagios. |  | String
+|===
 // endpoint options: END
+// spring-boot-auto-configure options: START
+=== Spring Boot Auto-Configuration
+
+
+The component supports 10 options, which are listed below.
+
+
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Name | Description | Default | Type
+| *camel.component.nagios.configuration.connection-timeout* | Connection timeout in millis. | 5000 | Integer
+| *camel.component.nagios.configuration.encryption* | To specify an encryption method. |  | Encryption
+| *camel.component.nagios.configuration.host* | This is the address of the Nagios host where checks should be send. |  | String
+| *camel.component.nagios.configuration.nagios-settings* |  |  | NagiosSettings
+| *camel.component.nagios.configuration.password* | Password to be authenticated when sending checks to Nagios. |  | String
+| *camel.component.nagios.configuration.port* | The port number of the host. |  | Integer
+| *camel.component.nagios.configuration.timeout* | Sending timeout in millis. | 5000 | Integer
+| *camel.component.nagios.enabled* | Enable nagios component | true | Boolean
+| *camel.component.nagios.resolve-property-placeholders* | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | Boolean
+| *camel.component.nagios.configuration.encryption-method* | To specify an encryption method. |  | NagiosEncryptionMethod
+|===
+// spring-boot-auto-configure options: END
+
 
 
 
@@ -92,7 +123,7 @@ with the following path and query parameters:
 
 You can send a message to Nagios where the message payload contains the
 message. By default it will be `OK` level and use the
-link:camelcontext.html[CamelContext] name as the service name. You can
+CamelContext name as the service name. You can
 overrule these values using headers as shown above.
 
 For example we send the `Hello Nagios` message to Nagios as follows:
@@ -117,8 +148,8 @@ To send a `CRITICAL` message you can send the headers such as:
 
 ### Using `NagiosEventNotifer`
 
-The link:nagios.html[Nagios] component also provides an
-link:camel-jmx.html[EventNotifer] which you can use to send events to
+The <<nagios-component,Nagios>> component also provides an
+EventNotifer which you can use to send events to
 Nagios. For example we can enable this from Java as follows:
 
 [source,java]
@@ -140,7 +171,7 @@ configuration of CamelContext using Spring].
 
 ### See Also
 
-* link:configuring-camel.html[Configuring Camel]
-* link:component.html[Component]
-* link:endpoint.html[Endpoint]
-* link:getting-started.html[Getting Started]
+* Configuring Camel
+* Component
+* Endpoint
+* Getting Started

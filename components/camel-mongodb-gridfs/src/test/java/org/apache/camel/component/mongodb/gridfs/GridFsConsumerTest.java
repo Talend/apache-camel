@@ -21,11 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.mongodb.gridfs.GridFS;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-
 import org.junit.Test;
 
 /**
@@ -72,7 +70,7 @@ public class GridFsConsumerTest extends AbstractMongoDbTest {
         mock.expectedMessageCount(1);
         mock.expectedBodiesReceived(data);
         
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         String fn = "filename.for.db.txt";
         assertEquals(0, gridfs.find(fn).size());
         

@@ -22,6 +22,7 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -30,9 +31,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import io.swagger.jaxrs.config.BeanConfig;
-import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultClassResolver;
 import org.apache.camel.spi.ClassResolver;
+import org.apache.camel.spi.RestConfiguration;
 import org.apache.camel.swagger.RestApiResponseAdapter;
 import org.apache.camel.swagger.RestSwaggerSupport;
 import org.apache.camel.util.EndpointHelper;
@@ -46,7 +47,10 @@ import static org.apache.camel.swagger.SwaggerHelper.buildUrl;
  * The default Camel swagger servlet to use when exposing the APIs of the rest-dsl using swagger.
  * <p/>
  * This requires Camel version 2.15 or better at runtime (and JMX to be enabled).
+ *
+ * @deprecated do not use this directly but use rest-dsl the regular way with rest-dsl configuration.
  */
+@Deprecated
 public class RestSwaggerServlet extends HttpServlet {
 
     private static final Logger LOG = LoggerFactory.getLogger(RestSwaggerServlet.class);
@@ -57,6 +61,7 @@ public class RestSwaggerServlet extends HttpServlet {
 
     private String apiContextIdPattern;
     private boolean apiContextIdListing;
+    private boolean translateContextPath = true;
 
     public String getApiContextIdPattern() {
         return apiContextIdPattern;
@@ -85,10 +90,22 @@ public class RestSwaggerServlet extends HttpServlet {
         this.apiContextIdListing = apiContextIdListing;
     }
 
+    public boolean isTranslateContextPath() {
+        return translateContextPath;
+    }
+
+    /**
+     * Sets whether the context path of the request should be translated (true) or used as-is (false)
+     * Optional, Defaults to true
+     */
+    public void setTranslateContextPath(boolean translateContextPath) {
+        this.translateContextPath = translateContextPath;
+    }
+
     @Override
     public void init(final ServletConfig config) throws ServletException {
         super.init(config);
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         Enumeration en = config.getInitParameterNames();
         while (en.hasMoreElements()) {
             String name = (String) en.nextElement();
@@ -111,6 +128,10 @@ public class RestSwaggerServlet extends HttpServlet {
         if (listing != null) {
             apiContextIdListing = Boolean.valueOf(listing.toString());
         }
+        Object translate = parameters.remove("translateContextPath");
+        if (translate != null) {
+            translateContextPath = Boolean.valueOf(translate.toString());
+        }
     }
 
     @Override
@@ -122,7 +143,7 @@ public class RestSwaggerServlet extends HttpServlet {
 
         String contextId = null;
         String route = request.getPathInfo();
-        String accept = request.getHeader(Exchange.ACCEPT_CONTENT_TYPE);
+        String accept = request.getHeader("Accept");
 
         // whether to use json or yaml
         boolean json = false;
@@ -135,8 +156,8 @@ public class RestSwaggerServlet extends HttpServlet {
             route = route.substring(0, route.length() - 13);
         }
         if (accept != null && !json && !yaml) {
-            json = accept.contains("json");
-            yaml = accept.contains("yaml");
+            json = accept.toLowerCase(Locale.US).contains("json");
+            yaml = accept.toLowerCase(Locale.US).contains("yaml");
         }
         if (!json && !yaml) {
             // json is default
@@ -180,7 +201,7 @@ public class RestSwaggerServlet extends HttpServlet {
                             match = EndpointHelper.matchPattern(name, apiContextIdPattern);
                         }
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("Match contextId: {} with pattern: {} -> {}", new Object[]{name, apiContextIdPattern, match});
+                            LOG.debug("Match contextId: {} with pattern: {} -> {}", name, apiContextIdPattern, match);
                         }
                     }
                 }
@@ -188,7 +209,7 @@ public class RestSwaggerServlet extends HttpServlet {
                 if (!match) {
                     adapter.noContent();
                 } else {
-                    support.renderResourceListing(adapter, swaggerConfig, name, route, json, yaml, classResolver, null);
+                    support.renderResourceListing(adapter, swaggerConfig, name, route, json, yaml, getHeaders(request), classResolver, new RestConfiguration());
                 }
             }
         } catch (Exception e) {
@@ -205,12 +226,15 @@ public class RestSwaggerServlet extends HttpServlet {
                 base = "";
             }
             String path = translateContextPath(request);
-            swaggerConfig.setHost(url.getHost());
 
-            if (url.getPort() != 80 && url.getPort() != -1) {
-                swaggerConfig.setHost(url.getHost() + ":" + url.getPort());
-            } else {
+            // setup host if not configured
+            if (swaggerConfig.getHost() == null) {
                 swaggerConfig.setHost(url.getHost());
+                if (url.getPort() != 80 && url.getPort() != -1) {
+                    swaggerConfig.setHost(url.getHost() + ":" + url.getPort());
+                } else {
+                    swaggerConfig.setHost(url.getHost());
+                }
             }
             swaggerConfig.setBasePath(buildUrl(path, base));
         }
@@ -222,6 +246,9 @@ public class RestSwaggerServlet extends HttpServlet {
      */
     private String translateContextPath(HttpServletRequest request) {
         String path = request.getContextPath();
+        if (!translateContextPath) {
+            return path;
+        }
         if (path.isEmpty() || path.equals("/")) {
             return "";
         } else {
@@ -231,6 +258,18 @@ public class RestSwaggerServlet extends HttpServlet {
             }
         }
         return path;
+    }
+
+    private Map<String, Object> getHeaders(HttpServletRequest request) {
+        Map<String, Object> headers = new HashMap<>();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> headerNames = request.getHeaderNames();
+        if (headerNames != null) {
+            while (headerNames.hasMoreElements()) {
+                headers.put(headerNames.nextElement(), request.getHeader(headerNames.nextElement()));
+            }
+        }
+        return headers;
     }
 
 }

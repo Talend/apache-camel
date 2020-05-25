@@ -17,6 +17,7 @@
 package org.apache.camel.component.lumberjack;
 
 import java.util.concurrent.ThreadFactory;
+
 import javax.net.ssl.SSLContext;
 
 import org.apache.camel.Exchange;
@@ -38,6 +39,12 @@ public class LumberjackConsumer extends DefaultConsumer {
     protected void doStart() throws Exception {
         super.doStart();
         lumberjackServer.start();
+    }
+
+    @Override
+    protected void doStop() throws Exception {
+        lumberjackServer.stop();
+        super.doStop();
     }
 
     @Override

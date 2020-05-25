@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 package org.apache.camel.language;
-
 import java.io.File;
 
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  *
@@ -28,11 +29,13 @@ import org.apache.camel.builder.RouteBuilder;
 public class TokenPairPredicateTest extends ContextTestSupport {
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/pair");
         super.setUp();
     }
 
+    @Test
     public void testTokenPairPredicate() throws Exception {
         getMockEndpoint("mock:result").expectedMessageCount(1);
 
@@ -54,7 +57,7 @@ public class TokenPairPredicateTest extends ContextTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("file:target/pair?move=ok")
+                from("file:target/pair?initialDelay=0&delay=10&move=ok")
                     .choice()
                         // does not make so much sense to use a tokenPair in a predicate
                         // but you can do it nevertheless

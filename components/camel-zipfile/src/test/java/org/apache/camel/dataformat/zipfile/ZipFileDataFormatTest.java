@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.dataformat.zipfile;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -40,6 +39,7 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.converter.stream.InputStreamCache;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.util.IOHelper;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.apache.camel.Exchange.FILE_NAME;
@@ -99,6 +99,28 @@ public class ZipFileDataFormatTest extends CamelTestSupport {
         getMockEndpoint("mock:zip").expectedHeaderReceived(FILE_NAME, "poem.txt.zip");
 
         template.sendBodyAndHeader("direct:zip", TEXT, FILE_NAME, "poem.txt");
+
+        assertMockEndpointsSatisfied();
+    }
+
+    @Test
+    public void testZipWithPathElements() throws Exception {
+        getMockEndpoint("mock:zip").expectedBodiesReceived(getZippedText("poem.txt"));
+        getMockEndpoint("mock:zip").expectedHeaderReceived(FILE_NAME, "poem.txt.zip");
+
+        template.sendBodyAndHeader("direct:zip", TEXT, FILE_NAME, "poems/poem.txt");
+
+        assertMockEndpointsSatisfied();
+    }
+
+    @Test
+    public void testZipWithPreservedPathElements() throws Exception {
+        zip.setPreservePathElements(true);
+
+        getMockEndpoint("mock:zip").expectedBodiesReceived(getZippedTextInFolder("poems/", "poems/poem.txt"));
+        getMockEndpoint("mock:zip").expectedHeaderReceived(FILE_NAME, "poem.txt.zip");
+
+        template.sendBodyAndHeader("direct:zip", TEXT, FILE_NAME, "poems/poem.txt");
 
         assertMockEndpointsSatisfied();
     }
@@ -213,6 +235,7 @@ public class ZipFileDataFormatTest extends CamelTestSupport {
     }
 
     @Override
+    @Before
     public void setUp() throws Exception {
         deleteDirectory(TEST_DIR);
         super.setUp();
@@ -291,6 +314,20 @@ public class ZipFileDataFormatTest extends CamelTestSupport {
         ZipOutputStream zos = new ZipOutputStream(baos);
         try {
             zos.putNextEntry(new ZipEntry(entryName));
+            IOHelper.copy(bais, zos);
+        } finally {
+            IOHelper.close(bais, zos);
+        }
+        return baos.toByteArray();
+    }
+
+    private static byte[] getZippedTextInFolder(String folder, String file) throws IOException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(TEXT.getBytes("UTF-8"));
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(baos);
+        try {
+            zos.putNextEntry(new ZipEntry(folder));
+            zos.putNextEntry(new ZipEntry(file));
             IOHelper.copy(bais, zos);
         } finally {
             IOHelper.close(bais, zos);

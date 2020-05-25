@@ -34,6 +34,11 @@ public class ReactiveStreamsComponentConfiguration
             ComponentConfigurationPropertiesCommon {
 
     /**
+     * Whether to enable auto configuration of the reactive-streams component.
+     * This is enabled by default.
+     */
+    private Boolean enabled;
+    /**
      * Configures the internal engine for Reactive Streams.
      */
     private ReactiveStreamsEngineConfigurationNestedConfiguration internalEngineConfiguration;
@@ -45,7 +50,7 @@ public class ReactiveStreamsComponentConfiguration
     /**
      * Set the type of the underlying reactive streams implementation to use.
      * The implementation is looked up from the registry or using a
-     * ServiceLoader the default implementation is
+     * ServiceLoader, the default implementation is
      * DefaultCamelReactiveStreamsService
      */
     private String serviceType;

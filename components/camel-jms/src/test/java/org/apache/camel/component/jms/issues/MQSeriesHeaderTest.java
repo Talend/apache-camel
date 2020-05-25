@@ -18,6 +18,7 @@ package org.apache.camel.component.jms.issues;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.jms.ConnectionFactory;
 
 import org.apache.camel.CamelContext;
@@ -44,7 +45,7 @@ public class MQSeriesHeaderTest extends CamelTestSupport {
         MockEndpoint endpoint = getMockEndpoint("mock:result");
         endpoint.expectedMessageCount(1);
 
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put("JMSXAppID", "ABC");
 
         template.sendBodyAndHeaders("activemq:test.a", "Hello World!", headers);

@@ -34,6 +34,7 @@ import org.apache.camel.processor.BodyInAggregatingStrategy;
 import org.apache.camel.processor.aggregate.MemoryAggregationRepository;
 import org.apache.camel.processor.aggregate.OptimisticLockRetryPolicy;
 import org.apache.camel.spi.OptimisticLockingAggregationRepository;
+import org.junit.Test;
 
 /**
  * @version
@@ -64,6 +65,7 @@ public class DistributedOptimisticLockFailingTest extends AbstractDistributedTes
     }
     private EverySecondOneFailsRepository sharedRepository = new EverySecondOneFailsRepository();
 
+    @Test
     public void testAlwaysFails() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(0);
@@ -90,10 +92,11 @@ public class DistributedOptimisticLockFailingTest extends AbstractDistributedTes
         mock2.assertIsSatisfied();
     }
 
+    @Test
     public void testEverySecondOneFails() throws Exception {
         int size = 200;
-        ExecutorService service = Executors.newFixedThreadPool(50);
-        List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
+        ExecutorService service = Executors.newFixedThreadPool(10);
+        List<Callable<Object>> tasks = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             final int id = i % 25;
             final int choice = i % 2;
@@ -133,7 +136,8 @@ public class DistributedOptimisticLockFailingTest extends AbstractDistributedTes
                     .aggregate(header("id"), new BodyInAggregatingStrategy())
                         .aggregationRepository(new AlwaysFailingRepository())
                         .optimisticLocking()
-                        .optimisticLockRetryPolicy(new OptimisticLockRetryPolicy().maximumRetries(5))
+                        // do not use retry delay to speedup test
+                        .optimisticLockRetryPolicy(new OptimisticLockRetryPolicy().maximumRetries(5).retryDelay(0))
                         .completionSize(2)
                         .to("mock:result");
 

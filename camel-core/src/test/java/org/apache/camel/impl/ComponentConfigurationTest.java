@@ -220,7 +220,7 @@ public class ComponentConfigurationTest {
         assertEquals("foo", "xyz", endpoint.getFoo());
         assertEquals("bar", 5, endpoint.getBar());
 
-        LOG.info("Created endpoint " + endpoint + " on URI " + endpoint.getEndpointUri());
+        LOG.info("Created endpoint {} on URI {}", endpoint, endpoint.getEndpointUri());
 
         // lets try configure a parameter
         configuration.setEndpointParameter(endpoint, "bar", 6);
@@ -278,7 +278,7 @@ public class ComponentConfigurationTest {
 
     /**
      * Shows we can introspect the parameters of a DefaultComponent (i.e. a non {@link UriEndpointComponent})
-     * though we only get to introspect the parameter values from teh current configuration
+     * though we only get to introspect the parameter values from the current configuration
      */
     @Test
     public void testIntrospectDefaultComponentParameters() throws Exception {

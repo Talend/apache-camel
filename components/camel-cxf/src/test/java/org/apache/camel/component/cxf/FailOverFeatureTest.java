@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.cxf;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,7 +104,7 @@ public class FailOverFeatureTest {
             public void configure() {
                 String alt = SERVICE_ADDRESS;
 
-                List<String> serviceList = new ArrayList<String>();
+                List<String> serviceList = new ArrayList<>();
                 serviceList.add(alt);
 
                 RandomStrategy strategy = new RandomStrategy();

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.hdfs2;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -51,6 +50,7 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.SequenceFile.Writer;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.Progressable;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -126,7 +126,7 @@ public class HdfsConsumerTest extends HdfsTestSupport {
             fos.close();
         }
 
-        final Set<String> fileNames = new HashSet<String>();
+        final Set<String> fileNames = new HashSet<>();
         final CountDownLatch latch = new CountDownLatch(ITERATIONS);
         MockEndpoint resultEndpoint = context.getEndpoint("mock:result", MockEndpoint.class);
         resultEndpoint.whenAnyExchangeReceived(new Processor() {
@@ -278,7 +278,7 @@ public class HdfsConsumerTest extends HdfsTestSupport {
         scheduler.getScheduledExecutorService().shutdown();
         scheduler.getScheduledExecutorService().awaitTermination(5000, TimeUnit.MILLISECONDS);
 
-        Set<String> files = new HashSet<String>(Arrays.asList(new File("target/test").list()));
+        Set<String> files = new HashSet<>(Arrays.asList(new File("target/test").list()));
         // there may be some leftover files before, so test that we only added 2 new files
         assertThat(files.size() - before, equalTo(2));
         assertTrue(files.remove("test-camel-boolean.handled"));
@@ -558,6 +558,7 @@ public class HdfsConsumerTest extends HdfsTestSupport {
     }
 
     @Override
+    @After
     public void tearDown() throws Exception {
         if (!canTest()) {
             return;

@@ -21,15 +21,15 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 
 /**
  * Unit test for shutting down while DLC is sleeping in a redelivery.
  */
 public class DeadLetterChannelRedeliveringWhileShutdownTest extends ContextTestSupport {
 
+    @Test
     public void testDLCRedelivery() throws Exception {
-        long start = System.currentTimeMillis();
-
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodiesReceived("Hello World");
 
@@ -39,9 +39,8 @@ public class DeadLetterChannelRedeliveringWhileShutdownTest extends ContextTestS
 
         assertMockEndpointsSatisfied();
 
-        long delta = System.currentTimeMillis() - start;
-        // cater for slow servers 
-        assertTrue("Should be faster than: " + delta, delta < 4000);
+        context.stop();
+        // will shutdown while redelivery is in progress
     }
 
     @Override
@@ -49,9 +48,9 @@ public class DeadLetterChannelRedeliveringWhileShutdownTest extends ContextTestS
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                errorHandler(deadLetterChannel("mock:error").maximumRedeliveries(2).redeliveryDelay(3000));
+                errorHandler(deadLetterChannel("mock:error").maximumRedeliveries(3).redeliveryDelay(100));
 
-                from("direct:start").delay(500).to("mock:result");
+                from("direct:start").to("mock:result");
 
                 from("seda:damm").process(new Processor() {
                     public void process(Exchange exchange) throws Exception {

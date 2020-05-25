@@ -20,7 +20,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.camel.CamelContext;
@@ -54,7 +58,7 @@ import org.slf4j.LoggerFactory;
 public class QuartzComponent extends UriEndpointComponent implements StartupListener {
     private static final Logger LOG = LoggerFactory.getLogger(QuartzComponent.class);
 
-    private final transient List<JobToAdd> jobsToAdd = new ArrayList<JobToAdd>();
+    private final transient List<JobToAdd> jobsToAdd = new ArrayList<>();
 
     @Metadata(label = "advanced")
     private Scheduler scheduler;
@@ -257,7 +261,7 @@ public class QuartzComponent extends UriEndpointComponent implements StartupList
                 LOG.info("Cannot shutdown Quartz scheduler: " + scheduler.getSchedulerName() + " as there are still " + number.get() + " jobs registered.");
             } else {
                 // no more jobs then shutdown the scheduler
-                LOG.info("There are no more jobs registered, so shutting down Quartz scheduler: " + scheduler.getSchedulerName());
+                LOG.info("There are no more jobs registered, so shutting down Quartz scheduler: {}", scheduler.getSchedulerName());
                 scheduler.shutdown();
                 scheduler = null;
             }
@@ -360,7 +364,7 @@ public class QuartzComponent extends UriEndpointComponent implements StartupList
      */
     public void shutdownScheduler() throws SchedulerException {
         if (scheduler != null) {
-            LOG.info("Forcing shutdown of Quartz scheduler: " + scheduler.getSchedulerName());
+            LOG.info("Forcing shutdown of Quartz scheduler: {}", scheduler.getSchedulerName());
             scheduler.shutdown();
             scheduler = null;
         }
@@ -400,7 +404,7 @@ public class QuartzComponent extends UriEndpointComponent implements StartupList
                     getScheduler().start();
                 }
             } else {
-                LOG.info("Starting Quartz scheduler: " + getScheduler().getSchedulerName());
+                LOG.info("Starting Quartz scheduler: {}", getScheduler().getSchedulerName());
                 getScheduler().start();
             }
         }

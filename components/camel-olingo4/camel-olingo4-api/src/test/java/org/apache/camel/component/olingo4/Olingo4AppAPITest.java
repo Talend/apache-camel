@@ -19,7 +19,7 @@ package org.apache.camel.component.olingo4;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -126,9 +126,9 @@ public class Olingo4AppAPITest {
         olingoApp.setContentType(TEST_FORMAT_STRING);
 
         LOG.info("Read Edm ");
-        final TestOlingo4ResponseHandler<Edm> responseHandler = new TestOlingo4ResponseHandler<Edm>();
+        final TestOlingo4ResponseHandler<Edm> responseHandler = new TestOlingo4ResponseHandler<>();
 
-        olingoApp.read(null, Constants.METADATA, null, responseHandler);
+        olingoApp.read(null, Constants.METADATA, null, null, responseHandler);
 
         edm = responseHandler.await();
         LOG.info("Read default EntityContainer:  {}", responseHandler.await().getEntityContainer().getName());
@@ -156,9 +156,9 @@ public class Olingo4AppAPITest {
 
     @Test
     public void testServiceDocument() throws Exception {
-        final TestOlingo4ResponseHandler<ClientServiceDocument> responseHandler = new TestOlingo4ResponseHandler<ClientServiceDocument>();
+        final TestOlingo4ResponseHandler<ClientServiceDocument> responseHandler = new TestOlingo4ResponseHandler<>();
 
-        olingoApp.read(null, "", null, responseHandler);
+        olingoApp.read(null, "", null, null, responseHandler);
         final ClientServiceDocument serviceDocument = responseHandler.await();
 
         final Map<String, URI> entitySets = serviceDocument.getEntitySets();
@@ -168,9 +168,9 @@ public class Olingo4AppAPITest {
 
     @Test
     public void testReadEntitySet() throws Exception {
-        final TestOlingo4ResponseHandler<ClientEntitySet> responseHandler = new TestOlingo4ResponseHandler<ClientEntitySet>();
+        final TestOlingo4ResponseHandler<ClientEntitySet> responseHandler = new TestOlingo4ResponseHandler<>();
 
-        olingoApp.read(edm, PEOPLE, null, responseHandler);
+        olingoApp.read(edm, PEOPLE, null, null, responseHandler);
 
         final ClientEntitySet entitySet = responseHandler.await();
         assertNotNull(entitySet);
@@ -180,9 +180,9 @@ public class Olingo4AppAPITest {
 
     @Test
     public void testReadUnparsedEntitySet() throws Exception {
-        final TestOlingo4ResponseHandler<InputStream> responseHandler = new TestOlingo4ResponseHandler<InputStream>();
+        final TestOlingo4ResponseHandler<InputStream> responseHandler = new TestOlingo4ResponseHandler<>();
 
-        olingoApp.uread(edm, PEOPLE, null, responseHandler);
+        olingoApp.uread(edm, PEOPLE, null, null, responseHandler);
 
         final InputStream rawEntitySet = responseHandler.await();
         assertNotNull("Data entity set", rawEntitySet);
@@ -193,34 +193,34 @@ public class Olingo4AppAPITest {
 
     @Test
     public void testReadEntity() throws Exception {
-        final TestOlingo4ResponseHandler<ClientEntity> responseHandler = new TestOlingo4ResponseHandler<ClientEntity>();
+        final TestOlingo4ResponseHandler<ClientEntity> responseHandler = new TestOlingo4ResponseHandler<>();
 
-        olingoApp.read(edm, TEST_AIRLINE, null, responseHandler);
+        olingoApp.read(edm, TEST_AIRLINE, null, null, responseHandler);
         ClientEntity entity = responseHandler.await();
         assertEquals("Shanghai Airline", entity.getProperty("Name").getValue().toString());
         LOG.info("Single Entity:  {}", prettyPrint(entity));
 
         responseHandler.reset();
 
-        olingoApp.read(edm, TEST_PEOPLE, null, responseHandler);
+        olingoApp.read(edm, TEST_PEOPLE, null, null, responseHandler);
         entity = responseHandler.await();
         assertEquals("Russell", entity.getProperty("FirstName").getValue().toString());
         LOG.info("Single Entry:  {}", prettyPrint(entity));
 
         responseHandler.reset();
-        final Map<String, String> queryParams = new HashMap<String, String>();
+        final Map<String, String> queryParams = new HashMap<>();
         queryParams.put(SystemQueryOptionKind.EXPAND.toString(), TRIPS);
 
-        olingoApp.read(edm, TEST_PEOPLE, queryParams, responseHandler);
+        olingoApp.read(edm, TEST_PEOPLE, queryParams, null, responseHandler);
         ClientEntity entityExpanded = responseHandler.await();
         LOG.info("Single People Entiry with expanded Trips relation:  {}", prettyPrint(entityExpanded));
     }
 
     @Test
     public void testReadUnparsedEntity() throws Exception {
-        final TestOlingo4ResponseHandler<InputStream> responseHandler = new TestOlingo4ResponseHandler<InputStream>();
+        final TestOlingo4ResponseHandler<InputStream> responseHandler = new TestOlingo4ResponseHandler<>();
 
-        olingoApp.uread(edm, TEST_AIRLINE, null, responseHandler);
+        olingoApp.uread(edm, TEST_AIRLINE, null, null, responseHandler);
         InputStream rawEntity = responseHandler.await();
         assertNotNull("Data entity", rawEntity);
         ClientEntity entity = reader.readEntity(rawEntity, TEST_FORMAT);
@@ -229,17 +229,17 @@ public class Olingo4AppAPITest {
 
         responseHandler.reset();
 
-        olingoApp.uread(edm, TEST_PEOPLE, null, responseHandler);
+        olingoApp.uread(edm, TEST_PEOPLE, null, null, responseHandler);
         rawEntity = responseHandler.await();
         entity = reader.readEntity(rawEntity, TEST_FORMAT);
         assertEquals("Russell", entity.getProperty("FirstName").getValue().toString());
         LOG.info("Single Entity:  {}", prettyPrint(entity));
 
         responseHandler.reset();
-        final Map<String, String> queryParams = new HashMap<String, String>();
+        final Map<String, String> queryParams = new HashMap<>();
         queryParams.put(SystemQueryOptionKind.EXPAND.toString(), TRIPS);
 
-        olingoApp.uread(edm, TEST_PEOPLE, queryParams, responseHandler);
+        olingoApp.uread(edm, TEST_PEOPLE, queryParams, null, responseHandler);
 
         rawEntity = responseHandler.await();
         entity = reader.readEntity(rawEntity, TEST_FORMAT);
@@ -249,35 +249,35 @@ public class Olingo4AppAPITest {
     @Test
     public void testReadUpdateProperties() throws Exception {
         // test simple property Airports.Name
-        final TestOlingo4ResponseHandler<ClientPrimitiveValue> propertyHandler = new TestOlingo4ResponseHandler<ClientPrimitiveValue>();
+        final TestOlingo4ResponseHandler<ClientPrimitiveValue> propertyHandler = new TestOlingo4ResponseHandler<>();
 
-        olingoApp.read(edm, TEST_AIRPORTS_SIMPLE_PROPERTY, null, propertyHandler);
+        olingoApp.read(edm, TEST_AIRPORTS_SIMPLE_PROPERTY, null, null, propertyHandler);
 
-        ClientPrimitiveValue name = (ClientPrimitiveValue)propertyHandler.await();
+        ClientPrimitiveValue name = propertyHandler.await();
         assertEquals("San Francisco International Airport", name.toString());
-        LOG.info("Airport name property value {}", name.asPrimitive().toString());
+        LOG.info("Airport name property value {}", name.asPrimitive());
 
-        final TestOlingo4ResponseHandler<ClientPrimitiveValue> valueHandler = new TestOlingo4ResponseHandler<ClientPrimitiveValue>();
+        final TestOlingo4ResponseHandler<ClientPrimitiveValue> valueHandler = new TestOlingo4ResponseHandler<>();
 
-        olingoApp.read(edm, TEST_AIRPORTS_SIMPLE_PROPERTY_VALUE, null, valueHandler);
+        olingoApp.read(edm, TEST_AIRPORTS_SIMPLE_PROPERTY_VALUE, null, null, valueHandler);
         ClientPrimitiveValue nameValue = valueHandler.await();
         assertEquals("San Francisco International Airport", name.toString());
-        LOG.info("Airport name property value {}", nameValue.toString());
+        LOG.info("Airport name property value {}", nameValue);
 
-        TestOlingo4ResponseHandler<HttpStatusCode> statusHandler = new TestOlingo4ResponseHandler<HttpStatusCode>();
+        TestOlingo4ResponseHandler<HttpStatusCode> statusHandler = new TestOlingo4ResponseHandler<>();
         // All properties updates (simple and complex) are performing through
         // ClientEntity object
         ClientEntity clientEntity = objFactory.newEntity(null);
         clientEntity.getProperties().add(objFactory.newPrimitiveProperty("MiddleName", objFactory.newPrimitiveValueBuilder().buildString("Middle")));
-        olingoApp.update(edm, TEST_PEOPLE, clientEntity, statusHandler);
+        olingoApp.update(edm, TEST_PEOPLE, null, clientEntity, statusHandler);
         HttpStatusCode statusCode = statusHandler.await();
         assertEquals(HttpStatusCode.NO_CONTENT, statusCode);
         LOG.info("Name property updated with status {}", statusCode.getStatusCode());
 
         // Check for updated property by reading entire entity
-        final TestOlingo4ResponseHandler<ClientEntity> responseHandler = new TestOlingo4ResponseHandler<ClientEntity>();
+        final TestOlingo4ResponseHandler<ClientEntity> responseHandler = new TestOlingo4ResponseHandler<>();
 
-        olingoApp.read(edm, TEST_PEOPLE, null, responseHandler);
+        olingoApp.read(edm, TEST_PEOPLE, null, null, responseHandler);
         ClientEntity entity = responseHandler.await();
         assertEquals("Middle", entity.getProperty("MiddleName").getValue().toString());
         LOG.info("Updated Single Entity:  {}", prettyPrint(entity));
@@ -285,9 +285,9 @@ public class Olingo4AppAPITest {
 
     @Test
     public void testReadCount() throws Exception {
-        final TestOlingo4ResponseHandler<Long> countHandler = new TestOlingo4ResponseHandler<Long>();
+        final TestOlingo4ResponseHandler<Long> countHandler = new TestOlingo4ResponseHandler<>();
 
-        olingoApp.read(edm, PEOPLE + COUNT_OPTION, null, countHandler);
+        olingoApp.read(edm, PEOPLE + COUNT_OPTION, null, null, countHandler);
         Long count = countHandler.await();
         assertEquals(20, count.intValue());
         LOG.info("People count: {}", count);
@@ -297,32 +297,32 @@ public class Olingo4AppAPITest {
     public void testCreateUpdateDeleteEntity() throws Exception {
 
         // create an entity to update
-        final TestOlingo4ResponseHandler<ClientEntity> entryHandler = new TestOlingo4ResponseHandler<ClientEntity>();
+        final TestOlingo4ResponseHandler<ClientEntity> entryHandler = new TestOlingo4ResponseHandler<>();
 
-        olingoApp.create(edm, PEOPLE, createEntity(), entryHandler);
+        olingoApp.create(edm, PEOPLE, null, createEntity(), entryHandler);
 
         ClientEntity createdEntity = entryHandler.await();
         LOG.info("Created Entity:  {}", prettyPrint(createdEntity));
 
-        final TestOlingo4ResponseHandler<HttpStatusCode> statusHandler = new TestOlingo4ResponseHandler<HttpStatusCode>();
+        final TestOlingo4ResponseHandler<HttpStatusCode> statusHandler = new TestOlingo4ResponseHandler<>();
         ClientEntity updateEntity = createEntity();
         updateEntity.getProperties().add(objFactory.newPrimitiveProperty("MiddleName", objFactory.newPrimitiveValueBuilder().buildString("Middle")));
-        olingoApp.update(edm, TEST_CREATE_PEOPLE, updateEntity, statusHandler);
+        olingoApp.update(edm, TEST_CREATE_PEOPLE, null, updateEntity, statusHandler);
         statusHandler.await();
 
         statusHandler.reset();
         updateEntity = createEntity();
         updateEntity.getProperties().add(objFactory.newPrimitiveProperty("MiddleName", objFactory.newPrimitiveValueBuilder().buildString("Middle Patched")));
-        olingoApp.patch(edm, TEST_CREATE_PEOPLE, updateEntity, statusHandler);
+        olingoApp.patch(edm, TEST_CREATE_PEOPLE, null, updateEntity, statusHandler);
         statusHandler.await();
 
         entryHandler.reset();
-        olingoApp.read(edm, TEST_CREATE_PEOPLE, null, entryHandler);
+        olingoApp.read(edm, TEST_CREATE_PEOPLE, null, null, entryHandler);
         ClientEntity updatedEntity = entryHandler.await();
         LOG.info("Updated Entity successfully:  {}", prettyPrint(updatedEntity));
 
         statusHandler.reset();
-        olingoApp.delete(TEST_CREATE_PEOPLE, statusHandler);
+        olingoApp.delete(TEST_CREATE_PEOPLE, null, statusHandler);
         HttpStatusCode statusCode = statusHandler.await();
         LOG.info("Deletion of Entity was successful:  {}: {}", statusCode.getStatusCode(), statusCode.getInfo());
 
@@ -330,7 +330,7 @@ public class Olingo4AppAPITest {
             LOG.info("Verify Delete Entity");
 
             entryHandler.reset();
-            olingoApp.read(edm, TEST_CREATE_PEOPLE, null, entryHandler);
+            olingoApp.read(edm, TEST_CREATE_PEOPLE, null, null, entryHandler);
 
             entryHandler.await();
             fail("Entity not deleted!");
@@ -342,7 +342,7 @@ public class Olingo4AppAPITest {
     @Test
     public void testBatchRequest() throws Exception {
 
-        final List<Olingo4BatchRequest> batchParts = new ArrayList<Olingo4BatchRequest>();
+        final List<Olingo4BatchRequest> batchParts = new ArrayList<>();
 
         // 1. Edm query
         batchParts.add(Olingo4BatchQueryRequest.resourcePath(Constants.METADATA).resourceUri(TEST_SERVICE_BASE_URL).build());
@@ -354,7 +354,7 @@ public class Olingo4AppAPITest {
         batchParts.add(Olingo4BatchQueryRequest.resourcePath(TEST_PEOPLE).resourceUri(TEST_SERVICE_BASE_URL).build());
 
         // 4. Read with expand
-        final HashMap<String, String> queryParams = new HashMap<String, String>();
+        final HashMap<String, String> queryParams = new HashMap<>();
         queryParams.put(SystemQueryOptionKind.EXPAND.toString(), TRIPS);
         batchParts.add(Olingo4BatchQueryRequest.resourcePath(TEST_PEOPLE).queryParams(queryParams).resourceUri(TEST_SERVICE_BASE_URL).build());
 
@@ -374,8 +374,8 @@ public class Olingo4AppAPITest {
         // 8. Read to verify entity delete
         batchParts.add(Olingo4BatchQueryRequest.resourcePath(TEST_CREATE_PEOPLE).resourceUri(TEST_SERVICE_BASE_URL).build());
 
-        final TestOlingo4ResponseHandler<List<Olingo4BatchResponse>> responseHandler = new TestOlingo4ResponseHandler<List<Olingo4BatchResponse>>();
-        olingoApp.batch(edm, batchParts, responseHandler);
+        final TestOlingo4ResponseHandler<List<Olingo4BatchResponse>> responseHandler = new TestOlingo4ResponseHandler<>();
+        olingoApp.batch(edm, null, batchParts, responseHandler);
 
         final List<Olingo4BatchResponse> responseParts = responseHandler.await(15, TimeUnit.MINUTES);
         assertEquals("Batch responses expected", 8, responseParts.size());
@@ -442,7 +442,7 @@ public class Olingo4AppAPITest {
                 value = prettyPrint((Map<String, Object>)value, level + 1);
             } else if (value instanceof Calendar) {
                 Calendar cal = (Calendar)value;
-                value = SimpleDateFormat.getInstance().format(cal.getTime());
+                value = DateFormat.getInstance().format(cal.getTime());
             }
             b.append(value).append("\n");
         }
@@ -494,7 +494,7 @@ public class Olingo4AppAPITest {
         private CountDownLatch latch = new CountDownLatch(1);
 
         @Override
-        public void onResponse(T response) {
+        public void onResponse(T response, Map<String, String> responseHeaders) {
             this.response = response;
             if (LOG.isDebugEnabled()) {
                 if (response instanceof ClientEntitySet) {

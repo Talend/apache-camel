@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import java.io.File;
 
 import org.apache.camel.ContextTestSupport;
@@ -23,6 +22,8 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.NotifyBuilder;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Before;
+import org.junit.Test;
 
 public class FromFilePollThirdTimeOkTest extends ContextTestSupport {
 
@@ -30,11 +31,13 @@ public class FromFilePollThirdTimeOkTest extends ContextTestSupport {
     private String body = "Hello World this file will be deleted";
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/deletefile");
         super.setUp();
     }
 
+    @Test
     public void testPollFileAndShouldBeDeletedAtThirdPoll() throws Exception {
         NotifyBuilder notify = new NotifyBuilder(context).whenDone(3).create();
 
@@ -55,7 +58,7 @@ public class FromFilePollThirdTimeOkTest extends ContextTestSupport {
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() throws Exception {
-                from("file://target/deletefile?delete=true&initialDelay=0&delay=30").noAutoStartup().routeId("FromFilePollThirdTimeOkTest")
+                from("file://target/deletefile?delete=true&initialDelay=0&delay=10").noAutoStartup().routeId("FromFilePollThirdTimeOkTest")
                     .process(new Processor() {
                         public void process(Exchange exchange) throws Exception {
                             counter++;

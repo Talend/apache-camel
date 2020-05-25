@@ -24,11 +24,13 @@ import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.util.StopWatch;
+import org.junit.Test;
 
 public class RedeliveryDeadLetterErrorHandlerNoRedeliveryOnShutdownTest extends ContextTestSupport {
 
     private final AtomicInteger counter = new AtomicInteger();
 
+    @Test
     public void testRedeliveryErrorHandlerNoRedeliveryOnShutdown() throws Exception {
         getMockEndpoint("mock:foo").expectedMessageCount(1);
         getMockEndpoint("mock:deadLetter").expectedMessageCount(1);
@@ -40,8 +42,8 @@ public class RedeliveryDeadLetterErrorHandlerNoRedeliveryOnShutdownTest extends 
 
         // should not take long to stop the route
         StopWatch watch = new StopWatch();
-        // sleep 3 seconds to do some redeliveries before we stop
-        Thread.sleep(3000);
+        // sleep 0.5 seconds to do some redeliveries before we stop
+        Thread.sleep(500);
         log.info("==== stopping route foo ====");
         context.stopRoute("foo");
         long taken = watch.taken();
@@ -50,8 +52,8 @@ public class RedeliveryDeadLetterErrorHandlerNoRedeliveryOnShutdownTest extends 
 
         log.info("OnRedelivery processor counter {}", counter.get());
 
-        assertTrue("Should stop route faster, was " + taken, taken < 7000);
-        assertTrue("Redelivery counter should be >= 2 and < 12, was: " + counter.get(), counter.get() >= 2 && counter.get() < 12);
+        assertTrue("Should stop route faster, was " + taken, taken < 5000);
+        assertTrue("Redelivery counter should be >= 20 and < 100, was: " + counter.get(), counter.get() >= 20 && counter.get() < 100);
     }
 
     private final class MyRedeliverProcessor implements Processor {
@@ -70,7 +72,7 @@ public class RedeliveryDeadLetterErrorHandlerNoRedeliveryOnShutdownTest extends 
                 errorHandler(deadLetterChannel("mock:deadLetter")
                         .allowRedeliveryWhileStopping(false)
                         .onRedelivery(new MyRedeliverProcessor())
-                        .maximumRedeliveries(20).redeliveryDelay(1000).retryAttemptedLogLevel(LoggingLevel.INFO));
+                        .maximumRedeliveries(200).redeliveryDelay(10).retryAttemptedLogLevel(LoggingLevel.INFO));
 
                 from("seda:foo").routeId("foo")
                     .to("mock:foo")

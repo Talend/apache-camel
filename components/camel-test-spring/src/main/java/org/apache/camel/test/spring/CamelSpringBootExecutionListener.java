@@ -16,7 +16,6 @@
  */
 package org.apache.camel.test.spring;
 
-import org.apache.camel.CamelContext;
 import org.apache.camel.spring.SpringCamelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,19 +25,26 @@ import org.springframework.test.context.support.AbstractTestExecutionListener;
 
 public class CamelSpringBootExecutionListener extends AbstractTestExecutionListener {
 
+    protected static ThreadLocal<ConfigurableApplicationContext> threadApplicationContext = new ThreadLocal<>();
+
     private static final Logger LOG = LoggerFactory.getLogger(CamelSpringBootExecutionListener.class);
 
     @Override
     public void prepareTestInstance(TestContext testContext) throws Exception {
-        LOG.info("@RunWith(CamelSpringBootJUnit4ClassRunner.class) preparing: {}", testContext.getTestClass());
+        LOG.info("@RunWith(CamelSpringBootRunner.class) preparing: {}", testContext.getTestClass());
 
         Class<?> testClass = testContext.getTestClass();
+
+        // need to prepare this before we load spring application context
+        CamelAnnotationsHandler.handleExcludeRoutesForSpringBoot(testClass);
+
         // we are customizing the Camel context with
         // CamelAnnotationsHandler so we do not want to start it
         // automatically, which would happen when SpringCamelContext
         // is added to Spring ApplicationContext, so we set the flag
         // not to start it just yet
         SpringCamelContext.setNoStart(true);
+        System.setProperty("skipStartingCamelContext", "true");
         ConfigurableApplicationContext context = (ConfigurableApplicationContext) testContext.getApplicationContext();
 
         // Post CamelContext(s) instantiation but pre CamelContext(s) start setup
@@ -47,25 +53,43 @@ public class CamelSpringBootExecutionListener extends AbstractTestExecutionListe
         CamelAnnotationsHandler.handleMockEndpoints(context, testClass);
         CamelAnnotationsHandler.handleMockEndpointsAndSkip(context, testClass);
         CamelAnnotationsHandler.handleUseOverridePropertiesWithPropertiesComponent(context, testClass);
-        SpringCamelContext.setNoStart(false);
-        CamelContext camelContext = context.getBean(CamelContext.class);
 
-        // after our customizations we should start the CamelContext
-        camelContext.start();
+        System.clearProperty("skipStartingCamelContext");
+        SpringCamelContext.setNoStart(false);
     }
 
     @Override
     public void beforeTestMethod(TestContext testContext) throws Exception {
-        LOG.info("@RunWith(CamelSpringBootJUnit4ClassRunner.class) before: {}.{}", testContext.getTestClass(), testContext.getTestMethod().getName());
+        LOG.info("@RunWith(CamelSpringBootRunner.class) before: {}.{}", testContext.getTestClass(), testContext.getTestMethod().getName());
 
         Class<?> testClass = testContext.getTestClass();
+        String testName = testContext.getTestMethod().getName();
+
         ConfigurableApplicationContext context = (ConfigurableApplicationContext) testContext.getApplicationContext();
+        threadApplicationContext.set(context);
 
         // mark Camel to be startable again and start Camel
         System.clearProperty("skipStartingCamelContext");
 
-        LOG.info("Initialized CamelSpringBootJUnit4ClassRunner now ready to start CamelContext");
+        // route coverage need to know the test method
+        CamelAnnotationsHandler.handleRouteCoverage(context, testClass, s -> testName);
+
+        LOG.info("Initialized CamelSpringBootRunner now ready to start CamelContext");
         CamelAnnotationsHandler.handleCamelContextStartup(context, testClass);
     }
 
+    @Override
+    public void afterTestMethod(TestContext testContext) throws Exception {
+        LOG.info("@RunWith(CamelSpringBootRunner.class) after: {}.{}", testContext.getTestClass(), testContext.getTestMethod().getName());
+
+        Class<?> testClass = testContext.getTestClass();
+        String testName = testContext.getTestMethod().getName();
+
+        ConfigurableApplicationContext context = threadApplicationContext.get();
+        if (context != null && context.isRunning()) {
+            // dump route coverage for each test method so its accurate statistics
+            // even if spring application context is running (i.e. its not dirtied per test method)
+            CamelAnnotationsHandler.handleRouteCoverageDump(context, testClass, s -> testName);
+        }
+    }
 }

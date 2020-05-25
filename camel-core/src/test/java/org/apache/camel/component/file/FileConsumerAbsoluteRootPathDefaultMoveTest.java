@@ -20,6 +20,7 @@ import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 
 /**
  * Unit test for consuming from an absolute path at root
@@ -30,6 +31,7 @@ public class FileConsumerAbsoluteRootPathDefaultMoveTest extends ContextTestSupp
 
     private String base = "/tmp/mytemp";
 
+    @Test
     public void testDummy() {
         // noop
     }
@@ -51,7 +53,7 @@ public class FileConsumerAbsoluteRootPathDefaultMoveTest extends ContextTestSupp
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() throws Exception {
-                from("file:" + base).routeId("foo").noAutoStartup()
+                from("file:" + base + "?initialDelay=0&delay=10").routeId("foo").noAutoStartup()
                     .convertBodyTo(String.class).to("mock:report");
             }
         };

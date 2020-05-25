@@ -18,6 +18,7 @@ package org.apache.camel.model;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElementRef;
@@ -39,17 +40,17 @@ import org.apache.camel.spi.Metadata;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RoutesDefinition extends OptionalIdentifiedDefinition<RoutesDefinition> implements RouteContainer {
     @XmlElementRef
-    private List<RouteDefinition> routes = new ArrayList<RouteDefinition>();
+    private List<RouteDefinition> routes = new ArrayList<>();
     @XmlTransient
-    private List<InterceptDefinition> intercepts = new ArrayList<InterceptDefinition>();
+    private List<InterceptDefinition> intercepts = new ArrayList<>();
     @XmlTransient
-    private List<InterceptFromDefinition> interceptFroms = new ArrayList<InterceptFromDefinition>();
+    private List<InterceptFromDefinition> interceptFroms = new ArrayList<>();
     @XmlTransient
-    private List<InterceptSendToEndpointDefinition> interceptSendTos = new ArrayList<InterceptSendToEndpointDefinition>();
+    private List<InterceptSendToEndpointDefinition> interceptSendTos = new ArrayList<>();
     @XmlTransient
-    private List<OnExceptionDefinition> onExceptions = new ArrayList<OnExceptionDefinition>();
+    private List<OnExceptionDefinition> onExceptions = new ArrayList<>();
     @XmlTransient
-    private List<OnCompletionDefinition> onCompletions = new ArrayList<OnCompletionDefinition>();
+    private List<OnCompletionDefinition> onCompletions = new ArrayList<>();
     @XmlTransient
     private ModelCamelContext camelContext;
     @XmlTransient
@@ -61,6 +62,11 @@ public class RoutesDefinition extends OptionalIdentifiedDefinition<RoutesDefinit
     @Override
     public String toString() {
         return "Routes: " + routes;
+    }
+
+    @Override
+    public String getShortName() {
+        return "routes";
     }
 
     public String getLabel() {

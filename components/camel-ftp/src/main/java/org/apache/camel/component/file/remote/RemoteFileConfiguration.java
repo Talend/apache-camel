@@ -295,9 +295,7 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
     /**
      * Sets optional site command(s) to be executed after successful login.
      * <p/>
-     * Multiple site commands can be separated using a new line character (\n).
-     *
-     * @param siteCommand the site command(s).
+     * Multiple site commands can be separated using a new line character.
      */
     public void setSiteCommand(String siteCommand) {
         this.siteCommand = siteCommand;
@@ -358,6 +356,9 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
      * Default is <tt>true</tt>. In some use cases you may want to download
      * a specific file and are not allowed to use the LIST command, and therefore
      * you can set this option to <tt>false</tt>.
+     * Notice when using this option, then the specific file to download does <b>not</b>
+     * include meta-data information such as file size, timestamp, permissions etc, because
+     * those information is only possible to retrieve when LIST command is in use.
      */
     public void setUseList(boolean useList) {
         this.useList = useList;
@@ -368,9 +369,9 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
     }
 
     /**
-     * Whether to ignore when trying to download a file which does not exist or due to permission error.
+     * Whether to ignore when (trying to list files in directories or when downloading a file), which does not exist or due to permission error.
      * <p/>
-     * By default when a file does not exists or insufficient permission, then an exception is thrown.
+     * By default when a directory or file does not exists or insufficient permission, then an exception is thrown.
      * Setting this option to <tt>true</tt> allows to ignore that instead.
      */
     public void setIgnoreFileNotFoundOrPermissionError(boolean ignoreFileNotFoundOrPermissionError) {

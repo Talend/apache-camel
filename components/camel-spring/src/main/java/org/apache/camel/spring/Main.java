@@ -158,12 +158,12 @@ public class Main extends MainSupport {
             if (additionalApplicationContext == null) {
                 additionalApplicationContext = createAdditionalLocationsFromClasspath();
                 if (additionalApplicationContext != null) {
-                    LOG.debug("Starting Additional ApplicationContext: " + additionalApplicationContext.getId());
+                    LOG.debug("Starting Additional ApplicationContext: {}", additionalApplicationContext.getId());
                     additionalApplicationContext.start();
                 }
             }
 
-            LOG.debug("Starting Spring ApplicationContext: " + applicationContext.getId());
+            LOG.debug("Starting Spring ApplicationContext: {}", applicationContext.getId());
             applicationContext.start();
 
             postProcessContext();
@@ -180,11 +180,11 @@ public class Main extends MainSupport {
     protected void doStop() throws Exception {
         super.doStop();
         if (additionalApplicationContext != null) {
-            LOG.debug("Stopping Additional ApplicationContext: " + additionalApplicationContext.getId());
+            LOG.debug("Stopping Additional ApplicationContext: {}", additionalApplicationContext.getId());
             IOHelper.close(additionalApplicationContext);
         }
         if (applicationContext != null) {
-            LOG.debug("Stopping Spring ApplicationContext: " + applicationContext.getId());
+            LOG.debug("Stopping Spring ApplicationContext: {}", applicationContext.getId());
             IOHelper.close(applicationContext);
         }
     }
@@ -226,7 +226,7 @@ public class Main extends MainSupport {
     protected Map<String, CamelContext> getCamelContextMap() {
         Map<String, SpringCamelContext> map = applicationContext.getBeansOfType(SpringCamelContext.class);
         Set<Map.Entry<String, SpringCamelContext>> entries = map.entrySet();
-        Map<String, CamelContext> answer = new HashMap<String, CamelContext>();
+        Map<String, CamelContext> answer = new HashMap<>();
         for (Map.Entry<String, SpringCamelContext> entry : entries) {
             String name = entry.getKey();
             CamelContext camelContext = entry.getValue();
@@ -236,7 +236,7 @@ public class Main extends MainSupport {
     }
 
     protected AbstractApplicationContext createAdditionalLocationsFromClasspath() throws IOException {
-        Set<String> locations = new LinkedHashSet<String>();
+        Set<String> locations = new LinkedHashSet<>();
         findLocations(locations, Main.class.getClassLoader());
 
         if (!locations.isEmpty()) {

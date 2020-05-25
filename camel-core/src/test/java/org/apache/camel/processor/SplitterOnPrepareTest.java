@@ -23,17 +23,19 @@ import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
+import org.junit.Test;
 
 /**
  *
  */
 public class SplitterOnPrepareTest extends ContextTestSupport {
 
+    @Test
     public void testSplitterOnPrepare() throws Exception {
         getMockEndpoint("mock:a").expectedMessageCount(2);
         getMockEndpoint("mock:a").allMessages().body(String.class).isEqualTo("1 Tony the Tiger");
 
-        List<Animal> animals = new ArrayList<Animal>();
+        List<Animal> animals = new ArrayList<>();
         animals.add(new Animal(1, "Tiger"));
         animals.add(new Animal(1, "Tiger"));
         template.sendBody("direct:start", animals);

@@ -18,6 +18,7 @@ package org.apache.camel.model.language;
 
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyAttribute;
@@ -31,6 +32,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.camel.AfterPropertiesConfigured;
 import org.apache.camel.CamelContext;
+import org.apache.camel.CamelContextAware;
 import org.apache.camel.Exchange;
 import org.apache.camel.Expression;
 import org.apache.camel.NoSuchLanguageException;
@@ -174,6 +176,10 @@ public class ExpressionDefinition implements Expression, Predicate, OtherAttribu
                 configurePredicate(camelContext, predicate);
             }
         }
+        // inject CamelContext if its aware
+        if (predicate instanceof CamelContextAware) {
+            ((CamelContextAware) predicate).setCamelContext(camelContext);
+        }
         return predicate;
     }
 
@@ -204,6 +210,10 @@ public class ExpressionDefinition implements Expression, Predicate, OtherAttribu
                 setExpressionValue(language.createExpression(exp));
                 configureExpression(camelContext, getExpressionValue());
             }
+        }
+        // inject CamelContext if its aware
+        if (getExpressionValue() instanceof CamelContextAware) {
+            ((CamelContextAware) getExpressionValue()).setCamelContext(camelContext);
         }
         return getExpressionValue();
     }

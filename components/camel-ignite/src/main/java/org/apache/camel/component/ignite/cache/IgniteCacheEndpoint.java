@@ -25,7 +25,6 @@ import org.apache.camel.CamelException;
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
-import org.apache.camel.component.ignite.AbstractIgniteComponent;
 import org.apache.camel.component.ignite.AbstractIgniteEndpoint;
 import org.apache.camel.component.ignite.IgniteComponent;
 import org.apache.camel.spi.Metadata;
@@ -44,7 +43,7 @@ import org.apache.ignite.cache.query.Query;
  * This offers both a Producer (to invoke cache operations on an Ignite cache) and
  * a Consumer (to consume changes from a continuous query).
  */
-@UriEndpoint(firstVersion = "2.17.0", scheme = "ignite-cache", title = "Ignite Cache", syntax = "ignite-cache:[cacheName]", label = "nosql,cache,compute", 
+@UriEndpoint(firstVersion = "2.17.0", scheme = "ignite-cache", title = "Ignite Cache", syntax = "ignite-cache:cacheName", label = "nosql,cache,compute",
     consumerClass = IgniteCacheContinuousQueryConsumer.class)
 public class IgniteCacheEndpoint extends AbstractIgniteEndpoint {
 

@@ -24,40 +24,57 @@ import org.apache.camel.CamelExecutionException;
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.util.StopWatch;
+import org.junit.Test;
 
 public class DirectVmProducerBlockingTest extends ContextTestSupport {
 
+    @Test
     public void testProducerBlocksForSuspendedConsumer() throws Exception {
         DirectVmEndpoint endpoint = getMandatoryEndpoint("direct-vm:suspended", DirectVmEndpoint.class);
         endpoint.getConsumer().suspend();
 
         StopWatch watch = new StopWatch();
         try {
-            template.sendBody("direct-vm:suspended?block=true&timeout=2000", "hello world");
+            template.sendBody("direct-vm:suspended?block=true&timeout=500&failIfNoConsumers=false", "hello world");
             fail("Expected CamelExecutionException");
         } catch (CamelExecutionException e) {
             DirectVmConsumerNotAvailableException cause = assertIsInstanceOf(DirectVmConsumerNotAvailableException.class, e.getCause());
             assertIsInstanceOf(CamelExchangeException.class, cause);
-            assertTrue(watch.taken() > 1500);
+            assertTrue(watch.taken() > 490);
         }
     }
 
+    @Test
     public void testProducerBlocksWithNoConsumers() throws Exception {
         DirectVmEndpoint endpoint = getMandatoryEndpoint("direct-vm:suspended", DirectVmEndpoint.class);
         endpoint.getConsumer().suspend();
 
         StopWatch watch = new StopWatch();
         try {
-            template.sendBody("direct-vm:start?block=true&timeout=2000", "hello world");
+            template.sendBody("direct-vm:start?block=true&timeout=500&failIfNoConsumers=false", "hello world");
             fail("Expected CamelExecutionException");
         } catch (CamelExecutionException e) {
             DirectVmConsumerNotAvailableException cause = assertIsInstanceOf(DirectVmConsumerNotAvailableException.class, e.getCause());
             assertIsInstanceOf(CamelExchangeException.class, cause);
 
-            assertTrue(watch.taken() > 1500);
+            assertTrue(watch.taken() > 490);
+        }
+    }
+    
+    public void testProducerBlocksFailIfNoConsumerFalse() throws Exception {
+        DirectVmEndpoint endpoint = getMandatoryEndpoint("direct-vm:suspended", DirectVmEndpoint.class);
+        endpoint.getConsumer().suspend();
+
+        try {
+            template.sendBody("direct-vm:start?block=true&timeout=500&failIfNoConsumers=true", "hello world");
+            fail("Expected CamelExecutionException");
+        } catch (CamelExecutionException e) {
+            DirectVmConsumerNotAvailableException cause = assertIsInstanceOf(DirectVmConsumerNotAvailableException.class, e.getCause());
+            assertIsInstanceOf(CamelExchangeException.class, cause);
         }
     }
 
+    @Test
     public void testProducerBlocksResumeTest() throws Exception {
         context.suspendRoute("foo");
 
@@ -66,7 +83,7 @@ public class DirectVmProducerBlockingTest extends ContextTestSupport {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(200);
                     log.info("Resuming consumer");
                     context.resumeRoute("foo");
                 } catch (Exception e) {
@@ -77,7 +94,7 @@ public class DirectVmProducerBlockingTest extends ContextTestSupport {
 
         getMockEndpoint("mock:result").expectedMessageCount(1);
 
-        template.sendBody("direct-vm:suspended?block=true&timeout=5000", "hello world");
+        template.sendBody("direct-vm:suspended?block=true&timeout=1000&failIfNoConsumers=false", "hello world");
 
         assertMockEndpointsSatisfied();
 

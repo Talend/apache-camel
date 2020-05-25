@@ -15,19 +15,20 @@
  * limitations under the License.
  */
 package org.apache.camel.spi;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class ContainerTest extends TestCase {
+public class ContainerTest extends Assert {
 
     private final class MyContainer implements Container {
 
-        private List<String> names = new ArrayList<String>();
+        private List<String> names = new ArrayList<>();
 
         @Override
         public void manage(CamelContext camelContext) {
@@ -35,12 +36,13 @@ public class ContainerTest extends TestCase {
         }
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         Container.Instance.set(null);
-        super.tearDown();
+
     }
 
+    @Test
     public void testContainerSet() throws Exception {
         MyContainer myContainer = new MyContainer();
 
@@ -69,6 +71,7 @@ public class ContainerTest extends TestCase {
         camel3.stop();
     }
 
+    @Test
     public void testNoContainerSet() throws Exception {
         MyContainer myContainer = new MyContainer();
 

@@ -18,7 +18,6 @@ package org.apache.camel.util;
 
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -44,7 +43,6 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.Scanner;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -54,7 +52,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.CamelContextAware;
 import org.apache.camel.CamelExecutionException;
+import org.apache.camel.Component;
+import org.apache.camel.ComponentAware;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Ordered;
@@ -194,6 +195,13 @@ public final class ObjectHelper {
      */
     public static boolean equal(Object a, Object b) {
         return equal(a, b, false);
+    }
+    
+    /**
+     * A helper method for comparing objects for equality while handling case insensitivity
+     */
+    public static boolean equalIgnoreCase(Object a, Object b) {
+        return equal(a, b, true);
     }
 
     /**
@@ -382,7 +390,6 @@ public final class ObjectHelper {
      * @param value  the value, if its a String it will be tested for text length as well
      * @return true if <b>not</b> empty
      */
-    @SuppressWarnings("unchecked")
     public static boolean isNotEmpty(Object value) {
         if (value == null) {
             return false;
@@ -406,13 +413,28 @@ public final class ObjectHelper {
      * @return an Optional
      */
     public static Optional<Object> firstNotNull(Object... values) {
-        for (int i = 0; i < values.length; i++) {
-            if (values[i] != null) {
-                return Optional.of(values[i]);
+        for (Object value : values) {
+            if (value != null) {
+                return Optional.of(value);
             }
         }
 
         return Optional.empty();
+    }
+
+    /**
+     * Tests whether the value is  <tt>null</tt>, an empty string, an empty collection or a map
+     *
+     * @param value  the value, if its a String it will be tested for text length as well
+     * @param supplier  the supplier, the supplier to be used to get a value if value is null
+     */
+    public static <T> T supplyIfEmpty(T value, Supplier<T> supplier) {
+        ObjectHelper.notNull(supplier, "Supplier");
+        if (isNotEmpty(value)) {
+            return value;
+        }
+
+        return supplier.get();
     }
 
     /**
@@ -641,6 +663,36 @@ public final class ObjectHelper {
             Iterator<Object> iter = createIterator(collectionOrArray);
             while (iter.hasNext()) {
                 if (equal(value, iter.next())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Returns true if the collection contains the specified value by considering case insensitivity
+     */
+    public static boolean containsIgnoreCase(Object collectionOrArray, Object value) {
+        // favor String types
+        if (collectionOrArray != null && (collectionOrArray instanceof StringBuffer || collectionOrArray instanceof StringBuilder)) {
+            collectionOrArray = collectionOrArray.toString();
+        }
+        if (value != null && (value instanceof StringBuffer || value instanceof StringBuilder)) {
+            value = value.toString();
+        }
+
+        if (collectionOrArray instanceof Collection) {
+            Collection<?> collection = (Collection<?>)collectionOrArray;
+            return collection.contains(value);
+        } else if (collectionOrArray instanceof String && value instanceof String) {
+            String str = (String)collectionOrArray;
+            String subStr = (String)value;
+            return StringHelper.containsIgnoreCase(str, subStr);
+        } else {
+            Iterator<Object> iter = createIterator(collectionOrArray);
+            while (iter.hasNext()) {
+                if (equalIgnoreCase(value, iter.next())) {
                     return true;
                 }
             }
@@ -878,9 +930,6 @@ public final class ObjectHelper {
             // this code is optimized to only use a Scanner if needed, eg there is a delimiter
 
             if (delimiter != null && (pattern || s.contains(delimiter))) {
-                // use a scanner if it contains the delimiter or is a pattern
-                final Scanner scanner = new Scanner((String)value);
-
                 if (DEFAULT_DELIMITER.equals(delimiter)) {
                     // we use the default delimiter which is a comma, then cater for bean expressions with OGNL
                     // which may have balanced parentheses pairs as well.
@@ -894,7 +943,8 @@ public final class ObjectHelper {
                     // http://stackoverflow.com/questions/1516090/splitting-a-title-into-separate-parts
                     delimiter = ",(?!(?:[^\\(,]|[^\\)],[^\\)])+\\))";
                 }
-                scanner.useDelimiter(delimiter);
+                // use a scanner if it contains the delimiter or is a pattern
+                final Scanner scanner = new Scanner((String) value, delimiter);
 
                 return new Iterable<Object>() {
                     @Override
@@ -1096,9 +1146,9 @@ public final class ObjectHelper {
 
         if (clazz == null) {
             if (needToWarn) {
-                LOG.warn("Cannot find class: " + name);
+                LOG.warn("Cannot find class: {}", name);
             } else {
-                LOG.debug("Cannot find class: " + name);
+                LOG.debug("Cannot find class: {}", name);
             }
         }
 
@@ -1172,7 +1222,7 @@ public final class ObjectHelper {
      * @return the class, or null if it could not be loaded
      */
     private static Class<?> doLoadClass(String name, ClassLoader loader) {
-        ObjectHelper.notEmpty(name, "name");
+        StringHelper.notEmpty(name, "name");
         if (loader == null) {
             return null;
         }
@@ -1401,7 +1451,7 @@ public final class ObjectHelper {
 
         if (source.equals(target)) {
             return true;
-        } else if (source.getDeclaringClass() == target.getDeclaringClass()) {
+        } else if (target.getDeclaringClass().isAssignableFrom(source.getDeclaringClass())) {
             return false;
         } else if (!source.getDeclaringClass().isAssignableFrom(inheritingClass) || !target.getDeclaringClass().isAssignableFrom(inheritingClass)) {
             return false;
@@ -1427,18 +1477,20 @@ public final class ObjectHelper {
         }
 
         // must have same number of parameter types
-        if (source.getParameterTypes().length != target.getParameterTypes().length) {
+        if (source.getParameterCount() != target.getParameterCount()) {
             return false;
         }
 
+        Class<?>[] sourceTypes = source.getParameterTypes();
+        Class<?>[] targetTypes = target.getParameterTypes();
         // test if parameter types is the same as well
-        for (int i = 0; i < source.getParameterTypes().length; i++) {
+        for (int i = 0; i < source.getParameterCount(); i++) {
             if (exact) {
-                if (!(source.getParameterTypes()[i].equals(target.getParameterTypes()[i]))) {
+                if (!(sourceTypes[i].equals(targetTypes[i]))) {
                     return false;
                 }
             } else {
-                if (!(source.getParameterTypes()[i].isAssignableFrom(target.getParameterTypes()[i]))) {
+                if (!(sourceTypes[i].isAssignableFrom(targetTypes[i]))) {
                     boolean b1 = source.isBridge();
                     boolean b2 = target.isBridge();
                     // must not be bridge methods
@@ -1476,7 +1528,7 @@ public final class ObjectHelper {
     public static List<Method> findMethodsWithAnnotation(Class<?> type,
                                                          Class<? extends Annotation> annotationType,
                                                          boolean checkMetaAnnotations) {
-        List<Method> answer = new ArrayList<Method>();
+        List<Method> answer = new ArrayList<>();
         do {
             Method[] methods = type.getDeclaredMethods();
             for (Method method : methods) {
@@ -1608,7 +1660,7 @@ public final class ObjectHelper {
      */
     public static String getPropertyName(Method method) {
         String propertyName = method.getName();
-        if (propertyName.startsWith("set") && method.getParameterTypes().length == 1) {
+        if (propertyName.startsWith("set") && method.getParameterCount() == 1) {
             propertyName = propertyName.substring(3, 4).toLowerCase(Locale.ENGLISH) + propertyName.substring(4);
         }
         return propertyName;
@@ -1708,7 +1760,7 @@ public final class ObjectHelper {
     public static boolean hasDefaultPublicNoArgConstructor(Class<?> type) {
         // getConstructors() returns only public constructors
         for (Constructor<?> ctr : type.getConstructors()) {
-            if (ctr.getParameterTypes().length == 0) {
+            if (ctr.getParameterCount() == 0) {
                 return true;
             }
         }
@@ -1816,7 +1868,7 @@ public final class ObjectHelper {
      * @return the Iterable
      */
     public static Iterable<Throwable> createExceptionIterable(Throwable exception) {
-        List<Throwable> throwables = new ArrayList<Throwable>();
+        List<Throwable> throwables = new ArrayList<>();
 
         Throwable current = exception;
         // spool to the bottom of the caused by tree
@@ -1882,9 +1934,10 @@ public final class ObjectHelper {
      *
      * @param exchange  the current exchange
      * @param value     the value, typically the message IN body
+     * @param delimiter the delimiter pattern to use
      * @return the scanner, is newer <tt>null</tt>
      */
-    public static Scanner getScanner(Exchange exchange, Object value) {
+    public static Scanner getScanner(Exchange exchange, Object value, String delimiter) {
         if (value instanceof WrappedFile) {
             WrappedFile<?> gf = (WrappedFile<?>) value;
             Object body = gf.getBody();
@@ -1893,41 +1946,33 @@ public final class ObjectHelper {
                 value = body;
             } else {
                 // generic file is just a wrapper for the real file so call again with the real file
-                return getScanner(exchange, gf.getFile());
+                return getScanner(exchange, gf.getFile(), delimiter);
             }
         }
 
-        String charset = exchange.getProperty(Exchange.CHARSET_NAME, String.class);
-
-        Scanner scanner = null;
+        Scanner scanner;
         if (value instanceof Readable) {
-            scanner = new Scanner((Readable)value);
-        } else if (value instanceof InputStream) {
-            scanner = charset == null ? new Scanner((InputStream)value) : new Scanner((InputStream)value, charset);
-        } else if (value instanceof File) {
-            try {
-                scanner = charset == null ? new Scanner((File)value) : new Scanner((File)value, charset);
-            } catch (FileNotFoundException e) {
-                throw new RuntimeCamelException(e);
-            }
+            scanner = new Scanner((Readable) value, delimiter);
         } else if (value instanceof String) {
-            scanner = new Scanner((String)value);
-        } else if (value instanceof ReadableByteChannel) {
-            scanner = charset == null ? new Scanner((ReadableByteChannel)value) : new Scanner((ReadableByteChannel)value, charset);
-        }
-
-        if (scanner == null) {
-            // value is not a suitable type, try to convert value to a string
-            String text = exchange.getContext().getTypeConverter().convertTo(String.class, exchange, value);
-            if (text != null) {
-                scanner = new Scanner(text);
+            scanner = new Scanner((String) value, delimiter);
+        } else {
+            String charset = exchange.getProperty(Exchange.CHARSET_NAME, String.class);
+            if (value instanceof File) {
+                try {
+                    scanner = new Scanner((File) value, charset, delimiter);
+                } catch (IOException e) {
+                    throw new RuntimeCamelException(e);
+                }
+            } else if (value instanceof InputStream) {
+                scanner = new Scanner((InputStream) value, charset, delimiter);
+            } else if (value instanceof ReadableByteChannel) {
+                scanner = new Scanner((ReadableByteChannel) value, charset, delimiter);
+            } else {
+                // value is not a suitable type, try to convert value to a string
+                String text = exchange.getContext().getTypeConverter().convertTo(String.class, exchange, value);
+                scanner = new Scanner(text, delimiter);
             }
         }
-
-        if (scanner == null) {
-            scanner = new Scanner("");
-        }
-
         return scanner;
     }
 
@@ -2015,6 +2060,28 @@ public final class ObjectHelper {
                 Thread.currentThread().setContextClassLoader(tccl);
             }
         }
+    }
+
+    /**
+     * Set the {@link CamelContext} context if the component is an instance of {@link CamelContextAware}.
+     */
+    public static <T> T trySetCamelContext(T object, CamelContext camelContext) {
+        if (object instanceof CamelContextAware) {
+            ((CamelContextAware) object).setCamelContext(camelContext);
+        }
+
+        return object;
+    }
+
+    /**
+     * Set the {@link Component} context if the component is an instance of {@link ComponentAware}.
+     */
+    public static <T> T trySetComponent(T object, Component component) {
+        if (object instanceof ComponentAware) {
+            ((ComponentAware) object).setComponent(component);
+        }
+
+        return object;
     }
     
 }

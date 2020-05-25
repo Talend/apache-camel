@@ -56,6 +56,7 @@ import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
 import org.apache.camel.PropertyInject;
 import org.apache.camel.blueprint.BlueprintCamelContext;
+import org.apache.camel.blueprint.BlueprintCamelStateService;
 import org.apache.camel.blueprint.BlueprintModelJAXBContextFactory;
 import org.apache.camel.blueprint.CamelContextFactoryBean;
 import org.apache.camel.blueprint.CamelEndpointFactoryBean;
@@ -182,7 +183,7 @@ public class CamelNamespaceHandler implements NamespaceHandler {
 
     @SuppressWarnings({"rawtypes"})
     public Set<Class> getManagedClasses() {
-        return new HashSet<Class>(Arrays.asList(BlueprintCamelContext.class));
+        return new HashSet<>(Arrays.asList(BlueprintCamelContext.class));
     }
 
     public Metadata parse(Element element, ParserContext context) {
@@ -257,7 +258,7 @@ public class CamelNamespaceHandler implements NamespaceHandler {
 
         MutablePassThroughMetadata factory = context.createMetadata(MutablePassThroughMetadata.class);
         factory.setId(".camelBlueprint.passThrough." + contextId);
-        factory.setObject(new PassThroughCallable<Object>(value));
+        factory.setObject(new PassThroughCallable<>(value));
 
         MutableBeanMetadata factory2 = context.createMetadata(MutableBeanMetadata.class);
         factory2.setId(".camelBlueprint.factory." + contextId);
@@ -279,6 +280,7 @@ public class CamelNamespaceHandler implements NamespaceHandler {
         ctx.setRuntimeClass(BlueprintCamelContext.class);
         ctx.setFactoryComponent(factory2);
         ctx.setFactoryMethod("getContext");
+        ctx.addProperty("bundleStateService", createRef(context, ".camelBlueprint.bundleStateService"));
         ctx.setInitMethod("init");
         ctx.setDestroyMethod("destroy");
 
@@ -287,6 +289,9 @@ public class CamelNamespaceHandler implements NamespaceHandler {
         registerBeans(context, contextId, ccfb.getEndpoints());
         registerBeans(context, contextId, ccfb.getRedeliveryPolicies());
         registerBeans(context, contextId, ccfb.getBeansFactory());
+
+        // Register single CamelBundleStateService - shared for all bundles and all Blueprint Camel contexts
+        registerBundleStateService(context);
 
         // Register processors
         MutablePassThroughMetadata beanProcessorFactory = context.createMetadata(MutablePassThroughMetadata.class);
@@ -628,6 +633,27 @@ public class CamelNamespaceHandler implements NamespaceHandler {
         context.getComponentDefinitionRegistry().registerComponentDefinition(e);
     }
 
+    /**
+     * There's single instance of {@link BlueprintCamelStateService} that's used by all Blueprint Camel contexts
+     * to inform about state of Camel contexts. If Karaf is available, this information will propagate to
+     * <em>extended bundle info</em>.
+     * See CAMEL-12980
+     * @param context
+     */
+    private void registerBundleStateService(ParserContext context) {
+        ComponentDefinitionRegistry componentDefinitionRegistry = context.getComponentDefinitionRegistry();
+        ComponentMetadata cm = componentDefinitionRegistry.getComponentDefinition(".camelBlueprint.bundleStateService");
+        if (cm == null) {
+            MutableBeanMetadata ssm = context.createMetadata(MutableBeanMetadata.class);
+            ssm.setId(".camelBlueprint.bundleStateService");
+            ssm.setRuntimeClass(BlueprintCamelStateService.class);
+            ssm.addProperty("bundleContext", createRef(context, "blueprintBundleContext"));
+            ssm.setInitMethod("init");
+            ssm.setDestroyMethod("destroy");
+            componentDefinitionRegistry.registerComponentDefinition(ssm);
+        }
+    }
+
     protected BlueprintContainer getBlueprintContainer(ParserContext context) {
         PassThroughMetadata ptm = (PassThroughMetadata) context.getComponentDefinitionRegistry().getComponentDefinition("blueprintContainer");
         return (BlueprintContainer) ptm.getObject();
@@ -904,7 +930,7 @@ public class CamelNamespaceHandler implements NamespaceHandler {
             Class<?>[] parameterTypes = method.getParameterTypes();
             if (parameterTypes != null) {
                 if (parameterTypes.length != 1) {
-                    LOG.warn("Ignoring badly annotated method for injection due to incorrect number of parameters: " + method);
+                    LOG.warn("Ignoring badly annotated method for injection due to incorrect number of parameters: {}", method);
                 } else {
                     String propertyName = ObjectHelper.getPropertyName(method);
                     Object value = getInjectionPropertyValue(parameterTypes[0], propertyValue, propertyDefaultValue, propertyName, bean, beanName);
@@ -917,7 +943,7 @@ public class CamelNamespaceHandler implements NamespaceHandler {
             Class<?>[] parameterTypes = method.getParameterTypes();
             if (parameterTypes != null) {
                 if (parameterTypes.length != 1) {
-                    LOG.warn("Ignoring badly annotated method for injection due to incorrect number of parameters: " + method);
+                    LOG.warn("Ignoring badly annotated method for injection due to incorrect number of parameters: {}", method);
                 } else {
                     Object value = getInjectionBeanValue(parameterTypes[0], name);
                     ObjectHelper.invokeMethod(method, bean, value);
@@ -929,7 +955,7 @@ public class CamelNamespaceHandler implements NamespaceHandler {
             Class<?>[] parameterTypes = method.getParameterTypes();
             if (parameterTypes != null) {
                 if (parameterTypes.length != 1) {
-                    LOG.warn("Ignoring badly annotated method for injection due to incorrect number of parameters: " + method);
+                    LOG.warn("Ignoring badly annotated method for injection due to incorrect number of parameters: {}", method);
                 } else {
                     String propertyName = ObjectHelper.getPropertyName(method);
                     Object value = getInjectionValue(parameterTypes[0], endpointUri, endpointRef, endpointProperty, propertyName, bean, beanName);
@@ -956,7 +982,7 @@ public class CamelNamespaceHandler implements NamespaceHandler {
         protected boolean isSingleton(Object bean, String beanName) {
             if (beanName != null) {
                 ComponentMetadata meta = blueprintContainer.getComponentMetadata(beanName);
-                if (meta != null && meta instanceof BeanMetadata) {
+                if (meta instanceof BeanMetadata) {
                     String scope = ((BeanMetadata) meta).getScope();
                     if (scope != null) {
                         return BeanMetadata.SCOPE_SINGLETON.equals(scope);
@@ -1053,7 +1079,8 @@ public class CamelNamespaceHandler implements NamespaceHandler {
             // because the factory has already been instantiated
             try {
                 for (String component : components) {
-                    if (camelContext.getComponent(component) == null) {
+                    if (camelContext.getComponent(component, false) == null) {
+                        // component not already in camel-context so resolve an OSGi reference to it
                         getComponentResolverReference(context, component);
                     } else {
                         LOG.debug("Not creating a service reference for component {} because a component already exists in the Camel Context", component);

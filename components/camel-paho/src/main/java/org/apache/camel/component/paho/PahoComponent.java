@@ -18,26 +18,31 @@ package org.apache.camel.component.paho;
 
 import java.util.Map;
 
+import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
-import org.apache.camel.impl.UriEndpointComponent;
+import org.apache.camel.impl.DefaultComponent;
 import org.apache.camel.spi.Metadata;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 
 /**
  * Component to integrate with the Eclispe Paho MQTT library.
  */
-public class PahoComponent extends UriEndpointComponent {
+public class PahoComponent extends DefaultComponent {
 
     private String brokerUrl;
     private String clientId;
     @Metadata(label = "advanced")
     private MqttConnectOptions connectOptions;
-
+    
     public PahoComponent() {
-        super(PahoEndpoint.class);
+        this(null);
     }
-
-    // Overridden
+    
+    public PahoComponent(CamelContext context) {
+        super(context);
+        
+        registerExtension(new PahoComponentVerifierExtension());
+    }
 
     @Override
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {

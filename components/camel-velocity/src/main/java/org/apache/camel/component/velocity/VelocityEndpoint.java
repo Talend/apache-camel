@@ -38,7 +38,9 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.runtime.RuntimeConstants;
-import org.apache.velocity.runtime.log.CommonsLogLogChute;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Transforms the message using a Velocity template.
@@ -90,15 +92,17 @@ public class VelocityEndpoint extends ResourceEndpoint {
             properties.setProperty(RuntimeConstants.RESOURCE_LOADER, "file, class");
             properties.setProperty("class.resource.loader.description", "Camel Velocity Classpath Resource Loader");
             properties.setProperty("class.resource.loader.class", CamelVelocityClasspathResourceLoader.class.getName());
-            properties.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, CommonsLogLogChute.class.getName());
-            properties.setProperty(CommonsLogLogChute.LOGCHUTE_COMMONS_LOG_NAME, VelocityEndpoint.class.getName());
+            final Logger velocityLogger = LoggerFactory.getLogger("org.apache.camel.maven.Velocity");
+            properties.setProperty(RuntimeConstants.RUNTIME_LOG_NAME, velocityLogger.getName());
+            
+          
 
             // load the velocity properties from property file which may overrides the default ones
             if (ObjectHelper.isNotEmpty(getPropertiesFile())) {
                 InputStream reader = ResourceHelper.resolveMandatoryResourceAsInputStream(getCamelContext(), getPropertiesFile());
                 try {
                     properties.load(reader);
-                    log.info("Loaded the velocity configuration file " + getPropertiesFile());
+                    log.info("Loaded the velocity configuration file {}", getPropertiesFile());
                 } finally {
                     IOHelper.close(reader, getPropertiesFile(), log);
                 }
@@ -188,7 +192,7 @@ public class VelocityEndpoint extends ResourceEndpoint {
             exchange.getIn().removeHeader(VelocityConstants.VELOCITY_TEMPLATE);
         } else {
             if (log.isDebugEnabled()) {
-                log.debug("Velocity content read from resource {} with resourceUri: {} for endpoint {}", new Object[]{getResourceUri(), path, getEndpointUri()});
+                log.debug("Velocity content read from resource {} with resourceUri: {} for endpoint {}", getResourceUri(), path, getEndpointUri());
             }
             reader = getEncoding() != null ? new InputStreamReader(getResourceAsInputStream(), getEncoding()) : new InputStreamReader(getResourceAsInputStream());
         }

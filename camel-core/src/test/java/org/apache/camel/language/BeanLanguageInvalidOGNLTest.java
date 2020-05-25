@@ -25,12 +25,14 @@ import org.apache.camel.FailedToCreateRouteException;
 import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.bean.MethodNotFoundException;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class BeanLanguageInvalidOGNLTest extends ContextTestSupport {
 
+    @Test
     public void testBeanLanguageInvalidOGNL() throws Exception {
         context.addRoutes(new RouteBuilder() {
             @Override
@@ -59,7 +61,7 @@ public class BeanLanguageInvalidOGNLTest extends ContextTestSupport {
 
     public static class MyReallyCoolBean {
 
-        private Map<?, ?> map = new LinkedHashMap<Object, Object>();
+        private Map<?, ?> map = new LinkedHashMap<>();
 
         public Map<?, ?> getOther() {
             return map;

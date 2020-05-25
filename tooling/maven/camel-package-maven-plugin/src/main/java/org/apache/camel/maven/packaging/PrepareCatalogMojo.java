@@ -209,11 +209,11 @@ public class PrepareCatalogMojo extends AbstractMojo {
         getLog().info("Copying all Camel model json descriptors");
 
         // lets use sorted set/maps
-        Set<File> jsonFiles = new TreeSet<File>();
-        Set<File> duplicateJsonFiles = new TreeSet<File>();
-        Set<File> missingLabels = new TreeSet<File>();
-        Set<File> missingJavaDoc = new TreeSet<File>();
-        Map<String, Set<String>> usedLabels = new TreeMap<String, Set<String>>();
+        Set<File> jsonFiles = new TreeSet<>();
+        Set<File> duplicateJsonFiles = new TreeSet<>();
+        Set<File> missingLabels = new TreeSet<>();
+        Set<File> missingJavaDoc = new TreeSet<>();
+        Map<String, Set<String>> usedLabels = new TreeMap<>();
 
         // find all json files in camel-core
         if (coreDir != null && coreDir.isDirectory()) {
@@ -262,7 +262,7 @@ public class PrepareCatalogMojo extends AbstractMojo {
                         for (String s : labels) {
                             Set<String> models = usedLabels.get(s);
                             if (models == null) {
-                                models = new TreeSet<String>();
+                                models = new TreeSet<>();
                                 usedLabels.put(s, models);
                             }
                             models.add(name);
@@ -295,7 +295,7 @@ public class PrepareCatalogMojo extends AbstractMojo {
             FileOutputStream fos = new FileOutputStream(all, false);
 
             String[] names = modelsOutDir.list();
-            List<String> models = new ArrayList<String>();
+            List<String> models = new ArrayList<>();
             // sort the names
             for (String name : names) {
                 if (name.endsWith(".json")) {
@@ -325,29 +325,27 @@ public class PrepareCatalogMojo extends AbstractMojo {
         getLog().info("Copying all Camel component json descriptors");
 
         // lets use sorted set/maps
-        Set<File> jsonFiles = new TreeSet<File>();
-        Set<File> duplicateJsonFiles = new TreeSet<File>();
-        Set<File> componentFiles = new TreeSet<File>();
-        Set<File> missingComponents = new TreeSet<File>();
-        Map<String, Set<String>> usedComponentLabels = new TreeMap<String, Set<String>>();
-        Set<String> usedOptionLabels = new TreeSet<String>();
-        Set<String> unlabeledOptions = new TreeSet<String>();
-        Set<File> missingFirstVersions = new TreeSet<File>();
+        Set<File> jsonFiles = new TreeSet<>();
+        Set<File> duplicateJsonFiles = new TreeSet<>();
+        Set<File> componentFiles = new TreeSet<>();
+        Set<File> missingComponents = new TreeSet<>();
+        Map<String, Set<String>> usedComponentLabels = new TreeMap<>();
+        Set<String> usedOptionLabels = new TreeSet<>();
+        Set<String> unlabeledOptions = new TreeSet<>();
+        Set<File> missingFirstVersions = new TreeSet<>();
 
         // find all json files in components and camel-core
         if (componentsDir != null && componentsDir.isDirectory()) {
             File[] components = componentsDir.listFiles();
             if (components != null) {
                 for (File dir : components) {
-                    // skip camel-spring-dm
-                    if (dir.isDirectory() && "camel-spring-dm".equals(dir.getName())) {
-                        continue;
-                    }
                     if (dir.isDirectory() && !"target".equals(dir.getName())) {
                         File target = new File(dir, "target/classes");
 
                         // special for these as they are in sub dir
-                        if ("camel-salesforce".equals(dir.getName())) {
+                        if ("camel-as2".equals(dir.getName())) {
+                            target = new File(dir, "camel-as2-component/target/classes");
+                        } else if ("camel-salesforce".equals(dir.getName())) {
                             target = new File(dir, "camel-salesforce-component/target/classes");
                         } else if ("camel-linkedin".equals(dir.getName())) {
                             target = new File(dir, "camel-linkedin-component/target/classes");
@@ -357,6 +355,10 @@ public class PrepareCatalogMojo extends AbstractMojo {
                             target = new File(dir, "camel-olingo4-component/target/classes");
                         } else if ("camel-box".equals(dir.getName())) {
                             target = new File(dir, "camel-box-component/target/classes");
+                        } else if ("camel-servicenow".equals(dir.getName())) {
+                            target = new File(dir, "camel-servicenow-component/target/classes");
+                        } else if ("camel-fhir".equals(dir.getName())) {
+                            target = new File(dir, "camel-fhir-component/target/classes");
                         }
 
                         int before = componentFiles.size();
@@ -421,7 +423,7 @@ public class PrepareCatalogMojo extends AbstractMojo {
                     for (String s : labels) {
                         Set<String> components = usedComponentLabels.get(s);
                         if (components == null) {
-                            components = new TreeSet<String>();
+                            components = new TreeSet<>();
                             usedComponentLabels.put(s, components);
                         }
                         components.add(name);
@@ -497,7 +499,7 @@ public class PrepareCatalogMojo extends AbstractMojo {
             FileOutputStream fos = new FileOutputStream(all, false);
 
             String[] names = componentsOutDir.list();
-            List<String> components = new ArrayList<String>();
+            List<String> components = new ArrayList<>();
             // sort the names
             for (String name : names) {
                 if (name.endsWith(".json")) {
@@ -540,17 +542,21 @@ public class PrepareCatalogMojo extends AbstractMojo {
         getLog().info("Copying all Camel dataformat json descriptors");
 
         // lets use sorted set/maps
-        Set<File> jsonFiles = new TreeSet<File>();
-        Set<File> duplicateJsonFiles = new TreeSet<File>();
-        Set<File> dataFormatFiles = new TreeSet<File>();
-        Map<String, Set<String>> usedLabels = new TreeMap<String, Set<String>>();
-        Set<File> missingFirstVersions = new TreeSet<File>();
+        Set<File> jsonFiles = new TreeSet<>();
+        Set<File> duplicateJsonFiles = new TreeSet<>();
+        Set<File> dataFormatFiles = new TreeSet<>();
+        Map<String, Set<String>> usedLabels = new TreeMap<>();
+        Set<File> missingFirstVersions = new TreeSet<>();
 
         // find all data formats from the components directory
         if (componentsDir != null && componentsDir.isDirectory()) {
             File[] dataFormats = componentsDir.listFiles();
             if (dataFormats != null) {
                 for (File dir : dataFormats) {
+                    // special for this as the data format is in the sub dir
+                    if (dir.isDirectory() && "camel-fhir".equals(dir.getName())) {
+                        dir = new File(dir, "camel-fhir-component");
+                    }
                     if (dir.isDirectory() && !"target".equals(dir.getName())) {
                         File target = new File(dir, "target/classes");
                         findDataFormatFilesRecursive(target, jsonFiles, dataFormatFiles, new CamelDataFormatsFileFilter());
@@ -593,7 +599,7 @@ public class PrepareCatalogMojo extends AbstractMojo {
                     for (String s : labels) {
                         Set<String> dataFormats = usedLabels.get(s);
                         if (dataFormats == null) {
-                            dataFormats = new TreeSet<String>();
+                            dataFormats = new TreeSet<>();
                             usedLabels.put(s, dataFormats);
                         }
                         dataFormats.add(name);
@@ -624,7 +630,7 @@ public class PrepareCatalogMojo extends AbstractMojo {
             FileOutputStream fos = new FileOutputStream(all, false);
 
             String[] names = dataFormatsOutDir.list();
-            List<String> dataFormats = new ArrayList<String>();
+            List<String> dataFormats = new ArrayList<>();
             // sort the names
             for (String name : names) {
                 if (name.endsWith(".json")) {
@@ -658,21 +664,17 @@ public class PrepareCatalogMojo extends AbstractMojo {
         getLog().info("Copying all Camel language json descriptors");
 
         // lets use sorted set/maps
-        Set<File> jsonFiles = new TreeSet<File>();
-        Set<File> duplicateJsonFiles = new TreeSet<File>();
-        Set<File> languageFiles = new TreeSet<File>();
-        Map<String, Set<String>> usedLabels = new TreeMap<String, Set<String>>();
-        Set<File> missingFirstVersions = new TreeSet<File>();
+        Set<File> jsonFiles = new TreeSet<>();
+        Set<File> duplicateJsonFiles = new TreeSet<>();
+        Set<File> languageFiles = new TreeSet<>();
+        Map<String, Set<String>> usedLabels = new TreeMap<>();
+        Set<File> missingFirstVersions = new TreeSet<>();
 
         // find all languages from the components directory
         if (componentsDir != null && componentsDir.isDirectory()) {
             File[] languages = componentsDir.listFiles();
             if (languages != null) {
                 for (File dir : languages) {
-                    // skip camel-spring-dm
-                    if (dir.isDirectory() && "camel-spring-dm".equals(dir.getName())) {
-                        continue;
-                    }
                     if (dir.isDirectory() && !"target".equals(dir.getName())) {
                         File target = new File(dir, "target/classes");
                         findLanguageFilesRecursive(target, jsonFiles, languageFiles, new CamelLanguagesFileFilter());
@@ -715,7 +717,7 @@ public class PrepareCatalogMojo extends AbstractMojo {
                     for (String s : labels) {
                         Set<String> languages = usedLabels.get(s);
                         if (languages == null) {
-                            languages = new TreeSet<String>();
+                            languages = new TreeSet<>();
                             usedLabels.put(s, languages);
                         }
                         languages.add(name);
@@ -746,7 +748,7 @@ public class PrepareCatalogMojo extends AbstractMojo {
             FileOutputStream fos = new FileOutputStream(all, false);
 
             String[] names = languagesOutDir.list();
-            List<String> languages = new ArrayList<String>();
+            List<String> languages = new ArrayList<>();
             // sort the names
             for (String name : names) {
                 if (name.endsWith(".json")) {
@@ -780,11 +782,11 @@ public class PrepareCatalogMojo extends AbstractMojo {
         getLog().info("Copying all Camel other json descriptors");
 
         // lets use sorted set/maps
-        Set<File> jsonFiles = new TreeSet<File>();
-        Set<File> duplicateJsonFiles = new TreeSet<File>();
-        Set<File> otherFiles = new TreeSet<File>();
-        Map<String, Set<String>> usedLabels = new TreeMap<String, Set<String>>();
-        Set<File> missingFirstVersions = new TreeSet<File>();
+        Set<File> jsonFiles = new TreeSet<>();
+        Set<File> duplicateJsonFiles = new TreeSet<>();
+        Set<File> otherFiles = new TreeSet<>();
+        Map<String, Set<String>> usedLabels = new TreeMap<>();
+        Set<File> missingFirstVersions = new TreeSet<>();
 
         // find all others from the components directory
         if (componentsDir != null && componentsDir.isDirectory()) {
@@ -800,10 +802,13 @@ public class PrepareCatalogMojo extends AbstractMojo {
                         || "camel-http-common".equals(dir.getName())
                         || "camel-jetty".equals(dir.getName())
                         || "camel-jetty-common".equals(dir.getName());
-                    boolean special2 = "camel-linkedin".equals(dir.getName())
+                    boolean special2 = "camel-as2".equals(dir.getName())
+                        || "camel-linkedin".equals(dir.getName())
                         || "camel-olingo2".equals(dir.getName())
                         || "camel-olingo4".equals(dir.getName())
-                        || "camel-salesforce".equals(dir.getName());
+                        || "camel-servicenow".equals(dir.getName())
+                        || "camel-salesforce".equals(dir.getName())
+                        || "camel-fhir".equals(dir.getName());
                     if (special || special2) {
                         continue;
                     }
@@ -847,7 +852,7 @@ public class PrepareCatalogMojo extends AbstractMojo {
                     for (String s : labels) {
                         Set<String> others = usedLabels.get(s);
                         if (others == null) {
-                            others = new TreeSet<String>();
+                            others = new TreeSet<>();
                             usedLabels.put(s, others);
                         }
                         others.add(name);
@@ -878,7 +883,7 @@ public class PrepareCatalogMojo extends AbstractMojo {
             FileOutputStream fos = new FileOutputStream(all, false);
 
             String[] names = othersOutDir.list();
-            List<String> others = new ArrayList<String>();
+            List<String> others = new ArrayList<>();
             // sort the names
             for (String name : names) {
                 if (name.endsWith(".json")) {
@@ -956,9 +961,9 @@ public class PrepareCatalogMojo extends AbstractMojo {
         getLog().info("Copying all Camel documents (ascii docs)");
 
         // lets use sorted set/maps
-        Set<File> adocFiles = new TreeSet<File>();
-        Set<File> missingAdocFiles = new TreeSet<File>();
-        Set<File> duplicateAdocFiles = new TreeSet<File>();
+        Set<File> adocFiles = new TreeSet<>();
+        Set<File> missingAdocFiles = new TreeSet<>();
+        Set<File> duplicateAdocFiles = new TreeSet<>();
 
         // find all camel maven modules
         if (componentsDir != null && componentsDir.isDirectory()) {
@@ -969,7 +974,9 @@ public class PrepareCatalogMojo extends AbstractMojo {
                         File target = new File(dir, "src/main/docs");
 
                         // special for these as they are in sub dir
-                        if ("camel-salesforce".equals(dir.getName())) {
+                        if ("camel-as2".equals(dir.getName())) {
+                            target = new File(dir, "camel-as2-component/src/main/docs");
+                        } else if ("camel-salesforce".equals(dir.getName())) {
                             target = new File(dir, "camel-salesforce-component/src/main/docs");
                         } else if ("camel-linkedin".equals(dir.getName())) {
                             target = new File(dir, "camel-linkedin-component/src/main/docs");
@@ -979,6 +986,10 @@ public class PrepareCatalogMojo extends AbstractMojo {
                             target = new File(dir, "camel-olingo4-component/src/main/docs");
                         } else if ("camel-box".equals(dir.getName())) {
                             target = new File(dir, "camel-box-component/src/main/docs");
+                        } else if ("camel-servicenow".equals(dir.getName())) {
+                            target = new File(dir, "camel-servicenow-component/src/main/docs");
+                        } else if ("camel-fhir".equals(dir.getName())) {
+                            target = new File(dir, "camel-fhir-component/src/main/docs");
                         }
 
                         int before = adocFiles.size();
@@ -1060,7 +1071,7 @@ public class PrepareCatalogMojo extends AbstractMojo {
             FileOutputStream fos = new FileOutputStream(all, false);
 
             String[] names = documentsOutDir.list();
-            List<String> documents = new ArrayList<String>();
+            List<String> documents = new ArrayList<>();
             // sort the names
             for (String name : names) {
                 if (name.endsWith(".adoc")) {
@@ -1104,7 +1115,7 @@ public class PrepareCatalogMojo extends AbstractMojo {
                 component = "ftp";
             } 
             String name = component + "-component";
-            if (!docs.contains(name) && (!component.equalsIgnoreCase("linkedin") && !component.equalsIgnoreCase("salesforce"))) {
+            if (!docs.contains(name) && (!component.equalsIgnoreCase("linkedin") && !component.equalsIgnoreCase("salesforce") && !component.equalsIgnoreCase("servicenow"))) {
                 missing.add(name);
             }
         }
@@ -1604,21 +1615,23 @@ public class PrepareCatalogMojo extends AbstractMojo {
     public static void copyFile(File from, File to) throws IOException {
         FileChannel in = null;
         FileChannel out = null;
-        try {
-            in = new FileInputStream(from).getChannel();
-            out = new FileOutputStream(to).getChannel();
+        try (FileInputStream fis = new FileInputStream(from); FileOutputStream fos = new FileOutputStream(to)) {
+            try {
+                in = fis.getChannel();
+                out = fos.getChannel();
 
-            long size = in.size();
-            long position = 0;
-            while (position < size) {
-                position += in.transferTo(position, BUFFER_SIZE, out);
-            }
-        } finally {
-            if (in != null) {
-                in.close();
-            }
-            if (out != null) {
-                out.close();
+                long size = in.size();
+                long position = 0;
+                while (position < size) {
+                    position += in.transferTo(position, BUFFER_SIZE, out);
+                }
+            } finally {
+                if (in != null) {
+                    in.close();
+                }
+                if (out != null) {
+                    out.close();
+                }
             }
         }
     }

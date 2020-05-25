@@ -17,17 +17,20 @@
 package org.apache.camel.management;
 
 import java.util.Set;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 
 /**
  * @version 
  */
 public class ManagedRouteDumpRouteAsXmlTest extends ManagementTestSupport {
 
+    @Test
     public void testDumpAsXml() throws Exception {
         // JMX tests dont work well on AIX CI servers (hangs them)
         if (isPlatform("aix")) {
@@ -55,8 +58,10 @@ public class ManagedRouteDumpRouteAsXmlTest extends ManagementTestSupport {
         assertTrue(xml.contains("route"));
         assertTrue(xml.contains("myRoute"));
         assertTrue(xml.contains("mock:result"));
+        assertTrue(xml.contains("java.lang.Exception"));
     }
 
+    @Test
     public void testCreateRouteStaticEndpointJson() throws Exception {
         // JMX tests dont work well on AIX CI servers (hangs them)
         if (isPlatform("aix")) {
@@ -87,6 +92,8 @@ public class ManagedRouteDumpRouteAsXmlTest extends ManagementTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
+                onException(Exception.class).log("${exception.stacktrace}").logStackTrace(true).handled(true);
+
                 from("direct:start").routeId("myRoute")
                     .log("Got ${body}")
                     .to("mock:result");

@@ -18,10 +18,9 @@ package org.apache.camel.component.twitter.streaming;
 
 import java.util.Map;
 
-import org.apache.camel.ComponentVerifier;
+import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.component.twitter.AbstractTwitterComponent;
-import org.apache.camel.component.twitter.DefaultTwitterComponentVerifier;
 import org.apache.camel.component.twitter.TwitterConfiguration;
 import org.apache.camel.spi.Metadata;
 
@@ -31,14 +30,17 @@ import org.apache.camel.spi.Metadata;
 @Metadata(label = "verifiers", enums = "parameters,connectivity")
 public class TwitterStreamingComponent extends AbstractTwitterComponent {
 
-    protected Endpoint doCreateEndpoint(TwitterConfiguration properties, String uri, String remaining, Map<String, Object> parameters) throws Exception {
-        return new TwitterStreamingEndpoint(uri, remaining, this, properties);
+    public TwitterStreamingComponent() {
+        super("twitter-streaming");
     }
 
-    /**
-     * Get a verifier for the twitter streaming component.
-     */
-    public ComponentVerifier getVerifier() {
-        return new DefaultTwitterComponentVerifier(this, "twitter-streaming");
+    public TwitterStreamingComponent(CamelContext context) {
+        super(context, "twitter-streaming");
+    }
+
+    @Override
+    protected Endpoint doCreateEndpoint(TwitterConfiguration properties, String uri, String remaining, Map<String, Object> parameters) throws Exception {
+        String keywords = getAndRemoveParameter(parameters, "keywords", String.class);
+        return new TwitterStreamingEndpoint(uri, remaining, keywords, this, properties);
     }
 }

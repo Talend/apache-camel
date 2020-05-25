@@ -39,7 +39,7 @@ public class HystrixConfigurationDefinitionCommon {
      * Whether to use a HystrixCircuitBreaker or not. If false no
      * circuit-breaker logic will be used and all requests permitted. This is
      * similar in effect to circuitBreakerForceClosed() except that continues
-     * tracking metrics and knowing whether it should be open/closed this
+     * tracking metrics and knowing whether it should be open/closed, this
      * property results in not even instantiating a circuit-breaker.
      */
     private Boolean circuitBreakerEnabled = true;
@@ -52,7 +52,7 @@ public class HystrixConfigurationDefinitionCommon {
      */
     private Integer circuitBreakerErrorThresholdPercentage = 50;
     /**
-     * If true the HystrixCircuitBreakerallowRequest() will always return true
+     * If true the HystrixCircuitBreaker#allowRequest() will always return true
      * to allow requests regardless of the error percentage from
      * HystrixCommandMetrics.getHealthCounts(). The circuitBreakerForceOpen()
      * property takes precedence so if it set to true this property does
@@ -60,9 +60,9 @@ public class HystrixConfigurationDefinitionCommon {
      */
     private Boolean circuitBreakerForceClosed = false;
     /**
-     * If true the HystrixCircuitBreaker.allowRequest() will always return false
-     * causing the circuit to be open (tripped) and reject all requests. This
-     * property takes precedence over circuitBreakerForceClosed();
+     * If true the HystrixCircuitBreaker.allowRequest() will always return
+     * false, causing the circuit to be open (tripped) and reject all requests.
+     * This property takes precedence over circuitBreakerForceClosed();
      */
     private Boolean circuitBreakerForceOpen = false;
     /**
@@ -92,16 +92,16 @@ public class HystrixConfigurationDefinitionCommon {
      */
     private String executionIsolationStrategy = "THREAD";
     /**
-     * Whether the execution thread should attempt an interrupt (using link
-     * Futurecancel) when a thread times out. Applicable only when
+     * Whether the execution thread should attempt an interrupt (using
+     * Future#cancel) when a thread times out. Applicable only when
      * executionIsolationStrategy() == THREAD.
      */
     private Boolean executionIsolationThreadInterruptOnTimeout = true;
     /**
      * Time in milliseconds at which point the command will timeout and halt
-     * execution. If link executionIsolationThreadInterruptOnTimeout == true and
-     * the command is thread-isolated the executing thread will be interrupted.
-     * If the command is semaphore-isolated and a HystrixObservableCommand that
+     * execution. If executionIsolationThreadInterruptOnTimeout == true and the
+     * command is thread-isolated, the executing thread will be interrupted. If
+     * the command is semaphore-isolated and a HystrixObservableCommand, that
      * command will get unsubscribed.
      */
     private Integer executionTimeoutInMilliseconds = 1000;
@@ -150,7 +150,7 @@ public class HystrixConfigurationDefinitionCommon {
      */
     private Integer metricsRollingPercentileWindowBuckets = 6;
     /**
-     * This property sets the duration of the statistical rolling window in
+     * This property sets the duration of the statistical rolling window, in
      * milliseconds. This is how long metrics are kept for the thread pool. The
      * window is divided into buckets and rolls by those increments.
      */
@@ -166,13 +166,13 @@ public class HystrixConfigurationDefinitionCommon {
      */
     private Boolean requestLogEnabled = true;
     /**
-     * Core thread-pool size that gets passed to link
-     * java.util.concurrent.ThreadPoolExecutorsetCorePoolSize(int)
+     * Core thread-pool size that gets passed to
+     * java.util.concurrent.ThreadPoolExecutor#setCorePoolSize(int)
      */
     private Integer corePoolSize = 10;
     /**
-     * Maximum thread-pool size that gets passed to link
-     * ThreadPoolExecutorsetMaximumPoolSize(int). This is the maximum amount of
+     * Maximum thread-pool size that gets passed to
+     * ThreadPoolExecutor#setMaximumPoolSize(int). This is the maximum amount of
      * concurrency that can be supported without starting to reject
      * HystrixCommands. Please note that this setting only takes effect if you
      * also set allowMaximumSizeToDivergeFromCoreSize
@@ -180,23 +180,23 @@ public class HystrixConfigurationDefinitionCommon {
     private Integer maximumSize = 10;
     /**
      * Keep-alive time in minutes that gets passed to link
-     * ThreadPoolExecutorsetKeepAliveTime(long TimeUnit)
+     * ThreadPoolExecutor#setKeepAliveTime(long, TimeUnit)
      */
     private Integer keepAliveTime = 1;
     /**
      * Max queue size that gets passed to BlockingQueue in
      * HystrixConcurrencyStrategy.getBlockingQueue(int) This should only affect
      * the instantiation of a threadpool - it is not eliglible to change a queue
-     * size on the fly. For that use queueSizeRejectionThreshold().
+     * size on the fly. For that, use queueSizeRejectionThreshold().
      */
     private Integer maxQueueSize = -1;
     /**
      * Queue size rejection threshold is an artificial max size at which
-     * rejections will occur even if link maxQueueSize has not been reached.
-     * This is done because the link maxQueueSize of a BlockingQueue can not be
-     * dynamically changed and we want to support dynamically changing the queue
-     * size that affects rejections. This is used by HystrixCommand when queuing
-     * a thread for execution.
+     * rejections will occur even if maxQueueSize has not been reached. This is
+     * done because the maxQueueSize of a BlockingQueue can not be dynamically
+     * changed and we want to support dynamically changing the queue size that
+     * affects rejections. This is used by HystrixCommand when queuing a thread
+     * for execution.
      */
     private Integer queueSizeRejectionThreshold = 5;
     /**
@@ -212,7 +212,7 @@ public class HystrixConfigurationDefinitionCommon {
     private Integer threadPoolRollingNumberStatisticalWindowBuckets = 10;
     /**
      * Allows the configuration for maximumSize to take effect. That value can
-     * then be equal to or higher than coreSize
+     * then be equal to, or higher, than coreSize
      */
     private Boolean allowMaximumSizeToDivergeFromCoreSize = false;
 

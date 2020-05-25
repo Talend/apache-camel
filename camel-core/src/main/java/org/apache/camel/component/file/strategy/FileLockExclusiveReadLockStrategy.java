@@ -43,7 +43,7 @@ public class FileLockExclusiveReadLockStrategy extends MarkerFileExclusiveReadLo
     private static final Logger LOG = LoggerFactory.getLogger(FileLockExclusiveReadLockStrategy.class);
     private long timeout;
     private long checkInterval = 1000;
-    private LoggingLevel readLockLoggingLevel = LoggingLevel.WARN;
+    private LoggingLevel readLockLoggingLevel = LoggingLevel.DEBUG;
 
     @Override
     public void prepareOnStartup(GenericFileOperations<File> operations, GenericFileEndpoint<File> endpoint) {
@@ -86,11 +86,16 @@ public class FileLockExclusiveReadLockStrategy extends MarkerFileExclusiveReadLo
                     }
                 }
 
+                if (!target.exists()) {
+                    CamelLogger.log(LOG, readLockLoggingLevel, "Cannot acquire read lock as file no longer exists. Will skip the file: " + file);
+                    return false;
+                }
+
                 // get the lock using either try lock or not depending on if we are using timeout or not
                 try {
                     lock = timeout > 0 ? channel.tryLock() : channel.lock();
                 } catch (IllegalStateException ex) {
-                    // Also catch the OverlappingFileLockException here. Do nothing here                    
+                    // Also catch the OverlappingFileLockException here. Do nothing here
                 }
                 if (lock != null) {
                     LOG.trace("Acquired exclusive read lock: {} to file: {}", lock, target);

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -103,8 +104,12 @@ public class AggregateDefinition extends ProcessorDefinition<AggregateDefinition
     private Long completionInterval;
     @XmlAttribute
     private Long completionTimeout;
+    @XmlAttribute @Metadata(defaultValue = "1000")
+    private Long completionTimeoutCheckerInterval = 1000L;
     @XmlAttribute
     private Boolean completionFromBatchConsumer;
+    @XmlAttribute
+    private Boolean completionOnNewCorrelationGroup;
     @XmlAttribute
     @Deprecated
     private Boolean groupExchanges;
@@ -125,7 +130,7 @@ public class AggregateDefinition extends ProcessorDefinition<AggregateDefinition
     @XmlAttribute
     private String aggregateControllerRef;
     @XmlElementRef
-    private List<ProcessorDefinition<?>> outputs = new ArrayList<ProcessorDefinition<?>>();
+    private List<ProcessorDefinition<?>> outputs = new ArrayList<>();
 
     public AggregateDefinition() {
     }
@@ -158,6 +163,11 @@ public class AggregateDefinition extends ProcessorDefinition<AggregateDefinition
     
     protected String description() {
         return getExpression() != null ? getExpression().getLabel() : "";
+    }
+
+    @Override
+    public String getShortName() {
+        return "aggregate";
     }
 
     @Override
@@ -255,6 +265,9 @@ public class AggregateDefinition extends ProcessorDefinition<AggregateDefinition
         if (getCompletionFromBatchConsumer() != null) {
             answer.setCompletionFromBatchConsumer(getCompletionFromBatchConsumer());
         }
+        if (getCompletionOnNewCorrelationGroup() != null) {
+            answer.setCompletionOnNewCorrelationGroup(getCompletionOnNewCorrelationGroup());
+        }
         if (getEagerCheckCompletion() != null) {
             answer.setEagerCheckCompletion(getEagerCheckCompletion());
         }
@@ -283,12 +296,15 @@ public class AggregateDefinition extends ProcessorDefinition<AggregateDefinition
         if (getAggregateController() != null) {
             answer.setAggregateController(getAggregateController());
         }
+        if (getCompletionTimeoutCheckerInterval() != null) {
+            answer.setCompletionTimeoutCheckerInterval(getCompletionTimeoutCheckerInterval());
+        }
         return answer;
     }
 
     @Override
     public void configureChild(ProcessorDefinition<?> output) {
-        if (expression != null && expression instanceof ExpressionClause) {
+        if (expression instanceof ExpressionClause) {
             ExpressionClause<?> clause = (ExpressionClause<?>) expression;
             if (clause.getExpressionType() != null) {
                 // if using the Java DSL then the expression may have been set using the
@@ -488,6 +504,14 @@ public class AggregateDefinition extends ProcessorDefinition<AggregateDefinition
         this.completionTimeout = completionTimeout;
     }
 
+    public Long getCompletionTimeoutCheckerInterval() {
+        return completionTimeoutCheckerInterval;
+    }
+
+    public void setCompletionTimeoutCheckerInterval(Long completionTimeoutCheckerInterval) {
+        this.completionTimeoutCheckerInterval = completionTimeoutCheckerInterval;
+    }
+
     public ExpressionSubElementDefinition getCompletionPredicate() {
         return completionPredicate;
     }
@@ -526,6 +550,14 @@ public class AggregateDefinition extends ProcessorDefinition<AggregateDefinition
 
     public void setCompletionFromBatchConsumer(Boolean completionFromBatchConsumer) {
         this.completionFromBatchConsumer = completionFromBatchConsumer;
+    }
+
+    public Boolean getCompletionOnNewCorrelationGroup() {
+        return completionOnNewCorrelationGroup;
+    }
+
+    public void setCompletionOnNewCorrelationGroup(Boolean completionOnNewCorrelationGroup) {
+        this.completionOnNewCorrelationGroup = completionOnNewCorrelationGroup;
     }
 
     public ExecutorService getExecutorService() {
@@ -724,6 +756,19 @@ public class AggregateDefinition extends ProcessorDefinition<AggregateDefinition
     }
 
     /**
+     * Enables completion on all previous groups when a new incoming correlation group. This can for example be used
+     * to complete groups with same correlation keys when they are in consecutive order.
+     * Notice when this is enabled then only 1 correlation group can be in progress as when a new correlation group
+     * starts, then the previous groups is forced completed.
+     *
+     * @return builder
+     */
+    public AggregateDefinition completionOnNewCorrelationGroup() {
+        setCompletionOnNewCorrelationGroup(true);
+        return this;
+    }
+
+    /**
      * Number of messages aggregated before the aggregation is complete. This option can be set as either
      * a fixed value or using an Expression which allows you to evaluate a size dynamically - will use Integer as result.
      * If both are set Camel will fallback to use the fixed value if the Expression result was null or 0.
@@ -768,6 +813,11 @@ public class AggregateDefinition extends ProcessorDefinition<AggregateDefinition
      * a timeout dynamically - will use Long as result.
      * If both are set Camel will fallback to use the fixed value if the Expression result was null or 0.
      * You cannot use this option together with completionInterval, only one of the two can be used.
+     * <p/>
+     * By default the timeout checker runs every second, you can use the completionTimeoutCheckerInterval option
+     * to configure how frequently to run the checker.
+     * The timeout is an approximation and there is no guarantee that the a timeout is triggered exactly after the timeout value.
+     * It is not recommended to use very low timeout values or checker intervals.
      *
      * @param completionTimeout  the timeout in millis, must be a positive value
      * @return the builder
@@ -783,12 +833,32 @@ public class AggregateDefinition extends ProcessorDefinition<AggregateDefinition
      * a timeout dynamically - will use Long as result.
      * If both are set Camel will fallback to use the fixed value if the Expression result was null or 0.
      * You cannot use this option together with completionInterval, only one of the two can be used.
+     * <p/>
+     * By default the timeout checker runs every second, you can use the completionTimeoutCheckerInterval option
+     * to configure how frequently to run the checker.
+     * The timeout is an approximation and there is no guarantee that the a timeout is triggered exactly after the timeout value.
+     * It is not recommended to use very low timeout values or checker intervals.
      *
      * @param completionTimeout  the timeout as an {@link Expression} which is evaluated as a {@link Long} type
      * @return the builder
      */
     public AggregateDefinition completionTimeout(Expression completionTimeout) {
         setCompletionTimeoutExpression(new ExpressionSubElementDefinition(completionTimeout));
+        return this;
+    }
+
+    /**
+     * Interval in millis that is used by the background task that checks for timeouts ({@link org.apache.camel.TimeoutMap}).
+     * <p/>
+     * By default the timeout checker runs every second.
+     * The timeout is an approximation and there is no guarantee that the a timeout is triggered exactly after the timeout value.
+     * It is not recommended to use very low timeout values or checker intervals.
+     *
+     * @param completionTimeoutCheckerInterval  the interval in millis, must be a positive value
+     * @return the builder
+     */
+    public AggregateDefinition completionTimeoutCheckerInterval(long completionTimeoutCheckerInterval) {
+        setCompletionTimeoutCheckerInterval(completionTimeoutCheckerInterval);
         return this;
     }
 

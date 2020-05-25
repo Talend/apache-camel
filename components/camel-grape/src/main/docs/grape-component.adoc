@@ -1,4 +1,5 @@
-## Grape Component
+[[grape-component]]
+== Grape Component
 
 *Available as of Camel version 2.16*
 
@@ -12,33 +13,46 @@ without the restart of the router.
 ### Grape options
 
 // component options: START
-The Grape component has no options.
+The Grape component supports 2 options, which are listed below.
+
+
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Name | Description | Default | Type
+| *patchesRepository* (advanced) | Implementation of org.apache.camel.component.grape.PatchesRepository, by default: FilePatchesRepository |  | PatchesRepository
+| *resolveProperty Placeholders* (advanced) | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | boolean
+|===
 // component options: END
 
 
 // endpoint options: START
 The Grape endpoint is configured using URI syntax:
 
-    grape:defaultCoordinates
+----
+grape:defaultCoordinates
+----
 
 with the following path and query parameters:
 
-#### Path Parameters (1 parameters):
+==== Path Parameters (1 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **defaultCoordinates** | *Required* Maven coordinates to use as default to grab if the message body is empty. |  | String
-|=======================================================================
+| *defaultCoordinates* | *Required* Maven coordinates to use as default to grab if the message body is empty. |  | String
+|===
 
-#### Query Parameters (2 parameters):
+
+==== Query Parameters (1 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
-|=======================================================================
+|===
 | Name | Description | Default | Type
-| **exchangePattern** () | Sets the default exchange pattern when creating an exchange. | InOnly | ExchangePattern
-| **synchronous** () | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported). | false | boolean
-|=======================================================================
+| *synchronous* (producer) | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported). | false | boolean
+|===
 // endpoint options: END
 
 
@@ -230,7 +244,7 @@ command:
 
 ### See Also
 
-* link:configuring-camel.html[Configuring Camel]
-* link:component.html[Component]
-* link:endpoint.html[Endpoint]
-* link:getting-started.html[Getting Started]
+* Configuring Camel
+* Component
+* Endpoint
+* Getting Started

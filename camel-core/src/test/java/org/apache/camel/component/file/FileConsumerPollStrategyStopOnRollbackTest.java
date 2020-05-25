@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.file;
-
 import org.apache.camel.Consumer;
 import org.apache.camel.ContextTestSupport;
 import org.apache.camel.Endpoint;
@@ -25,6 +24,8 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.spi.PollingConsumerPollStrategy;
 import org.apache.camel.util.ObjectHelper;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit test for poll strategy
@@ -34,7 +35,7 @@ public class FileConsumerPollStrategyStopOnRollbackTest extends ContextTestSuppo
     private static int counter;
     private static volatile String event = "";
 
-    private String fileUrl = "file://target/pollstrategy/?pollStrategy=#myPoll";
+    private String fileUrl = "file://target/pollstrategy/?pollStrategy=#myPoll&initialDelay=0&delay=10";
 
     @Override
     protected JndiRegistry createRegistry() throws Exception {
@@ -44,18 +45,20 @@ public class FileConsumerPollStrategyStopOnRollbackTest extends ContextTestSuppo
     }
 
     @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         deleteDirectory("target/pollstrategy");
         super.setUp();
         template.sendBodyAndHeader("file:target/pollstrategy/", "Hello World", Exchange.FILE_NAME, "hello.txt");
     }
 
+    @Test
     public void testStopOnRollback() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(0);
 
         // let it run for a little while and since it fails first time we should never get a message
-        mock.assertIsSatisfied(2000);
+        mock.assertIsSatisfied(50);
 
         assertEquals("rollback", event);
     }

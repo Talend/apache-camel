@@ -29,8 +29,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
-import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.context.properties.bind.Bindable;
+import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
@@ -106,9 +107,8 @@ public class HazelcastComponentAutoConfiguration {
         private boolean isEnabled(
                 org.springframework.context.annotation.ConditionContext context,
                 java.lang.String prefix, boolean defaultValue) {
-            RelaxedPropertyResolver resolver = new RelaxedPropertyResolver(
-                    context.getEnvironment(), prefix);
-            return resolver.getProperty("enabled", Boolean.class, defaultValue);
+            String property = prefix.endsWith(".") ? prefix + "enabled" : prefix + ".enabled";
+            return Binder.get(context.getEnvironment()).bind(property, Bindable.of(Boolean.class)).orElse(defaultValue);
         }
     }
 }

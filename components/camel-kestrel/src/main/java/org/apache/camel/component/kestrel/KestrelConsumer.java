@@ -36,7 +36,7 @@ import org.apache.camel.spi.ShutdownAware;
 public class KestrelConsumer extends DefaultConsumer implements ShutdownAware {
     private final KestrelEndpoint endpoint;
     private final MemcachedClient memcachedClient;
-    private final BlockingQueue<Exchanger<?>> exchangerQueue = new LinkedBlockingQueue<Exchanger<?>>();
+    private final BlockingQueue<Exchanger<?>> exchangerQueue = new LinkedBlockingQueue<>();
     private ExecutorService pollerExecutor;
     private ExecutorService handlerExecutor;
     private volatile boolean shutdownPending;
@@ -51,7 +51,7 @@ public class KestrelConsumer extends DefaultConsumer implements ShutdownAware {
 
     @Override
     protected void doStart() throws Exception {
-        log.info("Starting consumer for " + endpoint.getEndpointUri());
+        log.info("Starting consumer for {}", endpoint.getEndpointUri());
 
         int poolSize = endpoint.getConfiguration().getConcurrentConsumers();
 
@@ -83,7 +83,7 @@ public class KestrelConsumer extends DefaultConsumer implements ShutdownAware {
 
     @Override
     protected void doStop() throws Exception {
-        log.info("Stopping consumer for " + endpoint.getEndpointUri());
+        log.info("Stopping consumer for {}", endpoint.getEndpointUri());
 
         if (pollerExecutor != null) {
             endpoint.getCamelContext().getExecutorServiceManager().shutdown(pollerExecutor);
@@ -251,7 +251,7 @@ public class KestrelConsumer extends DefaultConsumer implements ShutdownAware {
     }
 
     private final class Handler implements Runnable {
-        private Exchanger<Handler> exchanger = new Exchanger<Handler>();
+        private Exchanger<Handler> exchanger = new Exchanger<>();
 
         public void run() {
             if (log.isTraceEnabled()) {

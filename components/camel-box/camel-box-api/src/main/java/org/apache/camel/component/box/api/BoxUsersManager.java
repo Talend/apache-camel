@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.box.sdk.BoxAPIConnection;
 import com.box.sdk.BoxAPIException;
+import com.box.sdk.BoxFolder;
 import com.box.sdk.BoxUser;
 import com.box.sdk.CreateUserParams;
 import com.box.sdk.EmailAlias;
@@ -93,9 +94,9 @@ public class BoxUsersManager {
      */
     public List<BoxUser.Info> getAllEnterpriseOrExternalUsers(String filterTerm, String... fields) {
         try {
-            LOG.debug("Getting all enterprise users matching filterTerm=" + filterTerm);
+            LOG.debug("Getting all enterprise users matching filterTerm={}", filterTerm);
 
-            List<BoxUser.Info> users = new ArrayList<BoxUser.Info>();
+            List<BoxUser.Info> users = new ArrayList<>();
             Iterable<BoxUser.Info> iterable;
             if (filterTerm == null) {
                 iterable = BoxUser.getAllEnterpriseUsers(boxConnection);
@@ -158,7 +159,7 @@ public class BoxUsersManager {
      */
     public BoxUser createAppUser(String name, CreateUserParams params) {
         try {
-            LOG.debug("Creating app user with name=" + name);
+            LOG.debug("Creating app user with name={}", name);
             if (name == null) {
                 throw new IllegalArgumentException("Parameter 'name' can not be null");
             }
@@ -183,7 +184,7 @@ public class BoxUsersManager {
      */
     public BoxUser.Info getUserInfo(String userId) {
         try {
-            LOG.debug("Getting info for user(id=" + userId + ")");
+            LOG.debug("Getting info for user(id={})", userId);
             if (userId == null) {
                 throw new IllegalArgumentException("Parameter 'userId' can not be null");
             }
@@ -208,7 +209,7 @@ public class BoxUsersManager {
      */
     public BoxUser updateUserInfo(String userId, BoxUser.Info info) {
         try {
-            LOG.debug("Updating info for user(id=" + userId + ")");
+            LOG.debug("Updating info for user(id={})", userId);
             if (userId == null) {
                 throw new IllegalArgumentException("Parameter 'userId' can not be null");
             }
@@ -289,7 +290,7 @@ public class BoxUsersManager {
      */
     public Collection<EmailAlias> getUserEmailAlias(String userId) {
         try {
-            LOG.debug("Get email aliases for user(id=" + userId + ")");
+            LOG.debug("Get email aliases for user(id={})", userId);
             if (userId == null) {
                 throw new IllegalArgumentException("Parameter 'userId' can not be null");
             }
@@ -330,4 +331,30 @@ public class BoxUsersManager {
         }
     }
 
+    /**
+     * Move root folder for specified user to current user.
+     *
+     * @param userId
+     *            - the id of user.
+     * @param sourceUserId
+     *            - the user id of the user whose files will be the source for this operation.
+     */
+    public BoxFolder.Info moveFolderToUser(String userId, String sourceUserId) {
+        try {
+            LOG.debug("Moving root folder for user(id=" + sourceUserId + ") to user(id=" + userId + ")");
+            if (userId == null) {
+                throw new IllegalArgumentException("Parameter 'userId' can not be null");
+            }
+            if (sourceUserId == null) {
+                throw new IllegalArgumentException("Parameter 'sourceUserId' can not be null");
+            }
+
+            BoxUser user = new BoxUser(boxConnection, userId);
+
+            return user.moveFolderToUser(sourceUserId);
+        } catch (BoxAPIException e) {
+            throw new RuntimeException(
+                    String.format("Box API returned the error code %d\n\n%s", e.getResponseCode(), e.getResponse()), e);
+        }
+    }
 }

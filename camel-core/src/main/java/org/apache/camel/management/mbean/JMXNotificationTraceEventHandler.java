@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+
 import javax.management.Notification;
 
 import org.apache.camel.Exchange;
@@ -73,7 +74,7 @@ public final class JMXNotificationTraceEventHandler implements TraceEventHandler
     }
 
     private Map<String, Object> createTraceMessage(ProcessorDefinition<?> node, Exchange exchange, String body) {
-        Map<String, Object> mi = new HashMap<String, Object>();
+        Map<String, Object> mi = new HashMap<>();
         mi.put("ExchangeId", exchange.getExchangeId());
         mi.put("EndpointURI", getEndpointUri(node));
         mi.put("TimeStamp", new Date(System.currentTimeMillis()));
@@ -83,13 +84,13 @@ public final class JMXNotificationTraceEventHandler implements TraceEventHandler
         Map<String, Object> sHeaders = message.getHeaders();
         Map<String, Object> sProperties = exchange.getProperties();
 
-        Map<String, String> headers = new HashMap<String, String>();
+        Map<String, String> headers = new HashMap<>();
         for (String key : sHeaders.keySet()) {
             headers.put(key, message.getHeader(key, String.class));
         }
         mi.put("Headers", headers);
 
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, String> properties = new HashMap<>();
         for (String key : sProperties.keySet()) {
             properties.put(key, exchange.getProperty(key, String.class));
         }

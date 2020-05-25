@@ -18,6 +18,7 @@ package org.apache.camel.model;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -46,13 +47,14 @@ import org.apache.camel.util.ExpressionToPredicateAdapter;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CatchDefinition extends ProcessorDefinition<CatchDefinition> {
     @XmlElement(name = "exception")
-    private List<String> exceptions = new ArrayList<String>();
+    private List<String> exceptions = new ArrayList<>();
     @XmlElement(name = "onWhen") @AsPredicate
     private WhenDefinition onWhen;
     @XmlElement(name = "handled") @AsPredicate
+    @Deprecated
     private ExpressionSubElementDefinition handled;
     @XmlElementRef
-    private List<ProcessorDefinition<?>> outputs = new ArrayList<ProcessorDefinition<?>>();
+    private List<ProcessorDefinition<?>> outputs = new ArrayList<>();
     @XmlTransient
     private List<Class<? extends Throwable>> exceptionClasses;
     @XmlTransient
@@ -66,13 +68,18 @@ public class CatchDefinition extends ProcessorDefinition<CatchDefinition> {
     }
 
     public CatchDefinition(Class<? extends Throwable> exceptionType) {
-        exceptionClasses = new ArrayList<Class<? extends Throwable>>();
+        exceptionClasses = new ArrayList<>();
         exceptionClasses.add(exceptionType);
     }
 
     @Override
     public String toString() {
         return "DoCatch[ " + getExceptionClasses() + " -> " + getOutputs() + "]";
+    }
+
+    @Override
+    public String getShortName() {
+        return "doCatch";
     }
 
     @Override
@@ -155,7 +162,7 @@ public class CatchDefinition extends ProcessorDefinition<CatchDefinition> {
      */
     public CatchDefinition exception(Class<? extends Throwable>... exceptions) {
         if (exceptionClasses == null) {
-            exceptionClasses = new ArrayList<Class<? extends Throwable>>();
+            exceptionClasses = new ArrayList<>();
         }
         if (exceptions != null) {
             for (Class<? extends Throwable> exception : exceptions) {
@@ -261,6 +268,12 @@ public class CatchDefinition extends ProcessorDefinition<CatchDefinition> {
         return handled;
     }
 
+    /**
+     * Expression to be used for evaluate whether the doCatch should catch the exception or not.
+     *
+     * @deprecated not in use
+     */
+    @Deprecated
     public void setHandled(ExpressionSubElementDefinition handled) {
         this.handled = handled;
     }
@@ -269,7 +282,7 @@ public class CatchDefinition extends ProcessorDefinition<CatchDefinition> {
         // must use the class resolver from CamelContext to load classes to ensure it can
         // be loaded in all kind of environments such as JEE servers and OSGi etc.
         List<String> list = getExceptions();
-        List<Class<? extends Throwable>> answer = new ArrayList<Class<? extends Throwable>>(list.size());
+        List<Class<? extends Throwable>> answer = new ArrayList<>(list.size());
         for (String name : list) {
             Class<Throwable> type = context.getClassResolver().resolveMandatoryClass(name, Throwable.class);
             answer.add(type);

@@ -23,8 +23,10 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
@@ -148,7 +150,8 @@ public class TikaProducer extends DefaultProducer {
 
     private TransformerHandler getTransformerHandler(OutputStream output, String method,
             boolean prettyPrint) throws TransformerConfigurationException, UnsupportedEncodingException {
-        SAXTransformerFactory factory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+        SAXTransformerFactory factory = (SAXTransformerFactory) TransformerFactory.newInstance();
+        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
         TransformerHandler handler = factory.newTransformerHandler();
         handler.getTransformer().setOutputProperty(OutputKeys.METHOD, method);
         handler.getTransformer().setOutputProperty(OutputKeys.INDENT, prettyPrint ? "yes" : "no");
