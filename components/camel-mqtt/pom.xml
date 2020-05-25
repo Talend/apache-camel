@@ -30,10 +30,12 @@
     <packaging>jar</packaging>
     <name>Camel :: MQTT</name>
     <description>Camel MQTT client</description>
+    <version>${revision}</version>
 
     <properties>
         <camel.osgi.export.pkg>org.apache.camel.component.mqtt.*</camel.osgi.export.pkg>
         <camel.osgi.export.service>org.apache.camel.spi.ComponentResolver;component=mqtt</camel.osgi.export.service>
+        <revision>${camel-mqtt.tesb.version}</revision>
     </properties>
 
     <dependencies>
