@@ -94,7 +94,7 @@
                             <headerFooter>true</headerFooter>
                             <backend>pdf</backend>
                             <attributes>
-                                <project-version>${project.version}</project-version>
+                                <project-version>${upstream.version}</project-version>
                                 <pdf-stylesdir>${project.basedir}/theme</pdf-stylesdir>
                                 <pdf-style>apache</pdf-style>
                                 <pdf-fontsdir>${project.basedir}/theme/fonts</pdf-fontsdir>

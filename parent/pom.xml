@@ -796,7 +796,7 @@
     <camel.osgi.failok>false</camel.osgi.failok>
     <camel.osgi.private.pkg>!*</camel.osgi.private.pkg>
     <camel.osgi.export>${camel.osgi.export.pkg};${camel.osgi.version}</camel.osgi.export>
-    <camel.osgi.version>version=${project.version}</camel.osgi.version>
+    <camel.osgi.version>version=${upstream.version}</camel.osgi.version>
     <camel.osgi.split.pkg>-split-package:=first</camel.osgi.split.pkg>
     <camel.osgi.import>${camel.osgi.import.pkg}</camel.osgi.import>
     <camel.osgi.dynamic />
@@ -5450,8 +5450,8 @@
             <Require-Capability>${camel.osgi.require.capability}</Require-Capability>
             <Provide-Capability>${camel.osgi.provide.capability}</Provide-Capability>
             <Implementation-Title>Apache Camel</Implementation-Title>
-            <Implementation-Version>${project.version}</Implementation-Version>
-            <Karaf-Info>Camel;${project.artifactId}=${project.version}</Karaf-Info>
+            <Implementation-Version>${upstream.version}</Implementation-Version>
+            <Karaf-Info>Camel;${project.artifactId}=${upstream.version}</Karaf-Info>
             <_versionpolicy>${camel.osgi.import.default.version}</_versionpolicy>
             <_failok>${camel.osgi.failok}</_failok>
           </instructions>
@@ -5465,7 +5465,7 @@
             </goals>
             <configuration>
               <versions>
-                <camel.osgi.version.clean>${project.version}</camel.osgi.version.clean>
+                <camel.osgi.version.clean>${upstream.version}</camel.osgi.version.clean>
               </versions>
             </configuration>
           </execution>
