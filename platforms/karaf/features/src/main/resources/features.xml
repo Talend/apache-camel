@@ -1863,7 +1863,7 @@
     <feature version='${upstream.version}'>camel-core</feature>
     <bundle dependency='true'>mvn:org.apache.mina/mina-core/${mina2-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${xmlresolver-bundle-version}</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saxon/${saxon-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:org.talend.transform/org.talend.transform.saxonpe.osgi/${tdm-saxon-bundle-version}</bundle>
     <bundle>mvn:org.quickfixj/quickfixj-all/${quickfixj-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-quickfix/${upstream.version}</bundle>
   </feature>
@@ -1966,7 +1966,7 @@
   <feature name='camel-saxon' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${xmlresolver-bundle-version}</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saxon/${saxon-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:org.talend.transform/org.talend.transform.saxonpe.osgi/${tdm-saxon-bundle-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-saxon/${upstream.version}</bundle>
   </feature>
   <feature name='camel-scala' version='${upstream.version}' resolver='(obr)' start-level='50'>
@@ -1978,7 +1978,7 @@
   <feature name='camel-schematron' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${xmlresolver-bundle-version}</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saxon/${saxon-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:org.talend.transform/org.talend.transform.saxonpe.osgi/${tdm-saxon-bundle-version}</bundle>
     <bundle dependency='true'>mvn:commons-io/commons-io/${commons-io-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-schematron/${upstream.version}</bundle>
   </feature>
