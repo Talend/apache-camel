@@ -82,17 +82,18 @@
     </dependency>
 
     <dependency>
-      <groupId>org.talend.transform</groupId>
-      <artifactId>org.talend.transform.saxonpe.osgi</artifactId>
-      <version>9.7.0.21</version>
+      <groupId>net.sf.saxon</groupId>
+      <artifactId>Saxon-PE</artifactId>
+      <version>9.7.0-21</version>
+      <scope>provided</scope>
     </dependency>
 
     <!-- test dependencies -->
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-test-spring</artifactId>      
+      <artifactId>camel-test-spring</artifactId>
       <scope>test</scope>
-    </dependency>      
+    </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
