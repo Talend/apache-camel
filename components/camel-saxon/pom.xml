@@ -29,6 +29,7 @@
   <artifactId>camel-saxon</artifactId>
   <packaging>jar</packaging>
   <name>Camel :: Saxon</name>
+  <version>2.23.1.tesb1</version>
   <description>Camel Saxon (XQuery/XPath) support</description>
 
   <properties>
@@ -41,6 +42,36 @@
       org.apache.camel.spi.ComponentResolver;component=xquery,
       org.apache.camel.spi.LanguageResolver;language=xquery
     </camel.osgi.export.service>
+    <camel.osgi.import.defaults>
+      !org.springframework.boot.*,
+      !org.springframework.context.annotation.*;resolution:=optional,
+      !net.sf.saxon.*,
+      org.osgi.framework;version="[1.5,2)",
+      org.osgi.framework.wiring;version="[1.0,2)",
+      org.springframework.ws.*;version="[2,3)",
+      org.springframework.xml.*;version="[2,3)",
+      org.springframework.*;version="${spring-version-range}",
+      org.apache.cxf.*;version="${cxf-version-range}",
+      org.apache.qpid.*;version="[0.20,1)",
+      org.apache.abdera.*;version="[0.4,2)",
+      org.apache.commons.httpclient.*;version="[3.1,4.0)",
+      org.apache.velocity.*;version="[1.6.2,2)",
+      org.apache.xmlbeans.*;version="[2.4,3)",
+      org.eclipse.jetty.*;version="[9.3,10)",
+      com.thoughtworks.xstream.*;version="[1.4.7,2)",
+      org.antlr.stringtemplate.*;version="[3.0,4)",
+      org.ccil.cowan.tagsoup.*;version="[1.2,2)",
+      org.mortbay.cometd.*;version="[6.1,7)",
+      org.slf4j.*;version="[1.7,2)",
+      net.sf.flatpack.*;version="[3.1.1,4)",
+      freemarker.*;version="[2.3.15,3)",
+      javax.persistence.*;version="[1.1,3)",
+      org.apache.lucene.*;version="${lucene-version-range}",
+      org.apache.solr.*;version="${solr-version-range}",
+    </camel.osgi.import.defaults>
+    <camel.osgi.require.bundle>
+      org.talend.transform.saxonpe.osgi
+    </camel.osgi.require.bundle>
   </properties>
 
   <dependencies>
@@ -51,10 +82,11 @@
     </dependency>
 
     <dependency>
-      <groupId>net.sf.saxon</groupId>
-      <artifactId>Saxon-HE</artifactId>
+      <groupId>org.talend.transform</groupId>
+      <artifactId>org.talend.transform.saxonpe.osgi</artifactId>
+      <version>9.7.0.21</version>
     </dependency>
-    
+
     <!-- test dependencies -->
     <dependency>
       <groupId>org.apache.camel</groupId>
@@ -86,14 +118,63 @@
   <build>
     <plugins>
       <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <configuration>
-            <forkCount>1</forkCount>
-            <reuseForks>false</reuseForks>
-          </configuration>
-        </plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <forkCount>1</forkCount>
+          <reuseForks>false</reuseForks>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>${maven-bundle-plugin-version}</version>
+        <extensions>false</extensions>
+        <configuration>
+          <excludeDependencies>${camel.osgi.exclude.dependencies}</excludeDependencies>
+          <instructions>
+            <Bundle-Name>${project.artifactId}</Bundle-Name>
+            <Bundle-SymbolicName>${camel.osgi.symbolic.name}</Bundle-SymbolicName>
+            <Bundle-Activator>${camel.osgi.activator}</Bundle-Activator>
+            <Export-Package>${camel.osgi.export}</Export-Package>
+            <Import-Package>${camel.osgi.import}</Import-Package>
+            <DynamicImport-Package>${camel.osgi.dynamic}</DynamicImport-Package>
+            <Private-Package>${camel.osgi.private.pkg}</Private-Package>
+            <Import-Service>${camel.osgi.import.service}</Import-Service>
+            <Export-Service>${camel.osgi.export.service}</Export-Service>
+            <Require-Bundle>${camel.osgi.require.bundle}</Require-Bundle>
+            <Require-Capability>${camel.osgi.require.capability}</Require-Capability>
+            <Provide-Capability>${camel.osgi.provide.capability}</Provide-Capability>
+            <Implementation-Title>Apache Camel</Implementation-Title>
+            <Implementation-Version>${upstream.version}</Implementation-Version>
+            <Karaf-Info>Camel;${project.artifactId}=${upstream.version}</Karaf-Info>
+            <_versionpolicy>${camel.osgi.import.default.version}</_versionpolicy>
+            <_failok>${camel.osgi.failok}</_failok>
+          </instructions>
+        </configuration>
+        <executions>
+          <execution>
+            <id>versions</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>cleanVersions</goal>
+            </goals>
+            <configuration>
+              <versions>
+                <camel.osgi.version.clean>${upstream.version}</camel.osgi.version.clean>
+              </versions>
+            </configuration>
+          </execution>
+          <execution>
+            <id>bundle-manifest</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>manifest</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
-    </build>
+  </build>
 
 </project>
