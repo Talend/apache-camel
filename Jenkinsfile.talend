@@ -1,6 +1,6 @@
 def GIT_URL = 'https://github.com/Talend/apache-camel.git'
 def DEFAULT_BRANCH = 'tesb/camel-2.23.1.x'
-def DEFAULT_MVN_MODULES = 'org.apache.camel:camel-mqtt'
+def DEFAULT_MVN_MODULES = 'org.apache.camel:camel-saxon'
 
 pipeline {
 
