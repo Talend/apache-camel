@@ -34,7 +34,8 @@
 
   <properties>
     <features.file>features.xml</features.file>
-    <tdm-saxon-bundle.version>9.7.0.21</tdm-saxon-bundle.version>
+    <tdm-saxon-bundle-version>9.7.0.21</tdm-saxon-bundle-version>
+    <camel-saxon-bundle-version>2.23.1.tesb1</camel-saxon-bundle-version>
   </properties>
 
   <!-- The validate plugin will export these provided dependencies bundles export packages first -->

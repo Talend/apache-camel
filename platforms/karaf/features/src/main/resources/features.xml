@@ -1967,7 +1967,7 @@
     <feature version='${upstream.version}'>camel-core</feature>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${xmlresolver-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.talend.transform/org.talend.transform.saxonpe.osgi/${tdm-saxon-bundle-version}</bundle>
-    <bundle>mvn:org.apache.camel/camel-saxon/${upstream.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-saxon/${camel-saxon-bundle-version}</bundle>
   </feature>
   <feature name='camel-scala' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <bundle dependency='true'>mvn:org.scala-lang/scala-library/${scala-version}</bundle>
