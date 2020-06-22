@@ -30,9 +30,10 @@
     <packaging>jar</packaging>
     <name>Camel :: MQTT</name>
     <description>Camel MQTT client</description>
-    <version>2.24.2.tesb1</version>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-mqtt.tesb.version}</revision>
         <camel.osgi.export.pkg>org.apache.camel.component.mqtt.*</camel.osgi.export.pkg>
         <camel.osgi.export.service>org.apache.camel.spi.ComponentResolver;component=mqtt</camel.osgi.export.service>
     </properties>
@@ -77,7 +78,7 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
-        </dependency>   
+        </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
