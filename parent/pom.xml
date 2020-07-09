@@ -169,7 +169,7 @@
     <couchbase-client-version>1.4.13</couchbase-client-version>
     <couchbase-client-bundle-version>1.4.13_1</couchbase-client-bundle-version>
     <curator-version>2.12.0</curator-version>
-    <cxf-version>3.2.7</cxf-version>
+    <cxf-version>3.3.1</cxf-version>
     <cxf-version-range>[3.1,4.0)</cxf-version-range>
     <cxf-xjc-plugin-version>3.2.0</cxf-xjc-plugin-version>
     <cxf-xjc-utils-version>3.2.0</cxf-xjc-utils-version>
@@ -331,7 +331,7 @@
     <jackson-version>1.9.12</jackson-version>
     <jackson-spark-version>2.4.5</jackson-spark-version>
     <jackson2-scala-version>2.6.1</jackson2-scala-version>
-    <jackson2-version>2.9.7</jackson2-version>
+    <jackson2-version>2.9.9</jackson2-version>
     <jackrabbit-version>2.17.6</jackrabbit-version>
     <jackrabbit-guava-version>15.0</jackrabbit-guava-version>
     <jain-sip-ri-bundle-version>1.2.154_2</jain-sip-ri-bundle-version>
@@ -382,7 +382,7 @@
     <jersey-version>2.11</jersey-version>
     <jetty6-bundle-version>6.1.26_4</jetty6-bundle-version>
     <jetty92-version>9.2.22.v20170606</jetty92-version>
-    <jetty9-version>9.4.12.v20180830</jetty9-version>
+    <jetty9-version>9.4.18.v20190429</jetty9-version>
     <jetty-version>${jetty9-version}</jetty-version>
     <jetty-plugin-version>${jetty-version}</jetty-plugin-version>
     <jetty-runner-groupId>org.eclipse.jetty</jetty-runner-groupId>
@@ -442,7 +442,7 @@
     <kafka-version>2.0.0</kafka-version>
     <kafka-bundle-version>2.0.0_1</kafka-bundle-version>
     <karaf2-version>2.4.4</karaf2-version>
-    <karaf4-version>4.2.1</karaf4-version>
+    <karaf4-version>4.2.4</karaf4-version>
     <kie-version>7.14.0.Final</kie-version>
     <krati-version>0.4.9</krati-version>
     <kubernetes-client-version>4.1.0</kubernetes-client-version>
@@ -710,6 +710,7 @@
     <werken-xpath-bundle-version>0.9.4_5</werken-xpath-bundle-version>
     <wiremock-version>2.19.0</wiremock-version>
     <woodstox-version>4.4.1</woodstox-version>
+    <woodstox-core.version>5.0.3</woodstox-core.version>
     <ws-commons-util-bundle-version>1.0.2_2</ws-commons-util-bundle-version>
     <wsdl4j-bundle-version>1.6.3_1</wsdl4j-bundle-version>
     <wsdl4j-version>1.6.3</wsdl4j-version>
