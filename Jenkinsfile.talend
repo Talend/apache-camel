@@ -1,4 +1,4 @@
-@Library('esb') _
+@Library('esb@feat/master/fork-process') _
 
 Fork(
         MVN_MODULES: ':camel-core,:camel-blueprint,:camel-dozer,org.apache.camel.karaf:apache-camel'
