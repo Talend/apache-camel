@@ -168,7 +168,7 @@
     <couchbase-client-version>1.4.13</couchbase-client-version>
     <couchbase-client-bundle-version>1.4.13_1</couchbase-client-bundle-version>
     <curator-version>2.12.0</curator-version>
-    <cxf-version>3.3.6</cxf-version>
+    <cxf-version>3.3.7</cxf-version>
     <cxf-version-range>[3.1,4.0)</cxf-version-range>
     <cxf-xjc-plugin-version>3.3.1</cxf-xjc-plugin-version>
     <cxf-xjc-utils-version>3.3.1</cxf-xjc-utils-version>
@@ -744,7 +744,6 @@
     <xpp3-version>1.1.4c</xpp3-version>
     <xsdlib-version>2013.2</xsdlib-version>
     <xstream-bundle-version>1.4.11.1_1</xstream-bundle-version>
-    <xstream-java8-bundle-version>1.4.11_1</xstream-java8-bundle-version>
     <xstream-version>1.4.11.1</xstream-version>
     <xom-version>1.2.5</xom-version>
     <zendesk-client-version>0.6.2</zendesk-client-version>
