@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.camel</groupId>
         <artifactId>components</artifactId>
-        <version>2.25.2</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>camel-mqtt</artifactId>
@@ -32,6 +32,7 @@
     <description>Camel MQTT client</description>
 
     <properties>
+        <revision>${camel-mqtt.tesb.version}</revision>
         <camel.osgi.export.pkg>org.apache.camel.component.mqtt.*</camel.osgi.export.pkg>
         <camel.osgi.export.service>org.apache.camel.spi.ComponentResolver;component=mqtt</camel.osgi.export.service>
     </properties>
