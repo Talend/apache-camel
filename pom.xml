@@ -43,12 +43,12 @@
     <upstream.version>2.25.2</upstream.version>
     <apache-camel.features.tesb.version>2.25.2.tesb1</apache-camel.features.tesb.version>
     <camel-mqtt.tesb.version>2.25.2.tesb1</camel-mqtt.tesb.version>
-    <!- patches from tesb/camel-2.24.2.x begin -->
+    <!-- patches from tesb/camel-2.24.2.x begin -->
     <cxf.tesb.version>3.3.7</cxf.tesb.version>
     <woodstox-core.tesb.version>5.0.3</woodstox-core.tesb.version>
     <abdera-parser.tesb.version>1.1.3_2</abdera-parser.tesb.version>
     <jackson2.tesb.version>2.10.1</jackson2.tesb.version>
-    <!- patches from tesb/camel-2.24.2.x end -->
+    <!-- patches from tesb/camel-2.24.2.x end -->
 
     <!-- enforce to require using at least this maven version -->
     <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -220,13 +220,13 @@
               <my.custom.property>${my.custom.property}</my.custom.property>
               -->
               <apache-camel.features.tesb.version>${apache-camel.features.tesb.version}</apache-camel.features.tesb.version>
-              <!- patches from tesb/camel-2.24.2.x begin -->
+              <!-- patches from tesb/camel-2.24.2.x begin -->
               <camel-mqtt.tesb.version>${camel-mqtt.tesb.version}</camel-mqtt.tesb.version>
               <cxf.tesb.version>${cxf.tesb.version}</cxf.tesb.version>
               <woodstox-core.tesb.version>${woodstox-core.tesb.version}</woodstox-core.tesb.version>
               <abdera-parser.tesb.version>${abdera-parser.tesb.version}</abdera-parser.tesb.version>
               <jackson2.tesb.version>2.10.1</jackson2.tesb.version>
-              <!- patches from tesb/camel-2.24.2.x end -->
+              <!-- patches from tesb/camel-2.24.2.x end -->
             </properties>
           </configuration>
           <executions>
@@ -637,7 +637,7 @@
       <build>
         <defaultGoal>deploy</defaultGoal>
         <plugins>
-          <plugin>
+          <!-- <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
             <executions>
@@ -648,8 +648,8 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>
-          <plugin>
+          </plugin> -->
+          <!-- <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
             <executions>
@@ -663,7 +663,7 @@
                 </configuration>
               </execution>
             </executions>
-          </plugin>
+          </plugin> -->
         </plugins>
       </build>
     </profile>
@@ -672,7 +672,7 @@
       <id>source-jar</id>
       <build>
         <plugins>
-          <plugin>
+          <!-- <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
             <executions>
@@ -683,7 +683,7 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>
+          </plugin> -->
         </plugins>
       </build>
     </profile>
@@ -705,7 +705,7 @@
               <updateReleaseInfo>true</updateReleaseInfo>
             </configuration>
           </plugin>
-          <plugin>
+          <!-- <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
             <executions>
@@ -716,8 +716,8 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>
-          <plugin>
+          </plugin> -->
+          <!-- <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
             <executions>
@@ -731,7 +731,7 @@
             <configuration>
               <additionalOptions>${javadoc.opts}</additionalOptions>
             </configuration>
-          </plugin>
+          </plugin> -->
           <!-- We want to sign the artifact, the POM, and all attached artifacts -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
