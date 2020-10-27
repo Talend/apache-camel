@@ -25,13 +25,15 @@
         <artifactId>components</artifactId>
         <version>2.25.2</version>
     </parent>
-
+    
     <artifactId>camel-mqtt</artifactId>
+    <version>${revision}</version>
     <packaging>jar</packaging>
     <name>Camel :: MQTT (deprecated)</name>
     <description>Camel MQTT client</description>
 
     <properties>
+        <revision>${camel-mqtt.tesb.version}</revision>
         <camel.osgi.export.pkg>org.apache.camel.component.mqtt.*</camel.osgi.export.pkg>
         <camel.osgi.export.service>org.apache.camel.spi.ComponentResolver;component=mqtt</camel.osgi.export.service>
     </properties>
@@ -40,6 +42,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-core</artifactId>
+            <version>${upstream.version}</version>
         </dependency>
         <dependency>
             <groupId>org.fusesource.mqtt-client</groupId>
@@ -52,11 +55,13 @@
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test</artifactId>
             <scope>test</scope>
+            <version>${upstream.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-spring</artifactId>
             <scope>test</scope>
+            <version>${upstream.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.activemq</groupId>

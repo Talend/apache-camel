@@ -42,6 +42,13 @@
   <properties>
     <upstream.version>2.25.2</upstream.version>
     <apache-camel.features.tesb.version>2.25.2.tesb1</apache-camel.features.tesb.version>
+    <camel-mqtt.tesb.version>2.25.2.tesb1</camel-mqtt.tesb.version>
+    <!-- patches from tesb/camel-2.24.2.x begin -->
+    <cxf.tesb.version>3.3.7</cxf.tesb.version>
+    <woodstox-core.tesb.version>5.0.3</woodstox-core.tesb.version>
+    <abdera-parser.tesb.version>1.1.3_2</abdera-parser.tesb.version>
+    <jackson2.tesb.version>2.10.4</jackson2.tesb.version>
+    <!-- patches from tesb/camel-2.24.2.x end -->
 
     <!-- enforce to require using at least this maven version -->
     <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -213,6 +220,13 @@
               <my.custom.property>${my.custom.property}</my.custom.property>
               -->
               <apache-camel.features.tesb.version>${apache-camel.features.tesb.version}</apache-camel.features.tesb.version>
+              <!-- patches from tesb/camel-2.24.2.x begin -->
+              <camel-mqtt.tesb.version>${camel-mqtt.tesb.version}</camel-mqtt.tesb.version>
+              <cxf.tesb.version>${cxf.tesb.version}</cxf.tesb.version>
+              <woodstox-core.tesb.version>${woodstox-core.tesb.version}</woodstox-core.tesb.version>
+              <abdera-parser.tesb.version>${abdera-parser.tesb.version}</abdera-parser.tesb.version>
+              <jackson2.tesb.version>2.10.1</jackson2.tesb.version>
+              <!-- patches from tesb/camel-2.24.2.x end -->
             </properties>
           </configuration>
           <executions>
