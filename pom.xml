@@ -225,7 +225,7 @@
               <cxf.tesb.version>${cxf.tesb.version}</cxf.tesb.version>
               <woodstox-core.tesb.version>${woodstox-core.tesb.version}</woodstox-core.tesb.version>
               <abdera-parser.tesb.version>${abdera-parser.tesb.version}</abdera-parser.tesb.version>
-              <jackson2.tesb.version>2.10.1</jackson2.tesb.version>
+              <jackson2.tesb.version>2.10.4</jackson2.tesb.version>
               <!-- patches from tesb/camel-2.24.2.x end -->
             </properties>
           </configuration>
