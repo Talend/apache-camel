@@ -41,10 +41,10 @@
 
   <properties>
     <upstream.version>2.23.1</upstream.version>
-    <apache-camel.features.tesb.version>2.23.1.tesb3</apache-camel.features.tesb.version>
+    <apache-camel.features.tesb.version>2.23.1.tesb4</apache-camel.features.tesb.version>
     <camel-core.tesb.version>2.23.1.tesb2</camel-core.tesb.version>
     <camel.mqtt.tesb.version>2.23.1.tesb1</camel.mqtt.tesb.version>
-    <tdm-saxon.tesb.version>9.7.0.21</tdm-saxon.tesb.version>
+    <tdm-saxon.tesb.version>9.7.0.211</tdm-saxon.tesb.version>
     <camel-saxon.tesb.version>2.23.1.tesb1</camel-saxon.tesb.version>
 
     <!-- enforce to require using at least this maven version -->
