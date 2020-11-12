@@ -1760,6 +1760,7 @@
   <feature name='camel-olingo4' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
     <feature>http</feature>
+    <bundle dependency='true'>mvn:org.codehaus.woodstox/stax2-api/${stax2-api-bundle.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.olingo/odata-commons-api/${olingo4-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.olingo/odata-commons-core/${olingo4-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.olingo/odata-client-api/${olingo4-version}</bundle>
@@ -1980,6 +1981,7 @@
   </feature>
   <feature name='camel-rest-swagger' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.codehaus.woodstox/stax2-api/${stax2-api-bundle.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.yaml/snakeyaml/${snakeyaml-version}</bundle>
     <bundle dependency='true'>mvn:javax.validation/validation-api/${validation-1-api-version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2.tesb.version}</bundle>
@@ -2361,6 +2363,7 @@
   <feature name='camel-swagger-java' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature>http</feature>
     <feature version='${upstream.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.codehaus.woodstox/stax2-api/${stax2-api-bundle.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr311-api-1.1.1/${servicemix-specs-version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2.tesb.version}</bundle>
@@ -2545,6 +2548,7 @@
     <feature version='${cxf-version-range}'>cxf-core</feature>
     <feature version='${cxf-version-range}'>cxf-jaxrs</feature>
     <feature version='${upstream.version}'>camel-core</feature>
+    <bundle dependency='true'>mvn:org.codehaus.woodstox/stax2-api/${stax2-api-bundle.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2.tesb.version}</bundle>
