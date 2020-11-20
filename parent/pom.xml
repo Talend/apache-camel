@@ -139,7 +139,7 @@
     <commons-compress-version>1.19</commons-compress-version>
     <commons-configuration-version>1.9</commons-configuration-version>
     <commons-configuration-bundle-version>1.9_1</commons-configuration-bundle-version>
-    <commons-configuration2-version>2.4</commons-configuration2-version>
+    <commons-configuration2-version>2.7</commons-configuration2-version>
     <commons-csv-version>1.6</commons-csv-version>
     <commons-cli-version>1.4</commons-cli-version>
     <commons-daemon-version>1.0.15</commons-daemon-version>
@@ -383,7 +383,7 @@
     <jersey-version>2.11</jersey-version>
     <jetty6-bundle-version>6.1.26_4</jetty6-bundle-version>
     <jetty92-version>9.2.22.v20170606</jetty92-version>
-    <jetty9-version>9.4.12.v20180830</jetty9-version>
+    <jetty9-version>9.4.22.v20191022</jetty9-version>
     <jetty-version>${jetty9-version}</jetty-version>
     <jetty-plugin-version>${jetty-version}</jetty-plugin-version>
     <jetty-runner-groupId>org.eclipse.jetty</jetty-runner-groupId>
@@ -528,7 +528,7 @@
     <nekohtml-version>1.9.22</nekohtml-version>
     <neoscada-version>0.4.0</neoscada-version>
     <netty3-version>3.10.6.Final</netty3-version>
-    <netty-version>4.1.32.Final</netty-version>
+    <netty-version>4.1.46.Final</netty-version>
     <netty40-version>4.0.56.Final</netty40-version>
     <networknt-json-schema-validator-version>0.1.25</networknt-json-schema-validator-version>
     <noggit-bundle-version>0.5_1</noggit-bundle-version>
@@ -564,7 +564,7 @@
     <os-maven-plugin-version>1.6.0</os-maven-plugin-version>
     <oscache-bundle-version>2.4_5</oscache-bundle-version>
     <osgi-version>4.3.1</osgi-version>
-    <paho-version>1.2.0</paho-version>
+    <paho-version>1.2.1</paho-version>
     <paranamer-bundle-version>2.8_1</paranamer-bundle-version>
     <pax-cdi-version>1.0.0</pax-cdi-version>
     <pax-exam-version>4.13.0</pax-exam-version>
@@ -622,7 +622,7 @@
     <servicemix-specs-version>2.9.0</servicemix-specs-version>
     <servlet-api-3.0-version>1.0</servlet-api-3.0-version>
     <servlet-version-range>[3,4)</servlet-version-range>
-    <shiro-version>1.4.0</shiro-version>
+    <shiro-version>1.4.2</shiro-version>
     <shrinkwrap-descriptors-version>2.0.0</shrinkwrap-descriptors-version>
     <shrinkwrap-resolver-version>3.1.3</shrinkwrap-resolver-version>
     <shrinkwrap-version>1.2.6</shrinkwrap-version>
@@ -630,7 +630,7 @@
     <slf4j-api-version>1.7.26</slf4j-api-version>
     <slf4j-version>1.7.26</slf4j-version>
     <smack-version>4.3.1</smack-version>
-    <snakeyaml-version>1.23</snakeyaml-version>
+    <snakeyaml-version>1.26</snakeyaml-version>
     <snappy-version>1.1.4</snappy-version>
     <snmp4j-version>2.6.3_1</snmp4j-version>
     <solr-bundle-version>7.5.0_1</solr-bundle-version>
