@@ -41,7 +41,7 @@
 
   <properties>
     <upstream.version>2.25.2</upstream.version>
-    <apache-camel.features.tesb.version>2.25.2.tesb1</apache-camel.features.tesb.version>
+    <apache-camel.features.tesb.version>2.25.2.tesb2</apache-camel.features.tesb.version>
     <camel-mqtt.tesb.version>2.25.2.tesb1</camel-mqtt.tesb.version>
     <!-- patches from tesb/camel-2.24.2.x begin -->
     <cxf.tesb.version>3.3.7</cxf.tesb.version>
