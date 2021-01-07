@@ -90,6 +90,9 @@
     <bundle dependency='true'>mvn:io.netty/netty-transport-native-unix-common/${netty-version}</bundle>
     <bundle dependency='true'>mvn:io.netty/netty-codec/${netty-version}</bundle>
     <bundle dependency='true'>mvn:io.netty/netty-codec-http/${netty-version}</bundle>
+    <bundle dependency='true'>mvn:org.reactivestreams/reactive-streams/${reactive-streams-version}</bundle>
+    <bundle dependency='true'>mvn:com.typesafe.netty/netty-reactive-streams/${netty-reactive-streams-version}</bundle>
+    <bundle dependency='true'>mvn:org.asynchttpclient/async-http-client-netty-utils/${async-http-client-netty-utils-version}</bundle>
     <bundle dependency='true'>mvn:javax.servlet/javax.servlet-api/${javax.servlet-api-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-http-common/${upstream.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-ahc/${upstream.version}</bundle>
