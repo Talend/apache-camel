@@ -587,7 +587,7 @@
     <quartz2-version>2.3.0</quartz2-version>
     <quickfixj-version>2.1.0</quickfixj-version>
     <rabbitmq-amqp-client-version>5.5.1</rabbitmq-amqp-client-version>
-    <reactive-streams-version>1.0.2</reactive-streams-version>
+    <reactive-streams-version>1.0.3</reactive-streams-version>
     <reactor-version>3.2.3.RELEASE</reactor-version>
     <reflections-version>0.9.11</reflections-version>
     <reflections-bundle-version>0.9.11_1</reflections-bundle-version>
@@ -759,6 +759,8 @@
     <zookeeper-guava-version>16.0</zookeeper-guava-version>
     <zxing-version>3.3.3</zxing-version>
     <zxing-bundle-version>3.3.3_1</zxing-bundle-version>
+    <netty-reactive-streams-version>2.0.5</netty-reactive-streams-version>
+    <async-http-client-netty-utils-version>2.12.1</async-http-client-netty-utils-version>
 
     <!-- OSGi bundles properties -->
     <camel.osgi.import.camel.version>version="[$(version;==;${camel.osgi.version.clean}),$(version;=+;${camel.osgi.version.clean}))"</camel.osgi.import.camel.version>
