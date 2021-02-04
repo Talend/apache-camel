@@ -40,7 +40,7 @@
   </prerequisites>
 
   <properties>
-    <apache-camel.features.tesb.version>2.24.2.tesb6</apache-camel.features.tesb.version>
+    <apache-camel.features.tesb.version>2.24.2.tesb7</apache-camel.features.tesb.version>
     <camel-mqtt.tesb.version>2.24.2.tesb1</camel-mqtt.tesb.version>
     <cxf.tesb.version>3.3.4</cxf.tesb.version>
     <woodstox-core.tesb.version>5.0.3</woodstox-core.tesb.version>
