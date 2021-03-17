@@ -51,6 +51,7 @@
     <dom4j-bundle.tesb.version>2.1.3_1</dom4j-bundle.tesb.version>
     <hikaricp.tesb.version>2.4.13</hikaricp.tesb.version>
     <quartz2.tesb.version>2.3.2</quartz2.tesb.version>
+    <swagger-java.tesb.version>1.6.2</swagger-java.tesb.version>
 
     <!-- enforce to require using at least this maven version -->
     <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -231,6 +232,7 @@
               <dom4j-bundle.tesb.version>${dom4j-bundle.tesb.version}</dom4j-bundle.tesb.version>
               <hikaricp.tesb.version>${hikaricp.tesb.version}</hikaricp.tesb.version>
               <quartz2.tesb.version>${quartz2.tesb.version}</quartz2.tesb.version>
+              <swagger-java.tesb.version>${swagger-java.tesb.version}</swagger-java.tesb.version>
             </properties>
           </configuration>
           <executions>
