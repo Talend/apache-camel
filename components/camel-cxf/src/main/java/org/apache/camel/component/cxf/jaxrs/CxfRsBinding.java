@@ -28,7 +28,7 @@ import org.apache.cxf.message.Exchange;
 /**
  * Interface to bind between Camel and CXF exchange for RESTful resources.
  *
- * @version 
+ * @version
  */
 public interface CxfRsBinding {
 
@@ -116,4 +116,20 @@ public interface CxfRsBinding {
      * @return the {@link Entity} to use
      */
     Entity<Object> bindCamelMessageToRequestEntity(Object body, org.apache.camel.Message camelMessage, org.apache.camel.Exchange camelExchange) throws Exception;
+
+    /**
+     * Bind the Camel message to a request {@link Entity} that gets passed to
+     * {@link AsyncInvoker#method(java.lang.String, javax.ws.rs.client.Entity, javax.ws.rs.client.InvocationCallback)}.
+     *
+     * @param  camelMessage  the source message
+     * @param  camelExchange the Camel exchange
+     * @param  body          the message body
+     * @param  webClient     the CXF JAXRS WebClient
+     * @throws Exception     can be thrown if error in the binding process
+     * @return               the {@link Entity} to use
+     */
+    Entity<Object> bindCamelMessageToRequestEntity(
+            Object body, org.apache.camel.Message camelMessage, org.apache.camel.Exchange camelExchange,
+            org.apache.cxf.jaxrs.client.WebClient webClient)
+            throws Exception;
 }

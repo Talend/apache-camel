@@ -1,5 +1,5 @@
 @Library('esb') _
 
 Fork(
-        MVN_MODULES: 'org.apache.camel:camel-mqtt,org.apache.camel:camel-saxon,org.apache.camel.karaf:apache-camel'
+        MVN_MODULES: 'org.apache.camel:camel-mqtt,org.apache.camel:camel-saxon,org.apache.camel:camel-cxf,org.apache.camel.karaf:apache-camel'
 )
