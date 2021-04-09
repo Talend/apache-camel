@@ -41,7 +41,7 @@
 
   <properties>
     <upstream.version>2.25.2</upstream.version>
-    <apache-camel.features.tesb.version>2.25.2.tesb4</apache-camel.features.tesb.version>
+    <apache-camel.features.tesb.version>2.25.2.tesb5</apache-camel.features.tesb.version>
     <camel-mqtt.tesb.version>2.25.2.tesb1</camel-mqtt.tesb.version>
     <cxf.tesb.version>3.3.7</cxf.tesb.version>
     <woodstox-core.tesb.version>5.0.3</woodstox-core.tesb.version>
@@ -49,6 +49,8 @@
     <jackson2.tesb.version>2.11.4</jackson2.tesb.version>
     <stax2-api-bundle.tesb.version>4.2.1</stax2-api-bundle.tesb.version><!-- TESB-30553 CAMEL-15596-->
     <swagger-java.tesb.version>1.6.2</swagger-java.tesb.version>
+    <json-smart.tesb.version>2.4.2</json-smart.tesb.version>
+    <xstream-bundle.tesb.version>1.4.16_1</xstream-bundle.tesb.version>
 
     <!-- enforce to require using at least this maven version -->
     <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
