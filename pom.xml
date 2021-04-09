@@ -40,7 +40,7 @@
   </prerequisites>
 
   <properties>
-    <apache-camel.features.tesb.version>2.24.2.tesb8</apache-camel.features.tesb.version>
+    <apache-camel.features.tesb.version>2.24.2.tesb9</apache-camel.features.tesb.version>
     <camel-mqtt.tesb.version>2.24.2.tesb1</camel-mqtt.tesb.version>
     <cxf.tesb.version>3.3.4</cxf.tesb.version>
     <woodstox-core.tesb.version>5.0.3</woodstox-core.tesb.version>
@@ -52,6 +52,10 @@
     <hikaricp.tesb.version>2.4.13</hikaricp.tesb.version>
     <quartz2.tesb.version>2.3.2</quartz2.tesb.version>
     <swagger-java.tesb.version>1.6.2</swagger-java.tesb.version>
+    <json-smart.tesb.version>2.4.2</json-smart.tesb.version>
+    <xstream-j8.suffix>-java8</xstream-j8.suffix>
+    <xstream-j8.tesb.suffix></xstream-j8.tesb.suffix>
+    <xstream-bundle.tesb.version>1.4.16_1</xstream-bundle.tesb.version>
 
     <!-- enforce to require using at least this maven version -->
     <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -233,6 +237,7 @@
               <hikaricp.tesb.version>${hikaricp.tesb.version}</hikaricp.tesb.version>
               <quartz2.tesb.version>${quartz2.tesb.version}</quartz2.tesb.version>
               <swagger-java.tesb.version>${swagger-java.tesb.version}</swagger-java.tesb.version>
+              <json-smart.tesb.version>${json-smart.tesb.version}</json-smart.tesb.version>
             </properties>
           </configuration>
           <executions>
