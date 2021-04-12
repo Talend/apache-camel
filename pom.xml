@@ -51,6 +51,8 @@
     <stax2-api-bundle.tesb.version>4.2.1</stax2-api-bundle.tesb.version><!-- TESB-30553 CAMEL-15596-->
     <swagger-java.tesb.version>1.6.2</swagger-java.tesb.version>
     <json-smart.tesb.version>2.4.2</json-smart.tesb.version>
+    <json-accessors-smart.tesb.version>2.4.2</json-accessors-smart.tesb.version>
+    <asm.tesb.version>8.0.1</asm.tesb.version>
     <xstream-bundle.tesb.version>1.4.16_1</xstream-bundle.tesb.version>
 
     <!-- enforce to require using at least this maven version -->
