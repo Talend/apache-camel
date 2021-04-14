@@ -28,11 +28,13 @@
 
     <artifactId>camel-cxf</artifactId>
     <packaging>jar</packaging>
+    <version>${revision}</version>
 
     <name>Camel :: CXF</name>
     <description>Camel CXF support</description>
 
     <properties>
+        <revision>${camel-cxf.tesb.version}</revision>
         <camel.osgi.import.defaults />
         <camel.osgi.import>
             !org.springframework.boot.*,
@@ -438,8 +440,7 @@
                                         <include name="**/spring.*" />
                                     </fileset>
                                 </copy>
-                                <replace file="${project.build.directory}/spring-meta/META-INF/spring.handlers" token="\\${upstream.version}" value="${upstream.version}" preservelastmodified="true" />
-                                <replace file="${project.build.directory}/spring-meta/META-INF/spring.schemas" token="\\${upstream.version}" value="${upstream.version}" preservelastmodified="true" />
+                                <replace file="${project.build.directory}/spring-meta/META-INF/spring.schemas" token="$${camel.version}" value="${project.version}" preservelastmodified="true" />
                                 <copy todir="${project.build.directory}/classes" preservelastmodified="true">
                                     <fileset dir="${project.build.directory}/spring-meta" />
                                 </copy>
