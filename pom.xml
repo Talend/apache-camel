@@ -60,6 +60,7 @@
     <xstream-j8.tesb.suffix></xstream-j8.tesb.suffix>
     <xstream-bundle.tesb.version>1.4.16_1</xstream-bundle.tesb.version>
     <commons-io.tesb.version>2.8.0</commons-io.tesb.version>
+    <commons-codec.tesb.version>1.15</commons-codec.tesb.version>
     <!-- <activemq.tesb.version>5.15.15</activemq.tesb.version> -->
 
     <!-- enforce to require using at least this maven version -->
