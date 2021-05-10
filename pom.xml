@@ -40,10 +40,10 @@
   </prerequisites>
 
   <properties>
-    <apache-camel.features.tesb.version>2.24.2.tesb10</apache-camel.features.tesb.version>
+    <apache-camel.features.tesb.version>2.24.2.tesb11</apache-camel.features.tesb.version>
     <camel-mqtt.tesb.version>2.24.2.tesb1</camel-mqtt.tesb.version>
-    <camel-cxf.tesb.version>2.24.2.tesb1</camel-cxf.tesb.version>
-    <cxf.tesb.version>3.3.4</cxf.tesb.version>
+    <camel-cxf.tesb.version>2.24.2.tesb2</camel-cxf.tesb.version>
+    <cxf.tesb.version>3.3.10</cxf.tesb.version>
     <woodstox-core.tesb.version>5.0.3</woodstox-core.tesb.version>
     <abdera-parser.tesb.version>1.1.3_2</abdera-parser.tesb.version>
     <jackson1.tesb.version>1.9.12</jackson1.tesb.version>
@@ -59,6 +59,9 @@
     <xstream-j8.suffix>-java8</xstream-j8.suffix>
     <xstream-j8.tesb.suffix></xstream-j8.tesb.suffix>
     <xstream-bundle.tesb.version>1.4.16_1</xstream-bundle.tesb.version>
+    <commons-io.tesb.version>2.8.0</commons-io.tesb.version>
+    <commons-codec.tesb.version>1.15</commons-codec.tesb.version>
+    <!-- <activemq.tesb.version>5.15.15</activemq.tesb.version> -->
 
     <!-- enforce to require using at least this maven version -->
     <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -247,6 +250,8 @@
               <xstream-j8.suffix>${xstream-j8.suffix}</xstream-j8.suffix>
               <xstream-j8.tesb.suffix>${xstream-j8.tesb.suffix}</xstream-j8.tesb.suffix>
               <xstream-bundle.tesb.version>${xstream-bundle.tesb.version}</xstream-bundle.tesb.version>
+              <commons-io.tesb.version>${commons-io.tesb.version>}</commons-io.tesb.version>
+              <!-- <activemq.tesb.version>${activemq.tesb.version}</activemq.tesb.version> -->
             </properties>
           </configuration>
           <executions>
