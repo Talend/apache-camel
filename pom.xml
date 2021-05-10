@@ -41,10 +41,10 @@
 
   <properties>
     <upstream.version>2.25.2</upstream.version>
-    <apache-camel.features.tesb.version>2.25.2.tesb6</apache-camel.features.tesb.version>
+    <apache-camel.features.tesb.version>2.25.2.tesb7</apache-camel.features.tesb.version>
     <camel-mqtt.tesb.version>2.25.2.tesb1</camel-mqtt.tesb.version>
-    <camel-cxf.tesb.version>2.25.2.tesb1</camel-cxf.tesb.version>
-    <cxf.tesb.version>3.3.7</cxf.tesb.version>
+    <camel-cxf.tesb.version>2.25.2.tesb2</camel-cxf.tesb.version>
+    <cxf.tesb.version>3.3.10</cxf.tesb.version>
     <woodstox-core.tesb.version>5.0.3</woodstox-core.tesb.version>
     <abdera-parser.tesb.version>1.1.3_2</abdera-parser.tesb.version>
     <jackson2.tesb.version>2.11.4</jackson2.tesb.version>
@@ -54,6 +54,9 @@
     <json-accessors-smart.tesb.version>2.4.2</json-accessors-smart.tesb.version>
     <asm.tesb.version>8.0.1</asm.tesb.version>
     <xstream-bundle.tesb.version>1.4.16_1</xstream-bundle.tesb.version>
+    <commons-io.tesb.version>2.8.0</commons-io.tesb.version>
+    <commons-codec.tesb.version>1.15</commons-codec.tesb.version>
+    <!-- <activemq.tesb.version>5.15.15</activemq.tesb.version> -->
 
     <!-- enforce to require using at least this maven version -->
     <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -226,11 +229,20 @@
               -->
               <apache-camel.features.tesb.version>${apache-camel.features.tesb.version}</apache-camel.features.tesb.version>
               <camel-mqtt.tesb.version>${camel-mqtt.tesb.version}</camel-mqtt.tesb.version>
+              <camel-cxf.tesb.version>${camel-cxf.tesb.version}</camel-cxf.tesb.version>
               <cxf.tesb.version>${cxf.tesb.version}</cxf.tesb.version>
               <woodstox-core.tesb.version>${woodstox-core.tesb.version}</woodstox-core.tesb.version>
               <abdera-parser.tesb.version>${abdera-parser.tesb.version}</abdera-parser.tesb.version>
               <jackson2.tesb.version>${jackson2.tesb.version}</jackson2.tesb.version>
+              <stax2-api-bundle.tesb.version>${stax2-api-bundle.tesb.version}</stax2-api-bundle.tesb.version><!-- TESB-30553 CAMEL-15596-->
               <swagger-java.tesb.version>${swagger-java.tesb.version}</swagger-java.tesb.version>
+              <json-smart.tesb.version>${json-smart.tesb.version}</json-smart.tesb.version>
+              <json-accessors-smart.tesb.version>${json-accessors-smart.tesb.version}</json-accessors-smart.tesb.version>
+              <asm.tesb.version>${asm.tesb.version}</asm.tesb.version>
+              <xstream-bundle.tesb.version>${xstream-bundle.tesb.version}</xstream-bundle.tesb.version>
+              <commons-io.tesb.version>${commons-io.tesb.version>}</commons-io.tesb.version>
+              <commons-codec.tesb.version>${commons-codec.tesb.version}</commons-codec.tesb.version>
+              <!-- <activemq.tesb.version>${activemq.tesb.version}</activemq.tesb.version> -->
             </properties>
           </configuration>
           <executions>
