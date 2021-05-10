@@ -54,6 +54,8 @@
     <json-accessors-smart.tesb.version>2.4.2</json-accessors-smart.tesb.version>
     <asm.tesb.version>8.0.1</asm.tesb.version>
     <xstream-bundle.tesb.version>1.4.16_1</xstream-bundle.tesb.version>
+    <commons-io.tesb.version>2.8.0</commons-io.tesb.version>
+    <commons-codec.tesb.version>1.15</commons-codec.tesb.version>
     <!-- <activemq.tesb.version>5.15.15</activemq.tesb.version> -->
 
     <!-- enforce to require using at least this maven version -->
@@ -227,11 +229,19 @@
               -->
               <apache-camel.features.tesb.version>${apache-camel.features.tesb.version}</apache-camel.features.tesb.version>
               <camel-mqtt.tesb.version>${camel-mqtt.tesb.version}</camel-mqtt.tesb.version>
+              <camel-cxf.tesb.version>${camel-cxf.tesb.version}</camel-cxf.tesb.version>
               <cxf.tesb.version>${cxf.tesb.version}</cxf.tesb.version>
               <woodstox-core.tesb.version>${woodstox-core.tesb.version}</woodstox-core.tesb.version>
               <abdera-parser.tesb.version>${abdera-parser.tesb.version}</abdera-parser.tesb.version>
               <jackson2.tesb.version>${jackson2.tesb.version}</jackson2.tesb.version>
+              <stax2-api-bundle.tesb.version>${stax2-api-bundle.tesb.version}</stax2-api-bundle.tesb.version><!-- TESB-30553 CAMEL-15596-->
               <swagger-java.tesb.version>${swagger-java.tesb.version}</swagger-java.tesb.version>
+              <json-smart.tesb.version>${json-smart.tesb.version}</json-smart.tesb.version>
+              <json-accessors-smart.tesb.version>${json-accessors-smart.tesb.version}</json-accessors-smart.tesb.version>
+              <asm.tesb.version>${asm.tesb.version}</asm.tesb.version>
+              <xstream-bundle.tesb.version>${xstream-bundle.tesb.version}</xstream-bundle.tesb.version>
+              <commons-io.tesb.version>${commons-io.tesb.version>}</commons-io.tesb.version>
+              <commons-codec.tesb.version>${commons-codec.tesb.version}</commons-codec.tesb.version>
               <!-- <activemq.tesb.version>${activemq.tesb.version}</activemq.tesb.version> -->
             </properties>
           </configuration>
