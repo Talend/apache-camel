@@ -274,9 +274,9 @@
     <feature version='${upstream.version}'>camel-core</feature>
     <feature>pax-http-whiteboard</feature>
     <feature>jetty</feature>
-    <bundle dependency='true'>mvn:org.eclipse.jetty.websocket/websocket-api/${jetty-version}</bundle>
-    <bundle dependency='true'>mvn:org.eclipse.jetty.websocket/websocket-common/${jetty-version}</bundle>
-    <bundle dependency='true'>mvn:org.eclipse.jetty.websocket/websocket-client/${jetty-version}</bundle>
+    <bundle dependency='true'>mvn:org.eclipse.jetty.websocket/websocket-api/${jetty.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.eclipse.jetty.websocket/websocket-common/${jetty.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.eclipse.jetty.websocket/websocket-client/${jetty.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
     <bundle dependency='true'>wrap:mvn:org.apache.httpcomponents/httpmime/${httpclient4-version}$Export-Package=org.apache.http.*;version=${httpclient4-version}</bundle>
@@ -1485,13 +1485,13 @@
     <feature version='${upstream.version}'>camel-core</feature>
     <feature version='${cxf-version-range}'>cxf-core</feature>
     <feature version='${cxf-version-range}'>cxf-jaxrs</feature>
-    <bundle dependency='true'>mvn:org.eclipse.jetty/jetty-util/${jetty-version}</bundle>
-    <bundle dependency='true'>mvn:org.eclipse.jetty/jetty-io/${jetty-version}</bundle>
-    <bundle dependency='true'>mvn:org.eclipse.jetty/jetty-client/${jetty-version}</bundle>
-    <bundle dependency='true'>mvn:org.eclipse.jetty/jetty-http/${jetty-version}</bundle>
-    <bundle dependency='true'>mvn:org.eclipse.jetty.websocket/websocket-api/${jetty-version}</bundle>
-    <bundle dependency='true'>mvn:org.eclipse.jetty.websocket/websocket-common/${jetty-version}</bundle>
-    <bundle dependency='true'>mvn:org.eclipse.jetty.websocket/websocket-client/${jetty-version}</bundle>
+    <bundle dependency='true'>mvn:org.eclipse.jetty/jetty-util/${jetty.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.eclipse.jetty/jetty-io/${jetty.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.eclipse.jetty/jetty-client/${jetty.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.eclipse.jetty/jetty-http/${jetty.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.eclipse.jetty.websocket/websocket-api/${jetty.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.eclipse.jetty.websocket/websocket-common/${jetty.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.eclipse.jetty.websocket/websocket-client/${jetty.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
     <bundle dependency='true'>wrap:mvn:org.apache.httpcomponents/httpmime/${httpclient4-version}$Export-Package=org.apache.http.*;version=${httpclient4-version}</bundle>
