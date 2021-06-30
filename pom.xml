@@ -106,6 +106,7 @@
         <upstream.version>3.9.0</upstream.version>
         <camel-cxf.tesb.version>3.9.0.tesb1</camel-cxf.tesb.version>
         <camel-spring-xml.tesb.version>3.9.0.tesb1</camel-spring-xml.tesb.version>
+        <camel-activemq.tesb.version>3.9.0.tesb1</camel-activemq.tesb.version>
 
         <!-- unify the encoding for all the modules -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -254,6 +255,7 @@
                             -->
                             <camel-cxf.tesb.version>${camel-cxf.tesb.version}</camel-cxf.tesb.version>
                             <camel-spring-xml.tesb.version>${camel-spring-xml.tesb.version}</camel-spring-xml.tesb.version>
+                            <camel-activemq.tesb.version>${camel-activemq.tesb.version}</camel-activemq.tesb.version>
                         </properties>
                     </configuration>
                     <executions>
