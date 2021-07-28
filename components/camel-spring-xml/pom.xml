@@ -28,11 +28,13 @@
 
     <artifactId>camel-spring-xml</artifactId>
     <packaging>jar</packaging>
+    <version>${revision}</version>
 
     <name>Camel :: Spring XML</name>
     <description>Camel Spring with XML DSL</description>
 
     <properties>
+        <revision>${camel-spring-xml.tesb.version}</revision>
         <firstVersion>3.9.0</firstVersion>
         <label>spring</label>
         <supportLevel>Stable</supportLevel>
@@ -518,8 +520,9 @@
                                 <copy todir="${project.build.directory}/spring-meta" preservelastmodified="true">
                                     <fileset dir="${project.basedir}/src/main/resources" />
                                 </copy>
-                                <replace file="${project.build.directory}/spring-meta/META-INF/spring.handlers" token="\\${camel.schema.version}" value="${camel.schema.version}" preservelastmodified="true" />
-                                <replace file="${project.build.directory}/spring-meta/META-INF/spring.schemas" token="\\${camel.schema.version}" value="${camel.schema.version}" preservelastmodified="true" />
+                                <replace file="${project.build.directory}/spring-meta/META-INF/spring.handlers" token="$${camel.schema.version}" value="${camel.schema.version}" preservelastmodified="true" />
+                                <replace file="${project.build.directory}/spring-meta/META-INF/spring.schemas" token="$${camel.schema.version}" value="${camel.schema.version}" preservelastmodified="true" />
+                                <replace file="${project.build.directory}/spring-meta/META-INF/spring.schemas" token="$${camel.version}" value="${project.version}" preservelastmodified="true" />
                                 <copy todir="${project.build.directory}/classes" preservelastmodified="true">
                                     <fileset dir="${project.build.directory}/spring-meta" />
                                 </copy>
