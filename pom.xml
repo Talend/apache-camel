@@ -104,6 +104,16 @@
 
     <properties>
         <upstream.version>3.11.1</upstream.version>
+        <camel-main.tesb.version>3.11.1.tesb1</camel-main.tesb.version>
+        <camel-base-engine.tesb.version>3.11.1.tesb1</camel-base-engine.tesb.version>
+        
+        <!-- generated only due to UpdateEagerClassloadedHelper looking for target/classes within specific modules -->
+        <!-- remove this comment when we really need a .tesbX artifact -->
+        <camel-core-processor.tesb.version>3.11.1.tmp</camel-core-processor.tesb.version>
+
+        <!-- generated only due to UpdateEagerClassloadedHelper looking for target/classes within specific modules -->
+        <!-- remove this comment when we really need a .tesbX artifact -->
+        <camel-support.tesb.version>3.11.1.tmp</camel-support.tesb.version>
 
         <!-- unify the encoding for all the modules -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -252,6 +262,10 @@
                             <!-- something like :
                             <my.custom.property>${my.custom.property}</my.custom.property>
                             -->
+                            <camel-main.tesb.version>${camel-main.tesb.version}</camel-main.tesb.version>
+                            <camel-base-engine.tesb.version>${camel-base-engine.tesb.version}</camel-base-engine.tesb.version>
+                            <camel-core-processor.tesb.version>${camel-core-processor.tesb.version}</camel-core-processor.tesb.version>
+                            <camel-support.tesb.version>${camel-support.tesb.version}</camel-support.tesb.version>
                         </properties>
                     </configuration>
                     <executions>

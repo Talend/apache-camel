@@ -31,8 +31,11 @@
 
     <name>Camel :: Core Processor</name>
     <description>Camel core processors</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-core-processor.tesb.version}</revision>        
+        
         <firstVersion>3.7.0</firstVersion>
         <label>core</label>
     </properties>

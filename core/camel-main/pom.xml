@@ -30,8 +30,11 @@
     <packaging>jar</packaging>
     <name>Camel :: Main</name>
     <description>Camel Main</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-main.tesb.version}</revision>
+        
         <firstVersion>3.0</firstVersion>
         <label>core</label>
 

@@ -28,9 +28,14 @@
 
     <artifactId>camel-base-engine</artifactId>
     <packaging>jar</packaging>
+    <version>${revision}</version>
 
     <name>Camel :: Base Engine</name>
     <description>The Base Engine Camel Framework</description>
+    
+    <properties>
+        <revision>${camel-base-engine.tesb.version}</revision>
+    </properties>
 
     <dependencies>
 
