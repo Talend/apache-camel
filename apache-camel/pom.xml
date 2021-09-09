@@ -200,7 +200,7 @@
                             <includeGroupIds>org.apache.camel</includeGroupIds>
                             <includeScope>compile</includeScope>
                             <resourceBundles>
-                                <resourceBundle>org.apache.camel:*:${project.version}</resourceBundle>
+                                <resourceBundle>org.apache.camel:*:${upstream.version}</resourceBundle>
                             </resourceBundles>
                         </configuration>
                     </execution>

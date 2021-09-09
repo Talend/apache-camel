@@ -69,7 +69,7 @@
             <plugin>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-bundle-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>${upstream.version}</version>
                 <extensions>false</extensions>
                 <configuration>
                     <supportIncrementalBuild>true</supportIncrementalBuild>
@@ -87,8 +87,8 @@
                         <Provide-Capability>${camel.osgi.provide.capability}</Provide-Capability>
                         <Fragment-Host>org.apache.camel.camel-support</Fragment-Host>
                         <Implementation-Title>Apache Camel</Implementation-Title>
-                        <Implementation-Version>${project.version}</Implementation-Version>
-                        <Karaf-Info>Camel;${project.artifactId}=${project.version}</Karaf-Info>
+                        <Implementation-Version>${upstream.version}</Implementation-Version>
+                        <Karaf-Info>Camel;${project.artifactId}=${upstream.version}</Karaf-Info>
                         <_versionpolicy>${camel.osgi.import.default.version}</_versionpolicy>
                         <_failok>${camel.osgi.failok}</_failok>
                         <_removeheaders>Bnd-LastModified</_removeheaders>
