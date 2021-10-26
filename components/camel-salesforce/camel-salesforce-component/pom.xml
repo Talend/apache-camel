@@ -31,8 +31,10 @@
   <packaging>jar</packaging>
   <name>Camel :: Salesforce</name>
   <description>Camel Salesforce support</description>
+  <version>${revision}</version>
 
   <properties>
+    <revision>${camel-salesforce.tesb.version}</revision>
     <camel.osgi.export.pkg>
       org.apache.camel.component.salesforce,
       org.apache.camel.component.salesforce.api.*
