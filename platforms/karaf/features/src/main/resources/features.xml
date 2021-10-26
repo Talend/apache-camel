@@ -2040,7 +2040,7 @@
     <bundle dependency='true'>mvn:org.cometd.java/bayeux-api/${cometd-java-client-version}</bundle>
     <bundle dependency='true'>mvn:org.cometd.java/cometd-java-common/${cometd-java-client-version}</bundle>
     <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
-    <bundle>mvn:org.apache.camel/camel-salesforce/${upstream.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-salesforce/${camel-salesforce.tesb..version}</bundle>
   </feature>
   <feature name='camel-saxon' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
