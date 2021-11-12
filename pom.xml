@@ -253,7 +253,7 @@
               <xstream-j8.suffix>${xstream-j8.suffix}</xstream-j8.suffix>
               <xstream-j8.tesb.suffix>${xstream-j8.tesb.suffix}</xstream-j8.tesb.suffix>
               <xstream-bundle.tesb.version>${xstream-bundle.tesb.version}</xstream-bundle.tesb.version>
-              <commons-io.tesb.version>${commons-io.tesb.version>}</commons-io.tesb.version>
+              <commons-io.tesb.version>${commons-io.tesb.version}</commons-io.tesb.version>
               <commons-codec.tesb.version>${commons-codec.tesb.version}</commons-codec.tesb.version>
               <jetty.tesb.version>${jetty.tesb.version}</jetty.tesb.version>
               <!-- <activemq.tesb.version>${activemq.tesb.version}</activemq.tesb.version> -->
