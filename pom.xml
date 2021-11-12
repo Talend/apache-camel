@@ -44,7 +44,6 @@
     <camel-core.tesb.version>2.24.2.tesb1</camel-core.tesb.version>
     <camel-mqtt.tesb.version>2.24.2.tesb1</camel-mqtt.tesb.version>
     <camel-cxf.tesb.version>2.24.2.tesb4</camel-cxf.tesb.version>
-    <camel-salesforce.tesb.version>2.24.2.tesb1</camel-salesforce.tesb.version>
     <cxf.tesb.version>3.3.11</cxf.tesb.version>
     <woodstox-core.tesb.version>5.0.3</woodstox-core.tesb.version>
     <abdera-parser.tesb.version>1.1.3_2</abdera-parser.tesb.version>
@@ -238,7 +237,6 @@
               <camel-core.tesb.version>${camel-core.tesb.version}</camel-core.tesb.version>
               <camel-mqtt.tesb.version>${camel-mqtt.tesb.version}</camel-mqtt.tesb.version>
               <camel-cxf.tesb.version>${camel-cxf.tesb.version}</camel-cxf.tesb.version>
-              <camel-salesforce.tesb.version>${camel-salesforce.tesb.version}</camel-salesforce.tesb.version>
               <cxf.tesb.version>${cxf.tesb.version}</cxf.tesb.version>
               <woodstox-core.tesb.version>${woodstox-core.tesb.version}</woodstox-core.tesb.version>
               <abdera-parser.tesb.version>${abdera-parser.tesb.version}</abdera-parser.tesb.version>
@@ -255,7 +253,7 @@
               <xstream-j8.suffix>${xstream-j8.suffix}</xstream-j8.suffix>
               <xstream-j8.tesb.suffix>${xstream-j8.tesb.suffix}</xstream-j8.tesb.suffix>
               <xstream-bundle.tesb.version>${xstream-bundle.tesb.version}</xstream-bundle.tesb.version>
-              <commons-io.tesb.version>${commons-io.tesb.version>}</commons-io.tesb.version>
+              <commons-io.tesb.version>${commons-io.tesb.version}</commons-io.tesb.version>
               <commons-codec.tesb.version>${commons-codec.tesb.version}</commons-codec.tesb.version>
               <jetty.tesb.version>${jetty.tesb.version}</jetty.tesb.version>
               <!-- <activemq.tesb.version>${activemq.tesb.version}</activemq.tesb.version> -->
