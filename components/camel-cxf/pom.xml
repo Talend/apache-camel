@@ -28,11 +28,13 @@
 
     <artifactId>camel-cxf</artifactId>
     <packaging>jar</packaging>
+    <version>${revision}</version>
 
     <name>Camel :: CXF</name>
     <description>Camel CXF support</description>
 
     <properties>
+        <revision>${camel-cxf.tesb.version}</revision>
         <camel.osgi.import.defaults />
         <camel.osgi.import>
             !org.springframework.boot.*,
