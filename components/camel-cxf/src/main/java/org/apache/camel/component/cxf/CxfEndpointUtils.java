@@ -146,8 +146,8 @@ public final class CxfEndpointUtils {
             context.getClass().getMethod("getBlueprintContainer");
             Bus bus = CamelContextHelper.lookup(context, "cxf", Bus.class);
             if (bus != null) {
-                return bus; 
-            } 
+                return bus;
+            }
         } catch (NoSuchMethodException e) {
             LOG.debug("CamelContext is not for Blueprint");
         }
