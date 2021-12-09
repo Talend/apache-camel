@@ -265,6 +265,7 @@
                             -->
                             <camel-main.tesb.version>${camel-main.tesb.version}</camel-main.tesb.version>
                             <camel-base-engine.tesb.version>${camel-base-engine.tesb.version}</camel-base-engine.tesb.version>
+                            <camel-cxf.tesb.version>${camel-cxf.tesb.version}</camel-cxf.tesb.version>
                             <camel-core-processor.tesb.version>${camel-core-processor.tesb.version}</camel-core-processor.tesb.version>
                             <camel-support.tesb.version>${camel-support.tesb.version}</camel-support.tesb.version>
                         </properties>
