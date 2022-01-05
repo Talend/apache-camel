@@ -63,7 +63,7 @@
     <commons-io.tesb.version>2.8.0</commons-io.tesb.version>
     <commons-codec.tesb.version>1.15</commons-codec.tesb.version>
     <jetty.tesb.version>9.4.41.v20210516</jetty.tesb.version>
-    <xnlsec.tesb.version>2.1.7</xmlsec.tesb.version>
+    <xmlsec.tesb.version>2.1.7</xmlsec.tesb.version>
     <!-- <activemq.tesb.version>5.15.15</activemq.tesb.version> -->
 
     <!-- enforce to require using at least this maven version -->
@@ -257,7 +257,7 @@
               <commons-io.tesb.version>${commons-io.tesb.version}</commons-io.tesb.version>
               <commons-codec.tesb.version>${commons-codec.tesb.version}</commons-codec.tesb.version>
               <jetty.tesb.version>${jetty.tesb.version}</jetty.tesb.version>
-              <xnlsec.tesb.version>${xmlsec.tesb.version}</xmlsec.tesb.version>
+              <xmlsec.tesb.version>${xmlsec.tesb.version}</xmlsec.tesb.version>
               <!-- <activemq.tesb.version>${activemq.tesb.version}</activemq.tesb.version> -->
             </properties>
           </configuration>
