@@ -758,7 +758,7 @@ public class SalesforceComponentConfiguration
          */
         private String approvalComments;
         /**
-         * The ID of the submitter whoâ€™s requesting the approval record.
+         * The ID of the submitter who’s requesting the approval record.
          * 
          * @param contextActorId
          */
@@ -784,10 +784,10 @@ public class SalesforceComponentConfiguration
         private String approvalProcessDefinitionNameOrId;
         /**
          * Determines whether to evaluate the entry criteria for the process
-         * (true) or not (false) if the process definition name or ID isnâ€™t
-         * null. If the process definition name or ID isnâ€™t specified, this
+         * (true) or not (false) if the process definition name or ID isn’t
+         * null. If the process definition name or ID isn’t specified, this
          * argument is ignored, and standard evaluation is followed based on
-         * process order. By default, the entry criteria isnâ€™t skipped if itâ€™s
+         * process order. By default, the entry criteria isn’t skipped if it’s
          * not set by this request.
          * 
          * @param skipEntryCriteria
