@@ -64,6 +64,7 @@
     <commons-codec.tesb.version>1.15</commons-codec.tesb.version>
     <jetty.tesb.version>9.4.43.v20210629</jetty.tesb.version>
     <xmlsec.tesb.version>2.1.7</xmlsec.tesb.version>
+    <groovy.tesb.version>2.5.13</groovy.tesb.version>
     <!-- <activemq.tesb.version>5.15.15</activemq.tesb.version> -->
 
     <!-- enforce to require using at least this maven version -->
