@@ -40,7 +40,7 @@
   </prerequisites>
 
   <properties>
-    <apache-camel.features.tesb.version>2.24.2.tesb18</apache-camel.features.tesb.version>
+    <apache-camel.features.tesb.version>2.24.2.tesb19</apache-camel.features.tesb.version>
     <camel-core.tesb.version>2.24.2.tesb1</camel-core.tesb.version>
     <camel-mqtt.tesb.version>2.24.2.tesb1</camel-mqtt.tesb.version>
     <camel-cxf.tesb.version>2.24.2.tesb4</camel-cxf.tesb.version>
