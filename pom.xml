@@ -40,7 +40,7 @@
   </prerequisites>
 
   <properties>
-    <apache-camel.features.tesb.version>2.24.2.tesb19</apache-camel.features.tesb.version>
+    <apache-camel.features.tesb.version>2.24.2.tesb20</apache-camel.features.tesb.version>
     <camel-core.tesb.version>2.24.2.tesb1</camel-core.tesb.version>
     <camel-mqtt.tesb.version>2.24.2.tesb1</camel-mqtt.tesb.version>
     <camel-cxf.tesb.version>2.24.2.tesb4</camel-cxf.tesb.version>
@@ -65,6 +65,7 @@
     <jetty.tesb.version>9.4.43.v20210629</jetty.tesb.version>
     <xmlsec.tesb.version>2.1.7</xmlsec.tesb.version>
     <groovy.tesb.version>2.5.13</groovy.tesb.version>
+    <ehcache3.tesb.version>3.9.4</ehcache3.tesb.version>
     <ant-bundle.tesb.version>1.10.12_1</ant-bundle.tesb.version>
     <junit-bundle.tesb.version>4.13.2_1</junit-bundle.tesb.version>
     <!-- <activemq.tesb.version>5.15.15</activemq.tesb.version> -->
@@ -261,6 +262,7 @@
               <commons-codec.tesb.version>${commons-codec.tesb.version}</commons-codec.tesb.version>
               <jetty.tesb.version>${jetty.tesb.version}</jetty.tesb.version>
               <xmlsec.tesb.version>${xmlsec.tesb.version}</xmlsec.tesb.version>
+              <ehcache3.tesb.version>${ehcache3.tesb.version}</ehcache3.tesb.version>
               <ant-bundle.tesb.version>${ant-bundle.tesb.version}</ant-bundle.tesb.version>
               <junit-bundle.tesb.version>${junit-bundle.tesb.version}</junit-bundle.tesb.version>
               <!-- <activemq.tesb.version>${activemq.tesb.version}</activemq.tesb.version> -->
