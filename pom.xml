@@ -44,6 +44,9 @@
         <apache-camel.features.tesb.version>2.25.4.tesb1</apache-camel.features.tesb.version>
         <camel-mqtt.tesb.version>2.25.4.tesb1</camel-mqtt.tesb.version>
         <dom4j-bundle.tesb.version>2.1.3_1</dom4j-bundle.tesb.version>
+        <woodstox-core.tesb.version>5.0.3</woodstox-core.tesb.version>
+        <abdera-parser.tesb.version>1.1.3_2</abdera-parser.tesb.version>
+        <jackson2.tesb.version>2.10.1</jackson2.tesb.version>
 
         <!-- enforce to require using at least this maven version -->
         <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -220,6 +223,10 @@
                             -->
                             <apache-camel.features.tesb.version>${apache-camel.features.tesb.version}</apache-camel.features.tesb.version>
                             <camel-mqtt.tesb.version>${camel-mqtt.tesb.version}</camel-mqtt.tesb.version>
+                            <dom4j-bundle.tesb.version>${dom4j-bundle.tesb.version}</dom4j-bundle.tesb.version>
+                            <woodstox-core.tesb.version>${woodstox-core.tesb.version}</woodstox-core.tesb.version>
+                            <abdera-parser.tesb.version>${abdera-parser.tesb.version}</abdera-parser.tesb.version>
+                            <jackson2.tesb.version>${jackson2.tesb.version}</jackson2.tesb.version>
                         </properties>
                     </configuration>
                     <executions>
