@@ -135,7 +135,7 @@
           <replacements>
             <replacement>
               <token>ARTIFACT_VERSION</token>
-              <value>${project.version}</value>
+              <value>${upstream.version}</value>
             </replacement>
           </replacements>
         </configuration>

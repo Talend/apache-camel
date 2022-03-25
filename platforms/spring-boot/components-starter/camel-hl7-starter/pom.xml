@@ -37,7 +37,7 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-hl7</artifactId>
-      <version>${project.version}</version>
+      <version>${upstream.version}</version>
       <!--START OF GENERATED CODE-->
       <exclusions>
         <exclusion>
@@ -59,7 +59,7 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-netty4</artifactId>
-      <version>${project.version}</version>
+      <version>${upstream.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
