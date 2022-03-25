@@ -43,6 +43,7 @@
         <upstream.version>2.25.4</upstream.version>
         <apache-camel.features.tesb.version>2.25.4.tesb1</apache-camel.features.tesb.version>
         <camel-mqtt.tesb.version>2.25.4.tesb1</camel-mqtt.tesb.version>
+        <dom4j-bundle.tesb.version>2.1.3_1</dom4j-bundle.tesb.version>
 
         <!-- enforce to require using at least this maven version -->
         <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
