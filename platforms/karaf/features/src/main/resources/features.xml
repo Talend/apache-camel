@@ -2276,17 +2276,27 @@
     <bundle>mvn:org.apache.camel/camel-spring-ldap/${upstream.version}</bundle>
   </feature>
   <feature name='camel-spring-redis' version='${upstream.version}' resolver='(obr)' start-level='50'>
-    <details>Does not work with in OSGi actually</details>
+    <details>ESB implementation</details>
     <feature version='${upstream.version}'>camel-core</feature>
     <feature version='${spring-version-range}'>spring</feature>
     <feature version='${spring-version-range}'>spring-tx</feature>
+    <feature version='${spring-version-range}'>spring-oxm</feature>
+    <feature>camel-netty4</feature>
+    <feature>camel-reactive-streams</feature>
+    <feature>camel-reactor</feature>
     <bundle dependency='true'>mvn:commons-pool/commons-pool/${commons-pool-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.spring-data-redis/${spring-data-redis-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.spring-data-keyvalue/${spring-data-keyvalue-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.spring-data-commons/${spring-data-commons-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jedis/${jedis-client-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.commons/commons-pool2/${commons-pool2-version}</bundle>
-    <bundle>mvn:org.apache.camel/camel-spring-redis/${upstream.version}</bundle>
+    <bundle dependency='true'>wrap:mvn:io.lettuce/lettuce-core/6.1.5.RELEASE</bundle>
+    <bundle dependency='true'>wrap:mvn:com.querydsl/querydsl-core/4.4.0</bundle>
+    <bundle dependency='true'>wrap:mvn:com.querydsl/querydsl-collections/4.4.0</bundle>
+    <bundle dependency='true'>wrap:mvn:com.mysema.commons/mysema-commons-lang/0.2.4</bundle>
+    <bundle dependency='true'>wrap:mvn:com.mysema.codegen/codegen/0.6.8$overwrite=merge&amp;Import-Package=org.eclipse.jdt.core.compiler;version="[0,5)"</bundle>
+    <bundle dependency='true'>mvn:org.eclipse.jdt.core.compiler/ecj/4.5.1</bundle>
+    <bundle>wrap:mvn:org.apache.camel/camel-spring-redis/${upstream.version}$overwrite=merge&amp;Import-Package=org.springframework.data.geo,*</bundle>
   </feature>
   <feature name='camel-spring-security' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <details>camel-spring-security is deprecated</details>
