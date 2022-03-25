@@ -59,7 +59,7 @@
         <asm.tesb.version>8.0.1</asm.tesb.version>
         <commons-io.tesb.version>2.8.0</commons-io.tesb.version>
         <commons-codec.tesb.version>1.15</commons-codec.tesb.version>
-        <xstream-bundle.tesb.version>1.4.17_1</xstream-bundle.tesb.version>
+        <xstream-bundle.tesb.version>1.4.18_1</xstream-bundle.tesb.version>
         <jetty.tesb.version>9.4.41.v20210516</jetty.tesb.version>
 
         <!-- enforce to require using at least this maven version -->

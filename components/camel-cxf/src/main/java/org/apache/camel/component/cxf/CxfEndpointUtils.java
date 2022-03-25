@@ -25,8 +25,10 @@ import javax.xml.ws.WebServiceProvider;
 import org.apache.camel.CamelContext;
 import org.apache.camel.CamelException;
 import org.apache.camel.Exchange;
+import org.apache.camel.blueprint.BlueprintCamelContext;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
 import org.apache.camel.spring.SpringCamelContext;
+import org.apache.camel.util.CamelContextHelper;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -146,6 +148,13 @@ public final class CxfEndpointUtils {
     public static Bus createBus(CamelContext context) {
         BusFactory busFactory = BusFactory.newInstance();
 
+        if (context instanceof BlueprintCamelContext) {
+        	Bus bus = CamelContextHelper.lookup(context, "cxf", Bus.class);
+            if (bus != null) {
+            	return bus;	
+            } 
+        }
+        
         if (context instanceof SpringCamelContext) {
             SpringCamelContext springCamelContext = (SpringCamelContext) context;
             ApplicationContext applicationContext = springCamelContext.getApplicationContext();
