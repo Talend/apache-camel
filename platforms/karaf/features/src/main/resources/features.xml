@@ -2162,7 +2162,7 @@
     <bundle dependency='true'>mvn:org.apache.commons/commons-configuration2/${commons-configuration2-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.commons/commons-lang3/${commons-lang3-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.commons/commons-text/${commons-text-version}</bundle>
-    <bundle dependency='true'>mvn:org.apache.shiro/shiro-core/${shiro-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.shiro/shiro-core/${shiro.tesb.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-shiro/${upstream.version}</bundle>
   </feature>
   <feature name='camel-sip' version='${upstream.version}' resolver='(obr)' start-level='50'>
