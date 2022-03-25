@@ -64,6 +64,7 @@
         <xmlsec.tesb.version>2.1.7</xmlsec.tesb.version>
         <ant-bundle.tesb.version>1.10.12_1</ant-bundle.tesb.version>
         <junit-bundle.tesb.version>4.13.2_1</junit-bundle.tesb.version>
+        <ehcache3.tesb.version>3.9.4</ehcache3.tesb.version>
         
 
         <!-- enforce to require using at least this maven version -->
@@ -261,6 +262,7 @@
                             <xmlsec.tesb.version>${xmlsec.tesb.version}</xmlsec.tesb.version>
                             <ant-bundle.tesb.version>${ant-bundle.tesb.version}</ant-bundle.tesb.version>
                             <junit-bundle.tesb.version>${junit-bundle.tesb.version}</junit-bundle.tesb.version>
+                            <ehcache3.tesb.version>${ehcache3.tesb.version}</ehcache3.tesb.version>
                         </properties>
                     </configuration>
                     <executions>

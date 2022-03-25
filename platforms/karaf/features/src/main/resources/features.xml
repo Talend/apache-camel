@@ -597,7 +597,7 @@
   </feature>
   <feature name='camel-ehcache' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version="${upstream.version}">camel-core</feature>
-    <bundle dependency="true">mvn:org.ehcache/ehcache/${ehcache3-version}</bundle>
+    <bundle dependency="true">mvn:org.ehcache/ehcache/${ehcache3.tesb.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-ehcache/${upstream.version}</bundle>
   </feature>
   <feature name='camel-elsql' version='${upstream.version}' resolver='(obr)' start-level='50'>
