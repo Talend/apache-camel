@@ -49,6 +49,9 @@
         <abdera-parser.tesb.version>1.1.3_2</abdera-parser.tesb.version>
         <jackson2.tesb.version>2.10.1</jackson2.tesb.version>
         <shiro.tesb.version>1.5.3</shiro.tesb.version>
+        <reactive-streams.tesb.version>1.0.3</reactive-streams.tesb.version>
+        <netty-reactive-streams.tesb.version>2.0.5</netty-reactive-streams.tesb.version>
+        <async-http-client-netty-utils.tesb.version>2.12.1</async-http-client-netty-utils.tesb.version>
 
         <!-- enforce to require using at least this maven version -->
         <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -230,6 +233,9 @@
                             <abdera-parser.tesb.version>${abdera-parser.tesb.version}</abdera-parser.tesb.version>
                             <jackson2.tesb.version>${jackson2.tesb.version}</jackson2.tesb.version>
                             <shiro.tesb.version>${shiro.tesb.version}</shiro.tesb.version>
+                            <reactive-streams.tesb.version>${reactive-streams.tesb.version}</reactive-streams.tesb.version>
+                            <netty-reactive-streams.tesb.version>${netty-reactive-streams.tesb.version}</netty-reactive-streams.tesb.version>
+                            <async-http-client-netty-utils.tesb.version>${async-http-client-netty-utils.tesb.version}</async-http-client-netty-utils.tesb.version>
                         </properties>
                     </configuration>
                     <executions>
