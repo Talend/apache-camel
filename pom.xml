@@ -53,6 +53,9 @@
         <reactive-streams.tesb.version>1.0.3</reactive-streams.tesb.version>
         <netty-reactive-streams.tesb.version>2.0.5</netty-reactive-streams.tesb.version>
         <async-http-client-netty-utils.tesb.version>2.12.1</async-http-client-netty-utils.tesb.version>
+        <json-smart.tesb.version>2.4.2</json-smart.tesb.version>
+        <json-accessors-smart.tesb.version>2.4.2</json-accessors-smart.tesb.version>
+        <asm.tesb.version>8.0.1</asm.tesb.version>
 
         <!-- enforce to require using at least this maven version -->
         <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -238,6 +241,9 @@
                             <reactive-streams.tesb.version>${reactive-streams.tesb.version}</reactive-streams.tesb.version>
                             <netty-reactive-streams.tesb.version>${netty-reactive-streams.tesb.version}</netty-reactive-streams.tesb.version>
                             <async-http-client-netty-utils.tesb.version>${async-http-client-netty-utils.tesb.version}</async-http-client-netty-utils.tesb.version>
+                            <json-smart.tesb.version>${json-smart.tesb.version}</json-smart.tesb.version>
+                            <json-accessors-smart.tesb.version>${json-accessors-smart.tesb.version}</json-accessors-smart.tesb.version>
+                            <asm.tesb.version>${asm.tesb.version}</asm.tesb.version>
                         </properties>
                     </configuration>
                     <executions>

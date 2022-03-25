@@ -369,7 +369,7 @@
     <bundle dependency='true'>mvn:net.openhft/affinity/${openhft-affinity-version}</bundle>
     <bundle dependency='true'>mvn:net.openhft/compiler/${openhft-compiler-version}</bundle>
     <bundle dependency='true'>mvn:net.openhft/lang/${openhft-lang-version}</bundle>
-    <bundle dependency='true'>mvn:org.ow2.asm/asm/${asm-version}</bundle>
+    <bundle dependency='true'>mvn:org.ow2.asm/asm/${asm.tesb.version}</bundle>
     <bundle dependency='true'>mvn:net.openhft/chronicle-core/${chronicle-core-version}</bundle>
     <bundle dependency='true'>mvn:net.openhft/chronicle-bytes/${chronicle-bytes-version}</bundle>
     <bundle dependency='true'>mvn:net.openhft/chronicle-wire/${chronicle-wire-version}</bundle>
@@ -384,9 +384,9 @@
   <feature name='camel-chunk' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
     <bundle dependency='true'>mvn:commons-io/commons-io/${commons-io-version}</bundle>
-    <bundle dependency='true'>mvn:org.ow2.asm/asm/${asm-version}</bundle>
-    <bundle dependency='true'>mvn:net.minidev/json-smart-action/${json-smart-version}</bundle>
-    <bundle dependency='true'>mvn:net.minidev/accessors-smart/${json-accessors-smart-version}</bundle>
+    <bundle dependency='true'>mvn:org.ow2.asm/asm/${asm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:net.minidev/json-smart-action/${json-smart.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:net.minidev/accessors-smart/${json-accessors-smart.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.chunk-templates/${chunk-templates-bundle-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-chunk/${upstream.version}</bundle>
   </feature>
@@ -1340,9 +1340,9 @@
   </feature>
   <feature name='camel-johnzon' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
-    <bundle dependency='true'>mvn:org.ow2.asm/asm-commons/${asm-version}</bundle>
-    <bundle dependency='true'>mvn:org.ow2.asm/asm-tree/${asm-version}</bundle>
-    <bundle dependency='true'>mvn:org.ow2.asm/asm/${asm-version}</bundle>
+    <bundle dependency='true'>mvn:org.ow2.asm/asm-commons/${asm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.ow2.asm/asm-tree/${asm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.ow2.asm/asm/${asm.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.aries/org.apache.aries.util/${aries-util-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.aries.spifly/org.apache.aries.spifly.dynamic.bundle/${aries-spifly-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.johnzon/johnzon-core/${johnzon-version}</bundle>
@@ -1390,9 +1390,9 @@
   <feature name='camel-jsonpath' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
     <bundle>mvn:com.jayway.jsonpath/json-path/${json-path-version}</bundle>
-    <bundle>mvn:net.minidev/json-smart-action/${json-smart-version}</bundle>
-    <bundle>mvn:net.minidev/accessors-smart/${json-accessors-smart-version}</bundle>
-    <bundle dependency='true'>mvn:org.ow2.asm/asm/${asm-version}</bundle>
+    <bundle>mvn:net.minidev/json-smart-action/${json-smart.tesb.version}</bundle>
+    <bundle>mvn:net.minidev/accessors-smart/${json-accessors-smart.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.ow2.asm/asm/${asm.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2.tesb.version}</bundle>
@@ -1851,9 +1851,9 @@
     <bundle dependency='true'>mvn:com.google.guava/guava/${openstack4j-guava-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.aries/org.apache.aries.util/${aries-util-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.aries.spifly/org.apache.aries.spifly.dynamic.bundle/${aries-spifly-version}</bundle>
-    <bundle dependency='true'>mvn:org.ow2.asm/asm/${asm-version}</bundle>
-    <bundle dependency='true'>mvn:org.ow2.asm/asm-commons/${asm-version}</bundle>
-    <bundle dependency='true'>mvn:org.ow2.asm/asm-tree/${asm-version}</bundle>
+    <bundle dependency='true'>mvn:org.ow2.asm/asm/${asm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.ow2.asm/asm-commons/${asm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.ow2.asm/asm-tree/${asm.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.okhttp/${okclient-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.okio/${squareup-okio-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.pacesys/openstack4j-core/${openstack4j-version}</bundle>
@@ -2098,9 +2098,9 @@
   </feature>
   <feature name='camel-script-groovy' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-script</feature>
-    <bundle dependency='true'>mvn:org.ow2.asm/asm/${asm-version}</bundle>
-    <bundle dependency='true'>mvn:org.ow2.asm/asm-commons/${asm-version}</bundle>
-    <bundle dependency='true'>mvn:org.ow2.asm/asm-tree/${asm-version}</bundle>
+    <bundle dependency='true'>mvn:org.ow2.asm/asm/${asm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.ow2.asm/asm-commons/${asm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.ow2.asm/asm-tree/${asm.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.aries/org.apache.aries.util/${aries-util-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.aries.spifly/org.apache.aries.spifly.dynamic.bundle/${aries-spifly-version}</bundle>
     <bundle dependency='true'>mvn:org.codehaus.groovy/groovy/${groovy-version}</bundle>
