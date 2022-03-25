@@ -505,7 +505,7 @@
     <feature version='${cxf-version-range}'>cxf-features-logging</feature>
     <bundle>mvn:org.apache.camel/camel-http-common/${upstream.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-cxf-transport/${upstream.version}</bundle>
-    <bundle>mvn:org.apache.camel/camel-cxf/${upstream.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-cxf/${camel-cxf.tesb.version}</bundle>
   </feature>
   <feature name='camel-digitalocean' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>

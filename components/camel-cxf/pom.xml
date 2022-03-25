@@ -30,8 +30,10 @@
   <packaging>jar</packaging>
   <name>Camel :: CXF</name>
   <description>Camel CXF support</description>
+  <version>${revision}</version>
 
   <properties>
+    <revision>${camel-cxf.tesb.version}</revision>
     <camel.osgi.import>
       !org.springframework.boot.*,
       !org.springframework.context.annotation.*;resolution:=optional,

@@ -171,7 +171,7 @@ public class CxfRsProducer extends DefaultProducer implements AsyncProcessor {
         }
 
         //Build message entity
-        Entity<Object> entity = binding.bindCamelMessageToRequestEntity(body, inMessage, exchange);
+        Entity<Object> entity = binding.bindCamelMessageToRequestEntity(body, inMessage, exchange, client);
 
         // handle cookies
         CookieHandler cookieHandler = ((CxfRsEndpoint)getEndpoint()).getCookieHandler();

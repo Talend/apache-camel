@@ -28,21 +28,22 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.cxf.CXFTestSupport;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.test.junit4.CamelTestSupport;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.Test;
 
 /**
- * Tests different binding configuration options of the CXFRS consumer. 
+ * Tests different binding configuration options of the CXFRS consumer.
  */
 public class CxfRsBindingConfigurationSelectionTest extends CamelTestSupport {
-    
+
     private static final String RESOURCE_CLASS = "resourceClasses=org.apache.camel.component.cxf.jaxrs.simplebinding.testbean.CustomerServiceResource";
-    private static final String CXF_RS_ENDPOINT_URI_CUSTOM = String.format("cxfrs://http://localhost:%s/CxfRsConsumerTest/rest?bindingStyle=Custom&", CXFTestSupport.getPort2()) 
+    private static final String CXF_RS_ENDPOINT_URI_CUSTOM = String.format("cxfrs://http://localhost:%s/CxfRsConsumerTest/rest?bindingStyle=Custom&", CXFTestSupport.getPort2())
             + RESOURCE_CLASS + "&binding=#binding";
-    private static final String CXF_RS_ENDPOINT_URI_SIMPLE = String.format("cxfrs://http://localhost:%s/CxfRsConsumerTest/rest?bindingStyle=SimpleConsumer&", CXFTestSupport.getPort1()) 
+    private static final String CXF_RS_ENDPOINT_URI_SIMPLE = String.format("cxfrs://http://localhost:%s/CxfRsConsumerTest/rest?bindingStyle=SimpleConsumer&", CXFTestSupport.getPort1())
             + RESOURCE_CLASS;
     private static final String CXF_RS_ENDPOINT_URI_DEFAULT = String.format("cxfrs://http://localhost:%s/CxfRsConsumerTest/rest?bindingStyle=Default&", CXFTestSupport.getPort3()) + RESOURCE_CLASS;
     private static final String CXF_RS_ENDPOINT_URI_NONE = String.format("cxfrs://http://localhost:%s/CxfRsConsumerTest/rest?", CXFTestSupport.getPort4()) + RESOURCE_CLASS;
-    
+
     @Test
     public void testCxfRsBindingConfiguration() {
         // check binding styles
@@ -50,18 +51,18 @@ public class CxfRsBindingConfigurationSelectionTest extends CamelTestSupport {
         assertEquals(BindingStyle.SimpleConsumer, endpointForRouteId("simple").getBindingStyle());
         assertEquals(BindingStyle.Default, endpointForRouteId("default").getBindingStyle());
         assertEquals(BindingStyle.Default, endpointForRouteId("none").getBindingStyle());
-        
+
         // check binding implementations
         assertEquals(DummyCxfRsBindingImplementation.class, endpointForRouteId("custom").getBinding().getClass());
         assertEquals(SimpleCxfRsBinding.class, endpointForRouteId("simple").getBinding().getClass());
         assertEquals(DefaultCxfRsBinding.class, endpointForRouteId("default").getBinding().getClass());
         assertEquals(DefaultCxfRsBinding.class, endpointForRouteId("default").getBinding().getClass());
     }
-    
+
     private CxfRsEndpoint endpointForRouteId(String routeId) {
         return (CxfRsEndpoint) context.getRoute(routeId).getConsumer().getEndpoint();
     }
-    
+
     @Override
     protected JndiRegistry createRegistry() throws Exception {
         JndiRegistry answer = super.createRegistry();
@@ -72,23 +73,23 @@ public class CxfRsBindingConfigurationSelectionTest extends CamelTestSupport {
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() {
-                
+
                 from(CXF_RS_ENDPOINT_URI_CUSTOM).routeId("custom")
                     .to("log:foo");
-                
+
                 from(CXF_RS_ENDPOINT_URI_SIMPLE).routeId("simple")
                     .to("log:foo");
-                
+
                 from(CXF_RS_ENDPOINT_URI_DEFAULT).routeId("default")
                     .to("log:foo");
-                
+
                 from(CXF_RS_ENDPOINT_URI_NONE).routeId("none")
                     .to("log:foo");
-                
+
             }
         };
     }
-    
+
     private final class DummyCxfRsBindingImplementation implements CxfRsBinding {
         @Override
         public void populateExchangeFromCxfRsRequest(org.apache.cxf.message.Exchange cxfExchange, Exchange camelExchange, Method method, Object[] paramArray) {
@@ -121,6 +122,14 @@ public class CxfRsBindingConfigurationSelectionTest extends CamelTestSupport {
 
         @Override
         public MultivaluedMap<String, String> bindCamelHeadersToRequestHeaders(Map<String, Object> camelHeaders, Exchange camelExchange) throws Exception {
+            return null;
+        }
+
+        @Override
+        public Entity<Object> bindCamelMessageToRequestEntity(
+                Object body, Message camelMessage,
+                Exchange camelExchange, WebClient webClient)
+                throws Exception {
             return null;
         }
     }
