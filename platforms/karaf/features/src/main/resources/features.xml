@@ -1647,7 +1647,7 @@
     <bundle dependency='true'>mvn:org.fusesource.hawtdispatch/hawtdispatch/${hawtdispatch-version}</bundle>
     <bundle dependency='true'>mvn:org.fusesource.hawtdispatch/hawtdispatch-transport/${hawtdispatch-version}</bundle>
     <bundle dependency='true'>mvn:org.fusesource.hawtbuf/hawtbuf/${hawtbuf-version}</bundle>
-    <bundle>mvn:org.apache.camel/camel-mqtt/${upstream.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-mqtt/${camel-mqtt.tesb.version}</bundle>
   </feature>
   <feature name='camel-msv' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
