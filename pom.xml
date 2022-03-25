@@ -42,6 +42,7 @@
     <properties>
         <upstream.version>2.25.4</upstream.version>
         <apache-camel.features.tesb.version>2.25.4.tesb1</apache-camel.features.tesb.version>
+        <hibernate-validator.tesb.version>6.0.17.Final</hibernate-validator.tesb.version>
         <camel-mqtt.tesb.version>2.25.4.tesb1</camel-mqtt.tesb.version>
         <dom4j-bundle.tesb.version>2.1.3_1</dom4j-bundle.tesb.version>
         <woodstox-core.tesb.version>5.0.3</woodstox-core.tesb.version>
