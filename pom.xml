@@ -62,6 +62,9 @@
         <xstream-bundle.tesb.version>1.4.18_1</xstream-bundle.tesb.version>
         <jetty.tesb.version>9.4.43.v20210629</jetty.tesb.version>
         <xmlsec.tesb.version>2.1.7</xmlsec.tesb.version>
+        <ant-bundle.tesb.version>1.10.12_1</ant-bundle.tesb.version>
+        <junit-bundle.tesb.version>4.13.2_1</junit-bundle.tesb.version>
+        
 
         <!-- enforce to require using at least this maven version -->
         <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -256,6 +259,8 @@
                             <xstream-bundle.tesb.version>${xstream-bundle.tesb.version}</xstream-bundle.tesb.version>
                             <jetty.tesb.version>${jetty.tesb.version}</jetty.tesb.version>
                             <xmlsec.tesb.version>${xmlsec.tesb.version}</xmlsec.tesb.version>
+                            <ant-bundle.tesb.version>${ant-bundle.tesb.version}</ant-bundle.tesb.version>
+                            <junit-bundle.tesb.version>${junit-bundle.tesb.version}</junit-bundle.tesb.version>
                         </properties>
                     </configuration>
                     <executions>
