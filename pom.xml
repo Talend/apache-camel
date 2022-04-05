@@ -40,7 +40,7 @@
   </prerequisites>
 
   <properties>
-    <apache-camel.features.tesb.version>2.24.2.tesb20</apache-camel.features.tesb.version>
+    <apache-camel.features.tesb.version>2.24.2.tesb21</apache-camel.features.tesb.version>
     <camel-core.tesb.version>2.24.2.tesb1</camel-core.tesb.version>
     <camel-mqtt.tesb.version>2.24.2.tesb1</camel-mqtt.tesb.version>
     <camel-cxf.tesb.version>2.24.2.tesb4</camel-cxf.tesb.version>
@@ -69,6 +69,7 @@
     <ant-bundle.tesb.version>1.10.12_1</ant-bundle.tesb.version>
     <junit-bundle.tesb.version>4.13.2_1</junit-bundle.tesb.version>
     <!-- <activemq.tesb.version>5.15.15</activemq.tesb.version> -->
+    <spring-tesb-version-range>[5.2,6)</spring-tesb-version-range>
 
     <!-- enforce to require using at least this maven version -->
     <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -265,6 +266,7 @@
               <ehcache3.tesb.version>${ehcache3.tesb.version}</ehcache3.tesb.version>
               <ant-bundle.tesb.version>${ant-bundle.tesb.version}</ant-bundle.tesb.version>
               <junit-bundle.tesb.version>${junit-bundle.tesb.version}</junit-bundle.tesb.version>
+              <spring-tesb-version-range>${spring-tesb-version-range}</spring-tesb-version-range>
               <!-- <activemq.tesb.version>${activemq.tesb.version}</activemq.tesb.version> -->
             </properties>
           </configuration>
