@@ -49,7 +49,7 @@
     <abdera-parser.tesb.version>1.1.3_2</abdera-parser.tesb.version>
     <jackson1.tesb.version>1.9.12</jackson1.tesb.version>
     <jackson2.tesb.version>2.13.2</jackson2.tesb.version>
-    <jackson2-databind.tesb.version>2.13.2.2</jackson2.tesb.version>
+    <jackson2-databind.tesb.version>2.13.2.2</jackson2-databind.tesb.version>
     <c3p0-bundle.tesb.version>0.9.5.4_1</c3p0-bundle.tesb.version>
     <dom4j-bundle.tesb.version>2.1.3_1</dom4j-bundle.tesb.version>
     <hikaricp.tesb.version>2.4.13</hikaricp.tesb.version>
