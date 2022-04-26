@@ -48,7 +48,8 @@
         <dom4j-bundle.tesb.version>2.1.3_1</dom4j-bundle.tesb.version>
         <woodstox-core.tesb.version>5.0.3</woodstox-core.tesb.version>
         <abdera-parser.tesb.version>1.1.3_2</abdera-parser.tesb.version>
-        <jackson2.tesb.version>2.11.4</jackson2.tesb.version>
+        <jackson2.tesb.version>2.13.2</jackson2.tesb.version>
+        <jackson2-databind.tesb.version>2.13.2.2</jackson2-databind.tesb.version>
         <swagger-java.tesb.version>1.6.2</swagger-java.tesb.version>
         <shiro.tesb.version>1.5.3</shiro.tesb.version>
         <reactive-streams.tesb.version>1.0.3</reactive-streams.tesb.version>
@@ -65,7 +66,8 @@
         <ant-bundle.tesb.version>1.10.12_1</ant-bundle.tesb.version>
         <junit-bundle.tesb.version>4.13.2_1</junit-bundle.tesb.version>
         <ehcache3.tesb.version>3.9.4</ehcache3.tesb.version>
-        
+        <spring-tesb-version-range>[5.2,6)</spring-tesb-version-range>
+        <snakeyaml.tesb.version>1.30</snakeyaml.tesb.version>
 
         <!-- enforce to require using at least this maven version -->
         <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
