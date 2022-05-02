@@ -41,12 +41,15 @@
 
   <properties>
     <upstream.version>2.23.1</upstream.version>
-    <apache-camel.features.tesb.version>2.23.1.tesb5</apache-camel.features.tesb.version>
+    <apache-camel.features.tesb.version>2.23.1.tesb6</apache-camel.features.tesb.version>
     <camel-core.tesb.version>2.23.1.tesb2</camel-core.tesb.version>
     <camel.mqtt.tesb.version>2.23.1.tesb1</camel.mqtt.tesb.version>
     <tdm-saxon.tesb.version>9.7.0.211</tdm-saxon.tesb.version>
     <camel-saxon.tesb.version>2.23.1.tesb1</camel-saxon.tesb.version>
     <camel-cxf.tesb.version>2.23.1.tesb1</camel-cxf.tesb.version>
+    <jackson2.tesb.version>2.13.2</jackson2.tesb.version>
+    <jackson2-databind.tesb.version>2.13.2.2</jackson2-databind.tesb.version>
+    <spring-security-bundle.tesb.version>5.6.2_1</spring-security-bundle.tesb.version>
 
     <!-- enforce to require using at least this maven version -->
     <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -220,6 +223,9 @@
               <tdm-saxon.tesb.version>${tdm-saxon.tesb.version}</tdm-saxon.tesb.version>
               <camel-saxon.tesb.version>${camel-saxon.tesb.version}</camel-saxon.tesb.version>
               <camel-cxf.tesb.version>${camel-cxf.tesb.version}</camel-cxf.tesb.version>
+              <jackson2.tesb.version>${jackson2.tesb.version}</jackson2.tesb.version>
+              <jackson2-databind.tesb.version>${jackson2-databind.tesb.version}</jackson2-databind.tesb.version>
+              <spring-security-bundle.tesb.version>${spring-security-bundle.tesb.version}</spring-security-bundle.tesb.version>
               <!-- ADD HERE ALL THE CUSTOM PROPERTIES declared in the above <properties> part -->
               <!-- something like :
               <my.custom.property>${my.custom.property}</my.custom.property>
