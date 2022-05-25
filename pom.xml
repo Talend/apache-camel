@@ -104,9 +104,9 @@
     </distributionManagement>
 
     <properties>
-        <upstream.version>3.11.4</upstream.version>
-        
-        
+        <upstream.version>3.14.3</upstream.version>
+        <camel-cxf.tesb.version>3.14.3.20220610</camel-cxf.tesb.version>
+
         <!-- unify the encoding for all the modules -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -262,6 +262,7 @@
                             <!-- something like :
                             <my.custom.property>${my.custom.property}</my.custom.property>
                             -->
+                            <camel-cxf.tesb.version>${camel-cxf.tesb.version}</camel-cxf.tesb.version>
                         </properties>
                     </configuration>
                     <executions>
