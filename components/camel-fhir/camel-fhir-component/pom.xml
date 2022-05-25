@@ -64,7 +64,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-fhir-api</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
         </dependency>
 
         <!-- These aren't needed for compilation but makes camel-fhir easier to use for third party projects/users e.g wildfly-camel -->
@@ -163,7 +163,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-infra-common</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -171,7 +171,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-infra-fhir</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -323,7 +323,7 @@
                     <dependency>
                         <groupId>org.apache.camel</groupId>
                         <artifactId>camel-fhir-api</artifactId>
-                        <version>${project.version}</version>
+                        <version>${upstream.version}</version>
                         <classifier>sources</classifier>
                     </dependency>
                 </dependencies>
@@ -334,7 +334,7 @@
                 <plugin>
                     <groupId>org.apache.camel</groupId>
                     <artifactId>camel-api-component-maven-plugin</artifactId>
-                    <version>${project.version}</version>
+                    <version>${upstream.version}</version>
                     <configuration>
                         <scheme>${schemeName}</scheme>
                         <componentName>${componentName}</componentName>

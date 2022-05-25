@@ -90,7 +90,7 @@
             <plugin>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-api-component-maven-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>${upstream.version}</version>
                 <executions>
                     <execution>
                         <id>generate-test-component-classes</id>

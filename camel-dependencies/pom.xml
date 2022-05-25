@@ -114,7 +114,7 @@
     <camel.osgi.provide.capability></camel.osgi.provide.capability>
     <camel.osgi.require.capability></camel.osgi.require.capability>
     <camel.osgi.symbolic.name>${project.groupId}.${project.artifactId}</camel.osgi.symbolic.name>
-    <camel.osgi.version>version=${project.version}</camel.osgi.version>
+    <camel.osgi.version>version=${upstream.version}</camel.osgi.version>
     <camel.surefire.fork.vmargs>-XX:+ExitOnOutOfMemoryError</camel.surefire.fork.vmargs>
     <camel.surefire.forkCount>1</camel.surefire.forkCount>
     <camel.surefire.forkTimeout>600</camel.surefire.forkTimeout>

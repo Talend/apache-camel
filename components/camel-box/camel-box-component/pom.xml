@@ -581,7 +581,7 @@
                     <dependency>
                         <groupId>org.apache.camel</groupId>
                         <artifactId>camel-box-api</artifactId>
-                        <version>${project.version}</version>
+                        <version>${upstream.version}</version>
                         <classifier>sources</classifier>
                     </dependency>
                     <!-- Component API javadoc in provided scope to read API signatures -->
@@ -600,7 +600,7 @@
                 <plugin>
                     <groupId>org.apache.camel</groupId>
                     <artifactId>camel-api-component-maven-plugin</artifactId>
-                    <version>${project.version}</version>
+                    <version>${upstream.version}</version>
                     <configuration>
                         <scheme>${schemeName}</scheme>
                         <componentName>${componentName}</componentName>
