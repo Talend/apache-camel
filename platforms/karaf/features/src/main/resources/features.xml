@@ -19,8 +19,8 @@
 -->
 <features xmlns="http://karaf.apache.org/xmlns/features/v1.2.0" name='camel-${upstream.version}'>
 <!--  <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</repository>-->
-  <repository>mvn:org.apache.jclouds.karaf/jclouds-karaf/${jclouds-version}/xml/features</repository>
-  <repository>mvn:org.ops4j.pax.cdi/pax-cdi-features/${pax-cdi-version}/xml/features</repository>
+  <repository>mvn:org.apache.jclouds.karaf/jclouds-karaf/${jclouds.tesb.version}/xml/features</repository>
+  <repository>mvn:org.ops4j.pax.cdi/pax-cdi-features/${pax-cdi.tesb.version}/xml/features</repository>
   <repository>mvn:org.hibernate.validator/hibernate-validator-osgi-karaf-features/${hibernate-validator.tesb.version}/xml/features</repository>
   <repository>mvn:ca.uhn.hapi.fhir.karaf/hapi-fhir/${hapi-fhir-version}/xml/features</repository>
 
@@ -353,7 +353,7 @@
   <feature name='camel-cdi' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <details>camel-cdi in OSGi is deprecated. Use blueprint instead. camel-cdi requires that either pax-cdi-weld or pax-cdi-openwebbeans has been installed</details>
     <feature version='${upstream.version}'>camel-core</feature>
-    <feature version='${pax-cdi-version}'>pax-cdi</feature>
+    <feature version='${pax-cdi.tesb.version}'>pax-cdi</feature>
     <feature>eventadmin</feature>
     <bundle>mvn:org.apache.camel/camel-core-osgi/${upstream.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-cdi/${upstream.version}</bundle>
@@ -1258,9 +1258,9 @@
   </feature>
   <feature name='camel-jclouds' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
-    <feature version='${jclouds-version}'>jclouds</feature>
-    <feature version='${jclouds-version}'>jclouds-blobstore</feature>
-    <feature version='${jclouds-version}'>jclouds-compute</feature>
+    <feature version='${jclouds.tesb.version}'>jclouds</feature>
+    <feature version='${jclouds.tesb.version}'>jclouds-blobstore</feature>
+    <feature version='${jclouds.tesb.version}'>jclouds-compute</feature>
     <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr311-api-1.1.1/${servicemix-specs-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-jclouds/${upstream.version}</bundle>
   </feature>
