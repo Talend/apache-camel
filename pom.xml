@@ -54,7 +54,7 @@
         <shiro.tesb.version>1.8.0</shiro.tesb.version>
         <reactive-streams.tesb.version>1.0.3</reactive-streams.tesb.version>
         <netty-reactive-streams.tesb.version>2.0.5</netty-reactive-streams.tesb.version>
-        <netty.tesb.version>4.1.75</netty.tesb.version>
+        <netty.tesb.version>4.1.75.Final</netty.tesb.version>
         <async-http-client-netty-utils.tesb.version>2.12.1</async-http-client-netty-utils.tesb.version>
         <json-smart.tesb.version>2.4.7</json-smart.tesb.version>
         <json-accessors-smart.tesb.version>2.4.2</json-accessors-smart.tesb.version>
