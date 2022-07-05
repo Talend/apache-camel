@@ -72,7 +72,7 @@
         <snakeyaml.tesb.version>1.30</snakeyaml.tesb.version>
         <jclouds.tesb.version>2.1.2</jclouds.tesb.version>
         <pax-cdi.tesb.version>1.1.4</pax-cdi.tesb.version>
-        <tika.tesb.version>1.28.3</tika.tesb.version>
+        <tika.tesb.version>1.28.4</tika.tesb.version>
 
         <!-- enforce to require using at least this maven version -->
         <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
