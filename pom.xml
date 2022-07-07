@@ -51,15 +51,17 @@
         <jackson2.tesb.version>2.13.2</jackson2.tesb.version>
         <jackson2-databind.tesb.version>2.13.2.2</jackson2-databind.tesb.version>
         <swagger-java.tesb.version>1.6.2</swagger-java.tesb.version>
-        <shiro.tesb.version>1.5.3</shiro.tesb.version>
+        <shiro.tesb.version>1.8.0</shiro.tesb.version>
         <reactive-streams.tesb.version>1.0.3</reactive-streams.tesb.version>
         <netty-reactive-streams.tesb.version>2.0.5</netty-reactive-streams.tesb.version>
+        <netty.tesb.version>4.1.75.Final</netty.tesb.version>
         <async-http-client-netty-utils.tesb.version>2.12.1</async-http-client-netty-utils.tesb.version>
         <json-smart.tesb.version>2.4.7</json-smart.tesb.version>
         <json-accessors-smart.tesb.version>2.4.2</json-accessors-smart.tesb.version>
         <asm.tesb.version>8.0.1</asm.tesb.version>
         <commons-io.tesb.version>2.8.0</commons-io.tesb.version>
         <commons-codec.tesb.version>1.15</commons-codec.tesb.version>
+        <commons-compress.tesb.version>1.21</commons-compress.tesb.version>
         <xstream-bundle.tesb.version>1.4.19_1</xstream-bundle.tesb.version>
         <jetty.tesb.version>9.4.43.v20210629</jetty.tesb.version>
         <xmlsec.tesb.version>2.1.7</xmlsec.tesb.version>
@@ -68,6 +70,9 @@
         <ehcache3.tesb.version>3.9.4</ehcache3.tesb.version>
         <spring-tesb-version-range>[5.2,6)</spring-tesb-version-range>
         <snakeyaml.tesb.version>1.30</snakeyaml.tesb.version>
+        <jclouds.tesb.version>2.1.2</jclouds.tesb.version>
+        <pax-cdi.tesb.version>1.1.4</pax-cdi.tesb.version>
+        <tika.tesb.version>1.28.4</tika.tesb.version>
 
         <!-- enforce to require using at least this maven version -->
         <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -253,18 +258,25 @@
                             <shiro.tesb.version>${shiro.tesb.version}</shiro.tesb.version>
                             <reactive-streams.tesb.version>${reactive-streams.tesb.version}</reactive-streams.tesb.version>
                             <netty-reactive-streams.tesb.version>${netty-reactive-streams.tesb.version}</netty-reactive-streams.tesb.version>
+                            <netty.tesb.version>${netty.tesb.version}</netty.tesb.version>
                             <async-http-client-netty-utils.tesb.version>${async-http-client-netty-utils.tesb.version}</async-http-client-netty-utils.tesb.version>
                             <json-smart.tesb.version>${json-smart.tesb.version}</json-smart.tesb.version>
                             <json-accessors-smart.tesb.version>${json-accessors-smart.tesb.version}</json-accessors-smart.tesb.version>
                             <asm.tesb.version>${asm.tesb.version}</asm.tesb.version>
                             <commons-io.tesb.version>${commons-io.tesb.version}</commons-io.tesb.version>
                             <commons-codec.tesb.version>${commons-codec.tesb.version}</commons-codec.tesb.version>
+                            <commons-compress.tesb.version>${commons-compress.tesb.version}</commons-compress.tesb.version>
                             <xstream-bundle.tesb.version>${xstream-bundle.tesb.version}</xstream-bundle.tesb.version>
                             <jetty.tesb.version>${jetty.tesb.version}</jetty.tesb.version>
                             <xmlsec.tesb.version>${xmlsec.tesb.version}</xmlsec.tesb.version>
                             <ant-bundle.tesb.version>${ant-bundle.tesb.version}</ant-bundle.tesb.version>
                             <junit-bundle.tesb.version>${junit-bundle.tesb.version}</junit-bundle.tesb.version>
                             <ehcache3.tesb.version>${ehcache3.tesb.version}</ehcache3.tesb.version>
+                            <spring-tesb-version-range>${spring-tesb-version-range}</spring-tesb-version-range>
+                            <snakeyaml.tesb.version>${snakeyaml.tesb.version}</snakeyaml.tesb.version>
+                            <jclouds.tesb.version>${jclouds.tesb.version}</jclouds.tesb.version>
+                            <pax-cdi.tesb.version>${pax-cdi.tesb.version}</pax-cdi.tesb.version>
+                            <tika.tesb.version>${tika.tesb.version}</tika.tesb.version>
                         </properties>
                     </configuration>
                     <executions>
