@@ -48,6 +48,8 @@
         <dom4j-bundle.tesb.version>2.1.3_1</dom4j-bundle.tesb.version>
         <stax2-api.tesb.version>4.2.1</stax2-api.tesb.version>
         <woodstox-core.tesb.version>6.2.6</woodstox-core.tesb.version>
+        <qpid-jms-client.tesb.version>0.61.0</qpid-jms-client.tesb.version>
+        <qpid-proton-j.tesb.version>0.33.10</qpid-proton-j.tesb.version>
         <abdera-parser.tesb.version>1.1.3_2</abdera-parser.tesb.version>
         <jackson2.tesb.version>2.13.2</jackson2.tesb.version>
         <jackson2-databind.tesb.version>2.13.2.2</jackson2-databind.tesb.version>
@@ -254,6 +256,8 @@
                             <dom4j-bundle.tesb.version>${dom4j-bundle.tesb.version}</dom4j-bundle.tesb.version>
                             <stax2-api.tesb.version>${stax2-api.tesb.version}</stax2-api.tesb.version>
                             <woodstox-core.tesb.version>${woodstox-core.tesb.version}</woodstox-core.tesb.version>
+                            <qpid-jms-client.tesb.version>${qpid-jms-client.tesb.version}</qpid-jms-client.tesb.version>
+                            <qpid-proton-j.tesb.version>${qpid-proton-j.tesb.version}</qpid-proton-j.tesb.version>
                             <abdera-parser.tesb.version>${abdera-parser.tesb.version}</abdera-parser.tesb.version>
                             <jackson2.tesb.version>${jackson2.tesb.version}</jackson2.tesb.version>
                             <swagger-java.tesb.version>${swagger-java.tesb.version}</swagger-java.tesb.version>
