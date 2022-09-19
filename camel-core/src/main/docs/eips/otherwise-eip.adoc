@@ -1,3 +1,4 @@
+[[otherwise-eip]]
 = Otherwise EIP
 
 The Otherwise EIP is related to http://www.enterpriseintegrationpatterns.com/ContentBasedRouter.html[Content

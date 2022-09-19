@@ -1,3 +1,4 @@
+[[sample-eip]]
 = Sample EIP
 *Available as of Camel 2.1*
 

@@ -1,3 +1,4 @@
+[[threads-eip]]
 = Threads EIP
 The Threads Pattern allows you to introduce a thread pool into a route.
 

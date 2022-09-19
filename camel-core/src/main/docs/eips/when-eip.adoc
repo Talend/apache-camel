@@ -1,3 +1,4 @@
+[[when-eip]]
 = When EIP
 
 The When EIP is related to http://www.enterpriseintegrationpatterns.com/ContentBasedRouter.html[Content

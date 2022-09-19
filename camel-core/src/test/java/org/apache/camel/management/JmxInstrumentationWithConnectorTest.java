@@ -68,6 +68,7 @@ public class JmxInstrumentationWithConnectorTest extends JmxInstrumentationUsing
         log.info("Using port " + registryPort);
         url = "service:jmx:rmi:///jndi/rmi://localhost:" + registryPort + "/jmxrmi/camel";
 
+        System.setProperty("org.apache.camel.jmx.createRmiConnector.allow", "true");
         // need to explicit set it to false to use non-platform mbs
         System.setProperty(JmxSystemPropertyKeys.USE_PLATFORM_MBS, "false");
         System.setProperty(JmxSystemPropertyKeys.CREATE_CONNECTOR, "true");

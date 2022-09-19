@@ -1,3 +1,4 @@
+[[bean-eip]]
 = Bean EIP
 
 The *bean:* EIP binds beans to Camel message exchanges.

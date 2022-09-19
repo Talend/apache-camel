@@ -1,3 +1,4 @@
+[[script-eip]]
 = Script EIP
 *Available as of Camel 2.16*
 

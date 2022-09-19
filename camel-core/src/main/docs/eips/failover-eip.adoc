@@ -1,3 +1,4 @@
+[[failover-eip]]
 = Failover EIP
 
 Failover Load Balancer, with this policy in case of failures the exchange will be tried on the next endpoint.

@@ -1,3 +1,4 @@
+[[multicast-eip]]
 = Multicast EIP
 
 The Multicast EIP allows to route the same message to a number of endpoints
