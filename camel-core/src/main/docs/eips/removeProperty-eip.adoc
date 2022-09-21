@@ -1,3 +1,4 @@
+[[removeProperty-eip]]
 = Remove Property EIP
 
 The RemoveProperty EIP allows you to remove a Property from your exchange.

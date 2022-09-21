@@ -45,6 +45,7 @@
         <hibernate-validator.tesb.version>6.0.17.Final</hibernate-validator.tesb.version>
         <camel-mqtt.tesb.version>2.25.4.20220513</camel-mqtt.tesb.version>
         <camel-cxf.tesb.version>2.25.4.20220513</camel-cxf.tesb.version>
+        <camel-core.tesb.version>2.25.4.20220920</camel-core.tesb.version>
         <dom4j-bundle.tesb.version>2.1.3_1</dom4j-bundle.tesb.version>
         <stax2-api.tesb.version>4.2.1</stax2-api.tesb.version>
         <woodstox-core.tesb.version>6.2.6</woodstox-core.tesb.version>
@@ -57,7 +58,7 @@
         <shiro.tesb.version>1.8.0</shiro.tesb.version>
         <reactive-streams.tesb.version>1.0.3</reactive-streams.tesb.version>
         <netty-reactive-streams.tesb.version>2.0.5</netty-reactive-streams.tesb.version>
-        <netty.tesb.version>4.1.75.Final</netty.tesb.version>
+        <netty.tesb.version>4.1.77.Final</netty.tesb.version>
         <async-http-client-netty-utils.tesb.version>2.12.1</async-http-client-netty-utils.tesb.version>
         <json-smart.tesb.version>2.4.7</json-smart.tesb.version>
         <json-accessors-smart.tesb.version>2.4.2</json-accessors-smart.tesb.version>
@@ -66,7 +67,7 @@
         <commons-codec.tesb.version>1.15</commons-codec.tesb.version>
         <commons-compress.tesb.version>1.21</commons-compress.tesb.version>
         <xstream-bundle.tesb.version>1.4.19_1</xstream-bundle.tesb.version>
-        <jetty.tesb.version>9.4.43.v20210629</jetty.tesb.version>
+        <jetty.tesb.version>9.4.48.v20220622</jetty.tesb.version>
         <xmlsec.tesb.version>2.1.7</xmlsec.tesb.version>
         <ant-bundle.tesb.version>1.10.12_1</ant-bundle.tesb.version>
         <junit-bundle.tesb.version>4.13.2_1</junit-bundle.tesb.version>
@@ -253,6 +254,7 @@
                             <apache-camel.features.tesb.version>${apache-camel.features.tesb.version}</apache-camel.features.tesb.version>
                             <camel-mqtt.tesb.version>${camel-mqtt.tesb.version}</camel-mqtt.tesb.version>
                             <camel-cxf.tesb.version>${camel-cxf.tesb.version}</camel-cxf.tesb.version>
+                            <camel-core.tesb.version>${camel-core.tesb.version}</camel-core.tesb.version>
                             <dom4j-bundle.tesb.version>${dom4j-bundle.tesb.version}</dom4j-bundle.tesb.version>
                             <stax2-api.tesb.version>${stax2-api.tesb.version}</stax2-api.tesb.version>
                             <woodstox-core.tesb.version>${woodstox-core.tesb.version}</woodstox-core.tesb.version>

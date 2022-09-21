@@ -1,3 +1,4 @@
+[[toD-eip]]
 = To D EIP
 
 There is a new `.toD` / `<toD>` that allows to send a message to a dynamic

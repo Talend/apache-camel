@@ -506,14 +506,14 @@ public class DefaultManagementAgent extends ServiceSupport implements Management
 
         try {
             // Create the connector if we need
-            if (createConnector) {
+            if (createConnector && allowCreateJmxConnector()) {
                 createJmxConnector(hostName);
             }
         } catch (IOException ioe) {
             LOG.warn("Could not create and start JMX connector.", ioe);
         }
     }
-    
+
     protected MBeanServer findOrCreateMBeanServer() {
 
         // return platform mbean server if the option is specified.
@@ -577,4 +577,11 @@ public class DefaultManagementAgent extends ServiceSupport implements Management
         thread.start();
     }
 
+    private boolean allowCreateJmxConnector() {
+        if (!Boolean.getBoolean("org.apache.camel.jmx.createRmiConnector.allow")) {
+            LOG.warn("Creation of JMX RMI connector has been disallowed.");
+            return false;
+        }
+        return true;
+    }
 }

@@ -1,3 +1,4 @@
+[[inOnly-eip]]
 = In Only EIP
 
 The *inOnly:* EIP define an InOnly ExchangePattern.

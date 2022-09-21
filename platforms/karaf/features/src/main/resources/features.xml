@@ -40,7 +40,7 @@
   </feature>
   <feature name='camel-core' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${servicemix-specs-version}'>xml-specs-api</feature>
-    <bundle>mvn:org.apache.camel/camel-core/${upstream.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-core/${camel-core.tesb.version}</bundle>
     <conditional>
       <condition>shell</condition>
       <bundle>mvn:org.apache.camel/camel-commands-core/${upstream.version}</bundle>
@@ -1613,11 +1613,11 @@
     <bundle dependency='true'>mvn:org.jooq/jool/${jool-version}</bundle>
     <bundle dependency='true'>mvn:com.google.code.findbugs/jsr305/${google-findbugs-jsr305-version}</bundle>
     <bundle dependency='true'>mvn:com.google.code.findbugs/annotations/${google-findbugs-annotations2-version}</bundle>
-    <bundle dependency='true'>mvn:io.netty/netty-common/${netty40-version}</bundle>
-    <bundle dependency='true'>mvn:io.netty/netty-buffer/${netty40-version}</bundle>
-    <bundle dependency='true'>mvn:io.netty/netty-handler/${netty40-version}</bundle>
-    <bundle dependency='true'>mvn:io.netty/netty-transport/${netty40-version}</bundle>
-    <bundle dependency='true'>mvn:io.netty/netty-codec/${netty40-version}</bundle>
+    <bundle dependency='true'>mvn:io.netty/netty-common/${netty.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:io.netty/netty-buffer/${netty.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:io.netty/netty-handler/${netty.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:io.netty/netty-transport/${netty.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:io.netty/netty-codec/${netty.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.google.guava/guava/${google-guava-version}</bundle>
     <bundle dependency='true'>mvn:org.eclipse.milo/stack-core/${milo-version}</bundle>
     <bundle dependency='true'>mvn:org.eclipse.milo/stack-server/${milo-version}</bundle>
