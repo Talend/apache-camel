@@ -73,7 +73,7 @@
         <junit-bundle.tesb.version>4.13.2_1</junit-bundle.tesb.version>
         <ehcache3.tesb.version>3.9.4</ehcache3.tesb.version>
         <spring-tesb-version-range>[5.2,6)</spring-tesb-version-range>
-        <snakeyaml.tesb.version>1.30</snakeyaml.tesb.version>
+        <snakeyaml.tesb.version>1.32</snakeyaml.tesb.version>
         <jclouds.tesb.version>2.1.2</jclouds.tesb.version>
         <pax-cdi.tesb.version>1.1.4</pax-cdi.tesb.version>
         <tika.tesb.version>1.28.4</tika.tesb.version>
