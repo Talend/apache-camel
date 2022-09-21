@@ -72,7 +72,7 @@
     <feature version='${upstream.version}'>camel-core</feature>
     <feature>scr</feature>
     <feature>eventadmin</feature>
-    <bundle dependency='true'>mvn:org.apache.camel/camel-core-osgi/${upstream.version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.camel/camel-core-osgi/${camel-core.tesb.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-scr/${upstream.version}</bundle>
   </feature>
 
@@ -355,7 +355,7 @@
     <feature version='${upstream.version}'>camel-core</feature>
     <feature version='${pax-cdi.tesb.version}'>pax-cdi</feature>
     <feature>eventadmin</feature>
-    <bundle>mvn:org.apache.camel/camel-core-osgi/${upstream.version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-core-osgi/${camel-core.tesb.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-cdi/${upstream.version}</bundle>
   </feature>
   <feature name='camel-chronicle' version='${upstream.version}' resolver='(obr)' start-level='50'>
@@ -1464,7 +1464,7 @@
     <feature version='${upstream.version}'>camel-core</feature>
     <feature>scr</feature>
     <bundle dependency='true'>mvn:org.osgi/org.osgi.service.event/1.4.0</bundle>
-    <bundle dependency='true'>mvn:org.apache.camel/camel-core-osgi/${upstream.version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.camel/camel-core-osgi/${camel-core.tesb.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-kura/${upstream.version}</bundle>
   </feature>
   <feature name='camel-ldap' version='${upstream.version}' resolver='(obr)' start-level='50'>

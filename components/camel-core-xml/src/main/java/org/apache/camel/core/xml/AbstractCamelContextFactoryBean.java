@@ -557,7 +557,7 @@ public abstract class AbstractCamelContextFactoryBean<T extends ModelCamelContex
             if (camelJMXAgent.getConnectorPort() != null) {
                 agent.setConnectorPort(CamelContextHelper.parseInteger(getContext(), camelJMXAgent.getConnectorPort()));
             }
-            if (camelJMXAgent.getCreateConnector() != null) {
+            if (camelJMXAgent.getCreateConnector() != null && allowCreateJmxConnector()) {
                 agent.setCreateConnector(CamelContextHelper.parseBoolean(getContext(), camelJMXAgent.getCreateConnector()));
             }
             if (camelJMXAgent.getMbeanObjectDomainName() != null) {
@@ -1240,5 +1240,13 @@ public abstract class AbstractCamelContextFactoryBean<T extends ModelCamelContex
             LOG.info("Using custom MessageHistoryFactory: {}", messageHistoryFactory);
             getContext().setMessageHistoryFactory(messageHistoryFactory);
         }
+    }
+
+    private static boolean allowCreateJmxConnector() {
+        if (!Boolean.getBoolean("org.apache.camel.jmx.createRmiConnector.allow")) {
+            LOG.warn("Creation of JMX RMI connector has been disallowed.");
+            return false;
+        }
+        return true;
     }
 }
