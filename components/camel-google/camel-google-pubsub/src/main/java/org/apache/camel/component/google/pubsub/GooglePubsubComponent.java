@@ -17,21 +17,27 @@
 package org.apache.camel.component.google.pubsub;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
+import com.google.api.gax.rpc.StatusCode;
 import com.google.api.gax.rpc.TransportChannelProvider;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.pubsub.v1.MessageReceiver;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.pubsub.v1.Subscriber;
+import com.google.cloud.pubsub.v1.stub.PublisherStubSettings;
 import com.google.cloud.pubsub.v1.stub.SubscriberStub;
 import com.google.cloud.pubsub.v1.stub.SubscriberStubSettings;
 import com.google.common.cache.Cache;
@@ -40,6 +46,7 @@ import com.google.common.cache.RemovalListener;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.apache.camel.Endpoint;
+import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.annotations.Component;
 import org.apache.camel.support.DefaultComponent;
@@ -48,6 +55,7 @@ import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Duration;
 
 /**
  * Represents the component that manages {@link GooglePubsubEndpoint}.
@@ -62,9 +70,13 @@ public class GooglePubsubComponent extends DefaultComponent {
     private String endpoint;
 
     @Metadata(label = "common",
+              description = "Use Credentials when interacting with PubSub service (no authentication is required when using emulator).",
+              defaultValue = "true")
+    private boolean authenticate = true;
+
+    @Metadata(label = "common",
               description = "The Service account key that can be used as credentials for the PubSub publisher/subscriber. It can be loaded by default from "
-                            + " classpath, but you can prefix with classpath:, file:, or http: to load the resource from different systems.",
-              required = true)
+                            + " classpath, but you can prefix with classpath:, file:, or http: to load the resource from different systems.")
     private String serviceAccountKey;
 
     @Metadata(
@@ -82,6 +94,11 @@ public class GooglePubsubComponent extends DefaultComponent {
               description = "How many milliseconds should a producer be allowed to terminate.")
     private int publisherTerminationTimeout = 60000;
 
+    @Metadata(
+              label = "consumer",
+              description = "Comma-separated list of additional retryable error codes for synchronous pull. By default the PubSub client library retries ABORTED, UNAVAILABLE, UNKNOWN")
+    private String synchronousPullRetryableCodes;
+
     private RemovalListener<String, Publisher> removalListener = removal -> {
         Publisher publisher = removal.getValue();
         if (publisher == null) {
@@ -91,7 +108,7 @@ public class GooglePubsubComponent extends DefaultComponent {
         try {
             publisher.awaitTermination(publisherTerminationTimeout, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeCamelException(e);
         }
     };
 
@@ -114,10 +131,11 @@ public class GooglePubsubComponent extends DefaultComponent {
                     "Google PubSub Endpoint format \"projectId:destinationName[:subscriptionName]\"");
         }
 
-        GooglePubsubEndpoint pubsubEndpoint = new GooglePubsubEndpoint(uri, this, remaining);
+        GooglePubsubEndpoint pubsubEndpoint = new GooglePubsubEndpoint(uri, this);
         pubsubEndpoint.setProjectId(parts[0]);
         pubsubEndpoint.setDestinationName(parts[1]);
         pubsubEndpoint.setServiceAccountKey(serviceAccountKey);
+        pubsubEndpoint.setAuthenticate(authenticate);
 
         setProperties(pubsubEndpoint, parameters);
 
@@ -131,12 +149,12 @@ public class GooglePubsubComponent extends DefaultComponent {
         super.doShutdown();
     }
 
-    public Publisher getPublisher(String topicName, GooglePubsubEndpoint googlePubsubEndpoint, String serviceAccountKey)
+    public Publisher getPublisher(String topicName, GooglePubsubEndpoint googlePubsubEndpoint)
             throws ExecutionException {
-        return cachedPublishers.get(topicName, () -> buildPublisher(topicName, googlePubsubEndpoint, serviceAccountKey));
+        return cachedPublishers.get(topicName, () -> buildPublisher(topicName, googlePubsubEndpoint));
     }
 
-    private Publisher buildPublisher(String topicName, GooglePubsubEndpoint googlePubsubEndpoint, String serviceAccountKey)
+    private Publisher buildPublisher(String topicName, GooglePubsubEndpoint googlePubsubEndpoint)
             throws IOException {
         Publisher.Builder builder = Publisher.newBuilder(topicName);
         if (StringHelper.trimToNull(endpoint) != null) {
@@ -145,15 +163,7 @@ public class GooglePubsubComponent extends DefaultComponent {
                     = FixedTransportChannelProvider.create(GrpcTransportChannel.create(channel));
             builder.setChannelProvider(channelProvider);
         }
-        CredentialsProvider credentialsProvider;
-        if (ObjectHelper.isEmpty(serviceAccountKey)) {
-            credentialsProvider = NoCredentialsProvider.create();
-        } else {
-            InputStream serviceAccountFile
-                    = ResourceHelper.resolveMandatoryResourceAsInputStream(getCamelContext(), serviceAccountKey);
-            credentialsProvider = FixedCredentialsProvider.create(ServiceAccountCredentials.fromStream(serviceAccountFile));
-        }
-        builder.setCredentialsProvider(credentialsProvider);
+        builder.setCredentialsProvider(getCredentialsProvider(googlePubsubEndpoint));
         if (StringHelper.trimToNull(googlePubsubEndpoint.getPubsubEndpoint()) != null) {
             builder.setEndpoint(googlePubsubEndpoint.getPubsubEndpoint());
         }
@@ -167,7 +177,8 @@ public class GooglePubsubComponent extends DefaultComponent {
         return builder.build();
     }
 
-    public Subscriber getSubscriber(String subscriptionName, MessageReceiver messageReceiver, String serviceAccountKey)
+    public Subscriber getSubscriber(
+            String subscriptionName, MessageReceiver messageReceiver, GooglePubsubEndpoint googlePubsubEndpoint)
             throws IOException {
         Subscriber.Builder builder = Subscriber.newBuilder(subscriptionName, messageReceiver);
         if (StringHelper.trimToNull(endpoint) != null) {
@@ -176,21 +187,25 @@ public class GooglePubsubComponent extends DefaultComponent {
                     = FixedTransportChannelProvider.create(GrpcTransportChannel.create(channel));
             builder.setChannelProvider(channelProvider);
         }
-        CredentialsProvider credentialsProvider;
-        if (ObjectHelper.isEmpty(serviceAccountKey)) {
-            credentialsProvider = NoCredentialsProvider.create();
-        } else {
-            InputStream serviceAccountFile
-                    = ResourceHelper.resolveMandatoryResourceAsInputStream(getCamelContext(), serviceAccountKey);
-            credentialsProvider = FixedCredentialsProvider.create(ServiceAccountCredentials.fromStream(serviceAccountFile));
-        }
-        builder.setCredentialsProvider(credentialsProvider);
+        builder.setCredentialsProvider(getCredentialsProvider(googlePubsubEndpoint));
+        builder.setMaxAckExtensionPeriod(Duration.ofSeconds(googlePubsubEndpoint.getMaxAckExtensionPeriod()));
         return builder.build();
     }
 
-    public SubscriberStub getSubscriberStub(String serviceAccountKey) throws IOException {
+    public SubscriberStub getSubscriberStub(GooglePubsubEndpoint googlePubsubEndpoint) throws IOException {
         SubscriberStubSettings.Builder builder = SubscriberStubSettings.newBuilder().setTransportChannelProvider(
                 SubscriberStubSettings.defaultGrpcTransportProviderBuilder().build());
+
+        if (synchronousPullRetryableCodes != null) {
+            // retrieve the default retryable codes and add the ones specified as a component option
+            Set<StatusCode.Code> retryableCodes = new HashSet<>(builder.pullSettings().getRetryableCodes());
+            Set<StatusCode.Code> customRetryableCodes = Stream.of(synchronousPullRetryableCodes.split(","))
+                    .map(String::trim)
+                    .map(StatusCode.Code::valueOf)
+                    .collect(Collectors.toSet());
+            retryableCodes.addAll(customRetryableCodes);
+            builder.pullSettings().setRetryableCodes(retryableCodes);
+        }
 
         if (StringHelper.trimToNull(endpoint) != null) {
             ManagedChannel channel = ManagedChannelBuilder.forTarget(endpoint).usePlaintext().build();
@@ -198,16 +213,23 @@ public class GooglePubsubComponent extends DefaultComponent {
                     = FixedTransportChannelProvider.create(GrpcTransportChannel.create(channel));
             builder.setTransportChannelProvider(channelProvider);
         }
-        CredentialsProvider credentialsProvider;
-        if (ObjectHelper.isEmpty(serviceAccountKey)) {
-            credentialsProvider = NoCredentialsProvider.create();
-        } else {
-            InputStream serviceAccountFile
-                    = ResourceHelper.resolveMandatoryResourceAsInputStream(getCamelContext(), serviceAccountKey);
-            credentialsProvider = FixedCredentialsProvider.create(ServiceAccountCredentials.fromStream(serviceAccountFile));
-        }
-        builder.setCredentialsProvider(credentialsProvider);
+        builder.setCredentialsProvider(getCredentialsProvider(googlePubsubEndpoint));
         return builder.build().createStub();
+    }
+
+    private CredentialsProvider getCredentialsProvider(GooglePubsubEndpoint endpoint) throws IOException {
+        CredentialsProvider credentialsProvider;
+
+        if (endpoint.isAuthenticate()) {
+            credentialsProvider = FixedCredentialsProvider.create(ObjectHelper.isEmpty(endpoint.getServiceAccountKey())
+                    ? GoogleCredentials.getApplicationDefault() : ServiceAccountCredentials.fromStream(ResourceHelper
+                            .resolveMandatoryResourceAsInputStream(getCamelContext(), endpoint.getServiceAccountKey()))
+                            .createScoped(PublisherStubSettings.getDefaultServiceScopes()));
+        } else {
+            credentialsProvider = NoCredentialsProvider.create();
+        }
+
+        return credentialsProvider;
     }
 
     public String getEndpoint() {
@@ -242,11 +264,27 @@ public class GooglePubsubComponent extends DefaultComponent {
         this.publisherTerminationTimeout = publisherTerminationTimeout;
     }
 
+    public boolean isAuthenticate() {
+        return authenticate;
+    }
+
+    public void setAuthenticate(boolean authenticate) {
+        this.authenticate = authenticate;
+    }
+
     public String getServiceAccountKey() {
         return serviceAccountKey;
     }
 
     public void setServiceAccountKey(String serviceAccountKey) {
         this.serviceAccountKey = serviceAccountKey;
+    }
+
+    public String getSynchronousPullRetryableCodes() {
+        return synchronousPullRetryableCodes;
+    }
+
+    public void setSynchronousPullRetryableCodes(String synchronousPullRetryableCodes) {
+        this.synchronousPullRetryableCodes = synchronousPullRetryableCodes;
     }
 }

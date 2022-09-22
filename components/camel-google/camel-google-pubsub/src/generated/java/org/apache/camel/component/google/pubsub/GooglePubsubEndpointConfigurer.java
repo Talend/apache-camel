@@ -23,6 +23,7 @@ public class GooglePubsubEndpointConfigurer extends PropertyConfigurerSupport im
         switch (ignoreCase ? name.toLowerCase() : name) {
         case "ackmode":
         case "ackMode": target.setAckMode(property(camelContext, org.apache.camel.component.google.pubsub.GooglePubsubConstants.AckMode.class, value)); return true;
+        case "authenticate": target.setAuthenticate(property(camelContext, boolean.class, value)); return true;
         case "bridgeerrorhandler":
         case "bridgeErrorHandler": target.setBridgeErrorHandler(property(camelContext, boolean.class, value)); return true;
         case "concurrentconsumers":
@@ -35,6 +36,8 @@ public class GooglePubsubEndpointConfigurer extends PropertyConfigurerSupport im
         case "lazyStartProducer": target.setLazyStartProducer(property(camelContext, boolean.class, value)); return true;
         case "loggerid":
         case "loggerId": target.setLoggerId(property(camelContext, java.lang.String.class, value)); return true;
+        case "maxackextensionperiod":
+        case "maxAckExtensionPeriod": target.setMaxAckExtensionPeriod(property(camelContext, int.class, value)); return true;
         case "maxmessagesperpoll":
         case "maxMessagesPerPoll": target.setMaxMessagesPerPoll(property(camelContext, java.lang.Integer.class, value)); return true;
         case "messageorderingenabled":
@@ -60,6 +63,7 @@ public class GooglePubsubEndpointConfigurer extends PropertyConfigurerSupport im
         switch (ignoreCase ? name.toLowerCase() : name) {
         case "ackmode":
         case "ackMode": return org.apache.camel.component.google.pubsub.GooglePubsubConstants.AckMode.class;
+        case "authenticate": return boolean.class;
         case "bridgeerrorhandler":
         case "bridgeErrorHandler": return boolean.class;
         case "concurrentconsumers":
@@ -72,6 +76,8 @@ public class GooglePubsubEndpointConfigurer extends PropertyConfigurerSupport im
         case "lazyStartProducer": return boolean.class;
         case "loggerid":
         case "loggerId": return java.lang.String.class;
+        case "maxackextensionperiod":
+        case "maxAckExtensionPeriod": return int.class;
         case "maxmessagesperpoll":
         case "maxMessagesPerPoll": return java.lang.Integer.class;
         case "messageorderingenabled":
@@ -93,6 +99,7 @@ public class GooglePubsubEndpointConfigurer extends PropertyConfigurerSupport im
         switch (ignoreCase ? name.toLowerCase() : name) {
         case "ackmode":
         case "ackMode": return target.getAckMode();
+        case "authenticate": return target.isAuthenticate();
         case "bridgeerrorhandler":
         case "bridgeErrorHandler": return target.isBridgeErrorHandler();
         case "concurrentconsumers":
@@ -105,6 +112,8 @@ public class GooglePubsubEndpointConfigurer extends PropertyConfigurerSupport im
         case "lazyStartProducer": return target.isLazyStartProducer();
         case "loggerid":
         case "loggerId": return target.getLoggerId();
+        case "maxackextensionperiod":
+        case "maxAckExtensionPeriod": return target.getMaxAckExtensionPeriod();
         case "maxmessagesperpoll":
         case "maxMessagesPerPoll": return target.getMaxMessagesPerPoll();
         case "messageorderingenabled":
