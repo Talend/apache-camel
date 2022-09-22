@@ -20,11 +20,12 @@ public class GrpcEndpointUriFactory extends org.apache.camel.support.component.E
     private static final Set<String> PROPERTY_NAMES;
     private static final Set<String> SECRET_PROPERTY_NAMES;
     static {
-        Set<String> props = new HashSet<>(31);
+        Set<String> props = new HashSet<>(32);
         props.add("serviceAccountResource");
         props.add("synchronous");
         props.add("jwtSubject");
         props.add("trustCertCollectionResource");
+        props.add("autoDiscoverServerInterceptors");
         props.add("forwardOnCompleted");
         props.add("jwtIssuer");
         props.add("bridgeErrorHandler");

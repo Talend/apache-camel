@@ -64,12 +64,16 @@ public class GrpcConsumerAggregationTest extends CamelTestSupport {
 
     @AfterEach
     public void stopGrpcChannels() {
-        syncRequestChannel.shutdown().shutdownNow();
-        asyncRequestChannel.shutdown().shutdownNow();
+        if (syncRequestChannel != null) {
+            syncRequestChannel.shutdown().shutdownNow();
+        }
+        if (asyncRequestChannel != null) {
+            asyncRequestChannel.shutdown().shutdownNow();
+        }
     }
 
     @Test
-    public void testSyncSyncMethodInSync() throws Exception {
+    public void testSyncSyncMethodInSync() {
         LOG.info("gRPC pingSyncSync method blocking test start");
         PingRequest pingRequest
                 = PingRequest.newBuilder().setPingName(GRPC_TEST_PING_VALUE).setPingId(GRPC_TEST_PING_ID).build();
@@ -81,7 +85,7 @@ public class GrpcConsumerAggregationTest extends CamelTestSupport {
     }
 
     @Test
-    public void testSyncAsyncMethodInSync() throws Exception {
+    public void testSyncAsyncMethodInSync() {
         LOG.info("gRPC pingSyncAsync method blocking test start");
         PingRequest pingRequest
                 = PingRequest.newBuilder().setPingName(GRPC_TEST_PING_VALUE).setPingId(GRPC_TEST_PING_ID).build();
@@ -96,7 +100,7 @@ public class GrpcConsumerAggregationTest extends CamelTestSupport {
 
     @Test
     public void testSyncSyncMethodInAsync() throws Exception {
-        LOG.info("gRPC pingSyncSync method aync test start");
+        LOG.info("gRPC pingSyncSync method async test start");
         final CountDownLatch latch = new CountDownLatch(1);
         PingRequest pingRequest
                 = PingRequest.newBuilder().setPingName(GRPC_TEST_PING_VALUE).setPingId(GRPC_TEST_PING_ID).build();
@@ -114,7 +118,7 @@ public class GrpcConsumerAggregationTest extends CamelTestSupport {
 
     @Test
     public void testSyncAsyncMethodInAsync() throws Exception {
-        LOG.info("gRPC pingSyncAsync method aync test start");
+        LOG.info("gRPC pingSyncAsync method async test start");
         final CountDownLatch latch = new CountDownLatch(1);
         PingRequest pingRequest
                 = PingRequest.newBuilder().setPingName(GRPC_TEST_PING_VALUE).setPingId(GRPC_TEST_PING_ID).build();
@@ -132,7 +136,7 @@ public class GrpcConsumerAggregationTest extends CamelTestSupport {
 
     @Test
     public void testAsyncSyncMethodInAsync() throws Exception {
-        LOG.info("gRPC pingAsyncSync method aync test start");
+        LOG.info("gRPC pingAsyncSync method async test start");
         final CountDownLatch latch = new CountDownLatch(1);
         PingRequest pingRequest
                 = PingRequest.newBuilder().setPingName(GRPC_TEST_PING_VALUE).setPingId(GRPC_TEST_PING_ID).build();
@@ -153,7 +157,7 @@ public class GrpcConsumerAggregationTest extends CamelTestSupport {
 
     @Test
     public void testAsyncAsyncMethodInAsync() throws Exception {
-        LOG.info("gRPC pingAsyncAsync method aync test start");
+        LOG.info("gRPC pingAsyncAsync method async test start");
         final CountDownLatch latch = new CountDownLatch(1);
         PingRequest pingRequest
                 = PingRequest.newBuilder().setPingName(GRPC_TEST_PING_VALUE).setPingId(GRPC_TEST_PING_ID).build();
@@ -173,7 +177,7 @@ public class GrpcConsumerAggregationTest extends CamelTestSupport {
     }
 
     @Override
-    protected RouteBuilder createRouteBuilder() throws Exception {
+    protected RouteBuilder createRouteBuilder() {
         return new RouteBuilder() {
             @Override
             public void configure() {

@@ -26,7 +26,9 @@ import io.grpc.ManagedChannel;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
-import io.netty.handler.ssl.SslProvider;
+import io.netty.handler.ssl.JdkSslContext;
+import io.netty.handler.ssl.OpenSslClientContext;
+import io.netty.handler.ssl.SslContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.grpc.auth.jwt.JwtAlgorithm;
 import org.apache.camel.component.grpc.auth.jwt.JwtCallCredentials;
@@ -35,6 +37,7 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.AvailablePortFinder;
 import org.apache.camel.test.junit5.CamelTestSupport;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -70,13 +73,15 @@ public class GrpcConsumerSecurityTest extends CamelTestSupport {
         String correctJwtToken = JwtHelper.createJwtToken(JwtAlgorithm.HMAC256, GRPC_JWT_CORRECT_SECRET, null, null);
         String incorrectJwtToken = JwtHelper.createJwtToken(JwtAlgorithm.HMAC256, GRPC_JWT_INCORRECT_SECRET, null, null);
 
+        SslContext sslContext = GrpcSslContexts.forClient()
+                .keyManager(new File("src/test/resources/certs/client.pem"), new File("src/test/resources/certs/client.key"))
+                .trustManager(new File("src/test/resources/certs/ca.pem"))
+                .build();
+
+        Assumptions.assumeTrue(sslContext instanceof OpenSslClientContext || sslContext instanceof JdkSslContext);
+
         tlsChannel = NettyChannelBuilder.forAddress("localhost", GRPC_TLS_TEST_PORT)
-                .sslContext(GrpcSslContexts.forClient()
-                        .sslProvider(SslProvider.OPENSSL)
-                        .keyManager(new File("src/test/resources/certs/client.pem"),
-                                new File("src/test/resources/certs/client.key"))
-                        .trustManager(new File("src/test/resources/certs/ca.pem"))
-                        .build())
+                .sslContext(sslContext)
                 .build();
 
         jwtCorrectChannel = NettyChannelBuilder.forAddress("localhost", GRPC_JWT_CORRECT_TEST_PORT).usePlaintext().build();
@@ -92,14 +97,20 @@ public class GrpcConsumerSecurityTest extends CamelTestSupport {
 
     @AfterEach
     public void stopGrpcChannels() throws Exception {
-        tlsChannel.shutdown().awaitTermination(1, TimeUnit.SECONDS);
-        jwtCorrectChannel.shutdown().awaitTermination(1, TimeUnit.SECONDS);
-        jwtIncorrectChannel.shutdown().awaitTermination(1, TimeUnit.SECONDS);
+        if (tlsChannel != null) {
+            tlsChannel.shutdown().awaitTermination(1, TimeUnit.SECONDS);
+        }
+        if (jwtCorrectChannel != null) {
+            jwtCorrectChannel.shutdown().awaitTermination(1, TimeUnit.SECONDS);
+        }
+        if (jwtIncorrectChannel != null) {
+            jwtIncorrectChannel.shutdown().awaitTermination(1, TimeUnit.SECONDS);
+        }
     }
 
     @Test
     public void testWithEnableTLS() throws Exception {
-        LOG.info("gRPC pingAsyncSync method aync test with TLS enable start");
+        LOG.info("gRPC pingAsyncSync method async test with TLS enable start");
 
         final CountDownLatch latch = new CountDownLatch(1);
         PingRequest pingRequest
@@ -108,6 +119,7 @@ public class GrpcConsumerSecurityTest extends CamelTestSupport {
 
         StreamObserver<PingRequest> requestObserver = tlsAsyncStub.pingAsyncSync(responseObserver);
         requestObserver.onNext(pingRequest);
+        requestObserver.onCompleted();
         latch.await(5, TimeUnit.SECONDS);
 
         MockEndpoint mockEndpoint = getMockEndpoint("mock:tls-enable");
@@ -125,7 +137,7 @@ public class GrpcConsumerSecurityTest extends CamelTestSupport {
 
     @Test
     public void testWithCorrectJWT() throws Exception {
-        LOG.info("gRPC pingAsyncSync method aync test with correct JWT start");
+        LOG.info("gRPC pingAsyncSync method async test with correct JWT start");
 
         final CountDownLatch latch = new CountDownLatch(1);
         PingRequest pingRequest
@@ -134,6 +146,7 @@ public class GrpcConsumerSecurityTest extends CamelTestSupport {
 
         StreamObserver<PingRequest> requestObserver = jwtCorrectAsyncStub.pingAsyncSync(responseObserver);
         requestObserver.onNext(pingRequest);
+        requestObserver.onCompleted();
         latch.await(5, TimeUnit.SECONDS);
 
         MockEndpoint mockEndpoint = getMockEndpoint("mock:jwt-correct-secret");
@@ -151,7 +164,7 @@ public class GrpcConsumerSecurityTest extends CamelTestSupport {
 
     @Test
     public void testWithIncorrectJWT() throws Exception {
-        LOG.info("gRPC pingAsyncSync method aync test with correct JWT start");
+        LOG.info("gRPC pingAsyncSync method async test with correct JWT start");
 
         final CountDownLatch latch = new CountDownLatch(1);
         PingRequest pingRequest
@@ -168,7 +181,7 @@ public class GrpcConsumerSecurityTest extends CamelTestSupport {
     }
 
     @Override
-    protected RouteBuilder createRouteBuilder() throws Exception {
+    protected RouteBuilder createRouteBuilder() {
         return new RouteBuilder() {
             @Override
             public void configure() {

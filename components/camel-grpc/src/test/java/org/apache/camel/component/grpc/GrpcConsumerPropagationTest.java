@@ -62,13 +62,17 @@ public class GrpcConsumerPropagationTest extends CamelTestSupport {
 
     @AfterEach
     public void stopGrpcChannels() throws Exception {
-        asyncOnNextChannel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-        asyncOnCompletedChannel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+        if (asyncOnNextChannel != null) {
+            asyncOnNextChannel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+        }
+        if (asyncOnCompletedChannel != null) {
+            asyncOnCompletedChannel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+        }
     }
 
     @Test
     public void testOnNextPropagation() throws Exception {
-        LOG.info("gRPC pingAsyncSync method aync test start");
+        LOG.info("gRPC pingAsyncSync method async test start");
 
         final CountDownLatch latch = new CountDownLatch(1);
         PingRequest pingRequest
@@ -77,6 +81,7 @@ public class GrpcConsumerPropagationTest extends CamelTestSupport {
 
         StreamObserver<PingRequest> requestObserver = asyncOnNextStub.pingAsyncSync(responseObserver);
         requestObserver.onNext(pingRequest);
+        requestObserver.onCompleted();
         latch.await(5, TimeUnit.SECONDS);
 
         MockEndpoint mockEndpoint = getMockEndpoint("mock:async-on-next-propagation");
@@ -94,7 +99,7 @@ public class GrpcConsumerPropagationTest extends CamelTestSupport {
 
     @Test
     public void testOnCompletedPropagation() throws Exception {
-        LOG.info("gRPC pingAsyncAsync method aync test start");
+        LOG.info("gRPC pingAsyncAsync method async test start");
         final CountDownLatch latch = new CountDownLatch(1);
         PingRequest pingRequest
                 = PingRequest.newBuilder().setPingName(GRPC_TEST_PING_VALUE).setPingId(GRPC_TEST_PING_ID).build();
@@ -113,7 +118,7 @@ public class GrpcConsumerPropagationTest extends CamelTestSupport {
     }
 
     @Override
-    protected RouteBuilder createRouteBuilder() throws Exception {
+    protected RouteBuilder createRouteBuilder() {
         return new RouteBuilder() {
             @Override
             public void configure() {
