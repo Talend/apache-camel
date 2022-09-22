@@ -29,8 +29,10 @@
   <artifactId>camel-core-xml</artifactId>
   <name>Camel :: Core XML</name>
   <description>Camel Core XML support</description>
+  <version>${revision}</version>
 
   <properties>
+    <revision>${camel-core.tesb.version}</revision>
     <camel.osgi.export.pkg>
       org.apache.camel.core.xml.*
     </camel.osgi.export.pkg>

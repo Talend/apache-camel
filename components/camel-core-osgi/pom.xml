@@ -30,8 +30,10 @@
   <name>Camel :: Core OSGi</name>
   <packaging>jar</packaging>
   <description>Using Camel with OSGi</description>
-  
+  <version>${revision}</version>
+
   <properties>
+      <revision>${camel-core.tesb.version}</revision>
       <camel.osgi.export.pkg>
             org.apache.camel.core.osgi.*
       </camel.osgi.export.pkg>

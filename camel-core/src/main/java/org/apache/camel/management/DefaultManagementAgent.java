@@ -577,7 +577,7 @@ public class DefaultManagementAgent extends ServiceSupport implements Management
         thread.start();
     }
 
-    private boolean allowCreateJmxConnector() {
+    private static boolean allowCreateJmxConnector() {
         if (!Boolean.getBoolean("org.apache.camel.jmx.createRmiConnector.allow")) {
             LOG.warn("Creation of JMX RMI connector has been disallowed.");
             return false;
