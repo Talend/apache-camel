@@ -29,10 +29,12 @@
 
     <artifactId>camel-grpc</artifactId>
     <packaging>jar</packaging>
+    <version>${revision}</version>
     <name>Camel :: gRPC</name>
     <description>Camel component for gRPC (Remote Procedure Call) support</description>
 
     <properties>
+        <revision>${camel-grpc.tesb.version}</revision>
         <!-- gRPC requires strong own of the Google Guava version -->
         <google-guava-version>${grpc-guava-version}</google-guava-version>
         <grpc-version>1.48.1</grpc-version>
