@@ -55,29 +55,40 @@ public class GooglePubsubEndpoint extends DefaultEndpoint {
     @Metadata(required = true)
     private String destinationName;
 
+    @UriParam(label = "common", name = "authenticate",
+              description = "Use Credentials when interacting with PubSub service (no authentication is required when using emulator).",
+              defaultValue = "true")
+    private boolean authenticate = true;
+
     @UriParam(label = "common",
               description = "The Service account key that can be used as credentials for the PubSub publisher/subscriber. It can be loaded by default from "
                             + " classpath, but you can prefix with classpath:, file:, or http: to load the resource from different systems.")
-    @Metadata(required = true)
     private String serviceAccountKey;
 
     @UriParam(name = "loggerId", description = "Logger ID to use when a match to the parent route required")
     private String loggerId;
 
-    @UriParam(name = "concurrentConsumers", description = "The number of parallel streams consuming from the subscription",
+    @UriParam(label = "consumer", name = "concurrentConsumers",
+              description = "The number of parallel streams consuming from the subscription",
               defaultValue = "1")
     private Integer concurrentConsumers = 1;
 
-    @UriParam(name = "maxMessagesPerPoll",
+    @UriParam(label = "consumer", name = "maxMessagesPerPoll",
               description = "The max number of messages to receive from the server in a single API call", defaultValue = "1")
     private Integer maxMessagesPerPoll = 1;
 
-    @UriParam(name = "synchronousPull", description = "Synchronously pull batches of messages", defaultValue = "false")
+    @UriParam(label = "consumer", name = "synchronousPull", description = "Synchronously pull batches of messages",
+              defaultValue = "false")
     private boolean synchronousPull;
 
-    @UriParam(defaultValue = "AUTO", enums = "AUTO,NONE",
+    @UriParam(label = "consumer", defaultValue = "AUTO", enums = "AUTO,NONE",
               description = "AUTO = exchange gets ack'ed/nack'ed on completion. NONE = downstream process has to ack/nack explicitly")
     private GooglePubsubConstants.AckMode ackMode = GooglePubsubConstants.AckMode.AUTO;
+
+    @UriParam(label = "consumer", name = "maxAckExtensionPeriod",
+              description = "Set the maximum period a message ack deadline will be extended. Value in seconds",
+              defaultValue = "3600")
+    private int maxAckExtensionPeriod = 3600;
 
     @UriParam(defaultValue = "false",
               description = "Should message ordering be enabled",
@@ -94,7 +105,7 @@ public class GooglePubsubEndpoint extends DefaultEndpoint {
     @Metadata(autowired = true)
     private GooglePubsubSerializer serializer;
 
-    public GooglePubsubEndpoint(String uri, Component component, String remaining) {
+    public GooglePubsubEndpoint(String uri, Component component) {
         super(uri, component);
 
         if (!(component instanceof GooglePubsubComponent)) {
@@ -146,11 +157,6 @@ public class GooglePubsubEndpoint extends DefaultEndpoint {
                 "GooglePubsubConsumer[" + getDestinationName() + "]", concurrentConsumers);
     }
 
-    @Override
-    public boolean isSingleton() {
-        return false;
-    }
-
     public String getProjectId() {
         return projectId;
     }
@@ -165,6 +171,14 @@ public class GooglePubsubEndpoint extends DefaultEndpoint {
 
     public void setLoggerId(String loggerId) {
         this.loggerId = loggerId;
+    }
+
+    public boolean isAuthenticate() {
+        return authenticate;
+    }
+
+    public void setAuthenticate(boolean authenticate) {
+        this.authenticate = authenticate;
     }
 
     public String getServiceAccountKey() {
@@ -213,6 +227,14 @@ public class GooglePubsubEndpoint extends DefaultEndpoint {
 
     public void setAckMode(GooglePubsubConstants.AckMode ackMode) {
         this.ackMode = ackMode;
+    }
+
+    public int getMaxAckExtensionPeriod() {
+        return maxAckExtensionPeriod;
+    }
+
+    public void setMaxAckExtensionPeriod(int maxAckExtensionPeriod) {
+        this.maxAckExtensionPeriod = maxAckExtensionPeriod;
     }
 
     public GooglePubsubSerializer getSerializer() {

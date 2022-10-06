@@ -21,6 +21,7 @@ public class GooglePubsubComponentConfigurer extends PropertyConfigurerSupport i
     public boolean configure(CamelContext camelContext, Object obj, String name, Object value, boolean ignoreCase) {
         GooglePubsubComponent target = (GooglePubsubComponent) obj;
         switch (ignoreCase ? name.toLowerCase() : name) {
+        case "authenticate": target.setAuthenticate(property(camelContext, boolean.class, value)); return true;
         case "autowiredenabled":
         case "autowiredEnabled": target.setAutowiredEnabled(property(camelContext, boolean.class, value)); return true;
         case "bridgeerrorhandler":
@@ -36,6 +37,8 @@ public class GooglePubsubComponentConfigurer extends PropertyConfigurerSupport i
         case "publisherTerminationTimeout": target.setPublisherTerminationTimeout(property(camelContext, int.class, value)); return true;
         case "serviceaccountkey":
         case "serviceAccountKey": target.setServiceAccountKey(property(camelContext, java.lang.String.class, value)); return true;
+        case "synchronouspullretryablecodes":
+        case "synchronousPullRetryableCodes": target.setSynchronousPullRetryableCodes(property(camelContext, java.lang.String.class, value)); return true;
         default: return false;
         }
     }
@@ -43,6 +46,7 @@ public class GooglePubsubComponentConfigurer extends PropertyConfigurerSupport i
     @Override
     public Class<?> getOptionType(String name, boolean ignoreCase) {
         switch (ignoreCase ? name.toLowerCase() : name) {
+        case "authenticate": return boolean.class;
         case "autowiredenabled":
         case "autowiredEnabled": return boolean.class;
         case "bridgeerrorhandler":
@@ -58,6 +62,8 @@ public class GooglePubsubComponentConfigurer extends PropertyConfigurerSupport i
         case "publisherTerminationTimeout": return int.class;
         case "serviceaccountkey":
         case "serviceAccountKey": return java.lang.String.class;
+        case "synchronouspullretryablecodes":
+        case "synchronousPullRetryableCodes": return java.lang.String.class;
         default: return null;
         }
     }
@@ -66,6 +72,7 @@ public class GooglePubsubComponentConfigurer extends PropertyConfigurerSupport i
     public Object getOptionValue(Object obj, String name, boolean ignoreCase) {
         GooglePubsubComponent target = (GooglePubsubComponent) obj;
         switch (ignoreCase ? name.toLowerCase() : name) {
+        case "authenticate": return target.isAuthenticate();
         case "autowiredenabled":
         case "autowiredEnabled": return target.isAutowiredEnabled();
         case "bridgeerrorhandler":
@@ -81,6 +88,8 @@ public class GooglePubsubComponentConfigurer extends PropertyConfigurerSupport i
         case "publisherTerminationTimeout": return target.getPublisherTerminationTimeout();
         case "serviceaccountkey":
         case "serviceAccountKey": return target.getServiceAccountKey();
+        case "synchronouspullretryablecodes":
+        case "synchronousPullRetryableCodes": return target.getSynchronousPullRetryableCodes();
         default: return null;
         }
     }

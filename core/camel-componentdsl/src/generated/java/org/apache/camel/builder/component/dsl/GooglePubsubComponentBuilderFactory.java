@@ -51,6 +51,22 @@ public interface GooglePubsubComponentBuilderFactory {
             extends
                 ComponentBuilder<GooglePubsubComponent> {
         /**
+         * Use Credentials when interacting with PubSub service (no
+         * authentication is required when using emulator).
+         * 
+         * The option is a: &lt;code&gt;boolean&lt;/code&gt; type.
+         * 
+         * Default: true
+         * Group: common
+         * 
+         * @param authenticate the value to set
+         * @return the dsl builder
+         */
+        default GooglePubsubComponentBuilder authenticate(boolean authenticate) {
+            doSetProperty("authenticate", authenticate);
+            return this;
+        }
+        /**
          * Endpoint to use with local Pub/Sub emulator.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -102,6 +118,23 @@ public interface GooglePubsubComponentBuilderFactory {
         default GooglePubsubComponentBuilder bridgeErrorHandler(
                 boolean bridgeErrorHandler) {
             doSetProperty("bridgeErrorHandler", bridgeErrorHandler);
+            return this;
+        }
+        /**
+         * Comma-separated list of additional retryable error codes for
+         * synchronous pull. By default the PubSub client library retries
+         * ABORTED, UNAVAILABLE, UNKNOWN.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: consumer
+         * 
+         * @param synchronousPullRetryableCodes the value to set
+         * @return the dsl builder
+         */
+        default GooglePubsubComponentBuilder synchronousPullRetryableCodes(
+                java.lang.String synchronousPullRetryableCodes) {
+            doSetProperty("synchronousPullRetryableCodes", synchronousPullRetryableCodes);
             return this;
         }
         /**
@@ -212,9 +245,11 @@ public interface GooglePubsubComponentBuilderFactory {
                 String name,
                 Object value) {
             switch (name) {
+            case "authenticate": ((GooglePubsubComponent) component).setAuthenticate((boolean) value); return true;
             case "endpoint": ((GooglePubsubComponent) component).setEndpoint((java.lang.String) value); return true;
             case "serviceAccountKey": ((GooglePubsubComponent) component).setServiceAccountKey((java.lang.String) value); return true;
             case "bridgeErrorHandler": ((GooglePubsubComponent) component).setBridgeErrorHandler((boolean) value); return true;
+            case "synchronousPullRetryableCodes": ((GooglePubsubComponent) component).setSynchronousPullRetryableCodes((java.lang.String) value); return true;
             case "lazyStartProducer": ((GooglePubsubComponent) component).setLazyStartProducer((boolean) value); return true;
             case "publisherCacheSize": ((GooglePubsubComponent) component).setPublisherCacheSize((int) value); return true;
             case "publisherCacheTimeout": ((GooglePubsubComponent) component).setPublisherCacheTimeout((int) value); return true;

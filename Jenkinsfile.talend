@@ -1,5 +1,5 @@
 @Library('esb') _
  
 Fork(
-        MVN_MODULES: ':camel-base-engine,:camel-core-processor,:camel-support,:camel-main,:camel-cxf'
+        MVN_MODULES: ':camel-base-engine,:camel-core-processor,:camel-support,:camel-main,:camel-cxf,:camel-google-pubsub,:camel-grpc'
 )
