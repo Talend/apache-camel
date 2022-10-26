@@ -78,6 +78,7 @@
         <pax-cdi.tesb.version>1.1.4</pax-cdi.tesb.version>
         <tika.tesb.version>1.28.4</tika.tesb.version>
         <jettison.tesb.version>1.5.1</jettison.tesb.version>
+        <commons-text.tesb.version>1.10.0</commons-text.tesb.version>
 
         <!-- enforce to require using at least this maven version -->
         <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -287,6 +288,7 @@
                             <pax-cdi.tesb.version>${pax-cdi.tesb.version}</pax-cdi.tesb.version>
                             <tika.tesb.version>${tika.tesb.version}</tika.tesb.version>
                             <jettison.tesb.version>${jettison.tesb.version}</jettison.tesb.version>
+                            <commons-text.tesb.version>${commons-text.tesb.version}</commons-text.tesb.version>
                         </properties>
                     </configuration>
                     <executions>
