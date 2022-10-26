@@ -41,7 +41,7 @@
 
     <properties>
         <upstream.version>2.25.4</upstream.version>
-        <apache-camel.features.tesb.version>2.25.4.tesb2</apache-camel.features.tesb.version>
+        <apache-camel.features.tesb.version>2.25.4.tesb3</apache-camel.features.tesb.version>
         <hibernate-validator.tesb.version>6.0.17.Final</hibernate-validator.tesb.version>
         <camel-mqtt.tesb.version>2.25.4.20220513</camel-mqtt.tesb.version>
         <camel-cxf.tesb.version>2.25.4.20220513</camel-cxf.tesb.version>
@@ -52,8 +52,8 @@
         <qpid-jms-client.tesb.version>0.61.0</qpid-jms-client.tesb.version>
         <qpid-proton-j.tesb.version>0.33.10</qpid-proton-j.tesb.version>
         <abdera-parser.tesb.version>1.1.3_2</abdera-parser.tesb.version>
-        <jackson2.tesb.version>2.13.2</jackson2.tesb.version>
-        <jackson2-databind.tesb.version>2.13.2.2</jackson2-databind.tesb.version>
+        <jackson2.tesb.version>2.13.4</jackson2.tesb.version>
+        <jackson2-databind.tesb.version>2.13.4.2</jackson2-databind.tesb.version>
         <swagger-java.tesb.version>1.6.2</swagger-java.tesb.version>
         <shiro.tesb.version>1.8.0</shiro.tesb.version>
         <reactive-streams.tesb.version>1.0.3</reactive-streams.tesb.version>
@@ -73,11 +73,12 @@
         <junit-bundle.tesb.version>4.13.2_1</junit-bundle.tesb.version>
         <ehcache3.tesb.version>3.9.4</ehcache3.tesb.version>
         <spring-tesb-version-range>[5.2,6)</spring-tesb-version-range>
-        <snakeyaml.tesb.version>1.32</snakeyaml.tesb.version>
+        <snakeyaml.tesb.version>1.33</snakeyaml.tesb.version>
         <jclouds.tesb.version>2.1.2</jclouds.tesb.version>
         <pax-cdi.tesb.version>1.1.4</pax-cdi.tesb.version>
         <tika.tesb.version>1.28.4</tika.tesb.version>
-        <jettison.tesb.version>1.5.0</jettison.tesb.version>
+        <jettison.tesb.version>1.5.1</jettison.tesb.version>
+        <commons-text.tesb.version>1.10.0</commons-text.tesb.version>
 
         <!-- enforce to require using at least this maven version -->
         <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -287,6 +288,7 @@
                             <pax-cdi.tesb.version>${pax-cdi.tesb.version}</pax-cdi.tesb.version>
                             <tika.tesb.version>${tika.tesb.version}</tika.tesb.version>
                             <jettison.tesb.version>${jettison.tesb.version}</jettison.tesb.version>
+                            <commons-text.tesb.version>${commons-text.tesb.version}</commons-text.tesb.version>
                         </properties>
                     </configuration>
                     <executions>
