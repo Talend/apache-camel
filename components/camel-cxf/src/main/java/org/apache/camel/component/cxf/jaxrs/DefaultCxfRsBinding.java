@@ -266,7 +266,7 @@ public class DefaultCxfRsBinding implements CxfRsBinding, HeaderFilterStrategyAw
             contentType = MediaType.WILDCARD;
         }
         String contentEncoding = camelMessage.getHeader(Exchange.CONTENT_ENCODING, String.class);
-        if (webClient != null && contentLanguage == null) {
+        if (webClient != null) {
             try {
                 Method getStateMethod = AbstractClient.class.getDeclaredMethod("getState");
                 getStateMethod.setAccessible(true);
@@ -286,8 +286,10 @@ public class DefaultCxfRsBinding implements CxfRsBinding, HeaderFilterStrategyAw
                         ex);
             }
         }
-        contentLanguage = Locale.US.getLanguage();
-        return Entity.entity(body, new Variant(MediaType.valueOf(contentType), Locale.US, contentEncoding));
+        if (contentLanguage == null) {
+            contentLanguage = Locale.US.getLanguage();
+        }
+        return Entity.entity(body, new Variant(MediaType.valueOf(contentType), new Locale(contentLanguage), contentEncoding));
     }
 
     /**
