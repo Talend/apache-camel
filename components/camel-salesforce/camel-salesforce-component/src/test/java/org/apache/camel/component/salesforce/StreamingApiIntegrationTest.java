@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StreamingApiIntegrationTest extends AbstractSalesforceTestBase {
@@ -78,13 +79,13 @@ public class StreamingApiIntegrationTest extends AbstractSalesforceTestBase {
 
         } finally {
             // remove the test record
-            template().requestBody("direct:deleteSObjectWithId", merchandise);
+            assertNull(template().requestBody("direct:deleteSObjectWithId", merchandise));
 
             // remove the test topic
             // find it using SOQL first
             QueryRecordsPushTopic records = template().requestBody("direct:query", null, QueryRecordsPushTopic.class);
             assertEquals(1, records.getTotalSize(), "Test topic not found");
-            template().requestBody("direct:deleteSObject", records.getRecords().get(0));
+            assertNull(template().requestBody("direct:deleteSObject", records.getRecords().get(0)));
 
         }
     }
@@ -107,7 +108,7 @@ public class StreamingApiIntegrationTest extends AbstractSalesforceTestBase {
                      + "updateTopic=true&sObjectQuery=SELECT Id, Name FROM Merchandise__c").to("mock:RawPayloadCamelTestTopic");
 
                 // route for creating test record
-                from("direct:upsertSObject").to("salesforce:upsertSObject?sObjectIdName=Name");
+                from("direct:upsertSObject").to("salesforce:upsertSObject?SObjectIdName=Name");
 
                 // route for finding test topic
                 from("direct:query")

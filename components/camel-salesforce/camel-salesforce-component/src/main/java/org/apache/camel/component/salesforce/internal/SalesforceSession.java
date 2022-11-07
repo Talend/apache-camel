@@ -311,9 +311,10 @@ public class SalesforceSession extends ServiceSupport {
             final String reason = logoutResponse.getReason();
 
             if (statusCode == HttpStatus.OK_200) {
-                LOG.debug("Logout successful");
+                LOG.info("Logout successful");
             } else {
-                LOG.debug("Failed to revoke OAuth token. This is expected if the token is invalid or already expired");
+                throw new SalesforceException(
+                        String.format("Logout error, code: [%s] reason: [%s]", statusCode, reason), statusCode);
             }
 
         } catch (InterruptedException e) {
@@ -323,7 +324,7 @@ public class SalesforceSession extends ServiceSupport {
             final Throwable ex = e.getCause();
             throw new SalesforceException("Unexpected logout exception: " + ex.getMessage(), ex);
         } catch (TimeoutException e) {
-            throw new SalesforceException("Logout request TIMEOUT!", e);
+            throw new SalesforceException("Logout request TIMEOUT!", null);
         } finally {
             // reset session
             accessToken = null;
