@@ -68,7 +68,7 @@ public class SubscriptionHelper extends ServiceSupport {
     private static final String FAILURE_REASON_FIELD = "failureReason";
     private static final int DISCONNECT_INTERVAL = 5000;
     private static final String SERVER_TOO_BUSY_ERROR = "503::";
-    private static final String AUTHENTICATION_INVALID = "401::Authentication invalid";
+    public static final String AUTHENTICATION_INVALID = "401::Authentication invalid";
 
     BayeuxClient client;
 
