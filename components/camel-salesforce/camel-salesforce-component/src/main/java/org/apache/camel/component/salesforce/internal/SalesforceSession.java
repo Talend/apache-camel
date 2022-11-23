@@ -188,10 +188,11 @@ public class SalesforceSession extends ServiceSupport {
 
     String generateJwtAssertion() {
         final long utcPlusWindow = Clock.systemUTC().millis() / 1000 + JWT_CLAIM_WINDOW;
+        final String audience = config.getJwtAudience() != null ? config.getJwtAudience() : config.getLoginUrl();
 
         final StringBuilder claim = new StringBuilder().append("{\"iss\":\"").append(config.getClientId())
                 .append("\",\"sub\":\"").append(config.getUserName())
-                .append("\",\"aud\":\"").append(config.getLoginUrl()).append("\",\"exp\":\"").append(utcPlusWindow)
+                .append("\",\"aud\":\"").append(audience).append("\",\"exp\":\"").append(utcPlusWindow)
                 .append("\"}");
 
         final StringBuilder token = new StringBuilder(JWT_HEADER).append('.')
@@ -310,10 +311,9 @@ public class SalesforceSession extends ServiceSupport {
             final String reason = logoutResponse.getReason();
 
             if (statusCode == HttpStatus.OK_200) {
-                LOG.info("Logout successful");
+                LOG.debug("Logout successful");
             } else {
-                throw new SalesforceException(
-                        String.format("Logout error, code: [%s] reason: [%s]", statusCode, reason), statusCode);
+                LOG.debug("Failed to revoke OAuth token. This is expected if the token is invalid or already expired");
             }
 
         } catch (InterruptedException e) {
@@ -323,7 +323,7 @@ public class SalesforceSession extends ServiceSupport {
             final Throwable ex = e.getCause();
             throw new SalesforceException("Unexpected logout exception: " + ex.getMessage(), ex);
         } catch (TimeoutException e) {
-            throw new SalesforceException("Logout request TIMEOUT!", null);
+            throw new SalesforceException("Logout request TIMEOUT!", e);
         } finally {
             // reset session
             accessToken = null;

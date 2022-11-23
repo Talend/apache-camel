@@ -29,10 +29,12 @@
 
     <artifactId>camel-salesforce</artifactId>
     <packaging>jar</packaging>
+    <version>${revision}</version>
     <name>Camel :: Salesforce</name>
     <description>Camel Salesforce support</description>
 
     <properties>
+        <revision>${camel-salesforce.tesb.version}</revision>
         <camel.osgi.import.additional>
             javax.xml.bind*;version="[2.2,3.0)",
             com.thoughtworks.xstream.*;version="[1.4.7,2)",

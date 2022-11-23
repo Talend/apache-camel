@@ -109,6 +109,7 @@
         <camel-cxf.tesb.version>3.11.1.20221020</camel-cxf.tesb.version>
         <camel-google-pubsub.tesb.version>3.11.1.20220926</camel-google-pubsub.tesb.version>
         <camel-grpc.tesb.version>3.11.1.20220926</camel-grpc.tesb.version>
+        <camel-salesforce.tesb.version>3.11.1.20221107</camel-salesforce.tesb.version>
 
         <!-- generated only due to UpdateEagerClassloadedHelper looking for target/classes within specific modules -->
         <!-- remove this comment when we really need a .tesbX artifact -->
@@ -270,6 +271,7 @@
                             <camel-cxf.tesb.version>${camel-cxf.tesb.version}</camel-cxf.tesb.version>
                             <camel-google-pubsub.tesb.version>${camel-google-pubsub.tesb.version}</camel-google-pubsub.tesb.version>
                             <camel-grpc.tesb.version>${camel-grpc.tesb.version}</camel-grpc.tesb.version>
+                            <camel-salesforce.tesb.version>${camel-salesforce.tesb.version}</camel-salesforce.tesb.version>
                             <camel-core-processor.tesb.version>${camel-core-processor.tesb.version}</camel-core-processor.tesb.version>
                             <camel-support.tesb.version>${camel-support.tesb.version}</camel-support.tesb.version>
                         </properties>
