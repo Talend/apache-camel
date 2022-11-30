@@ -1724,6 +1724,7 @@
     <bundle dependency='true'>mvn:io.netty/netty-buffer/${netty.tesb.version}</bundle>
     <bundle dependency='true'>mvn:io.netty/netty-transport/${netty.tesb.version}</bundle>
     <bundle dependency='true'>mvn:io.netty/netty-handler/${netty.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:io.netty/netty-transport-classes-epoll/${netty.tesb.version}</bundle>
     <bundle dependency='true'>mvn:io.netty/netty-transport-native-epoll/${netty.tesb.version}</bundle>
     <bundle dependency='true'>mvn:io.netty/netty-transport-native-unix-common/${netty.tesb.version}</bundle>
     <bundle dependency='true'>mvn:io.netty/netty-codec/${netty.tesb.version}</bundle>
