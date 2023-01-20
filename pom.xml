@@ -71,7 +71,7 @@
         <xmlsec.tesb.version>2.1.7</xmlsec.tesb.version>
         <ant-bundle.tesb.version>1.10.12_1</ant-bundle.tesb.version>
         <junit-bundle.tesb.version>4.13.2_1</junit-bundle.tesb.version>
-        <ehcache3.tesb.version>3.9.4</ehcache3.tesb.version>
+        <ehcache3.tesb.version>3.10.8</ehcache3.tesb.version>
         <spring-tesb-version-range>[5.2,6)</spring-tesb-version-range>
         <snakeyaml.tesb.version>1.33</snakeyaml.tesb.version>
         <jclouds.tesb.version>2.1.2</jclouds.tesb.version>
