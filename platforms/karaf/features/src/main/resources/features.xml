@@ -2090,6 +2090,7 @@
   </feature>
    <feature name='camel-script-jruby' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <!-- removed for security reasons -->
+    <!-- CVE-2022-25857 (high, snakeyaml included in jruby) and further medium CVEs -->
   </feature>
   <feature name='camel-script-javascript' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-script</feature>
