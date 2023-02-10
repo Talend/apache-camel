@@ -86,10 +86,10 @@
     </modules>
 
     <scm>
-        <connection>scm:git:http://gitbox.apache.org/repos/asf/camel.git</connection>
-        <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/camel.git</developerConnection>
-        <url>https://gitbox.apache.org/repos/asf?p=camel.git;a=summary</url>
-        <tag>camel-3.20.3</tag>
+        <connection>scm:git:http://github.com/Talend/camel.git</connection>
+        <developerConnection>scm:git:https://github.com/Talend/camel.git</developerConnection>
+        <url>https://github.com/Talend/camel</url>
+        <tag>HEAD</tag>
     </scm>
     <issueManagement>
         <system>jira</system>
@@ -103,6 +103,13 @@
     </distributionManagement>
 
     <properties>
+        <upstream.version>3.20.2</upstream.version>
+        <camel-cxf-soap.tesb.version>3.20.2.20230131</camel-cxf-soap.tesb.version>
+        <camel-cxf-rest.tesb.version>3.20.2.20230131</camel-cxf-rest.tesb.version>
+        <camel-google-pubsub.tesb.version>3.20.2.20230131</camel-google-pubsub.tesb.version>
+        <google-cloud-guava.tesb.version-prefix>31.1</google-cloud-guava.tesb.version-prefix>
+        <google-cloud-guava.tesb.version-range>[${google-cloud-guava.tesb.version-prefix},40)</google-cloud-guava.tesb.version-range>
+        <google-cloud-guava.tesb.version>${google-cloud-guava.tesb.version-prefix}-jre</google-cloud-guava.tesb.version>
 
         <!-- unify the encoding for all the modules -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -213,6 +220,10 @@
 
         <plugins>
             <plugin>
+                <groupId>io.paradoxical</groupId>
+                <artifactId>resolved-pom-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-enforcer-plugin</artifactId>
               <version>${maven-enforcer-plugin-version}</version>
@@ -244,6 +255,40 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>io.paradoxical</groupId>
+                    <artifactId>resolved-pom-maven-plugin</artifactId>
+                    <version>1.0</version>
+                    <configuration>
+                        <properties>
+                            <revision>${revision}</revision>
+                            <upstream.version>${upstream.version}</upstream.version>
+
+                            <!-- ADD HERE ALL THE CUSTOM PROPERTIES declared in the above <properties> part -->
+                            <!-- something like :
+                            <my.custom.property>${my.custom.property}</my.custom.property>
+                            -->
+                            <camel-cxf-soap.tesb.version>${camel-cxf-soap.tesb.version}</camel-cxf-soap.tesb.version>
+                            <camel-cxf-rest.tesb.version>${camel-cxf-rest.tesb.version}</camel-cxf-rest.tesb.version>
+                            <camel-google-pubsub.tesb.version>${camel-google-pubsub.tesb.version}</camel-google-pubsub.tesb.version>
+                            <google-cloud-guava.tesb.version-prefix>${google-cloud-guava.tesb.version-prefix}</google-cloud-guava.tesb.version-prefix>
+                            <google-cloud-guava.tesb.version-range>${google-cloud-guava.tesb.version-range}</google-cloud-guava.tesb.version-range>
+                            <google-cloud-guava.tesb.version>${google-cloud-guava.tesb.version}</google-cloud-guava.tesb.version>
+                        </properties>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>resolve-my-pom</id>
+                            <phase>initialize</phase>
+                            <goals>
+                                <goal>resolve-pom</goal>
+                            </goals>
+                            <configuration>
+                                <resolvedPomFile>.resolved-pom.xml</resolvedPomFile>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven-javadoc-plugin-version}</version>
@@ -256,7 +301,7 @@
                         <dependency>
                             <groupId>org.apache.camel</groupId>
                             <artifactId>camel-buildtools</artifactId>
-                            <version>${project.version}</version>
+                            <version>${upstream.version}</version>
                         </dependency>
                     </dependencies>
                     <configuration>
@@ -421,7 +466,7 @@
                             </goals>
                             <configuration>
                                 <outputDirectory>${project.build.directory}</outputDirectory>
-                                <flattenedPomFilename>${project.artifactId}-${project.version}.pom</flattenedPomFilename>
+                                <flattenedPomFilename>${project.artifactId}-${upstream.version}.pom</flattenedPomFilename>
                                 <updatePomFile>true</updatePomFile>
                                 <pomElements>
                                     <build>keep</build>
@@ -838,7 +883,7 @@
                             <dependency>
                                 <groupId>org.apache.camel</groupId>
                                 <artifactId>camel-buildtools</artifactId>
-                                <version>${project.version}</version>
+                                <version>${upstream.version}</version>
                             </dependency>
                         </dependencies>
                     </plugin>
