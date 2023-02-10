@@ -28,11 +28,13 @@
 
     <artifactId>camel-cxf-soap</artifactId>
     <packaging>jar</packaging>
+    <version>${revision}</version>
 
     <name>Camel :: CXF :: SOAP</name>
     <description>Camel CXF SOAP support</description>
 
     <properties>
+        <revision>${camel-cxf-soap.tesb.version}</revision>
         <camel.osgi.import.defaults />
         <camel.osgi.import>
             !org.springframework.boot.*,

@@ -29,14 +29,16 @@
 
     <artifactId>camel-google-pubsub</artifactId>
     <packaging>jar</packaging>
+    <version>${revision}</version>
     <name>Camel :: Google :: PubSub</name>
     <description>Camel Component for Google Cloud Platform PubSub</description>
 
     <properties>
+        <revision>${camel-google-pubsub.tesb.version}</revision>
         <schemeName>google-pubsub</schemeName>
         <componentName>GooglePubSub</componentName>
         <componentPackage>org.apache.camel.component.google.pubsub</componentPackage>
-        <camel.osgi.import>com.google.common*;version="${google-cloud-guava-version-prefix}",*</camel.osgi.import>
+        <camel.osgi.import>com.google.common*;version="${google-cloud-guava.tesb.version-range}",*</camel.osgi.import>
     </properties>
 
     <dependencyManagement>
@@ -45,7 +47,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>${google-cloud-guava-version}</version>
+                <version>${google-cloud-guava.tesb.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.cloud</groupId>
@@ -87,7 +89,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-infra-google-pubsub</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

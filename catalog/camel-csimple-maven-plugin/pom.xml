@@ -38,7 +38,7 @@
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>tooling-parent</artifactId>
-                <version>${project.version}</version>
+                <version>${upstream.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -84,7 +84,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-allcomponents</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
             <type>pom</type>
             <exclusions>
                 <exclusion>
@@ -98,7 +98,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-route-parser</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
         </dependency>
 
         <!-- roaster java parser -->

@@ -46,7 +46,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-infra-kafka</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -95,7 +95,7 @@
             <plugin>
                 <groupId>org.apache.camel.maven</groupId>
                 <artifactId>camel-vertx-kafka-maven-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>${upstream.version}</version>
                 <executions>
                     <execution>
                         <id>generate</id>

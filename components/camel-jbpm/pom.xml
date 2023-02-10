@@ -161,7 +161,7 @@
             <plugin>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-resources-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>${upstream.version}</version>
                 <executions>
                     <execution>
                         <id>copy-resources</id>

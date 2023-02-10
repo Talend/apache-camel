@@ -364,7 +364,7 @@
                                         <include name="**/spring.*" />
                                     </fileset>
                                 </copy>
-                                <replace file="${project.build.directory}/spring-meta/META-INF/spring.schemas" token="$${camel.version}" value="${project.version}" preservelastmodified="true" />
+                                <replace file="${project.build.directory}/spring-meta/META-INF/spring.schemas" token="$${camel.version}" value="${upstream.version}" preservelastmodified="true" />
                                 <copy todir="${project.build.directory}/classes" preservelastmodified="true">
                                     <fileset dir="${project.build.directory}/spring-meta" />
                                 </copy>
