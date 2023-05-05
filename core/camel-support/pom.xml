@@ -31,8 +31,10 @@
 
     <name>Camel :: Support</name>
     <description>The Camel Support</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-support.tesb.version}</revision>
         <firstVersion>3.0.0</firstVersion>
         <label>core</label>
     </properties>

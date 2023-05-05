@@ -361,9 +361,15 @@ public final class MessageHelper {
                     return "[Body is instance of java.io.Reader]";
                 } else if (obj instanceof Writer) {
                     return "[Body is instance of java.io.Writer]";
-                } else if (obj.getClass().getName().equals("javax.xml.transform.stax.StAXSource")) {
+                }
+                String className = obj.getClass().getName();
+                if (className.equals("javax.xml.transform.stax.StAXSource")) {
                     // StAX source is streaming based
                     return "[Body is instance of javax.xml.transform.Source]";
+                } else if (className.equals("org.apache.cxf.jaxrs.impl.RequestImpl")) {
+                    return "[Body is HTTP request]";
+                } else if (className.equals("org.apache.cxf.jaxrs.impl.ResponseImpl")) {
+                    return "[Body is HTTP response]";
                 }
             }
         }
