@@ -104,10 +104,10 @@
 
     <properties>
         <upstream.version>3.20.3</upstream.version>
-        <camel-support.tesb.version>3.20.3.20230131</camel-support.tesb.version>
-        <camel-cxf-soap.tesb.version>3.20.3.20230131</camel-cxf-soap.tesb.version>
-        <camel-cxf-rest.tesb.version>3.20.3.20230131</camel-cxf-rest.tesb.version>
-        <camel-google-pubsub.tesb.version>3.20.3.20230131</camel-google-pubsub.tesb.version>
+        <camel-support.tesb.version>3.20.3.20230330</camel-support.tesb.version>
+        <camel-cxf-soap.tesb.version>3.20.3.20230330</camel-cxf-soap.tesb.version>
+        <camel-cxf-rest.tesb.version>3.20.3.20230330</camel-cxf-rest.tesb.version>
+        <camel-google-pubsub.tesb.version>3.20.3.20230330</camel-google-pubsub.tesb.version>
         <google-cloud-guava.tesb.version-prefix>31.1</google-cloud-guava.tesb.version-prefix>
         <google-cloud-guava.tesb.version-range>[${google-cloud-guava.tesb.version-prefix},40)</google-cloud-guava.tesb.version-range>
         <google-cloud-guava.tesb.version>${google-cloud-guava.tesb.version-prefix}-jre</google-cloud-guava.tesb.version>
