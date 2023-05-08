@@ -104,6 +104,7 @@
 
     <properties>
         <upstream.version>3.20.3</upstream.version>
+        <camel-support.tesb.version>3.20.3.20230330</camel-support.tesb.version>
         <camel-cxf-soap.tesb.version>3.20.3.20230330</camel-cxf-soap.tesb.version>
         <camel-cxf-rest.tesb.version>3.20.3.20230330</camel-cxf-rest.tesb.version>
         <camel-google-pubsub.tesb.version>3.20.3.20230330</camel-google-pubsub.tesb.version>
@@ -267,6 +268,7 @@
                             <!-- something like :
                             <my.custom.property>${my.custom.property}</my.custom.property>
                             -->
+                            <camel-support.tesb.version>${camel-support.tesb.version}</camel-support.tesb.version>
                             <camel-cxf-soap.tesb.version>${camel-cxf-soap.tesb.version}</camel-cxf-soap.tesb.version>
                             <camel-cxf-rest.tesb.version>${camel-cxf-rest.tesb.version}</camel-cxf-rest.tesb.version>
                             <camel-google-pubsub.tesb.version>${camel-google-pubsub.tesb.version}</camel-google-pubsub.tesb.version>
