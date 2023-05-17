@@ -41,7 +41,7 @@
 
     <properties>
         <upstream.version>2.25.4</upstream.version>
-        <apache-camel.features.tesb.version>2.25.4.tesb8</apache-camel.features.tesb.version>
+        <apache-camel.features.tesb.version>2.25.4.tesb9</apache-camel.features.tesb.version>
         <hibernate-validator.tesb.version>6.0.17.Final</hibernate-validator.tesb.version>
         <camel-mqtt.tesb.version>2.25.4.20220513</camel-mqtt.tesb.version>
         <camel-cxf.tesb.version>2.25.4.20220513</camel-cxf.tesb.version>
@@ -55,7 +55,7 @@
         <jackson2.tesb.version>2.14.1</jackson2.tesb.version>
         <jackson2-databind.tesb.version>2.14.1</jackson2-databind.tesb.version>
         <swagger-java.tesb.version>1.6.2</swagger-java.tesb.version>
-        <shiro.tesb.version>1.8.0</shiro.tesb.version>
+        <shiro.tesb.version>1.11.0</shiro.tesb.version>
         <reactive-streams.tesb.version>1.0.3</reactive-streams.tesb.version>
         <netty-reactive-streams.tesb.version>2.0.5</netty-reactive-streams.tesb.version>
         <netty.tesb.version>4.1.86.Final</netty.tesb.version>
