@@ -108,6 +108,10 @@
         <camel-cxf-soap.tesb.version>3.20.3.20230330</camel-cxf-soap.tesb.version>
         <camel-cxf-rest.tesb.version>3.20.3.20230330</camel-cxf-rest.tesb.version>
         <camel-google-pubsub.tesb.version>3.20.3.20230330</camel-google-pubsub.tesb.version>
+        <camel-zookeeper.tesb.version>3.20.3.20230330</camel-zookeeper.tesb.version>
+        <camel-zookeeper-master.tesb.version>3.20.3.20230330</camel-zookeeper-master.tesb.version>
+        <zookeeper.tesb.version>3.7.1</zookeeper.tesb.version>
+        <curator.tesb.version>5.5.0</curator.tesb.version>
         <google-cloud-guava.tesb.version-prefix>31.1</google-cloud-guava.tesb.version-prefix>
         <google-cloud-guava.tesb.version-range>[${google-cloud-guava.tesb.version-prefix},40)</google-cloud-guava.tesb.version-range>
         <google-cloud-guava.tesb.version>${google-cloud-guava.tesb.version-prefix}-jre</google-cloud-guava.tesb.version>
@@ -272,6 +276,10 @@
                             <camel-cxf-soap.tesb.version>${camel-cxf-soap.tesb.version}</camel-cxf-soap.tesb.version>
                             <camel-cxf-rest.tesb.version>${camel-cxf-rest.tesb.version}</camel-cxf-rest.tesb.version>
                             <camel-google-pubsub.tesb.version>${camel-google-pubsub.tesb.version}</camel-google-pubsub.tesb.version>
+                            <camel-zookeeper.tesb.version>${camel-zookeeper.tesb.version}</camel-zookeeper.tesb.version>
+                            <camel-zookeeper-master.tesb.version>${camel-zookeeper-master.tesb.version}</camel-zookeeper-master.tesb.version>
+                            <zookeeper.tesb.version>${zookeeper.tesb.version}</zookeeper.tesb.version>
+                            <curator.tesb.version>${curator.tesb.version}</curator.tesb.version>
                             <google-cloud-guava.tesb.version-prefix>${google-cloud-guava.tesb.version-prefix}</google-cloud-guava.tesb.version-prefix>
                             <google-cloud-guava.tesb.version-range>${google-cloud-guava.tesb.version-range}</google-cloud-guava.tesb.version-range>
                             <google-cloud-guava.tesb.version>${google-cloud-guava.tesb.version}</google-cloud-guava.tesb.version>
