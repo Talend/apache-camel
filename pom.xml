@@ -41,7 +41,7 @@
 
     <properties>
         <upstream.version>2.25.4</upstream.version>
-        <apache-camel.features.tesb.version>2.25.4.tesb9</apache-camel.features.tesb.version>
+        <apache-camel.features.tesb.version>2.25.4.tesb10</apache-camel.features.tesb.version>
         <hibernate-validator.tesb.version>6.0.17.Final</hibernate-validator.tesb.version>
         <camel-mqtt.tesb.version>2.25.4.20220513</camel-mqtt.tesb.version>
         <camel-cxf.tesb.version>2.25.4.20220513</camel-cxf.tesb.version>
@@ -67,7 +67,7 @@
         <commons-codec.tesb.version>1.15</commons-codec.tesb.version>
         <commons-compress.tesb.version>1.21</commons-compress.tesb.version>
         <xstream-bundle.tesb.version>1.4.20_1</xstream-bundle.tesb.version>
-        <jetty.tesb.version>9.4.49.v20220914</jetty.tesb.version>
+        <jetty.tesb.version>9.4.51.v20230217</jetty.tesb.version>
         <xmlsec.tesb.version>2.1.7</xmlsec.tesb.version>
         <ant-bundle.tesb.version>1.10.12_1</ant-bundle.tesb.version>
         <junit-bundle.tesb.version>4.13.2_1</junit-bundle.tesb.version>
