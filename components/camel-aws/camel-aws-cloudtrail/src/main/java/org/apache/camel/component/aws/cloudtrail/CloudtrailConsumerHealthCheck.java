@@ -44,8 +44,8 @@ public class CloudtrailConsumerHealthCheck extends AbstractHealthCheck {
     @Override
     protected void doCall(HealthCheckResultBuilder builder, Map<String, Object> options) {
 
+        CloudtrailConfiguration configuration = cloudtrailConsumer.getEndpoint().getConfiguration();
         try {
-            CloudtrailConfiguration configuration = cloudtrailConsumer.getEndpoint().getConfiguration();
             if (ObjectHelper.isNotEmpty(configuration.getRegion())) {
                 if (!CloudTrailClient.serviceMetadata().regions().contains(Region.of(configuration.getRegion()))) {
                     builder.message("The service is not supported in this region");
@@ -54,7 +54,6 @@ public class CloudtrailConsumerHealthCheck extends AbstractHealthCheck {
                 }
             }
             CloudTrailClient client = cloudtrailConsumer.getEndpoint().getClient();
-
             client.listChannels(ListChannelsRequest.builder().maxResults(1).build());
         } catch (AwsServiceException e) {
             builder.message(e.getMessage());
@@ -77,4 +76,5 @@ public class CloudtrailConsumerHealthCheck extends AbstractHealthCheck {
         builder.up();
 
     }
+
 }

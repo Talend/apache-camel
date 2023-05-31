@@ -58,9 +58,9 @@ class ExportCamelMain extends Export {
 
         // the settings file has information what to export
         File settings = new File(Run.WORK_DIR + "/" + Run.RUN_SETTINGS_FILE);
-        if (fresh || !settings.exists()) {
+        if (fresh || files != null || !settings.exists()) {
             // allow to automatic build
-            if (!quiet) {
+            if (!quiet && fresh) {
                 System.out.println("Generating fresh run data");
             }
             int silent = runSilently();
@@ -91,7 +91,10 @@ class ExportCamelMain extends Export {
         srcResourcesDir.mkdirs();
         File srcCamelResourcesDir = new File(BUILD_DIR, "src/main/resources/camel");
         srcCamelResourcesDir.mkdirs();
-        copySourceFiles(settings, profile, srcJavaDirRoot, srcJavaDir, srcResourcesDir, srcCamelResourcesDir, packageName);
+        File srcKameletsResourcesDir = new File(BUILD_DIR, "src/main/resources/kamelets");
+        srcKameletsResourcesDir.mkdirs();
+        copySourceFiles(settings, profile, srcJavaDirRoot, srcJavaDir, srcResourcesDir, srcCamelResourcesDir,
+                srcKameletsResourcesDir, packageName);
         // copy from settings to profile
         copySettingsAndProfile(settings, profile, srcResourcesDir, prop -> {
             if (!prop.containsKey("camel.main.basePackageScan") && !prop.containsKey("camel.main.base-package-scan")) {
@@ -106,8 +109,10 @@ class ExportCamelMain extends Export {
         createMainClassSource(srcJavaDir, packageName, mainClassname);
         // gather dependencies
         Set<String> deps = resolveDependencies(settings, profile);
+        // copy local lib JARs
+        copyLocalLibDependencies(deps);
         if ("maven".equals(buildTool)) {
-            createPom(settings, new File(BUILD_DIR, "pom.xml"), deps, packageName);
+            createMavenPom(settings, new File(BUILD_DIR, "pom.xml"), deps, packageName);
             if (mavenWrapper) {
                 copyMavenWrapper();
             }
@@ -123,7 +128,7 @@ class ExportCamelMain extends Export {
         return 0;
     }
 
-    private void createPom(File settings, File pom, Set<String> deps, String packageName) throws Exception {
+    private void createMavenPom(File settings, File pom, Set<String> deps, String packageName) throws Exception {
         String[] ids = gav.split(":");
 
         InputStream is = ExportCamelMain.class.getClassLoader().getResourceAsStream("templates/main-pom.tmpl");
@@ -148,30 +153,13 @@ class ExportCamelMain extends Export {
         if (repos == null || repos.isEmpty()) {
             context = context.replaceFirst("\\{\\{ \\.MavenRepositories }}", "");
         } else {
-            int i = 1;
-            StringBuilder sb = new StringBuilder();
-            sb.append("    <repositories>\n");
-            for (String repo : repos.split(",")) {
-                sb.append("        <repository>\n");
-                sb.append("            <id>custom").append(i++).append("</id>\n");
-                sb.append("            <url>").append(repo).append("</url>\n");
-                if (repo.contains("snapshots")) {
-                    sb.append("            <releases>\n");
-                    sb.append("                <enabled>false</enabled>\n");
-                    sb.append("            </releases>\n");
-                    sb.append("            <snapshots>\n");
-                    sb.append("                <enabled>true</enabled>\n");
-                    sb.append("            </snapshots>\n");
-                }
-                sb.append("        </repository>\n");
-            }
-            sb.append("    </repositories>\n");
-            context = context.replaceFirst("\\{\\{ \\.MavenRepositories }}", sb.toString());
+            String s = mavenRepositoriesAsPomXml(repos);
+            context = context.replaceFirst("\\{\\{ \\.MavenRepositories }}", s);
         }
 
         List<MavenGav> gavs = new ArrayList<>();
         for (String dep : deps) {
-            MavenGav gav = MavenGav.parseGav(dep);
+            MavenGav gav = parseMavenGav(dep);
             String gid = gav.getGroupId();
             if ("org.apache.camel".equals(gid)) {
                 // uses BOM so version should not be included
@@ -191,8 +179,14 @@ class ExportCamelMain extends Export {
             if (gav.getVersion() != null) {
                 sb.append("            <version>").append(gav.getVersion()).append("</version>\n");
             }
-            // special for camel-kamelets-utils
+            // special for lib JARs
+            if ("lib".equals(gav.getPackaging())) {
+                sb.append("            <scope>system</scope>\n");
+                sb.append("            <systemPath>\\$\\{project.basedir}/lib/").append(gav.getArtifactId()).append("-")
+                        .append(gav.getVersion()).append(".jar</systemPath>\n");
+            }
             if ("camel-kamelets-utils".equals(gav.getArtifactId())) {
+                // special for camel-kamelets-utils
                 sb.append("            <exclusions>\n");
                 sb.append("                <exclusion>\n");
                 sb.append("                    <groupId>org.apache.camel</groupId>\n");
@@ -202,6 +196,38 @@ class ExportCamelMain extends Export {
             }
             sb.append("        </dependency>\n");
         }
+
+        if (secretsRefresh) {
+            if (secretsRefreshProviders != null) {
+                List<String> providers = getSecretProviders();
+                for (String provider : providers) {
+                    switch (provider) {
+                        case "aws":
+                            sb.append("        <dependency>\n");
+                            sb.append("            <groupId>").append("org.apache.camel").append("</groupId>\n");
+                            sb.append("            <artifactId>").append("camel-aws-secrets-manager").append("</artifactId>\n");
+                            sb.append("        </dependency>\n");
+                            break;
+                        case "gcp":
+                            sb.append("        <dependency>\n");
+                            sb.append("            <groupId>").append("org.apache.camel").append("</groupId>\n");
+                            sb.append("            <artifactId>").append("camel-google-secret-manager")
+                                    .append("</artifactId>\n");
+                            sb.append("        </dependency>\n");
+                            break;
+                        case "azure":
+                            sb.append("        <dependency>\n");
+                            sb.append("            <groupId>").append("org.apache.camel").append("</groupId>\n");
+                            sb.append("            <artifactId>").append("camel-azure-key-vault").append("</artifactId>\n");
+                            sb.append("        </dependency>\n");
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
         context = context.replaceFirst("\\{\\{ \\.CamelDependencies }}", sb.toString());
 
         IOHelper.writeText(context, new FileOutputStream(pom, false));
@@ -238,11 +264,11 @@ class ExportCamelMain extends Export {
     @Override
     protected void copySourceFiles(
             File settings, File profile, File srcJavaDirRoot, File srcJavaDir, File srcResourcesDir, File srcCamelResourcesDir,
-            String packageName)
+            File srcKameletsResourcesDir, String packageName)
             throws Exception {
 
         super.copySourceFiles(settings, profile, srcJavaDirRoot, srcJavaDir, srcResourcesDir, srcCamelResourcesDir,
-                packageName);
+                srcKameletsResourcesDir, packageName);
 
         // log4j configuration
         InputStream is = ExportCamelMain.class.getResourceAsStream("/log4j2.properties");
@@ -254,4 +280,28 @@ class ExportCamelMain extends Export {
         safeCopy(is, new File(srcResourcesDir, "assembly/runner.xml"));
     }
 
+    @Override
+    protected void prepareApplicationProperties(Properties properties) {
+        if (secretsRefresh) {
+            if (secretsRefreshProviders != null) {
+                List<String> providers = getSecretProviders();
+
+                for (String provider : providers) {
+                    switch (provider) {
+                        case "aws":
+                            exportAwsSecretsRefreshProp(properties);
+                            break;
+                        case "gcp":
+                            exportGcpSecretsRefreshProp(properties);
+                            break;
+                        case "azure":
+                            exportAzureSecretsRefreshProp(properties);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+    }
 }

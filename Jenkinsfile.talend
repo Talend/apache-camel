@@ -1,5 +1,5 @@
 @Library('esb') _
  
 Fork(
-        MVN_MODULES: 'org.apache.camel:camel-support,org.apache.camel:camel-cxf-soap,org.apache.camel:camel-cxf-rest,org.apache.camel:camel-google-pubsub,org.apache.camel:camel-zookeeper,org.apache.camel:camel-zookeeper-master'
+        MVN_MODULES: 'org.apache.camel:camel-support,org.apache.camel:camel-activemq,org.apache.camel:camel-cxf-soap,org.apache.camel:camel-cxf-rest,org.apache.camel:camel-google-pubsub,org.apache.camel:camel-zookeeper,org.apache.camel:camel-zookeeper-master'
 )

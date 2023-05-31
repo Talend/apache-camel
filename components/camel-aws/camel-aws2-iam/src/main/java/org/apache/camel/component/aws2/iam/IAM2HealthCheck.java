@@ -50,9 +50,7 @@ public class IAM2HealthCheck extends AbstractHealthCheck {
                 builder.down();
                 return;
             }
-
             IamClient client = endpoint.getIamClient();
-
             client.listAccessKeys(ListAccessKeysRequest.builder().maxItems(1).build());
         } catch (SdkClientException e) {
             builder.message(e.getMessage());
@@ -65,4 +63,5 @@ public class IAM2HealthCheck extends AbstractHealthCheck {
         }
         builder.up();
     }
+
 }

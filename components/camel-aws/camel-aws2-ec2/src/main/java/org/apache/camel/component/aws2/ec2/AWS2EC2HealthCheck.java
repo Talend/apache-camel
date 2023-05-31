@@ -55,7 +55,6 @@ public class AWS2EC2HealthCheck extends AbstractHealthCheck {
             }
 
             Ec2Client client = aws2EC2Endpoint.getEc2Client();
-
             client.describeInstances();
         } catch (AwsServiceException e) {
             builder.message(e.getMessage());
@@ -75,4 +74,5 @@ public class AWS2EC2HealthCheck extends AbstractHealthCheck {
         }
         builder.up();
     }
+
 }

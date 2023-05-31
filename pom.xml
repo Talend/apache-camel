@@ -104,12 +104,13 @@
 
     <properties>
         <upstream.version>3.20.5</upstream.version>
-        <camel-support.tesb.version>3.20.5.20230330</camel-support.tesb.version>
-        <camel-cxf-soap.tesb.version>3.20.5.20230330</camel-cxf-soap.tesb.version>
-        <camel-cxf-rest.tesb.version>3.20.5.20230330</camel-cxf-rest.tesb.version>
-        <camel-google-pubsub.tesb.version>3.20.5.20230330</camel-google-pubsub.tesb.version>
-        <camel-zookeeper.tesb.version>3.20.5.20230330</camel-zookeeper.tesb.version>
-        <camel-zookeeper-master.tesb.version>3.20.5.20230330</camel-zookeeper-master.tesb.version>
+        <camel-support.tesb.version>3.20.5.20230530</camel-support.tesb.version>
+        <camel-activemq.tesb.version>3.20.5.20230530</camel-activemq.tesb.version>
+        <camel-cxf-soap.tesb.version>3.20.5.20230530</camel-cxf-soap.tesb.version>
+        <camel-cxf-rest.tesb.version>3.20.5.20230530</camel-cxf-rest.tesb.version>
+        <camel-google-pubsub.tesb.version>3.20.5.20230530</camel-google-pubsub.tesb.version>
+        <camel-zookeeper.tesb.version>3.20.5.20230530</camel-zookeeper.tesb.version>
+        <camel-zookeeper-master.tesb.version>3.20.5.20230530</camel-zookeeper-master.tesb.version>
         <zookeeper.tesb.version>3.7.1</zookeeper.tesb.version>
         <curator.tesb.version>5.5.0</curator.tesb.version>
         <google-cloud-guava.tesb.version-prefix>31.1</google-cloud-guava.tesb.version-prefix>
@@ -153,7 +154,7 @@
         <errorprone-version>2.5</errorprone-version>
         <mycila-license-version>3.0</mycila-license-version>
         <gmavenplus-plugin-version>1.11.1</gmavenplus-plugin-version>
-        <groovy-version>3.0.16</groovy-version>
+        <groovy-version>3.0.17</groovy-version>
 
         <camel.javadoc.offline>false</camel.javadoc.offline>
     </properties>
@@ -273,6 +274,7 @@
                             <my.custom.property>${my.custom.property}</my.custom.property>
                             -->
                             <camel-support.tesb.version>${camel-support.tesb.version}</camel-support.tesb.version>
+                            <camel-activemq.tesb.version>${camel-activemq.tesb.version}</camel-activemq.tesb.version>
                             <camel-cxf-soap.tesb.version>${camel-cxf-soap.tesb.version}</camel-cxf-soap.tesb.version>
                             <camel-cxf-rest.tesb.version>${camel-cxf-rest.tesb.version}</camel-cxf-rest.tesb.version>
                             <camel-google-pubsub.tesb.version>${camel-google-pubsub.tesb.version}</camel-google-pubsub.tesb.version>

@@ -57,7 +57,6 @@ public class Athena2ClientHealthCheck extends AbstractHealthCheck {
                 }
             }
             AthenaClient client = athena2Endpoint.getAthenaClient();
-
             client.listQueryExecutions(ListQueryExecutionsRequest.builder().maxResults(1).build());
         } catch (AwsServiceException e) {
             builder.message(e.getMessage());
@@ -78,4 +77,5 @@ public class Athena2ClientHealthCheck extends AbstractHealthCheck {
         }
         builder.up();
     }
+
 }

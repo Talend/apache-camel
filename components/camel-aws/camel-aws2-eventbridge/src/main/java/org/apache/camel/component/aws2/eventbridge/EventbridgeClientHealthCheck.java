@@ -54,7 +54,6 @@ public class EventbridgeClientHealthCheck extends AbstractHealthCheck {
         }
         try {
             EventBridgeClient eventbridgeClient = eventbridgeEndpoint.getEventbridgeClient();
-
             eventbridgeClient.listEventBuses(ListEventBusesRequest.builder().limit(1).build());
         } catch (AwsServiceException e) {
             builder.message(e.getMessage());
@@ -74,4 +73,5 @@ public class EventbridgeClientHealthCheck extends AbstractHealthCheck {
         }
         builder.up();
     }
+
 }

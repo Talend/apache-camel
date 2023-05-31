@@ -46,7 +46,7 @@ import org.apache.camel.console.DevConsoleRegistry;
 import org.apache.camel.spi.CliConnector;
 import org.apache.camel.spi.CliConnectorFactory;
 import org.apache.camel.spi.ContextReloadStrategy;
-import org.apache.camel.support.DefaultContextReloadStrategy;
+import org.apache.camel.spi.ResourceReloadStrategy;
 import org.apache.camel.support.PatternHelper;
 import org.apache.camel.support.service.ServiceHelper;
 import org.apache.camel.support.service.ServiceSupport;
@@ -245,12 +245,15 @@ public class LocalCliConnector extends ServiceSupport implements CliConnector, C
             } else if ("gc".equals(action)) {
                 System.gc();
             } else if ("reload".equals(action)) {
-                ContextReloadStrategy reloader = camelContext.hasService(ContextReloadStrategy.class);
-                if (reloader == null) {
-                    reloader = new DefaultContextReloadStrategy();
-                    camelContext.addService(reloader);
+                ContextReloadStrategy cr = camelContext.hasService(ContextReloadStrategy.class);
+                if (cr != null) {
+                    cr.onReload("Camel CLI");
+                } else {
+                    ResourceReloadStrategy rr = camelContext.hasService(ResourceReloadStrategy.class);
+                    if (rr != null) {
+                        rr.onReload("Camel CLI");
+                    }
                 }
-                reloader.onReload("Camel CLI");
             } else if ("reset-stats".equals(action)) {
                 ManagedCamelContext mcc = camelContext.getExtension(ManagedCamelContext.class);
                 if (mcc != null) {

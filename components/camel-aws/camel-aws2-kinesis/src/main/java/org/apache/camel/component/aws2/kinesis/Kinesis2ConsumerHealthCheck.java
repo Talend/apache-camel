@@ -21,12 +21,9 @@ import java.util.Map;
 import org.apache.camel.health.HealthCheckResultBuilder;
 import org.apache.camel.impl.health.AbstractHealthCheck;
 import org.apache.camel.util.ObjectHelper;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.kinesis.KinesisClient;
-import software.amazon.awssdk.services.kinesis.KinesisClientBuilder;
 
 public class Kinesis2ConsumerHealthCheck extends AbstractHealthCheck {
 
@@ -57,19 +54,7 @@ public class Kinesis2ConsumerHealthCheck extends AbstractHealthCheck {
                     return;
                 }
             }
-            KinesisClient client;
-            if (!configuration.isUseDefaultCredentialsProvider()) {
-                AwsBasicCredentials cred
-                        = AwsBasicCredentials.create(configuration.getAccessKey(), configuration.getSecretKey());
-                KinesisClientBuilder clientBuilder = KinesisClient.builder();
-                client = clientBuilder.credentialsProvider(StaticCredentialsProvider.create(cred))
-                        .region(Region.of(configuration.getRegion())).build();
-            } else if (ObjectHelper.isNotEmpty(configuration.getAmazonKinesisClient())) {
-                client = configuration.getAmazonKinesisClient();
-            } else {
-                KinesisClientBuilder clientBuilder = KinesisClient.builder();
-                client = clientBuilder.region(Region.of(configuration.getRegion())).build();
-            }
+            KinesisClient client = kinesis2Consumer.getEndpoint().getClient();
             client.listStreams();
         } catch (AwsServiceException e) {
             builder.message(e.getMessage());

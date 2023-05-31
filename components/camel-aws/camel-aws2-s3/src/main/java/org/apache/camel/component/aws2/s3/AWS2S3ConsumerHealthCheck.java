@@ -46,8 +46,9 @@ public class AWS2S3ConsumerHealthCheck extends AbstractHealthCheck {
     @Override
     protected void doCall(HealthCheckResultBuilder builder, Map<String, Object> options) {
 
+        AWS2S3Configuration configuration = aws2S3Consumer.getConfiguration();
         try {
-            AWS2S3Configuration configuration = aws2S3Consumer.getConfiguration();
+
             if (ObjectHelper.isNotEmpty(configuration.getRegion())) {
                 if (!S3Client.serviceMetadata().regions().contains(Region.of(configuration.getRegion()))) {
                     builder.message("The service is not supported in this region");
@@ -56,7 +57,6 @@ public class AWS2S3ConsumerHealthCheck extends AbstractHealthCheck {
                 }
             }
             S3Client client = aws2S3Consumer.getAmazonS3Client();
-
             client.headBucket(HeadBucketRequest.builder().bucket(configuration.getBucketName()).build());
         } catch (AwsServiceException e) {
             builder.message(e.getMessage());
@@ -79,4 +79,5 @@ public class AWS2S3ConsumerHealthCheck extends AbstractHealthCheck {
         builder.up();
 
     }
+
 }
