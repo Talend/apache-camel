@@ -28,7 +28,7 @@
 
     <groupId>org.apache.camel</groupId>
     <artifactId>camel</artifactId>
-    <version>3.20.5</version>
+    <version>3.20.6</version>
     <packaging>pom</packaging>
 
     <name>Camel</name>
@@ -103,14 +103,14 @@
     </distributionManagement>
 
     <properties>
-        <upstream.version>3.20.5</upstream.version>
-        <camel-support.tesb.version>3.20.5.20230530</camel-support.tesb.version>
-        <camel-activemq.tesb.version>3.20.5.20230530</camel-activemq.tesb.version>
-        <camel-cxf-soap.tesb.version>3.20.5.20230530</camel-cxf-soap.tesb.version>
-        <camel-cxf-rest.tesb.version>3.20.5.20230530</camel-cxf-rest.tesb.version>
-        <camel-google-pubsub.tesb.version>3.20.5.20230530</camel-google-pubsub.tesb.version>
-        <camel-zookeeper.tesb.version>3.20.5.20230530</camel-zookeeper.tesb.version>
-        <camel-zookeeper-master.tesb.version>3.20.5.20230530</camel-zookeeper-master.tesb.version>
+        <upstream.version>3.20.6</upstream.version>
+        <camel-support.tesb.version>3.20.6.20230530</camel-support.tesb.version>
+        <camel-activemq.tesb.version>3.20.6.20230530</camel-activemq.tesb.version>
+        <camel-cxf-soap.tesb.version>3.20.6.20230530</camel-cxf-soap.tesb.version>
+        <camel-cxf-rest.tesb.version>3.20.6.20230530</camel-cxf-rest.tesb.version>
+        <camel-google-pubsub.tesb.version>3.20.6.20230530</camel-google-pubsub.tesb.version>
+        <camel-zookeeper.tesb.version>3.20.6.20230530</camel-zookeeper.tesb.version>
+        <camel-zookeeper-master.tesb.version>3.20.6.20230530</camel-zookeeper-master.tesb.version>
         <zookeeper.tesb.version>3.7.1</zookeeper.tesb.version>
         <curator.tesb.version>5.5.0</curator.tesb.version>
         <google-cloud-guava.tesb.version-prefix>31.1</google-cloud-guava.tesb.version-prefix>
