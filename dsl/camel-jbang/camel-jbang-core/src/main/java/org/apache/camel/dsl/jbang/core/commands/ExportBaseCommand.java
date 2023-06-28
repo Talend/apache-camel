@@ -130,7 +130,7 @@ abstract class ExportBaseCommand extends CamelCommand {
     protected String quarkusArtifactId;
 
     @CommandLine.Option(names = { "--quarkus-version" }, description = "Quarkus Platform version",
-                        defaultValue = "2.16.6.Final")
+                        defaultValue = "2.16.7.Final")
     protected String quarkusVersion;
 
     @CommandLine.Option(names = { "--maven-wrapper" }, defaultValue = "true",
@@ -144,6 +144,9 @@ abstract class ExportBaseCommand extends CamelCommand {
     @CommandLine.Option(names = { "--build-tool" }, defaultValue = "maven",
                         description = "Build tool to use (maven or gradle)")
     protected String buildTool;
+
+    @CommandLine.Option(names = { "--open-api" }, description = "Adds an OpenAPI spec from the given file (json or yaml file)")
+    protected String openapi;
 
     @CommandLine.Option(names = {
             "--dir",
@@ -254,8 +257,8 @@ abstract class ExportBaseCommand extends CamelCommand {
         run.localKameletDir = localKameletDir;
         run.dependencies = dependencies;
         run.files = files;
-        Integer code = run.runSilent();
-        return code;
+        run.openapi = openapi;
+        return run.runSilent();
     }
 
     protected Set<String> resolveDependencies(File settings, File profile) throws Exception {
@@ -415,11 +418,10 @@ abstract class ExportBaseCommand extends CamelCommand {
                         out = new File(target, source.getName());
                     }
                     if (!java) {
-                        if (camel) {
-                            safeCopy(source, out, true);
-                        }
                         if (kamelet) {
                             out = srcKameletsResourcesDir;
+                            safeCopy(source, out, true);
+                        } else {
                             safeCopy(source, out, true);
                         }
                     } else {
