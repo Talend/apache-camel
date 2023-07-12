@@ -113,7 +113,7 @@
         <camel-zookeeper-master.tesb.version>3.20.6.20230530</camel-zookeeper-master.tesb.version>
         <zookeeper.tesb.version>3.7.1</zookeeper.tesb.version>
         <curator.tesb.version>5.5.0</curator.tesb.version>
-        <google-cloud-guava.tesb.version-prefix>31.1</google-cloud-guava.tesb.version-prefix>
+        <google-cloud-guava.tesb.version-prefix>32.1.1</google-cloud-guava.tesb.version-prefix>
         <google-cloud-guava.tesb.version-range>[${google-cloud-guava.tesb.version-prefix},40)</google-cloud-guava.tesb.version-range>
         <google-cloud-guava.tesb.version>${google-cloud-guava.tesb.version-prefix}-jre</google-cloud-guava.tesb.version>
 
