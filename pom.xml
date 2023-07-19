@@ -41,7 +41,7 @@
 
     <properties>
         <upstream.version>2.25.4</upstream.version>
-        <apache-camel.features.tesb.version>2.25.4.tesb11</apache-camel.features.tesb.version>
+        <apache-camel.features.tesb.version>2.25.4.tesb12</apache-camel.features.tesb.version>
         <hibernate-validator.tesb.version>6.0.17.Final</hibernate-validator.tesb.version>
         <camel-mqtt.tesb.version>2.25.4.20220513</camel-mqtt.tesb.version>
         <camel-cxf.tesb.version>2.25.4.20220513</camel-cxf.tesb.version>
@@ -80,6 +80,7 @@
         <jettison.tesb.version>1.5.4</jettison.tesb.version>
         <commons-text.tesb.version>1.10.0</commons-text.tesb.version>
         <commons-net.tesb.version>3.9.0</commons-net.tesb.version>
+        <bouncycastle.tesb.version>1.74</bouncycastle.tesb.version>
 
         <!-- enforce to require using at least this maven version -->
         <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -291,6 +292,7 @@
                             <jettison.tesb.version>${jettison.tesb.version}</jettison.tesb.version>
                             <commons-text.tesb.version>${commons-text.tesb.version}</commons-text.tesb.version>
                             <commons-net.tesb.version>${commons-net.tesb.version}</commons-net.tesb.version>
+                            <bouncycastle.tesb.version>${bouncycastle.tesb.version}</bouncycastle.tesb.version>
                         </properties>
                     </configuration>
                     <executions>
