@@ -81,6 +81,7 @@
         <commons-text.tesb.version>1.10.0</commons-text.tesb.version>
         <commons-net.tesb.version>3.9.0</commons-net.tesb.version>
         <bouncycastle.tesb.version>1.74</bouncycastle.tesb.version>
+        <xmlgraphics-batik.tesb.version>1.17</xmlgraphics-batik.tesb.version>
 
         <!-- enforce to require using at least this maven version -->
         <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -293,6 +294,7 @@
                             <commons-text.tesb.version>${commons-text.tesb.version}</commons-text.tesb.version>
                             <commons-net.tesb.version>${commons-net.tesb.version}</commons-net.tesb.version>
                             <bouncycastle.tesb.version>${bouncycastle.tesb.version}</bouncycastle.tesb.version>
+                            <xmlgraphics-batik.tesb.version>${xmlgraphics-batik.tesb.version}</xmlgraphics-batik.tesb.version>
                         </properties>
                     </configuration>
                     <executions>
