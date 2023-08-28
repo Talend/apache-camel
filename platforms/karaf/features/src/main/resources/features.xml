@@ -188,7 +188,7 @@
     <bundle dependency='true'>mvn:org.apache.commons/commons-compress/${commons-compress.tesb.version}</bundle>
     <bundle dependency='true'>mvn:commons-lang/commons-lang/${commons-lang-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jetty/${jetty6-bundle-version}</bundle>
-    <bundle dependency='true'>mvn:org.xerial.snappy/snappy-java/${snappy-version}</bundle>
+    <bundle dependency='true'>mvn:org.xerial.snappy/snappy-java/${snappy.tesb.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-avro/${upstream.version}</bundle>
   </feature>
   <feature name='camel-aws' version='${upstream.version}' resolver='(obr)' start-level='50'>
@@ -363,7 +363,7 @@
   <feature name='camel-chronicle' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <details>Not working well in OSGi atm, requires the runtime to provide sun.nio.ch, sun.misc, sun.reflect, com.sun.jdi.connect.spi, com.sun.nio.file</details>
     <feature version='${upstream.version}'>camel-core</feature>
-    <bundle dependency='true'>mvn:org.xerial.snappy/snappy-java/${snappy-version}</bundle>
+    <bundle dependency='true'>mvn:org.xerial.snappy/snappy-java/${snappy.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream-bundle.tesb.version}</bundle>
     <bundle dependency='true'>mvn:net.java.dev.jna/jna/${jna-version}</bundle>
     <bundle dependency='true'>mvn:net.java.dev.jna/jna-platform/${jna-version}</bundle>
@@ -1016,7 +1016,7 @@
     <bundle dependency='true'>mvn:org.codehaus.jackson/jackson-mapper-asl/${jackson-version}</bundle>
     <bundle dependency='true'>mvn:org.codehaus.jackson/jackson-jaxrs/${jackson-version}</bundle>
     <bundle dependency='true'>mvn:org.codehaus.jackson/jackson-xc/${jackson-version}</bundle>
-    <bundle dependency='true'>mvn:org.xerial.snappy/snappy-java/${snappy-version}</bundle>
+    <bundle dependency='true'>mvn:org.xerial.snappy/snappy-java/${snappy.tesb.version}</bundle>
     <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec.tesb.version}</bundle>
     <bundle dependency='true'>mvn:commons-collections/commons-collections/${commons-collections-version}</bundle>
     <bundle dependency='true'>mvn:commons-io/commons-io/${commons-io.tesb.version}</bundle>
@@ -1431,7 +1431,7 @@
   <feature name='camel-kafka' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.kafka-clients/${kafka-bundle-version}</bundle>
-    <bundle dependency='true'>mvn:org.xerial.snappy/snappy-java/${snappy-version}</bundle>
+    <bundle dependency='true'>mvn:org.xerial.snappy/snappy-java/${snappy.tesb.version}</bundle>
     <bundle dependency='true'>wrap:mvn:org.lz4/lz4-java/${lz4-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-kafka/${upstream.version}</bundle>
   </feature>
