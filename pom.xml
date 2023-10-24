@@ -41,7 +41,7 @@
 
     <properties>
         <upstream.version>2.25.4</upstream.version>
-        <apache-camel.features.tesb.version>2.25.4.tesb13</apache-camel.features.tesb.version>
+        <apache-camel.features.tesb.version>2.25.4.tesb14</apache-camel.features.tesb.version>
         <hibernate-validator.tesb.version>6.0.17.Final</hibernate-validator.tesb.version>
         <camel-mqtt.tesb.version>2.25.4.20220513</camel-mqtt.tesb.version>
         <camel-cxf.tesb.version>2.25.4.20220513</camel-cxf.tesb.version>
@@ -58,7 +58,7 @@
         <shiro.tesb.version>1.11.0</shiro.tesb.version>
         <reactive-streams.tesb.version>1.0.3</reactive-streams.tesb.version>
         <netty-reactive-streams.tesb.version>2.0.5</netty-reactive-streams.tesb.version>
-        <netty.tesb.version>4.1.86.Final</netty.tesb.version>
+        <netty.tesb.version>4.1.100.Final</netty.tesb.version>
         <async-http-client-netty-utils.tesb.version>2.12.1</async-http-client-netty-utils.tesb.version>
         <json-smart.tesb.version>2.4.10</json-smart.tesb.version>
         <json-accessors-smart.tesb.version>2.4.9</json-accessors-smart.tesb.version>
@@ -67,7 +67,7 @@
         <commons-codec.tesb.version>1.15</commons-codec.tesb.version>
         <commons-compress.tesb.version>1.21</commons-compress.tesb.version>
         <xstream-bundle.tesb.version>1.4.20_1</xstream-bundle.tesb.version>
-        <jetty.tesb.version>9.4.51.v20230217</jetty.tesb.version>
+        <jetty.tesb.version>9.4.53.v20231009</jetty.tesb.version>
         <xmlsec.tesb.version>2.1.7</xmlsec.tesb.version>
         <ant-bundle.tesb.version>1.10.12_1</ant-bundle.tesb.version>
         <junit-bundle.tesb.version>4.13.2_1</junit-bundle.tesb.version>
@@ -82,7 +82,7 @@
         <commons-net.tesb.version>3.9.0</commons-net.tesb.version>
         <bouncycastle.tesb.version>1.74</bouncycastle.tesb.version>
         <xmlgraphics-batik.tesb.version>1.17</xmlgraphics-batik.tesb.version>
-        <snappy.tesb.version>1.1.10.3</snappy.tesb.version>
+        <snappy.tesb.version>1.1.10.4</snappy.tesb.version>
 
         <!-- enforce to require using at least this maven version -->
         <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
