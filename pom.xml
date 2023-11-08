@@ -41,7 +41,7 @@
 
     <properties>
         <upstream.version>2.25.4</upstream.version>
-        <apache-camel.features.tesb.version>2.25.4.tesb14</apache-camel.features.tesb.version>
+        <apache-camel.features.tesb.version>2.25.4.tesb15</apache-camel.features.tesb.version>
         <hibernate-validator.tesb.version>6.0.17.Final</hibernate-validator.tesb.version>
         <camel-mqtt.tesb.version>2.25.4.20220513</camel-mqtt.tesb.version>
         <camel-cxf.tesb.version>2.25.4.20220513</camel-cxf.tesb.version>
@@ -68,7 +68,7 @@
         <commons-compress.tesb.version>1.21</commons-compress.tesb.version>
         <xstream-bundle.tesb.version>1.4.20_1</xstream-bundle.tesb.version>
         <jetty.tesb.version>9.4.53.v20231009</jetty.tesb.version>
-        <xmlsec.tesb.version>2.1.7</xmlsec.tesb.version>
+        <xmlsec.tesb.version>2.3.4</xmlsec.tesb.version>
         <ant-bundle.tesb.version>1.10.12_1</ant-bundle.tesb.version>
         <junit-bundle.tesb.version>4.13.2_1</junit-bundle.tesb.version>
         <ehcache3.tesb.version>3.10.8</ehcache3.tesb.version>
@@ -83,6 +83,7 @@
         <bouncycastle.tesb.version>1.74</bouncycastle.tesb.version>
         <xmlgraphics-batik.tesb.version>1.17</xmlgraphics-batik.tesb.version>
         <snappy.tesb.version>1.1.10.4</snappy.tesb.version>
+        <rabbitmq-amqp-client.tesb.version>5.18.0</rabbitmq-amqp-client.tesb.version>
 
         <!-- enforce to require using at least this maven version -->
         <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -297,6 +298,7 @@
                             <bouncycastle.tesb.version>${bouncycastle.tesb.version}</bouncycastle.tesb.version>
                             <xmlgraphics-batik.tesb.version>${xmlgraphics-batik.tesb.version}</xmlgraphics-batik.tesb.version>
                             <snappy.tesb.version>${snappy.tesb.version}</snappy.tesb.version>
+                            <rabbitmq-amqp-client.tesb.version>${rabbitmq-amqp-client.tesb.version}</rabbitmq-amqp-client.tesb.version>
                         </properties>
                     </configuration>
                     <executions>
