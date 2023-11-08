@@ -68,7 +68,7 @@
         <commons-compress.tesb.version>1.21</commons-compress.tesb.version>
         <xstream-bundle.tesb.version>1.4.20_1</xstream-bundle.tesb.version>
         <jetty.tesb.version>9.4.53.v20231009</jetty.tesb.version>
-        <xmlsec.tesb.version>2.3.4</xmlsec.tesb.version>
+        <xmlsec.tesb.version>2.2.6</xmlsec.tesb.version>
         <ant-bundle.tesb.version>1.10.12_1</ant-bundle.tesb.version>
         <junit-bundle.tesb.version>4.13.2_1</junit-bundle.tesb.version>
         <ehcache3.tesb.version>3.10.8</ehcache3.tesb.version>
