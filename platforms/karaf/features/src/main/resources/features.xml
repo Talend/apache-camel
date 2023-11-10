@@ -1957,7 +1957,7 @@
   </feature>
   <feature name='camel-rabbitmq' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
-    <bundle dependency='true'>mvn:com.rabbitmq/amqp-client/${rabbitmq-amqp-client-version}</bundle>
+    <bundle dependency='true'>mvn:com.rabbitmq/amqp-client/${rabbitmq-amqp-client.tesb.version}</bundle>
     <bundle dependency='true'>mvn:commons-pool/commons-pool/${commons-pool-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-rabbitmq/${upstream.version}</bundle>
   </feature>
