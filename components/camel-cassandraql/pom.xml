@@ -29,9 +29,14 @@
 
     <artifactId>camel-cassandraql</artifactId>
     <packaging>jar</packaging>
+    <version>${revision}</version>
 
     <name>Camel :: Cassandra CQL</name>
     <description>Cassandra CQL3 support</description>
+
+    <properties>
+        <revision>${camel-cassandraql.tesb.version}</revision>
+    </properties>
 
     <dependencies>
 
