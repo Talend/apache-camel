@@ -104,7 +104,8 @@
 
     <properties>
         <upstream.version>3.20.6</upstream.version>
-        <camel-support.tesb.version>3.20.6.20230530</camel-support.tesb.version>
+        <camel-base.tesb.version>3.20.6.20240226</camel-base.tesb.version>
+        <camel-support.tesb.version>3.20.6.20240226</camel-support.tesb.version>
         <camel-activemq.tesb.version>3.20.6.20230530</camel-activemq.tesb.version>
         <camel-cassandraql.tesb.version>3.20.6.20240122</camel-cassandraql.tesb.version>
         <camel-cxf-soap.tesb.version>3.20.6.20230530</camel-cxf-soap.tesb.version>
@@ -275,6 +276,7 @@
                             <!-- something like :
                             <my.custom.property>${my.custom.property}</my.custom.property>
                             -->
+                            <camel-base.tesb.version>${camel-base.tesb.version}</camel-base.tesb.version>
                             <camel-support.tesb.version>${camel-support.tesb.version}</camel-support.tesb.version>
                             <camel-activemq.tesb.version>${camel-activemq.tesb.version}</camel-activemq.tesb.version>
                             <camel-cassandraql.tesb.version>${camel-cassandraql.tesb.version}</camel-cassandraql.tesb.version>

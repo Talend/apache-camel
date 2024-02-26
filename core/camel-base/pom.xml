@@ -31,8 +31,10 @@
 
     <name>Camel :: Base</name>
     <description>The Base Camel Framework</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-base.tesb.version}</revision>
         <firstVersion>3.0.0</firstVersion>
         <label>core</label>
     </properties>
