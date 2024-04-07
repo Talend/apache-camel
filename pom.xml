@@ -112,9 +112,9 @@
         <camel-cxf-rest.tesb.version>3.20.6.20230530</camel-cxf-rest.tesb.version>
         <camel-google-pubsub.tesb.version>3.20.6.20230530</camel-google-pubsub.tesb.version>
         <camel-sql.tesb.version>3.20.6.20240122</camel-sql.tesb.version>
-        <camel-zookeeper.tesb.version>3.20.6.20230530</camel-zookeeper.tesb.version>
-        <camel-zookeeper-master.tesb.version>3.20.6.20230530</camel-zookeeper-master.tesb.version>
-        <zookeeper.tesb.version>3.7.1</zookeeper.tesb.version>
+        <camel-zookeeper.tesb.version>3.20.6.20240320</camel-zookeeper.tesb.version>
+        <camel-zookeeper-master.tesb.version>3.20.6.20240320</camel-zookeeper-master.tesb.version>
+        <zookeeper.tesb.version>3.8.4</zookeeper.tesb.version>
         <curator.tesb.version>5.5.0</curator.tesb.version>
         <google-cloud-guava.tesb.version-prefix>32.1.1</google-cloud-guava.tesb.version-prefix>
         <google-cloud-guava.tesb.version-range>[${google-cloud-guava.tesb.version-prefix},40)</google-cloud-guava.tesb.version-range>
