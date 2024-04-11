@@ -86,10 +86,10 @@
     </modules>
 
     <scm>
-        <connection>scm:git:http://gitbox.apache.org/repos/asf/camel.git</connection>
-        <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/camel.git</developerConnection>
-        <url>https://gitbox.apache.org/repos/asf?p=camel.git;a=summary</url>
-        <tag>camel-3.22.1</tag>
+        <connection>scm:git:http://github.com/Talend/camel.git</connection>
+        <developerConnection>scm:git:https://github.com/Talend/camel.git</developerConnection>
+        <url>https://github.com/Talend/camel</url>
+        <tag>HEAD</tag>
     </scm>
     <issueManagement>
         <system>jira</system>
@@ -103,6 +103,22 @@
     </distributionManagement>
 
     <properties>
+        <upstream.version>3.22.1</upstream.version>
+        <camel-base.tesb.version>3.22.1</camel-base.tesb.version>
+        <camel-support.tesb.version>3.22.1</camel-support.tesb.version>
+        <camel-activemq.tesb.version>3.22.1.20240411</camel-activemq.tesb.version>
+        <camel-cassandraql.tesb.version>3.22.1</camel-cassandraql.tesb.version>
+        <camel-cxf-soap.tesb.version>3.22.1.20240411</camel-cxf-soap.tesb.version>
+        <camel-cxf-rest.tesb.version>3.22.1.20240411</camel-cxf-rest.tesb.version>
+        <camel-google-pubsub.tesb.version>3.22.1.20240411</camel-google-pubsub.tesb.version>
+        <camel-sql.tesb.version>3.22.1</camel-sql.tesb.version>
+        <camel-zookeeper.tesb.version>3.22.1.20240411</camel-zookeeper.tesb.version>
+        <camel-zookeeper-master.tesb.version>3.22.1.20240411</camel-zookeeper-master.tesb.version>
+        <zookeeper.tesb.version>3.8.4</zookeeper.tesb.version>
+        <curator.tesb.version>5.5.0</curator.tesb.version>
+        <google-cloud-guava.tesb.version-prefix>32.1.1</google-cloud-guava.tesb.version-prefix>
+        <google-cloud-guava.tesb.version-range>[${google-cloud-guava.tesb.version-prefix},40)</google-cloud-guava.tesb.version-range>
+        <google-cloud-guava.tesb.version>${google-cloud-guava.tesb.version-prefix}-jre</google-cloud-guava.tesb.version>
 
         <!-- unify the encoding for all the modules -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -212,6 +228,10 @@
 
         <plugins>
             <plugin>
+                <groupId>io.paradoxical</groupId>
+                <artifactId>resolved-pom-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-enforcer-plugin</artifactId>
               <version>${maven-enforcer-plugin-version}</version>
@@ -243,6 +263,49 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>io.paradoxical</groupId>
+                    <artifactId>resolved-pom-maven-plugin</artifactId>
+                    <version>1.0</version>
+                    <configuration>
+                        <properties>
+                            <revision>${revision}</revision>
+                            <upstream.version>${upstream.version}</upstream.version>
+
+                            <!-- ADD HERE ALL THE CUSTOM PROPERTIES declared in the above <properties> part -->
+                            <!-- something like :
+                            <my.custom.property>${my.custom.property}</my.custom.property>
+                            -->
+                            <camel-base.tesb.version>${camel-base.tesb.version}</camel-base.tesb.version>
+                            <camel-support.tesb.version>${camel-support.tesb.version}</camel-support.tesb.version>
+                            <camel-activemq.tesb.version>${camel-activemq.tesb.version}</camel-activemq.tesb.version>
+                            <camel-cassandraql.tesb.version>${camel-cassandraql.tesb.version}</camel-cassandraql.tesb.version>
+                            <camel-cxf-soap.tesb.version>${camel-cxf-soap.tesb.version}</camel-cxf-soap.tesb.version>
+                            <camel-cxf-rest.tesb.version>${camel-cxf-rest.tesb.version}</camel-cxf-rest.tesb.version>
+                            <camel-google-pubsub.tesb.version>${camel-google-pubsub.tesb.version}</camel-google-pubsub.tesb.version>
+                            <camel-sql.tesb.version>${camel-sql.tesb.version}</camel-sql.tesb.version>
+                            <camel-zookeeper.tesb.version>${camel-zookeeper.tesb.version}</camel-zookeeper.tesb.version>
+                            <camel-zookeeper-master.tesb.version>${camel-zookeeper-master.tesb.version}</camel-zookeeper-master.tesb.version>
+                            <zookeeper.tesb.version>${zookeeper.tesb.version}</zookeeper.tesb.version>
+                            <curator.tesb.version>${curator.tesb.version}</curator.tesb.version>
+                            <google-cloud-guava.tesb.version-prefix>${google-cloud-guava.tesb.version-prefix}</google-cloud-guava.tesb.version-prefix>
+                            <google-cloud-guava.tesb.version-range>${google-cloud-guava.tesb.version-range}</google-cloud-guava.tesb.version-range>
+                            <google-cloud-guava.tesb.version>${google-cloud-guava.tesb.version}</google-cloud-guava.tesb.version>
+                        </properties>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>resolve-my-pom</id>
+                            <phase>initialize</phase>
+                            <goals>
+                                <goal>resolve-pom</goal>
+                            </goals>
+                            <configuration>
+                                <resolvedPomFile>.resolved-pom.xml</resolvedPomFile>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven-javadoc-plugin-version}</version>
@@ -255,7 +318,7 @@
                         <dependency>
                             <groupId>org.apache.camel</groupId>
                             <artifactId>camel-buildtools</artifactId>
-                            <version>${project.version}</version>
+                            <version>${upstream.version}</version>
                         </dependency>
                     </dependencies>
                     <configuration>
@@ -412,7 +475,7 @@
                             </goals>
                             <configuration>
                                 <outputDirectory>${project.build.directory}</outputDirectory>
-                                <flattenedPomFilename>${project.artifactId}-${project.version}.pom</flattenedPomFilename>
+                                <flattenedPomFilename>${project.artifactId}-${upstream.version}.pom</flattenedPomFilename>
                                 <updatePomFile>true</updatePomFile>
                                 <pomElements>
                                     <build>keep</build>
@@ -800,7 +863,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <outputName>${project.artifactId}-${project.version}-sbom</outputName>
+                            <outputName>${project.artifactId}-${upstream.version}-sbom</outputName>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -858,7 +921,7 @@
                             <dependency>
                                 <groupId>org.apache.camel</groupId>
                                 <artifactId>camel-buildtools</artifactId>
-                                <version>${project.version}</version>
+                                <version>${upstream.version}</version>
                             </dependency>
                         </dependencies>
                     </plugin>

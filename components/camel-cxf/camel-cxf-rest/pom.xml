@@ -28,11 +28,13 @@
 
     <artifactId>camel-cxf-rest</artifactId>
     <packaging>jar</packaging>
+    <version>${revision}</version>
 
     <name>Camel :: CXF :: REST</name>
     <description>Camel CXF REST support</description>
 
     <properties>
+        <revision>${camel-cxf-rest.tesb.version}</revision>
         <camel.osgi.import.defaults />
         <camel.osgi.import>
             !org.springframework.boot.*,

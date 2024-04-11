@@ -68,7 +68,7 @@
             <plugin>
                 <groupId>org.apache.camel.maven</groupId>
                 <artifactId>camel-debezium-maven-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>${upstream.version}</version>
                 <executions>
                     <execution>
                         <id>generate</id>

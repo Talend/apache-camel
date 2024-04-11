@@ -192,7 +192,7 @@
                             <artifactItem>
                                 <groupId>org.apache.camel</groupId>
                                 <artifactId>camel-spring-xml</artifactId>
-                                <version>${project.version}</version>
+                                <version>${upstream.version}</version>
                                 <type>jar</type>
                                 <overWrite>false</overWrite>
                                 <outputDirectory>${project.build.directory}/schema</outputDirectory>
@@ -352,7 +352,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.camel</groupId>
                                     <artifactId>camel-api</artifactId>
-                                    <version>${project.version}</version>
+                                    <version>${upstream.version}</version>
                                     <type>jar</type>
                                     <classifier>sources</classifier>
                                     <overWrite>true</overWrite>
@@ -362,7 +362,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.camel</groupId>
                                     <artifactId>camel-core-model</artifactId>
-                                    <version>${project.version}</version>
+                                    <version>${upstream.version}</version>
                                     <type>jar</type>
                                     <classifier>sources</classifier>
                                     <overWrite>true</overWrite>
@@ -373,7 +373,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.camel</groupId>
                                     <artifactId>camel-core-xml</artifactId>
-                                    <version>${project.version}</version>
+                                    <version>${upstream.version}</version>
                                     <type>jar</type>
                                     <classifier>sources</classifier>
                                     <overWrite>true</overWrite>
@@ -383,7 +383,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.camel</groupId>
                                     <artifactId>camel-util</artifactId>
-                                    <version>${project.version}</version>
+                                    <version>${upstream.version}</version>
                                     <type>jar</type>
                                     <classifier>sources</classifier>
                                     <overWrite>true</overWrite>
@@ -406,7 +406,7 @@
                             <target>
                                 <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
                                 <property name="ant.regexp.regexpimpl" value="org.apache.tools.ant.util.regexp.Jdk14RegexpRegexp" />
-                                <property name="mv" value="${project.version}" />
+                                <property name="mv" value="${upstream.version}" />
                                 <propertyregex property="ov.p1" input="${mv}" regexp="(\d+)(?:\.(\d+)(?:\.(\d+))?)?(?:[^a-zA-Z0-9](.*))?" replace="\1" defaultValue="0" />
                                 <propertyregex property="ov.p2" input="${mv}" regexp="(\d+)(?:\.(\d+)(?:\.(\d+))?)?(?:[^a-zA-Z0-9](.*))?" replace=".\2" defaultValue=".0" />
                                 <propertyregex property="ov.p1a" input="${ov.p1}" regexp="(.+)" replace="\1" defaultValue="0" />
@@ -499,7 +499,7 @@
                                 </copy>
                                 <replace file="${project.build.directory}/spring-meta/META-INF/spring.handlers" token="$${camel.schema.version}" value="${camel.schema.version}" preservelastmodified="true" />
                                 <replace file="${project.build.directory}/spring-meta/META-INF/spring.schemas" token="$${camel.schema.version}" value="${camel.schema.version}" preservelastmodified="true" />
-                                <replace file="${project.build.directory}/spring-meta/META-INF/spring.schemas" token="$${camel.version}" value="${project.version}" preservelastmodified="true" />
+                                <replace file="${project.build.directory}/spring-meta/META-INF/spring.schemas" token="$${camel.version}" value="${upstream.version}" preservelastmodified="true" />
                                 <copy todir="${project.build.directory}/classes" preservelastmodified="true">
                                     <fileset dir="${project.build.directory}/spring-meta" />
                                 </copy>
@@ -586,7 +586,7 @@
             <plugin>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-eip-documentation-enricher-maven-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>${upstream.version}</version>
                 <executions>
                     <execution>
                         <id>eip-documentation-enricher</id>

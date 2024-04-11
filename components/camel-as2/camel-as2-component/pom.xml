@@ -52,7 +52,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-as2-api</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
         </dependency>
 
         <!-- testing -->
@@ -82,7 +82,7 @@
                 <plugin>
                     <groupId>org.apache.camel</groupId>
                     <artifactId>camel-api-component-maven-plugin</artifactId>
-                    <version>${project.version}</version>
+                    <version>${upstream.version}</version>
                     <configuration>
                         <scheme>${schemeName}</scheme>
                         <componentName>${componentName}</componentName>
@@ -159,7 +159,7 @@
                     <dependency>
                         <groupId>org.apache.camel</groupId>
                         <artifactId>camel-as2-api</artifactId>
-                        <version>${project.version}</version>
+                        <version>${upstream.version}</version>
                         <classifier>sources</classifier>
                     </dependency>
                 </dependencies>

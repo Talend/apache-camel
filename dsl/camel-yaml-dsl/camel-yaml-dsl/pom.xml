@@ -258,7 +258,7 @@
             <plugin>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-yaml-dsl-maven-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>${upstream.version}</version>
                 <executions>
                     <!-- camelCase -->
                     <execution>
@@ -289,7 +289,7 @@
             <plugin>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-restdsl-openapi-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>${upstream.version}</version>
                 <executions>
                     <execution>
                         <id>generate-dsl</id>
