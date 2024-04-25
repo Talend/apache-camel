@@ -106,6 +106,21 @@ public interface KubernetesResourcesQuotaEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: producer
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesResourcesQuotaEndpointBuilder namespace(
+                String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * Producer operation to do on Kubernetes.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -520,7 +535,7 @@ public interface KubernetesResourcesQuotaEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesOperation}.
          */
         public String kubernetesOperation() {
-            return "KubernetesOperation";
+            return "CamelKubernetesOperation";
         }
 
         /**
@@ -533,7 +548,7 @@ public interface KubernetesResourcesQuotaEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesNamespaceName}.
          */
         public String kubernetesNamespaceName() {
-            return "KubernetesNamespaceName";
+            return "CamelKubernetesNamespaceName";
         }
 
         /**
@@ -547,7 +562,7 @@ public interface KubernetesResourcesQuotaEndpointBuilderFactory {
          * KubernetesResourcesQuotaLabels}.
          */
         public String kubernetesResourcesQuotaLabels() {
-            return "KubernetesResourcesQuotaLabels";
+            return "CamelKubernetesResourcesQuotaLabels";
         }
 
         /**
@@ -560,7 +575,7 @@ public interface KubernetesResourcesQuotaEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesResourcesQuotaName}.
          */
         public String kubernetesResourcesQuotaName() {
-            return "KubernetesResourcesQuotaName";
+            return "CamelKubernetesResourcesQuotaName";
         }
 
         /**
@@ -574,7 +589,7 @@ public interface KubernetesResourcesQuotaEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesResourceQuotaSpec}.
          */
         public String kubernetesResourceQuotaSpec() {
-            return "KubernetesResourceQuotaSpec";
+            return "CamelKubernetesResourceQuotaSpec";
         }
     }
     static KubernetesResourcesQuotaEndpointBuilder endpointBuilder(

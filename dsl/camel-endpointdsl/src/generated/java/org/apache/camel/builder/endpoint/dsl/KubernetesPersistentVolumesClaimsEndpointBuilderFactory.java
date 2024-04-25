@@ -108,6 +108,21 @@ public interface KubernetesPersistentVolumesClaimsEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: producer
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesPersistentVolumesClaimsEndpointBuilder namespace(
+                String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * Producer operation to do on Kubernetes.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -528,7 +543,7 @@ public interface KubernetesPersistentVolumesClaimsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesOperation}.
          */
         public String kubernetesOperation() {
-            return "KubernetesOperation";
+            return "CamelKubernetesOperation";
         }
 
         /**
@@ -541,7 +556,7 @@ public interface KubernetesPersistentVolumesClaimsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesNamespaceName}.
          */
         public String kubernetesNamespaceName() {
-            return "KubernetesNamespaceName";
+            return "CamelKubernetesNamespaceName";
         }
 
         /**
@@ -555,7 +570,7 @@ public interface KubernetesPersistentVolumesClaimsEndpointBuilderFactory {
          * KubernetesPersistentVolumesClaimsLabels}.
          */
         public String kubernetesPersistentVolumesClaimsLabels() {
-            return "KubernetesPersistentVolumesClaimsLabels";
+            return "CamelKubernetesPersistentVolumesClaimsLabels";
         }
 
         /**
@@ -569,7 +584,7 @@ public interface KubernetesPersistentVolumesClaimsEndpointBuilderFactory {
          * KubernetesPersistentVolumeClaimName}.
          */
         public String kubernetesPersistentVolumeClaimName() {
-            return "KubernetesPersistentVolumeClaimName";
+            return "CamelKubernetesPersistentVolumeClaimName";
         }
 
         /**
@@ -584,7 +599,7 @@ public interface KubernetesPersistentVolumesClaimsEndpointBuilderFactory {
          * KubernetesPersistentVolumeClaimSpec}.
          */
         public String kubernetesPersistentVolumeClaimSpec() {
-            return "KubernetesPersistentVolumeClaimSpec";
+            return "CamelKubernetesPersistentVolumeClaimSpec";
         }
     }
     static KubernetesPersistentVolumesClaimsEndpointBuilder endpointBuilder(

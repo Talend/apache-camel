@@ -108,6 +108,21 @@ public interface OpenshiftDeploymentConfigsEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default OpenshiftDeploymentConfigsEndpointConsumerBuilder namespace(
+                String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -241,21 +256,6 @@ public interface OpenshiftDeploymentConfigsEndpointBuilderFactory {
         default OpenshiftDeploymentConfigsEndpointConsumerBuilder labelValue(
                 String labelValue) {
             doSetProperty("labelValue", labelValue);
-            return this;
-        }
-        /**
-         * The namespace.
-         * 
-         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
-         * 
-         * Group: consumer
-         * 
-         * @param namespace the value to set
-         * @return the dsl builder
-         */
-        default OpenshiftDeploymentConfigsEndpointConsumerBuilder namespace(
-                String namespace) {
-            doSetProperty("namespace", namespace);
             return this;
         }
         /**
@@ -736,6 +736,21 @@ public interface OpenshiftDeploymentConfigsEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default OpenshiftDeploymentConfigsEndpointProducerBuilder namespace(
+                String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -1146,6 +1161,21 @@ public interface OpenshiftDeploymentConfigsEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default OpenshiftDeploymentConfigsEndpointBuilder namespace(
+                String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -1503,7 +1533,7 @@ public interface OpenshiftDeploymentConfigsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesOperation}.
          */
         public String kubernetesOperation() {
-            return "KubernetesOperation";
+            return "CamelKubernetesOperation";
         }
 
         /**
@@ -1516,7 +1546,7 @@ public interface OpenshiftDeploymentConfigsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesNamespaceName}.
          */
         public String kubernetesNamespaceName() {
-            return "KubernetesNamespaceName";
+            return "CamelKubernetesNamespaceName";
         }
 
         /**
@@ -1529,7 +1559,7 @@ public interface OpenshiftDeploymentConfigsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesDeploymentsLabels}.
          */
         public String kubernetesDeploymentsLabels() {
-            return "KubernetesDeploymentsLabels";
+            return "CamelKubernetesDeploymentsLabels";
         }
 
         /**
@@ -1542,7 +1572,7 @@ public interface OpenshiftDeploymentConfigsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesDeploymentName}.
          */
         public String kubernetesDeploymentName() {
-            return "KubernetesDeploymentName";
+            return "CamelKubernetesDeploymentName";
         }
 
         /**
@@ -1555,7 +1585,7 @@ public interface OpenshiftDeploymentConfigsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesDeploymentReplicas}.
          */
         public String kubernetesDeploymentReplicas() {
-            return "KubernetesDeploymentReplicas";
+            return "CamelKubernetesDeploymentReplicas";
         }
 
         /**
@@ -1570,7 +1600,7 @@ public interface OpenshiftDeploymentConfigsEndpointBuilderFactory {
          * KubernetesDeploymentConfigSpec}.
          */
         public String kubernetesDeploymentConfigSpec() {
-            return "KubernetesDeploymentConfigSpec";
+            return "CamelKubernetesDeploymentConfigSpec";
         }
 
         /**
@@ -1584,7 +1614,7 @@ public interface OpenshiftDeploymentConfigsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesEventAction}.
          */
         public String kubernetesEventAction() {
-            return "KubernetesEventAction";
+            return "CamelKubernetesEventAction";
         }
 
         /**
@@ -1597,7 +1627,7 @@ public interface OpenshiftDeploymentConfigsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesEventTimestamp}.
          */
         public String kubernetesEventTimestamp() {
-            return "KubernetesEventTimestamp";
+            return "CamelKubernetesEventTimestamp";
         }
     }
     static OpenshiftDeploymentConfigsEndpointBuilder endpointBuilder(

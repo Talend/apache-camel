@@ -106,6 +106,20 @@ public interface KubernetesHPAEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesHPAEndpointConsumerBuilder namespace(String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -233,20 +247,6 @@ public interface KubernetesHPAEndpointBuilderFactory {
         default KubernetesHPAEndpointConsumerBuilder labelValue(
                 String labelValue) {
             doSetProperty("labelValue", labelValue);
-            return this;
-        }
-        /**
-         * The namespace.
-         * 
-         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
-         * 
-         * Group: consumer
-         * 
-         * @param namespace the value to set
-         * @return the dsl builder
-         */
-        default KubernetesHPAEndpointConsumerBuilder namespace(String namespace) {
-            doSetProperty("namespace", namespace);
             return this;
         }
         /**
@@ -720,6 +720,20 @@ public interface KubernetesHPAEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesHPAEndpointProducerBuilder namespace(String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -1123,6 +1137,20 @@ public interface KubernetesHPAEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesHPAEndpointBuilder namespace(String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -1465,7 +1493,7 @@ public interface KubernetesHPAEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesOperation}.
          */
         public String kubernetesOperation() {
-            return "KubernetesOperation";
+            return "CamelKubernetesOperation";
         }
 
         /**
@@ -1478,7 +1506,7 @@ public interface KubernetesHPAEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesNamespaceName}.
          */
         public String kubernetesNamespaceName() {
-            return "KubernetesNamespaceName";
+            return "CamelKubernetesNamespaceName";
         }
 
         /**
@@ -1491,7 +1519,7 @@ public interface KubernetesHPAEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesHPAName}.
          */
         public String kubernetesHPAName() {
-            return "KubernetesHPAName";
+            return "CamelKubernetesHPAName";
         }
 
         /**
@@ -1505,7 +1533,7 @@ public interface KubernetesHPAEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesHPASpec}.
          */
         public String kubernetesHPASpec() {
-            return "KubernetesHPASpec";
+            return "CamelKubernetesHPASpec";
         }
 
         /**
@@ -1518,7 +1546,7 @@ public interface KubernetesHPAEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesHPALabels}.
          */
         public String kubernetesHPALabels() {
-            return "KubernetesHPALabels";
+            return "CamelKubernetesHPALabels";
         }
 
         /**
@@ -1532,7 +1560,7 @@ public interface KubernetesHPAEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesEventAction}.
          */
         public String kubernetesEventAction() {
-            return "KubernetesEventAction";
+            return "CamelKubernetesEventAction";
         }
 
         /**
@@ -1545,7 +1573,7 @@ public interface KubernetesHPAEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesEventTimestamp}.
          */
         public String kubernetesEventTimestamp() {
-            return "KubernetesEventTimestamp";
+            return "CamelKubernetesEventTimestamp";
         }
     }
     static KubernetesHPAEndpointBuilder endpointBuilder(

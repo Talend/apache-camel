@@ -104,6 +104,20 @@ public interface KubernetesSecretsEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: producer
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesSecretsEndpointBuilder namespace(String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * Producer operation to do on Kubernetes.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -509,7 +523,7 @@ public interface KubernetesSecretsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesOperation}.
          */
         public String kubernetesOperation() {
-            return "KubernetesOperation";
+            return "CamelKubernetesOperation";
         }
 
         /**
@@ -522,7 +536,7 @@ public interface KubernetesSecretsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesNamespaceName}.
          */
         public String kubernetesNamespaceName() {
-            return "KubernetesNamespaceName";
+            return "CamelKubernetesNamespaceName";
         }
 
         /**
@@ -535,7 +549,7 @@ public interface KubernetesSecretsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesSecretsLabels}.
          */
         public String kubernetesSecretsLabels() {
-            return "KubernetesSecretsLabels";
+            return "CamelKubernetesSecretsLabels";
         }
 
         /**
@@ -548,7 +562,7 @@ public interface KubernetesSecretsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesSecretName}.
          */
         public String kubernetesSecretName() {
-            return "KubernetesSecretName";
+            return "CamelKubernetesSecretName";
         }
 
         /**
@@ -561,7 +575,7 @@ public interface KubernetesSecretsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesSecret}.
          */
         public String kubernetesSecret() {
-            return "KubernetesSecret";
+            return "CamelKubernetesSecret";
         }
     }
     static KubernetesSecretsEndpointBuilder endpointBuilder(

@@ -107,6 +107,21 @@ public interface KubernetesConfigMapsEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesConfigMapsEndpointConsumerBuilder namespace(
+                String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -240,21 +255,6 @@ public interface KubernetesConfigMapsEndpointBuilderFactory {
         default KubernetesConfigMapsEndpointConsumerBuilder labelValue(
                 String labelValue) {
             doSetProperty("labelValue", labelValue);
-            return this;
-        }
-        /**
-         * The namespace.
-         * 
-         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
-         * 
-         * Group: consumer
-         * 
-         * @param namespace the value to set
-         * @return the dsl builder
-         */
-        default KubernetesConfigMapsEndpointConsumerBuilder namespace(
-                String namespace) {
-            doSetProperty("namespace", namespace);
             return this;
         }
         /**
@@ -734,6 +734,21 @@ public interface KubernetesConfigMapsEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesConfigMapsEndpointProducerBuilder namespace(
+                String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -1142,6 +1157,20 @@ public interface KubernetesConfigMapsEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesConfigMapsEndpointBuilder namespace(String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -1490,7 +1519,7 @@ public interface KubernetesConfigMapsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesOperation}.
          */
         public String kubernetesOperation() {
-            return "KubernetesOperation";
+            return "CamelKubernetesOperation";
         }
 
         /**
@@ -1503,7 +1532,7 @@ public interface KubernetesConfigMapsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesNamespaceName}.
          */
         public String kubernetesNamespaceName() {
-            return "KubernetesNamespaceName";
+            return "CamelKubernetesNamespaceName";
         }
 
         /**
@@ -1516,7 +1545,7 @@ public interface KubernetesConfigMapsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesConfigMapsLabels}.
          */
         public String kubernetesConfigMapsLabels() {
-            return "KubernetesConfigMapsLabels";
+            return "CamelKubernetesConfigMapsLabels";
         }
 
         /**
@@ -1529,7 +1558,7 @@ public interface KubernetesConfigMapsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesConfigMapName}.
          */
         public String kubernetesConfigMapName() {
-            return "KubernetesConfigMapName";
+            return "CamelKubernetesConfigMapName";
         }
 
         /**
@@ -1542,7 +1571,7 @@ public interface KubernetesConfigMapsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesConfigData}.
          */
         public String kubernetesConfigData() {
-            return "KubernetesConfigData";
+            return "CamelKubernetesConfigData";
         }
 
         /**
@@ -1556,7 +1585,7 @@ public interface KubernetesConfigMapsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesEventAction}.
          */
         public String kubernetesEventAction() {
-            return "KubernetesEventAction";
+            return "CamelKubernetesEventAction";
         }
 
         /**
@@ -1569,7 +1598,7 @@ public interface KubernetesConfigMapsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesEventTimestamp}.
          */
         public String kubernetesEventTimestamp() {
-            return "KubernetesEventTimestamp";
+            return "CamelKubernetesEventTimestamp";
         }
     }
     static KubernetesConfigMapsEndpointBuilder endpointBuilder(

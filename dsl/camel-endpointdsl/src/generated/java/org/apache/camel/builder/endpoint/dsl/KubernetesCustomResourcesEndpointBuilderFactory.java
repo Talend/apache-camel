@@ -108,6 +108,21 @@ public interface KubernetesCustomResourcesEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesCustomResourcesEndpointConsumerBuilder namespace(
+                String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -241,21 +256,6 @@ public interface KubernetesCustomResourcesEndpointBuilderFactory {
         default KubernetesCustomResourcesEndpointConsumerBuilder labelValue(
                 String labelValue) {
             doSetProperty("labelValue", labelValue);
-            return this;
-        }
-        /**
-         * The namespace.
-         * 
-         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
-         * 
-         * Group: consumer
-         * 
-         * @param namespace the value to set
-         * @return the dsl builder
-         */
-        default KubernetesCustomResourcesEndpointConsumerBuilder namespace(
-                String namespace) {
-            doSetProperty("namespace", namespace);
             return this;
         }
         /**
@@ -736,6 +736,21 @@ public interface KubernetesCustomResourcesEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesCustomResourcesEndpointProducerBuilder namespace(
+                String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -1146,6 +1161,21 @@ public interface KubernetesCustomResourcesEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesCustomResourcesEndpointBuilder namespace(
+                String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -1503,7 +1533,7 @@ public interface KubernetesCustomResourcesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesOperation}.
          */
         public String kubernetesOperation() {
-            return "KubernetesOperation";
+            return "CamelKubernetesOperation";
         }
 
         /**
@@ -1516,7 +1546,7 @@ public interface KubernetesCustomResourcesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesNamespaceName}.
          */
         public String kubernetesNamespaceName() {
-            return "KubernetesNamespaceName";
+            return "CamelKubernetesNamespaceName";
         }
 
         /**
@@ -1529,7 +1559,7 @@ public interface KubernetesCustomResourcesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesCRDInstanceName}.
          */
         public String kubernetesCRDInstanceName() {
-            return "KubernetesCRDInstanceName";
+            return "CamelKubernetesCRDInstanceName";
         }
 
         /**
@@ -1542,7 +1572,7 @@ public interface KubernetesCustomResourcesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesCRDEventTimestamp}.
          */
         public String kubernetesCRDEventTimestamp() {
-            return "KubernetesCRDEventTimestamp";
+            return "CamelKubernetesCRDEventTimestamp";
         }
 
         /**
@@ -1556,7 +1586,7 @@ public interface KubernetesCustomResourcesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesCRDEventAction}.
          */
         public String kubernetesCRDEventAction() {
-            return "KubernetesCRDEventAction";
+            return "CamelKubernetesCRDEventAction";
         }
 
         /**
@@ -1569,7 +1599,7 @@ public interface KubernetesCustomResourcesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesCRDName}.
          */
         public String kubernetesCRDName() {
-            return "KubernetesCRDName";
+            return "CamelKubernetesCRDName";
         }
 
         /**
@@ -1582,7 +1612,7 @@ public interface KubernetesCustomResourcesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesCRDGroup}.
          */
         public String kubernetesCRDGroup() {
-            return "KubernetesCRDGroup";
+            return "CamelKubernetesCRDGroup";
         }
 
         /**
@@ -1595,7 +1625,7 @@ public interface KubernetesCustomResourcesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesCRDScope}.
          */
         public String kubernetesCRDScope() {
-            return "KubernetesCRDScope";
+            return "CamelKubernetesCRDScope";
         }
 
         /**
@@ -1608,7 +1638,7 @@ public interface KubernetesCustomResourcesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesCRDVersion}.
          */
         public String kubernetesCRDVersion() {
-            return "KubernetesCRDVersion";
+            return "CamelKubernetesCRDVersion";
         }
 
         /**
@@ -1621,7 +1651,7 @@ public interface KubernetesCustomResourcesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesCRDPlural}.
          */
         public String kubernetesCRDPlural() {
-            return "KubernetesCRDPlural";
+            return "CamelKubernetesCRDPlural";
         }
 
         /**
@@ -1634,7 +1664,7 @@ public interface KubernetesCustomResourcesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesCRDLabels}.
          */
         public String kubernetesCRDLabels() {
-            return "KubernetesCRDLabels";
+            return "CamelKubernetesCRDLabels";
         }
 
         /**
@@ -1647,7 +1677,7 @@ public interface KubernetesCustomResourcesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesCRDInstance}.
          */
         public String kubernetesCRDInstance() {
-            return "KubernetesCRDInstance";
+            return "CamelKubernetesCRDInstance";
         }
 
         /**
@@ -1660,7 +1690,7 @@ public interface KubernetesCustomResourcesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesDeleteResult}.
          */
         public String kubernetesDeleteResult() {
-            return "KubernetesDeleteResult";
+            return "CamelKubernetesDeleteResult";
         }
     }
     static KubernetesCustomResourcesEndpointBuilder endpointBuilder(

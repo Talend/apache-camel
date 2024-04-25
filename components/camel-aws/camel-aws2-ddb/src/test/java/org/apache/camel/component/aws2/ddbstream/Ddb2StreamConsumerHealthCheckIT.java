@@ -31,30 +31,21 @@ import org.apache.camel.test.junit5.CamelTestSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import software.amazon.awssdk.services.dynamodb.streams.DynamoDbStreamsClient;
 
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
-public class Ddb2StreamConsumerHealthCheckProfileCredsTest extends CamelTestSupport {
+public class Ddb2StreamConsumerHealthCheckIT extends CamelTestSupport {
 
     @RegisterExtension
     public static AWSService service = AWSServiceFactory.createS3Service();
-
-    private static final Logger LOG = LoggerFactory.getLogger(Ddb2StreamConsumerHealthCheckProfileCredsTest.class);
 
     CamelContext context;
 
     @Override
     protected CamelContext createCamelContext() throws Exception {
         context = super.createCamelContext();
-        context.getPropertiesComponent().setLocation("ref:prop");
-        Ddb2StreamComponent component = new Ddb2StreamComponent(context);
-        component.getConfiguration().setAmazonDynamoDbStreamsClient(DynamoDbStreamsClient.builder().build());
-        component.init();
-        context.addComponent("aws2-ddbstream", component);
 
+        // install health check manually (yes a bit cumbersome)
         HealthCheckRegistry registry = new DefaultHealthCheckRegistry();
         registry.setCamelContext(context);
         Object hc = registry.resolveById("context");
@@ -74,7 +65,7 @@ public class Ddb2StreamConsumerHealthCheckProfileCredsTest extends CamelTestSupp
 
             @Override
             public void configure() {
-                from("aws2-ddbstream://stream?region=l&useDefaultCredentialsProvider=true")
+                from("aws2-ddbstream://stream?region=l&secretKey=l&accessKey=k")
                         .startupOrder(2).log("${body}").routeId("test-health-it");
             }
         };
@@ -91,15 +82,10 @@ public class Ddb2StreamConsumerHealthCheckProfileCredsTest extends CamelTestSupp
         await().atMost(20, TimeUnit.SECONDS).untilAsserted(() -> {
             Collection<HealthCheck.Result> res2 = HealthCheckHelper.invokeReadiness(context);
             boolean down = res2.stream().allMatch(r -> r.getState().equals(HealthCheck.State.DOWN));
-            boolean containsDdb2StreamHealthCheck = res2.stream()
-                    .filter(result -> result.getCheck().getId().startsWith("aws2-ddbstream-consumer"))
-                    .findAny()
-                    .isPresent();
-            boolean hasRegionMessage = res2.stream()
-                    .anyMatch(r -> r.getMessage().stream().anyMatch(msg -> msg.contains("region")));
+            boolean containsKinesis2HealthCheck = res2.stream()
+                    .anyMatch(result -> result.getCheck().getId().startsWith("consumer:test-health-it"));
             Assertions.assertTrue(down, "liveness check");
-            Assertions.assertTrue(containsDdb2StreamHealthCheck, "aws2-ddbstream check");
-            Assertions.assertTrue(hasRegionMessage, "aws2-ddbstream check error message");
+            Assertions.assertTrue(containsKinesis2HealthCheck, "aws2-ddbstream check");
         });
 
     }

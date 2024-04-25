@@ -105,6 +105,20 @@ public interface KubernetesPodsEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesPodsEndpointConsumerBuilder namespace(String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -232,20 +246,6 @@ public interface KubernetesPodsEndpointBuilderFactory {
         default KubernetesPodsEndpointConsumerBuilder labelValue(
                 String labelValue) {
             doSetProperty("labelValue", labelValue);
-            return this;
-        }
-        /**
-         * The namespace.
-         * 
-         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
-         * 
-         * Group: consumer
-         * 
-         * @param namespace the value to set
-         * @return the dsl builder
-         */
-        default KubernetesPodsEndpointConsumerBuilder namespace(String namespace) {
-            doSetProperty("namespace", namespace);
             return this;
         }
         /**
@@ -720,6 +720,20 @@ public interface KubernetesPodsEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesPodsEndpointProducerBuilder namespace(String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -1124,6 +1138,20 @@ public interface KubernetesPodsEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesPodsEndpointBuilder namespace(String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -1466,7 +1494,7 @@ public interface KubernetesPodsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesOperation}.
          */
         public String kubernetesOperation() {
-            return "KubernetesOperation";
+            return "CamelKubernetesOperation";
         }
 
         /**
@@ -1479,7 +1507,7 @@ public interface KubernetesPodsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesNamespaceName}.
          */
         public String kubernetesNamespaceName() {
-            return "KubernetesNamespaceName";
+            return "CamelKubernetesNamespaceName";
         }
 
         /**
@@ -1492,7 +1520,7 @@ public interface KubernetesPodsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesPodsLabels}.
          */
         public String kubernetesPodsLabels() {
-            return "KubernetesPodsLabels";
+            return "CamelKubernetesPodsLabels";
         }
 
         /**
@@ -1505,7 +1533,7 @@ public interface KubernetesPodsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesPodName}.
          */
         public String kubernetesPodName() {
-            return "KubernetesPodName";
+            return "CamelKubernetesPodName";
         }
 
         /**
@@ -1519,7 +1547,7 @@ public interface KubernetesPodsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesPodSpec}.
          */
         public String kubernetesPodSpec() {
-            return "KubernetesPodSpec";
+            return "CamelKubernetesPodSpec";
         }
 
         /**
@@ -1533,7 +1561,7 @@ public interface KubernetesPodsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesEventAction}.
          */
         public String kubernetesEventAction() {
-            return "KubernetesEventAction";
+            return "CamelKubernetesEventAction";
         }
 
         /**
@@ -1546,7 +1574,7 @@ public interface KubernetesPodsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesEventTimestamp}.
          */
         public String kubernetesEventTimestamp() {
-            return "KubernetesEventTimestamp";
+            return "CamelKubernetesEventTimestamp";
         }
     }
     static KubernetesPodsEndpointBuilder endpointBuilder(

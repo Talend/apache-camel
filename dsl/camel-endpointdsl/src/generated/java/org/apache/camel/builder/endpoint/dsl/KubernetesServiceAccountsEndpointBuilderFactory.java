@@ -106,6 +106,21 @@ public interface KubernetesServiceAccountsEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: producer
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesServiceAccountsEndpointBuilder namespace(
+                String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * Producer operation to do on Kubernetes.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -523,7 +538,7 @@ public interface KubernetesServiceAccountsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesOperation}.
          */
         public String kubernetesOperation() {
-            return "KubernetesOperation";
+            return "CamelKubernetesOperation";
         }
 
         /**
@@ -536,7 +551,7 @@ public interface KubernetesServiceAccountsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesNamespaceName}.
          */
         public String kubernetesNamespaceName() {
-            return "KubernetesNamespaceName";
+            return "CamelKubernetesNamespaceName";
         }
 
         /**
@@ -550,7 +565,7 @@ public interface KubernetesServiceAccountsEndpointBuilderFactory {
          * KubernetesServiceAccountsLabels}.
          */
         public String kubernetesServiceAccountsLabels() {
-            return "KubernetesServiceAccountsLabels";
+            return "CamelKubernetesServiceAccountsLabels";
         }
 
         /**
@@ -563,7 +578,7 @@ public interface KubernetesServiceAccountsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesServiceAccountName}.
          */
         public String kubernetesServiceAccountName() {
-            return "KubernetesServiceAccountName";
+            return "CamelKubernetesServiceAccountName";
         }
 
         /**
@@ -577,7 +592,7 @@ public interface KubernetesServiceAccountsEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesServiceAccount}.
          */
         public String kubernetesServiceAccount() {
-            return "KubernetesServiceAccount";
+            return "CamelKubernetesServiceAccount";
         }
     }
     static KubernetesServiceAccountsEndpointBuilder endpointBuilder(

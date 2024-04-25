@@ -108,6 +108,21 @@ public interface KubernetesReplicationControllersEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesReplicationControllersEndpointConsumerBuilder namespace(
+                String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -241,21 +256,6 @@ public interface KubernetesReplicationControllersEndpointBuilderFactory {
         default KubernetesReplicationControllersEndpointConsumerBuilder labelValue(
                 String labelValue) {
             doSetProperty("labelValue", labelValue);
-            return this;
-        }
-        /**
-         * The namespace.
-         * 
-         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
-         * 
-         * Group: consumer
-         * 
-         * @param namespace the value to set
-         * @return the dsl builder
-         */
-        default KubernetesReplicationControllersEndpointConsumerBuilder namespace(
-                String namespace) {
-            doSetProperty("namespace", namespace);
             return this;
         }
         /**
@@ -736,6 +736,21 @@ public interface KubernetesReplicationControllersEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesReplicationControllersEndpointProducerBuilder namespace(
+                String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -1146,6 +1161,21 @@ public interface KubernetesReplicationControllersEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesReplicationControllersEndpointBuilder namespace(
+                String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -1503,7 +1533,7 @@ public interface KubernetesReplicationControllersEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesOperation}.
          */
         public String kubernetesOperation() {
-            return "KubernetesOperation";
+            return "CamelKubernetesOperation";
         }
 
         /**
@@ -1516,7 +1546,7 @@ public interface KubernetesReplicationControllersEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesNamespaceName}.
          */
         public String kubernetesNamespaceName() {
-            return "KubernetesNamespaceName";
+            return "CamelKubernetesNamespaceName";
         }
 
         /**
@@ -1530,7 +1560,7 @@ public interface KubernetesReplicationControllersEndpointBuilderFactory {
          * KubernetesReplicationControllersLabels}.
          */
         public String kubernetesReplicationControllersLabels() {
-            return "KubernetesReplicationControllersLabels";
+            return "CamelKubernetesReplicationControllersLabels";
         }
 
         /**
@@ -1544,7 +1574,7 @@ public interface KubernetesReplicationControllersEndpointBuilderFactory {
          * KubernetesReplicationControllerName}.
          */
         public String kubernetesReplicationControllerName() {
-            return "KubernetesReplicationControllerName";
+            return "CamelKubernetesReplicationControllerName";
         }
 
         /**
@@ -1559,7 +1589,7 @@ public interface KubernetesReplicationControllersEndpointBuilderFactory {
          * KubernetesReplicationControllerSpec}.
          */
         public String kubernetesReplicationControllerSpec() {
-            return "KubernetesReplicationControllerSpec";
+            return "CamelKubernetesReplicationControllerSpec";
         }
 
         /**
@@ -1574,7 +1604,7 @@ public interface KubernetesReplicationControllersEndpointBuilderFactory {
          * KubernetesReplicationControllerReplicas}.
          */
         public String kubernetesReplicationControllerReplicas() {
-            return "KubernetesReplicationControllerReplicas";
+            return "CamelKubernetesReplicationControllerReplicas";
         }
 
         /**
@@ -1588,7 +1618,7 @@ public interface KubernetesReplicationControllersEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesEventAction}.
          */
         public String kubernetesEventAction() {
-            return "KubernetesEventAction";
+            return "CamelKubernetesEventAction";
         }
 
         /**
@@ -1601,7 +1631,7 @@ public interface KubernetesReplicationControllersEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesEventTimestamp}.
          */
         public String kubernetesEventTimestamp() {
-            return "KubernetesEventTimestamp";
+            return "CamelKubernetesEventTimestamp";
         }
     }
     static KubernetesReplicationControllersEndpointBuilder endpointBuilder(

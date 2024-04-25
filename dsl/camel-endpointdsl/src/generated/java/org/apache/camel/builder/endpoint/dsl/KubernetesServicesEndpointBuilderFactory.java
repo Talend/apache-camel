@@ -107,6 +107,21 @@ public interface KubernetesServicesEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesServicesEndpointConsumerBuilder namespace(
+                String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -239,21 +254,6 @@ public interface KubernetesServicesEndpointBuilderFactory {
         default KubernetesServicesEndpointConsumerBuilder labelValue(
                 String labelValue) {
             doSetProperty("labelValue", labelValue);
-            return this;
-        }
-        /**
-         * The namespace.
-         * 
-         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
-         * 
-         * Group: consumer
-         * 
-         * @param namespace the value to set
-         * @return the dsl builder
-         */
-        default KubernetesServicesEndpointConsumerBuilder namespace(
-                String namespace) {
-            doSetProperty("namespace", namespace);
             return this;
         }
         /**
@@ -732,6 +732,21 @@ public interface KubernetesServicesEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesServicesEndpointProducerBuilder namespace(
+                String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -1140,6 +1155,20 @@ public interface KubernetesServicesEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesServicesEndpointBuilder namespace(String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -1486,7 +1515,7 @@ public interface KubernetesServicesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesOperation}.
          */
         public String kubernetesOperation() {
-            return "KubernetesOperation";
+            return "CamelKubernetesOperation";
         }
 
         /**
@@ -1499,7 +1528,7 @@ public interface KubernetesServicesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesNamespaceName}.
          */
         public String kubernetesNamespaceName() {
-            return "KubernetesNamespaceName";
+            return "CamelKubernetesNamespaceName";
         }
 
         /**
@@ -1512,7 +1541,7 @@ public interface KubernetesServicesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesServiceLabels}.
          */
         public String kubernetesServiceLabels() {
-            return "KubernetesServiceLabels";
+            return "CamelKubernetesServiceLabels";
         }
 
         /**
@@ -1525,7 +1554,7 @@ public interface KubernetesServicesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesServiceName}.
          */
         public String kubernetesServiceName() {
-            return "KubernetesServiceName";
+            return "CamelKubernetesServiceName";
         }
 
         /**
@@ -1539,7 +1568,7 @@ public interface KubernetesServicesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesServiceSpec}.
          */
         public String kubernetesServiceSpec() {
-            return "KubernetesServiceSpec";
+            return "CamelKubernetesServiceSpec";
         }
 
         /**
@@ -1553,7 +1582,7 @@ public interface KubernetesServicesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesEventAction}.
          */
         public String kubernetesEventAction() {
-            return "KubernetesEventAction";
+            return "CamelKubernetesEventAction";
         }
 
         /**
@@ -1566,7 +1595,7 @@ public interface KubernetesServicesEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesEventTimestamp}.
          */
         public String kubernetesEventTimestamp() {
-            return "KubernetesEventTimestamp";
+            return "CamelKubernetesEventTimestamp";
         }
     }
     static KubernetesServicesEndpointBuilder endpointBuilder(

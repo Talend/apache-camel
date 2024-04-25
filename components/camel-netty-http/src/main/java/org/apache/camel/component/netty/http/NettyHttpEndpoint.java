@@ -16,6 +16,7 @@
  */
 package org.apache.camel.component.netty.http;
 
+import java.net.URI;
 import java.util.Map;
 
 import org.apache.camel.AsyncEndpoint;
@@ -103,6 +104,10 @@ public class NettyHttpEndpoint extends NettyEndpoint implements AsyncEndpoint, H
 
     @Override
     public Producer createProducer() throws Exception {
+        if (isProxyProtocol()) {
+            doFail(new IllegalArgumentException("Netty Http Producer does not support proxy mode"));
+        }
+
         Producer answer = new NettyHttpProducer(this, getConfiguration());
         if (getConfiguration().isSynchronous()) {
             return new SynchronousDelegateProducer(answer);
@@ -245,5 +250,11 @@ public class NettyHttpEndpoint extends NettyEndpoint implements AsyncEndpoint, H
                 securityConfiguration.setSecurityAuthenticator(jaas);
             }
         }
+    }
+
+    private boolean isProxyProtocol() {
+        URI baseUri = URI.create(getEndpointBaseUri());
+        String protocol = baseUri.getScheme();
+        return protocol != null && protocol.equalsIgnoreCase("proxy");
     }
 }

@@ -105,6 +105,20 @@ public interface KubernetesJobEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesJobEndpointConsumerBuilder namespace(String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -232,20 +246,6 @@ public interface KubernetesJobEndpointBuilderFactory {
         default KubernetesJobEndpointConsumerBuilder labelValue(
                 String labelValue) {
             doSetProperty("labelValue", labelValue);
-            return this;
-        }
-        /**
-         * The namespace.
-         * 
-         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
-         * 
-         * Group: consumer
-         * 
-         * @param namespace the value to set
-         * @return the dsl builder
-         */
-        default KubernetesJobEndpointConsumerBuilder namespace(String namespace) {
-            doSetProperty("namespace", namespace);
             return this;
         }
         /**
@@ -719,6 +719,20 @@ public interface KubernetesJobEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesJobEndpointProducerBuilder namespace(String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -1122,6 +1136,20 @@ public interface KubernetesJobEndpointBuilderFactory {
             return this;
         }
         /**
+         * The namespace.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param namespace the value to set
+         * @return the dsl builder
+         */
+        default KubernetesJobEndpointBuilder namespace(String namespace) {
+            doSetProperty("namespace", namespace);
+            return this;
+        }
+        /**
          * The port name, used for ServiceCall EIP.
          * 
          * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
@@ -1461,7 +1489,7 @@ public interface KubernetesJobEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesOperation}.
          */
         public String kubernetesOperation() {
-            return "KubernetesOperation";
+            return "CamelKubernetesOperation";
         }
 
         /**
@@ -1474,7 +1502,7 @@ public interface KubernetesJobEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesNamespaceName}.
          */
         public String kubernetesNamespaceName() {
-            return "KubernetesNamespaceName";
+            return "CamelKubernetesNamespaceName";
         }
 
         /**
@@ -1487,7 +1515,7 @@ public interface KubernetesJobEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesJobName}.
          */
         public String kubernetesJobName() {
-            return "KubernetesJobName";
+            return "CamelKubernetesJobName";
         }
 
         /**
@@ -1501,7 +1529,7 @@ public interface KubernetesJobEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesJobSpec}.
          */
         public String kubernetesJobSpec() {
-            return "KubernetesJobSpec";
+            return "CamelKubernetesJobSpec";
         }
 
         /**
@@ -1514,7 +1542,7 @@ public interface KubernetesJobEndpointBuilderFactory {
          * @return the name of the header {@code KubernetesJobLabels}.
          */
         public String kubernetesJobLabels() {
-            return "KubernetesJobLabels";
+            return "CamelKubernetesJobLabels";
         }
     }
     static KubernetesJobEndpointBuilder endpointBuilder(

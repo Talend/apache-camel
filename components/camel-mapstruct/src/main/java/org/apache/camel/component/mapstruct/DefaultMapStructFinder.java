@@ -16,6 +16,7 @@
  */
 package org.apache.camel.component.mapstruct;
 
+import java.lang.reflect.Modifier;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.camel.CamelContext;
@@ -57,7 +58,11 @@ public class DefaultMapStructFinder extends ServiceSupport implements MapStructM
             // is there a generated mapper
             final Object mapper = Mappers.getMapper(clazz);
             if (mapper != null) {
-                ReflectionHelper.doWithMethods(clazz, mc -> {
+                ReflectionHelper.doWithMethods(mapper.getClass(), mc -> {
+                    // must be public
+                    if (!Modifier.isPublic(mc.getModifiers())) {
+                        return;
+                    }
                     // must not be a default method
                     if (mc.isDefault()) {
                         return;
@@ -68,9 +73,9 @@ public class DefaultMapStructFinder extends ServiceSupport implements MapStructM
                         return;
                     }
                     Class<?> from = mc.getParameterTypes()[0];
-                    // must return a value
+                    // must return a non-primitive value
                     Class<?> to = mc.getReturnType();
-                    if (to.equals(Void.class)) {
+                    if (to.isPrimitive()) {
                         return;
                     }
                     // okay register this method as a Camel type converter
