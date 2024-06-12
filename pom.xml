@@ -85,7 +85,7 @@
         <snappy.tesb.version>1.1.10.4</snappy.tesb.version>
         <rabbitmq-amqp-client.tesb.version>5.18.0</rabbitmq-amqp-client.tesb.version>
         <apache-mime4j.tesb.version>0.8.11</apache-mime4j.tesb.version>
-        <xerces-bundle.tesb.version>2.12.2_1</xerces-bundle.tesb.version>
+        <xerces-bundle.tesb.version>2.12.2.tesb1_1</xerces-bundle.tesb.version>
 
         <!-- enforce to require using at least this maven version -->
         <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
