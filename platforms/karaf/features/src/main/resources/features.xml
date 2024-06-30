@@ -18,7 +18,7 @@
 
 -->
 <features xmlns="http://karaf.apache.org/xmlns/features/v1.2.0" name='camel-${upstream.version}'>
-  <!-- --> <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</repository> <!-- -->
+  <!-- <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</repository> -->
   <repository>mvn:org.apache.jclouds.karaf/jclouds-karaf/${jclouds.tesb.version}/xml/features</repository>
   <repository>mvn:org.ops4j.pax.cdi/pax-cdi-features/${pax-cdi.tesb.version}/xml/features</repository>
   <repository>mvn:org.hibernate.validator/hibernate-validator-osgi-karaf-features/${hibernate-validator.tesb.version}/xml/features</repository>
@@ -307,7 +307,7 @@
     <bundle dependency='true'>mvn:org.bouncycastle/bcutil-jdk18on/${bouncycastle.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.bouncycastle/bcpkix-jdk18on/${bouncycastle.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.eclipsesource.minimal-json/minimal-json/${minimal-json-version}</bundle>
-    <bundle dependency='true'>mvn:org.bitbucket.b_c/jose4j/${jose4j-version}</bundle>
+    <bundle dependency='true'>mvn:org.bitbucket.b_c/jose4j/${jose4j.tesb.version}</bundle>
     <bundle dependency='true'>wrap:mvn:com.box/box-java-sdk/${box-java-sdk-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.camel/camel-box-api/${upstream.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-box/${upstream.version}</bundle>
@@ -795,7 +795,7 @@
   </feature>
   <feature name='camel-git' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
-    <bundle dependency='true'>mvn:org.eclipse.jgit/org.eclipse.jgit/${jgit-version}</bundle>
+    <bundle dependency='true'>mvn:org.eclipse.jgit/org.eclipse.jgit/${jgit.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.googlecode.javaewah/JavaEWAH/${java-ewah-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-bundle-version}</bundle>
     <bundle dependency='true'>mvn:javax.servlet/javax.servlet-api/${javax.servlet-api-version}</bundle>
@@ -1159,11 +1159,11 @@
     <feature version='${upstream.version}'>camel-core</feature>
     <feature>transaction</feature>
     <feature>aries-blueprint</feature>
-    <bundle dependency='true'>mvn:org.infinispan/infinispan-core/${infinispan-version}</bundle>
-    <bundle dependency='true'>mvn:org.infinispan/infinispan-commons/${infinispan-version}</bundle>
-    <bundle dependency='true'>mvn:org.infinispan/infinispan-query-dsl/${infinispan-version}</bundle>
-    <bundle dependency='true'>mvn:org.infinispan/infinispan-client-hotrod/${infinispan-version}</bundle>
-    <bundle dependency='true'>mvn:org.jgroups/jgroups/${jgroups-version}</bundle>
+    <bundle dependency='true'>mvn:org.infinispan/infinispan-core/${infinispan.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.infinispan/infinispan-commons/${infinispan.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.infinispan/infinispan-query-dsl/${infinispan.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.infinispan/infinispan-client-hotrod/${infinispan.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.jgroups/jgroups/${jgroups.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.github.ben-manes.caffeine/caffeine/${caffeine-version}</bundle>
     <bundle dependency='true'>mvn:io.reactivex.rxjava2/rxjava/${rxjava2-version}</bundle>
     <bundle dependency='true'>mvn:org.reactivestreams/reactive-streams/${reactive-streams.tesb.version}</bundle>
@@ -1243,26 +1243,36 @@
     <feature version='${upstream.version}'>camel-core</feature>
     <feature>transaction</feature>
     <feature version='${cxf-version-range}'>cxf-jaxrs</feature>
-    <bundle dependency='true'>mvn:org.kie.server/kie-server-api/${jbpm-version}</bundle>
-    <bundle dependency='true'>mvn:org.kie.server/kie-server-common/${jbpm-version}</bundle>
-    <bundle dependency='true'>mvn:org.kie.server/kie-server-client/${jbpm-version}</bundle>
-    <bundle dependency='true'>mvn:org.kie.soup/kie-soup-maven-support/${jbpm-version}</bundle>
-    <bundle dependency='true'>mvn:org.kie.soup/kie-soup-project-datamodel-api/${jbpm-version}</bundle>
-    <bundle dependency='true'>mvn:org.kie.soup/kie-soup-project-datamodel-commons/${jbpm-version}</bundle>
-    <bundle dependency='true'>wrap:mvn:org.jbpm/jbpm-workitems-core/${jbpm-version}</bundle>
-    <bundle dependency='true'>mvn:org.kie.soup/kie-soup-commons/${jbpm-version}</bundle>
-    <bundle dependency='true'>mvn:org.kie/kie-api/${jbpm-version}</bundle>
-    <bundle dependency='true'>mvn:org.kie/kie-internal/${jbpm-version}</bundle>
-    <bundle dependency='true'>mvn:org.drools/drools-core/${jbpm-version}</bundle>
-    <bundle dependency='true'>mvn:org.drools/drools-compiler/${jbpm-version}</bundle>
+    <bundle dependency='true'>mvn:org.kie.server/kie-server-api/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie.server/kie-server-common/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie.server/kie-server-client/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie.soup/kie-soup-maven-support/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie.soup/kie-soup-project-datamodel-api/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie.soup/kie-soup-project-datamodel-commons/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>wrap:mvn:org.jbpm/jbpm-workitems-core/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie.soup/kie-soup-commons/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie.soup/kie-soup-xstream/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie/kie-api/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie/kie-internal/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie/kie-memory-compiler/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.drools/drools-core/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.drools/drools-core-reflective/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.drools/drools-compiler/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.drools/drools-model-compiler/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.drools/drools-canonical-model/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.drools/drools-mvel-parser/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.drools/drools-mvel-compiler/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.drools/kie-pmml/${jbpm.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.mvel/mvel2/${mvel-version}</bundle>
-    <bundle dependency='true'>mvn:org.kie/kie-dmn-model/${jbpm-version}</bundle>
-    <bundle dependency='true'>mvn:org.kie/kie-dmn-api/${jbpm-version}</bundle>
-    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-core/${jbpm-version}</bundle>
-    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-persistence-common/${jbpm-version}</bundle>
-    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-persistence-jaxb/${jbpm-version}</bundle>
-    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-persistence-jackson/${jbpm-version}</bundle>
-    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-persistence-xstream/${jbpm-version}</bundle>
+    <bundle dependency='true'>mvn:org.kie/kie-dmn-model/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie/kie-dmn-api/${jbpm.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-core/${optaplanner.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-persistence-common/${optaplanner.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-persistence-jaxb/${optaplanner.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-persistence-jackson/${optaplanner.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-persistence-xstream/${optaplanner.tesb.version}</bundle>
+    <!-- <bundle dependency='true'>mvn:org.mozilla/rhino/${rhino.tesb.version}</bundle> -->
+    <bundle dependency='true'>mvn:com.github.javaparser/javaparser-core/${javaparser.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.google.protobuf/protobuf-java/${protobuf.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.google.guava/guava/${google-guava-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.commons/commons-math3/${commons-math3-version}</bundle>
@@ -1271,12 +1281,15 @@
     <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-databind.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jsr310/${jackson2.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson2.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxws-api-2.2/${servicemix-specs-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream-bundle.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${xpp3-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.reflections/${reflections-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-xjc/${jaxb-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.rhino/${rhino-bundle.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-jbpm/${upstream.version}</bundle>
   </feature>
   <feature name='camel-jcache' version='${upstream.version}' resolver='(obr)' start-level='50'>
@@ -1318,7 +1331,7 @@
   <feature name='camel-jgroups' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
     <bundle>mvn:org.apache.camel/camel-jgroups/${upstream.version}</bundle>
-    <bundle dependency='true'>mvn:org.jgroups/jgroups/${jgroups-version}</bundle>
+    <bundle dependency='true'>mvn:org.jgroups/jgroups/${jgroups.tesb.version}</bundle>
   </feature>
   <feature name='camel-jgroups-raft' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
@@ -1650,14 +1663,14 @@
     <bundle dependency='true'>mvn:io.netty/netty-resolver/${netty.tesb.version}</bundle>
     <bundle dependency='true'>mvn:io.netty/netty-transport-native-unix-common/${netty.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.google.guava/guava/${google-guava-version}</bundle>
-    <bundle dependency='true'>mvn:org.eclipse.milo/stack-core/${milo-version}</bundle>
-    <bundle dependency='true'>mvn:org.eclipse.milo/stack-server/${milo-version}</bundle>
-    <bundle dependency='true'>mvn:org.eclipse.milo/stack-client/${milo-version}</bundle>
-    <bundle dependency='true'>mvn:org.eclipse.milo/sdk-core/${milo-version}</bundle>
-    <bundle dependency='true'>mvn:org.eclipse.milo/sdk-server/${milo-version}</bundle>
-    <bundle dependency='true'>mvn:org.eclipse.milo/sdk-client/${milo-version}</bundle>
-    <bundle dependency='true'>mvn:org.eclipse.milo/bsd-parser-core/${milo-version}</bundle>
-    <bundle dependency='true'>mvn:org.eclipse.milo/bsd-parser-gson/${milo-version}</bundle>
+    <bundle dependency='true'>mvn:org.eclipse.milo/stack-core/${milo.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.eclipse.milo/stack-server/${milo.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.eclipse.milo/stack-client/${milo.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.eclipse.milo/sdk-core/${milo.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.eclipse.milo/sdk-server/${milo.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.eclipse.milo/sdk-client/${milo.tesb.version}</bundle>
+    <!-- <bundle dependency='true'>mvn:org.eclipse.milo/bsd-parser-core/${milo.tesb.version}</bundle> -->
+    <bundle dependency='true'>mvn:org.eclipse.milo/bsd-parser-gson/${milo.tesb.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-milo/${upstream.version}</bundle>
   </feature>
   <feature name='camel-mina' version='${upstream.version}' resolver='(obr)' start-level='50'>
@@ -1722,7 +1735,7 @@
   </feature>
   <feature name='camel-mybatis' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
-    <bundle dependency='true'>mvn:org.mybatis/mybatis/${mybatis-version}</bundle>
+    <bundle dependency='true'>mvn:org.mybatis/mybatis/${mybatis.tesb.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-mybatis/${upstream.version}</bundle>
   </feature>
   <feature name='camel-nagios' version='${upstream.version}' resolver='(obr)' start-level='50'>
@@ -1854,23 +1867,33 @@
     <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec.tesb.version}</bundle>
     <bundle dependency='true'>mvn:commons-io/commons-io/${commons-io.tesb.version}</bundle>
     <bundle dependency='true'>mvn:commons-collections/commons-collections/${commons-collections-version}</bundle>
-    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-core/${optaplanner-version}</bundle>
-    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-persistence-common/${optaplanner-version}</bundle>
-    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-persistence-jaxb/${optaplanner-version}</bundle>
-    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-persistence-jackson/${optaplanner-version}</bundle>
-    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-persistence-xstream/${optaplanner-version}</bundle>
-    <bundle dependency='true'>mvn:org.kie.soup/kie-soup-maven-support/${kie-version}</bundle>
-    <bundle dependency='true'>mvn:org.kie.soup/kie-soup-project-datamodel-api/${kie-version}</bundle>
-    <bundle dependency='true'>mvn:org.kie.soup/kie-soup-project-datamodel-commons/${kie-version}</bundle>
-    <bundle dependency='true'>mvn:org.kie.soup/kie-soup-commons/${kie-version}</bundle>
-    <bundle dependency='true'>mvn:org.kie/kie-api/${kie-version}</bundle>
-    <bundle dependency='true'>mvn:org.kie/kie-internal/${kie-version}</bundle>
-    <bundle dependency='true'>mvn:org.drools/drools-core/${drools-version}</bundle>
-    <bundle dependency='true'>mvn:org.drools/drools-compiler/${drools-version}</bundle>
+    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-core/${optaplanner.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-persistence-common/${optaplanner.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-persistence-jaxb/${optaplanner.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-persistence-jackson/${optaplanner.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-persistence-xstream/${optaplanner.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie.soup/kie-soup-maven-support/${kie.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie.soup/kie-soup-project-datamodel-api/${kie.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie.soup/kie-soup-project-datamodel-commons/${kie.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie.soup/kie-soup-commons/${kie.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie.soup/kie-soup-xstream/${kie.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie/kie-api/${kie.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie/kie-internal/${kie.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.kie/kie-memory-compiler/${kie.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.drools/drools-core/${drools.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.drools/drools-core-reflective/${drools.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.drools/drools-compiler/${drools.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.drools/drools-model-compiler/${drools.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.drools/drools-canonical-model/${drools.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.drools/drools-mvel-parser/${drools.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.drools/drools-mvel-compiler/${drools.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.reflections/${reflections-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-xjc/${jaxb-bundle-version}</bundle>
     <bundle dependency='true'>mvn:org.mvel/mvel2/${mvel-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream-bundle.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.rhino/${rhino-bundle.tesb.version}</bundle>
+    <!-- <bundle dependency='true'>mvn:org.mozilla/rhino/${rhino.tesb.version}</bundle> -->
+    <bundle dependency='true'>mvn:com.github.javaparser/javaparser-core/${javaparser.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.google.protobuf/protobuf-java/${protobuf.tesb.version}</bundle>
     <bundle dependency='true'>mvn:com.google.guava/guava/${google-guava-version}</bundle>
     <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-inject/${javax-inject-bundle-version}</bundle>
@@ -2130,7 +2153,7 @@
   <feature name='camel-script-javascript' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-script</feature>
     <bundle>mvn:com.google.code.scriptengines/scriptengines-javascript/${scriptengines-version}</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.rhino/${rhino-bundle-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.rhino/${rhino-bundle.tesb.version}</bundle>
   </feature>
   <feature name='camel-script-groovy' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-script</feature>
@@ -2162,7 +2185,7 @@
   <feature name='camel-script' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.antlr/${antlr-bundle-version}</bundle>
-    <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.rhino/${rhino-bundle-version}</bundle>
+    <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.rhino/${rhino-bundle.tesb.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-script/${upstream.version}</bundle>
   </feature>
   <feature name='camel-service' version='${upstream.version}' resolver='(obr)' start-level='50'>
@@ -2506,7 +2529,7 @@
   </feature>
   <feature name='camel-thrift' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
-    <bundle dependency='true'>mvn:org.apache.thrift/libthrift/${libthrift-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.thrift/libthrift/${libthrift.tesb.version}</bundle>
     <bundle dependency='true'>mvn:commons-io/commons-io/${commons-io.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.javassist/javassist/${javassist-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-thrift/${upstream.version}</bundle>
@@ -2536,8 +2559,11 @@
   <feature name='camel-undertow' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
     <bundle dependency='true'>mvn:io.undertow/undertow-core/${undertow-version}</bundle>
-    <bundle dependency='true'>mvn:org.jboss.xnio/xnio-api/${jboss-xnio-version}</bundle>
-    <bundle dependency='true'>mvn:org.jboss.xnio/xnio-nio/${jboss-xnio-version}</bundle>
+    <bundle dependency='true'>mvn:org.jboss.xnio/xnio-api/${jboss-xnio.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.jboss.xnio/xnio-nio/${jboss-xnio.tesb.version}</bundle>
+    <bundle dependency='true'>wrap:mvn:org.jboss.threads/jboss-threads/${jboss-threads.tesb.version}$Bundle-SymbolicName=org.jboss.threads&amp;Bundle-Version=${jboss-threads.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.wildfly.common/wildfly-common/${wildfly-common.tesb.version}</bundle>
+    <bundle dependency='true'>mvn:org.wildfly.client/wildfly-client-config/${wildfly-client-config.tesb.version}</bundle>
     <bundle dependency='true'>mvn:javax.servlet/javax.servlet-api/${javax.servlet-api-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-http-common/${upstream.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-undertow/${upstream.version}</bundle>
@@ -2714,7 +2740,7 @@
     <bundle dependency='true'>mvn:io.zipkin.reporter2/zipkin-reporter/${zipkin-reporter-version}</bundle>
     <bundle dependency='true'>mvn:io.zipkin.reporter2/zipkin-sender-urlconnection/${zipkin-reporter-version}</bundle>
     <bundle dependency='true'>mvn:io.zipkin.reporter2/zipkin-sender-libthrift/${zipkin-reporter-version}</bundle>
-    <bundle dependency='true'>mvn:org.apache.thrift/libthrift/${libthrift-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.thrift/libthrift/${libthrift.tesb.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-zipkin/${upstream.version}</bundle>
   </feature>
   <feature name='camel-zookeeper' version='${upstream.version}' resolver='(obr)' start-level='50'>
