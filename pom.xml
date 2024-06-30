@@ -41,7 +41,7 @@
 
     <properties>
         <upstream.version>2.25.4</upstream.version>
-        <apache-camel.features.tesb.version>2.25.4.tesb17</apache-camel.features.tesb.version>
+        <apache-camel.features.tesb.version>2.25.4.tesb18</apache-camel.features.tesb.version>
         <hibernate-validator.tesb.version>6.0.17.Final</hibernate-validator.tesb.version>
         <camel-mqtt.tesb.version>2.25.4.20220513</camel-mqtt.tesb.version>
         <camel-cxf.tesb.version>2.25.4.20220513</camel-cxf.tesb.version>
@@ -62,7 +62,13 @@
         <async-http-client-netty-utils.tesb.version>2.12.1</async-http-client-netty-utils.tesb.version>
         <json-smart.tesb.version>2.4.10</json-smart.tesb.version>
         <json-accessors-smart.tesb.version>2.4.9</json-accessors-smart.tesb.version>
+        <aries-spifly.tesb.version>1.2.4</aries-spifly.tesb.version>
         <asm.tesb.version>8.0.1</asm.tesb.version>
+        <gson.tesb.version>2.8.9</gson.tesb.version>
+        <protobuf.tesb.version>3.16.3</protobuf.tesb.version>
+        <protobuf-guava.tesb.version>30.1.1-jre</protobuf-guava.tesb.version>
+        <google-api-client.tesb.version>1.22.0</google-api-client.tesb.version>
+        <google-http-client.tesb.version>1.22.0</google-http-client.tesb.version>
         <commons-io.tesb.version>2.15.1</commons-io.tesb.version>
         <commons-codec.tesb.version>1.15</commons-codec.tesb.version>
         <commons-compress.tesb.version>1.26.0</commons-compress.tesb.version>
@@ -83,9 +89,33 @@
         <bouncycastle.tesb.version>1.77</bouncycastle.tesb.version>
         <xmlgraphics-batik.tesb.version>1.17</xmlgraphics-batik.tesb.version>
         <snappy.tesb.version>1.1.10.4</snappy.tesb.version>
+        <log4j2.tesb.version>2.17.1</log4j2.tesb.version>
         <rabbitmq-amqp-client.tesb.version>5.18.0</rabbitmq-amqp-client.tesb.version>
         <apache-mime4j.tesb.version>0.8.11</apache-mime4j.tesb.version>
         <xerces-bundle.tesb.version>2.12.2.tesb1_1</xerces-bundle.tesb.version>
+        <elasticsearch-rest-bundle.tesb.version>6.5.4_1</elasticsearch-rest-bundle.tesb.version>
+        <hazelcast.tesb.version>3.12.13</hazelcast.tesb.version>
+        <htmlunit.tesb.version>2.61.0</htmlunit.tesb.version>
+        <mina2.tesb.version>2.0.21</mina2.tesb.version>
+        <sshd.tesb.version>2.0.0</sshd.tesb.version>
+        <libthrift.tesb.version>0.14.0</libthrift.tesb.version>
+        <jose4j.tesb.version>0.9.3</jose4j.tesb.version>
+        <drools.tesb.version>7.74.1.Final</drools.tesb.version>
+        <jbpm.tesb.version>7.74.1.Final</jbpm.tesb.version>
+        <kie.tesb.version>7.74.1.Final</kie.tesb.version>
+        <optaplanner.tesb.version>7.73.0.Final</optaplanner.tesb.version>
+        <rhino.tesb.version>1.7.15</rhino.tesb.version>
+        <rhino-bundle.tesb.version>1.7.15_1</rhino-bundle.tesb.version>
+        <javaparser.tesb.version>3.26.1</javaparser.tesb.version>
+        <jgit.tesb.version>5.13.3.202401111512-r</jgit.tesb.version>
+        <milo.tesb.version>0.6.13</milo.tesb.version>
+        <infinispan.tesb.version>9.4.24.Final</infinispan.tesb.version>
+        <jgroups.tesb.version>4.1.10.Final</jgroups.tesb.version>
+        <jboss-xnio.tesb.version>3.8.14.Final</jboss-xnio.tesb.version>
+        <jboss-threads.tesb.version>2.4.0.Final</jboss-threads.tesb.version>
+        <wildfly-common.tesb.version>1.3.2.Final</wildfly-common.tesb.version>
+        <wildfly-client-config.tesb.version>1.0.1.Final</wildfly-client-config.tesb.version>
+        <mybatis.tesb.version>3.5.6</mybatis.tesb.version>
 
         <!-- enforce to require using at least this maven version -->
         <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>
@@ -279,7 +309,13 @@
                             <async-http-client-netty-utils.tesb.version>${async-http-client-netty-utils.tesb.version}</async-http-client-netty-utils.tesb.version>
                             <json-smart.tesb.version>${json-smart.tesb.version}</json-smart.tesb.version>
                             <json-accessors-smart.tesb.version>${json-accessors-smart.tesb.version}</json-accessors-smart.tesb.version>
+                            <aries-spifly.tesb.version>${aries-spifly.tesb.version}</aries-spifly.tesb.version>
                             <asm.tesb.version>${asm.tesb.version}</asm.tesb.version>
+                            <gson.tesb.version>${gson.tesb.version}</gson.tesb.version>
+                            <protobuf.tesb.version>${protobuf.tesb.version}</protobuf.tesb.version>
+                            <protobuf-guava.tesb.version>${protobuf-guava.tesb.version}</protobuf-guava.tesb.version>
+                            <google-api-client.tesb.version>${google-api-client.tesb.version}</google-api-client.tesb.version>
+                            <google-http-client.tesb.version>${google-http-client.tesb.version}</google-http-client.tesb.version>
                             <commons-io.tesb.version>${commons-io.tesb.version}</commons-io.tesb.version>
                             <commons-codec.tesb.version>${commons-codec.tesb.version}</commons-codec.tesb.version>
                             <commons-compress.tesb.version>${commons-compress.tesb.version}</commons-compress.tesb.version>
@@ -300,9 +336,33 @@
                             <bouncycastle.tesb.version>${bouncycastle.tesb.version}</bouncycastle.tesb.version>
                             <xmlgraphics-batik.tesb.version>${xmlgraphics-batik.tesb.version}</xmlgraphics-batik.tesb.version>
                             <snappy.tesb.version>${snappy.tesb.version}</snappy.tesb.version>
+                            <log4j2.tesb.version>${log4j2.tesb.version}</log4j2.tesb.version>
                             <rabbitmq-amqp-client.tesb.version>${rabbitmq-amqp-client.tesb.version}</rabbitmq-amqp-client.tesb.version>
                             <apache-mime4j.tesb.version>${apache-mime4j.tesb.version}</apache-mime4j.tesb.version>
                             <xerces-bundle.tesb.version>${xerces-bundle.tesb.version}</xerces-bundle.tesb.version>
+                            <elasticsearch-rest-bundle.tesb.version>${elasticsearch-rest-bundle.tesb.version}</elasticsearch-rest-bundle.tesb.version>
+                            <hazelcast.tesb.version>${hazelcast.tesb.version}</hazelcast.tesb.version>
+                            <htmlunit.tesb.version>${htmlunit.tesb.version}</htmlunit.tesb.version>
+                            <mina2.tesb.version>${mina2.tesb.version}</mina2.tesb.version>
+                            <sshd.tesb.version>${sshd.tesb.version}</sshd.tesb.version>
+                            <libthrift.tesb.version>${libthrift.tesb.version}</libthrift.tesb.version>
+                            <jose4j.tesb.version>${jose4j.tesb.version}</jose4j.tesb.version>
+                            <drools.tesb.version>${drools.tesb.version}</drools.tesb.version>
+                            <jbpm.tesb.version>${jbpm.tesb.version}</jbpm.tesb.version>
+                            <kie.tesb.version>${kie.tesb.version}</kie.tesb.version>
+                            <optaplanner.tesb.version>${optaplanner.tesb.version}</optaplanner.tesb.version>
+                            <rhino.tesb.version>${rhino.tesb.version}</rhino.tesb.version>
+                            <rhino-bundle.tesb.version>${rhino-bundle.tesb.version}</rhino-bundle.tesb.version>
+                            <javaparser.tesb.version>${javaparser.tesb.version}</javaparser.tesb.version>
+                            <jgit.tesb.version>${jgit.tesb.version}</jgit.tesb.version>
+                            <milo.tesb.version>${milo.tesb.version}</milo.tesb.version>
+                            <infinispan.tesb.version>${infinispan.tesb.version}</infinispan.tesb.version>
+                            <jgroups.tesb.version>${jgroups.tesb.version}</jgroups.tesb.version>
+                            <jboss-xnio.tesb.version>${jboss-xnio.tesb.version}</jboss-xnio.tesb.version>
+                            <jboss-threads.tesb.version>${jboss-threads.tesb.version}</jboss-threads.tesb.version>
+                            <wildfly-common.tesb.version>${wildfly-common.tesb.version}</wildfly-common.tesb.version>
+                            <wildfly-client-config.tesb.version>${wildfly-client-config.tesb.version}</wildfly-client-config.tesb.version>
+                            <mybatis.tesb.version>${mybatis.tesb.version}</mybatis.tesb.version>
                         </properties>
                     </configuration>
                     <executions>
