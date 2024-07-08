@@ -1385,7 +1385,7 @@
     <bundle dependency='true'>mvn:org.ow2.asm/asm-tree/${asm.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.ow2.asm/asm/${asm.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.aries/org.apache.aries.util/${aries-util-version}</bundle>
-    <bundle dependency='true'>mvn:org.apache.aries.spifly/org.apache.aries.spifly.dynamic.bundle/${aries-spifly-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.aries.spifly/org.apache.aries.spifly.dynamic.bundle/${aries-spifly.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.johnzon/johnzon-core/${johnzon-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.johnzon/johnzon-mapper/${johnzon-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-json_1.1_spec/${geronimo-json-spec-version}</bundle>
@@ -2161,7 +2161,7 @@
     <bundle dependency='true'>mvn:org.ow2.asm/asm-commons/${asm.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.ow2.asm/asm-tree/${asm.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.aries/org.apache.aries.util/${aries-util-version}</bundle>
-    <bundle dependency='true'>mvn:org.apache.aries.spifly/org.apache.aries.spifly.dynamic.bundle/${aries-spifly-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.aries.spifly/org.apache.aries.spifly.dynamic.bundle/${aries-spifly.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.codehaus.groovy/groovy/${groovy-version}</bundle>
     <bundle dependency='true'>mvn:org.codehaus.groovy/groovy-ant/${groovy-version}</bundle>
     <bundle dependency='true'>mvn:org.codehaus.groovy/groovy-cli-commons/${groovy-version}</bundle>
