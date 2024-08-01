@@ -321,10 +321,13 @@
     <bundle>mvn:org.apache.camel/camel-braintree/${upstream.version}</bundle>
   </feature>
   <feature name='camel-cache' version='${upstream.version}' resolver='(obr)' start-level='50'>
+    <!-- diesbled for security reasons: ehcache 2.x contains several vulnerable embedded dependencies -->
+    <!--
     <feature version='${upstream.version}'>camel-core</feature>
 	  <feature>transaction</feature>
     <bundle dependency='true'>mvn:net.sf.ehcache/ehcache/${ehcache-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-cache/${upstream.version}</bundle>
+    -->
   </feature>
   <feature name='camel-caffeine' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version="${upstream.version}">camel-core</feature>
