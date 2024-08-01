@@ -321,7 +321,7 @@
     <bundle>mvn:org.apache.camel/camel-braintree/${upstream.version}</bundle>
   </feature>
   <feature name='camel-cache' version='${upstream.version}' resolver='(obr)' start-level='50'>
-    <!-- diesbled for security reasons: ehcache 2.x contains several vulnerable embedded dependencies -->
+    <!-- disabled for security reasons: ehcache 2.x contains several vulnerable embedded dependencies -->
     <!--
     <feature version='${upstream.version}'>camel-core</feature>
 	  <feature>transaction</feature>
