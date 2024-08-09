@@ -328,7 +328,7 @@
         <dependency>
             <groupId>org.apache.camel.tests</groupId>
             <artifactId>camel-validator-test-resources</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
         </dependency>
 
         <!-- Narayana XA TX manager -->
@@ -381,7 +381,7 @@
             <plugin>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-report-maven-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>${upstream.version}</version>
                 <configuration>
                     <failOnError>false</failOnError>
                     <includeTest>true</includeTest>

@@ -56,7 +56,7 @@
             <plugin>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>sync-properties-maven-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>${upstream.version}</version>
                 <executions>
                     <execution>
                         <phase>generate-resources</phase>

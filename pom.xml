@@ -557,7 +557,7 @@
                             </goals>
                             <configuration>
                                 <outputDirectory>${project.build.directory}</outputDirectory>
-                                <flattenedPomFilename>${project.artifactId}-${project.version}.pom
+                                <flattenedPomFilename>${project.artifactId}-${upstream.version}.pom
                                 </flattenedPomFilename>
                                 <updatePomFile>true</updatePomFile>
                                 <pomElements>
@@ -779,7 +779,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <outputName>${project.artifactId}-${project.version}-sbom</outputName>
+                            <outputName>${project.artifactId}-${upstream.version}-sbom</outputName>
                         </configuration>
                     </plugin>
 

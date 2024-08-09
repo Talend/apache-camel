@@ -61,19 +61,19 @@
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-test-infra-cli</artifactId>
-                <version>${project.version}</version>
+                <version>${upstream.version}</version>
                 <type>test-jar</type>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-test-infra-mosquitto</artifactId>
-                <version>${project.version}</version>
+                <version>${upstream.version}</version>
                 <type>test-jar</type>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-jbang-core</artifactId>
-                <version>${project.version}</version>
+                <version>${upstream.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

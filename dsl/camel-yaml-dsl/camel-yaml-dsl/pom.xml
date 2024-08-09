@@ -290,7 +290,7 @@
             <plugin>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-restdsl-openapi-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>${upstream.version}</version>
                 <executions>
                     <execution>
                         <id>generate-dsl</id>
