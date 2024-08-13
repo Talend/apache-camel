@@ -2230,7 +2230,7 @@
     <feature version='${upstream.version}'>camel-core</feature>
     <bundle dependency='true'>mvn:commons-collections/commons-collections/${commons-collections-version}</bundle>
     <bundle dependency='true'>mvn:commons-beanutils/commons-beanutils/${commons-beanutils-version}</bundle>
-    <bundle dependency='true'>mvn:org.apache.commons/commons-configuration2/${commons-configuration2-version}</bundle>
+    <bundle dependency='true'>mvn:org.apache.commons/commons-configuration2/${commons-configuration2.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.commons/commons-lang3/${commons-lang3-version}</bundle>
     <bundle dependency='true'>mvn:org.apache.commons/commons-text/${commons-text.tesb.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.shiro/shiro-core/${shiro.tesb.version}</bundle>

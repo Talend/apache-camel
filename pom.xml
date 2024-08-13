@@ -86,6 +86,7 @@
         <jettison.tesb.version>1.5.4</jettison.tesb.version>
         <commons-text.tesb.version>1.10.0</commons-text.tesb.version>
         <commons-net.tesb.version>3.9.0</commons-net.tesb.version>
+        <commons-configuration2.tesb.version>2.11.0</commons-configuration2.tesb.version>
         <bouncycastle.tesb.version>1.77</bouncycastle.tesb.version>
         <xmlgraphics-batik.tesb.version>1.17</xmlgraphics-batik.tesb.version>
         <snappy.tesb.version>1.1.10.4</snappy.tesb.version>
@@ -335,6 +336,7 @@
                             <jettison.tesb.version>${jettison.tesb.version}</jettison.tesb.version>
                             <commons-text.tesb.version>${commons-text.tesb.version}</commons-text.tesb.version>
                             <commons-net.tesb.version>${commons-net.tesb.version}</commons-net.tesb.version>
+                            <commons-configuration2.tesb.version>${commons-configuration2.tesb.version}</commons-configuration2.tesb.version>
                             <bouncycastle.tesb.version>${bouncycastle.tesb.version}</bouncycastle.tesb.version>
                             <xmlgraphics-batik.tesb.version>${xmlgraphics-batik.tesb.version}</xmlgraphics-batik.tesb.version>
                             <snappy.tesb.version>${snappy.tesb.version}</snappy.tesb.version>
