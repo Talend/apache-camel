@@ -111,6 +111,7 @@
         <camel-cxf-soap.tesb.version>3.20.9.20240425</camel-cxf-soap.tesb.version>
         <camel-cxf-rest.tesb.version>3.20.9.20240425</camel-cxf-rest.tesb.version>
         <camel-google-pubsub.tesb.version>3.20.9.20240425</camel-google-pubsub.tesb.version>
+        <camel-spring.tesb.version>3.20.9.20240815</camel-spring.tesb.version>
         <camel-sql.tesb.version>3.20.9.20240425</camel-sql.tesb.version>
         <camel-zookeeper.tesb.version>3.20.9.20240425</camel-zookeeper.tesb.version>
         <camel-zookeeper-master.tesb.version>3.20.9.20240425</camel-zookeeper-master.tesb.version>
@@ -283,6 +284,7 @@
                             <camel-cxf-soap.tesb.version>${camel-cxf-soap.tesb.version}</camel-cxf-soap.tesb.version>
                             <camel-cxf-rest.tesb.version>${camel-cxf-rest.tesb.version}</camel-cxf-rest.tesb.version>
                             <camel-google-pubsub.tesb.version>${camel-google-pubsub.tesb.version}</camel-google-pubsub.tesb.version>
+                            <camel-spring.tesb.version>${camel-spring.tesb.version}</camel-spring.tesb.version>
                             <camel-sql.tesb.version>${camel-sql.tesb.version}</camel-sql.tesb.version>
                             <camel-zookeeper.tesb.version>${camel-zookeeper.tesb.version}</camel-zookeeper.tesb.version>
                             <camel-zookeeper-master.tesb.version>${camel-zookeeper-master.tesb.version}</camel-zookeeper-master.tesb.version>
