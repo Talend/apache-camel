@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.component.cron;
+package org.apache.camel.component.cron.spring;
 
 import java.util.Map;
 
@@ -33,10 +33,16 @@ public class SpringCronEndpoint extends ScheduledPollEndpoint {
 
     @Override
     public void configureProperties(Map<String, Object> options) {
-        configureScheduledPollConsumerProperties(options);
-        PropertyBindingSupport.build().withPlaceholder(false).withNesting(false)
-                .withDeepNesting(false).withReference(false)
-                .bind(getCamelContext(), this, options);
+        ClassLoader saved = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+        try {
+            configureScheduledPollConsumerProperties(options);
+            PropertyBindingSupport.build().withPlaceholder(false).withNesting(false)
+                    .withDeepNesting(false).withReference(false)
+                    .bind(getCamelContext(), this, options);
+        } finally {
+            Thread.currentThread().setContextClassLoader(saved);
+        }
     }
 
     @Override
