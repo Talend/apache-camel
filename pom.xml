@@ -41,7 +41,7 @@
 
     <properties>
         <upstream.version>2.25.4</upstream.version>
-        <apache-camel.features.tesb.version>2.25.4.tesb19</apache-camel.features.tesb.version>
+        <apache-camel.features.tesb.version>2.25.4.tesb20</apache-camel.features.tesb.version>
         <hibernate-validator.tesb.version>6.0.17.Final</hibernate-validator.tesb.version>
         <camel-mqtt.tesb.version>2.25.4.20220513</camel-mqtt.tesb.version>
         <camel-cxf.tesb.version>2.25.4.20220513</camel-cxf.tesb.version>
@@ -86,6 +86,7 @@
         <jettison.tesb.version>1.5.4</jettison.tesb.version>
         <commons-text.tesb.version>1.10.0</commons-text.tesb.version>
         <commons-net.tesb.version>3.9.0</commons-net.tesb.version>
+        <commons-configuration2.tesb.version>2.11.0</commons-configuration2.tesb.version>
         <bouncycastle.tesb.version>1.77</bouncycastle.tesb.version>
         <xmlgraphics-batik.tesb.version>1.17</xmlgraphics-batik.tesb.version>
         <snappy.tesb.version>1.1.10.4</snappy.tesb.version>
@@ -335,6 +336,7 @@
                             <jettison.tesb.version>${jettison.tesb.version}</jettison.tesb.version>
                             <commons-text.tesb.version>${commons-text.tesb.version}</commons-text.tesb.version>
                             <commons-net.tesb.version>${commons-net.tesb.version}</commons-net.tesb.version>
+                            <commons-configuration2.tesb.version>${commons-configuration2.tesb.version}</commons-configuration2.tesb.version>
                             <bouncycastle.tesb.version>${bouncycastle.tesb.version}</bouncycastle.tesb.version>
                             <xmlgraphics-batik.tesb.version>${xmlgraphics-batik.tesb.version}</xmlgraphics-batik.tesb.version>
                             <snappy.tesb.version>${snappy.tesb.version}</snappy.tesb.version>
