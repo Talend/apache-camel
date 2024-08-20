@@ -34,7 +34,8 @@
     <packaging>jar</packaging>
 
     <properties>
-        <camel-prepare-component>true</camel-prepare-component>
+        <!-- set 'false' to avoid undesired POM modifications -->
+        <camel-prepare-component>false</camel-prepare-component>
     </properties>
 
     <dependencies>

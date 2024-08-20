@@ -86,10 +86,10 @@
     </modules>
 
     <scm>
-        <connection>scm:git:http://gitbox.apache.org/repos/asf/camel.git</connection>
-        <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/camel.git</developerConnection>
-        <url>https://gitbox.apache.org/repos/asf?p=camel.git;a=summary</url>
-        <tag>camel-4.7.0</tag>
+        <connection>scm:git:http://github.com/Talend/camel.git</connection>
+        <developerConnection>scm:git:https://github.com/Talend/camel.git</developerConnection>
+        <url>https://github.com/Talend/camel</url>
+        <tag>HEAD</tag>
     </scm>
     <issueManagement>
         <system>jira</system>
@@ -103,6 +103,11 @@
     </distributionManagement>
 
     <properties>
+        <upstream.version>4.7.0</upstream.version>
+        <camel-support.tesb.version>4.7.0.20240820</camel-support.tesb.version>
+        <camel-cxf-soap.tesb.version>4.7.0.20240820</camel-cxf-soap.tesb.version>
+        <camel-cxf-rest.tesb.version>4.7.0.20240820</camel-cxf-rest.tesb.version>
+        <camel-spring.tesb.version>4.7.0.20240820</camel-spring.tesb.version>
 
         <!-- unify the encoding for all the modules -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -157,6 +162,10 @@
         <defaultGoal>install</defaultGoal>
 
         <plugins>
+            <plugin>
+                <groupId>io.paradoxical</groupId>
+                <artifactId>resolved-pom-maven-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -216,6 +225,38 @@
 
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>io.paradoxical</groupId>
+                    <artifactId>resolved-pom-maven-plugin</artifactId>
+                    <version>1.0</version>
+                    <configuration>
+                        <properties>
+                            <revision>${revision}</revision>
+                            <upstream.version>${upstream.version}</upstream.version>
+
+                            <!-- ADD HERE ALL THE CUSTOM PROPERTIES declared in the above <properties> part -->
+                            <!-- something like :
+                            <my.custom.property>${my.custom.property}</my.custom.property>
+                            -->
+                            <camel-support.tesb.version>${camel-support.tesb.version}</camel-support.tesb.version>
+                            <camel-cxf-soap.tesb.version>${camel-cxf-soap.tesb.version}</camel-cxf-soap.tesb.version>
+                            <camel-cxf-rest.tesb.version>${camel-cxf-rest.tesb.version}</camel-cxf-rest.tesb.version>
+                            <camel-spring.tesb.version>${camel-spring.tesb.version}</camel-spring.tesb.version>
+                        </properties>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>resolve-my-pom</id>
+                            <phase>initialize</phase>
+                            <goals>
+                                <goal>resolve-pom</goal>
+                            </goals>
+                            <configuration>
+                                <resolvedPomFile>.resolved-pom.xml</resolvedPomFile>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
                 <plugin>
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin</artifactId>
@@ -326,6 +367,11 @@
                                     <exclude>doap.rdf</exclude>
                                     <exclude>mvnw*</exclude>
                                     <exclude>**/FileSplitXPathCharsetTest-input.xml</exclude>
+                                    <exclude>**/.tool-versions</exclude>
+                                    <exclude>**/Jenkinsfile.talend</exclude>
+                                    <exclude>**/CODEOWNERS</exclude>
+                                    <exclude>**/.resolved-pom.xml</exclude>
+                                    <exclude>.github.inactive/**</exclude>
                                 </excludes>
                             </licenseSet>
                         </licenseSets>

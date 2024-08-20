@@ -1024,10 +1024,10 @@ public class CxfEndpoint extends DefaultEndpoint implements AsyncEndpoint, Heade
                         LOG.warn("Error creating Cxf Bus from SpringBootCamelContext: {} This exception will be ignored.",
                                 ex.getMessage(), ex);
                     }
-                    bus = CxfEndpointUtils.createBus();
+                    bus = CxfEndpointUtils.createBus(context);
                 }
             } else {
-                bus = CxfEndpointUtils.createBus();
+                bus = CxfEndpointUtils.createBus(context);
             }
             this.createBus = true;
             LOG.debug("Using DefaultBus {}", bus);
