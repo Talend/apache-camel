@@ -86,9 +86,9 @@
     </modules>
 
     <scm>
-        <connection>scm:git:http://github.com/Talend/camel.git</connection>
-        <developerConnection>scm:git:https://github.com/Talend/camel.git</developerConnection>
-        <url>https://github.com/Talend/camel</url>
+        <connection>scm:git:http://github.com/Talend/apache-camel.git</connection>
+        <developerConnection>scm:git:https://github.com/Talend/apache-camel.git</developerConnection>
+        <url>https://github.com/Talend/apache-camel</url>
         <tag>HEAD</tag>
     </scm>
     <issueManagement>
