@@ -2566,6 +2566,8 @@
     <bundle>mvn:org.apache.camel/camel-twitter/${upstream.version}</bundle>
   </feature>
   <feature name='camel-undertow' version='${upstream.version}' resolver='(obr)' start-level='50'>
+    <!-- Feature disabled for security reasons -->
+    <!--
     <feature version='${upstream.version}'>camel-core</feature>
     <bundle dependency='true'>mvn:io.undertow/undertow-core/${undertow-version}</bundle>
     <bundle dependency='true'>mvn:org.jboss.xnio/xnio-api/${jboss-xnio.tesb.version}</bundle>
@@ -2576,6 +2578,7 @@
     <bundle dependency='true'>mvn:javax.servlet/javax.servlet-api/${javax.servlet-api-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-http-common/${upstream.version}</bundle>
     <bundle>mvn:org.apache.camel/camel-undertow/${upstream.version}</bundle>
+    -->
   </feature>
   <feature name='camel-univocity-parsers' version='${upstream.version}' resolver='(obr)' start-level='50'>
     <feature version='${upstream.version}'>camel-core</feature>
