@@ -98,7 +98,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <!-- Used in unit tests to resolve dependencies via Maven downloader -->
-                        <camel.version>${project.version}</camel.version>
+                        <camel.version>${upstream.version}</camel.version>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

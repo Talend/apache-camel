@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.component.cron;
+package org.apache.camel.component.cron.spring;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.camel.CamelContext;
 import org.apache.camel.CamelContextAware;
 import org.apache.camel.Endpoint;
+import org.apache.camel.component.cron.CronComponent;
 import org.apache.camel.component.cron.api.CamelCronConfiguration;
 import org.apache.camel.component.cron.api.CamelCronService;
 

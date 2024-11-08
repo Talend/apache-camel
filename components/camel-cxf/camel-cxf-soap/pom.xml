@@ -28,11 +28,13 @@
 
     <artifactId>camel-cxf-soap</artifactId>
     <packaging>jar</packaging>
+    <version>${revision}</version>
 
     <name>Camel :: CXF :: SOAP</name>
     <description>Camel CXF SOAP support</description>
 
     <properties>
+        <revision>${camel-cxf-soap.tesb.version}</revision>
         <camel.surefire.fork.vmargs>--add-opens java.xml/com.sun.org.apache.xerces.internal.dom=ALL-UNNAMED --add-opens java.xml/com.sun.org.apache.xerces.internal.jaxp=ALL-UNNAMED --add-opens java.xml/com.sun.org.apache.xerces.internal.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED</camel.surefire.fork.vmargs>
         <camel.surefire.forkTimeout>300</camel.surefire.forkTimeout>
     </properties>
