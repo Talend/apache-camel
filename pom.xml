@@ -105,9 +105,11 @@
     <properties>
         <upstream.version>4.8.1</upstream.version>
         <camel-support.tesb.version>4.8.1.20240820</camel-support.tesb.version>
+        <camel-cxf.tesb.version>4.8.1.20240820</camel-cxf.tesb.version>
         <camel-cxf-soap.tesb.version>4.8.1.20240820</camel-cxf-soap.tesb.version>
         <camel-cxf-rest.tesb.version>4.8.1.20240820</camel-cxf-rest.tesb.version>
         <camel-spring.tesb.version>4.8.1.20240820</camel-spring.tesb.version>
+        <cxf.tesb.version>4.1.0.1-SNAPSHOT</cxf.tesb.version>
 
         <!-- unify the encoding for all the modules -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -249,9 +251,11 @@
                             <my.custom.property>${my.custom.property}</my.custom.property>
                             -->
                             <camel-support.tesb.version>${camel-support.tesb.version}</camel-support.tesb.version>
+                            <camel-cxf.tesb.version>${camel-cxf.tesb.version}</camel-cxf.tesb.version>
                             <camel-cxf-soap.tesb.version>${camel-cxf-soap.tesb.version}</camel-cxf-soap.tesb.version>
                             <camel-cxf-rest.tesb.version>${camel-cxf-rest.tesb.version}</camel-cxf-rest.tesb.version>
                             <camel-spring.tesb.version>${camel-spring.tesb.version}</camel-spring.tesb.version>
+                            <cxf.tesb.version>${cxf.tesb.version}</cxf.tesb.version>
                         </properties>
                     </configuration>
                     <executions>
