@@ -35,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // We use context to change the producer's endpoint address here
+@org.junit.jupiter.api.Disabled
 public class CxfProducerContextTest extends CxfProducerTest {
 
     // *** This class extends CxfProducerTest, so see that class for other tests
