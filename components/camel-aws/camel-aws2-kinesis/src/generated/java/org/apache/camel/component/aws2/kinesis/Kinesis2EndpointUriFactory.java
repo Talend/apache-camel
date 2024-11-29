@@ -21,7 +21,7 @@ public class Kinesis2EndpointUriFactory extends org.apache.camel.support.compone
     private static final Set<String> SECRET_PROPERTY_NAMES;
     private static final Set<String> MULTI_VALUE_PREFIXES;
     static {
-        Set<String> props = new HashSet<>(38);
+        Set<String> props = new HashSet<>(39);
         props.add("accessKey");
         props.add("amazonKinesisClient");
         props.add("backoffErrorThreshold");
@@ -37,6 +37,7 @@ public class Kinesis2EndpointUriFactory extends org.apache.camel.support.compone
         props.add("iteratorType");
         props.add("lazyStartProducer");
         props.add("maxResultsPerRequest");
+        props.add("messageTimestamp");
         props.add("overrideEndpoint");
         props.add("pollStrategy");
         props.add("proxyHost");
