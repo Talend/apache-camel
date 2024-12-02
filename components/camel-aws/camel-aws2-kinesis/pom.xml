@@ -28,11 +28,13 @@
 
     <artifactId>camel-aws2-kinesis</artifactId>
     <packaging>jar</packaging>
+    <version>${revision}</version>
 
     <name>Camel :: AWS2 Kinesis</name>
     <description>A Camel Amazon Kinesis Web Service Component Version 2</description>
 
     <properties>
+        <revision>${camel-aws.tesb.version}</revision>
     </properties>
 
     <dependencies>
