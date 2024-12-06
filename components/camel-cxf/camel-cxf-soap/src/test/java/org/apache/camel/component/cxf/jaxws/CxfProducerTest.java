@@ -51,7 +51,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@org.junit.jupiter.api.Disabled
 public class CxfProducerTest {
     protected static final String ECHO_OPERATION = "echo";
     protected static final String GREET_ME_OPERATION = "greetMe";

@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@org.junit.jupiter.api.Disabled
 public class CxfProducerOperationTest extends CxfProducerTest {
     private static final String NAMESPACE = "http://apache.org/hello_world_soap_http";
 

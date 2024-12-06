@@ -185,7 +185,7 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-testutils</artifactId>
-            <version>${cxf-version}</version>
+            <version>${cxf.tesb.version}</version>
             <scope>test</scope>
         </dependency>
 
