@@ -35,7 +35,7 @@ import jakarta.ws.rs.core.Response;
 import org.apache.cxf.common.util.StringUtils;
 
 @Path("/customerservice/")
-public class CustomerService {
+public class CustomerService implements ICustomerService {
     private final AtomicLong currentId = new AtomicLong(123L);
     private final Map<Long, Customer> customers = new ConcurrentHashMap<>();
     private final Map<Long, Order> orders = new ConcurrentHashMap<>();
