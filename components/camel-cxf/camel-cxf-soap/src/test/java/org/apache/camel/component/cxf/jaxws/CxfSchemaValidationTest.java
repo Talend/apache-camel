@@ -116,7 +116,6 @@ public class CxfSchemaValidationTest extends CamelTestSupport {
         }
     }
 
-    @org.junit.jupiter.api.Disabled
     @Test
     public void schemaValidationEnabledServerTest() throws Exception {
         //first, invoke service with valid message. No exception should be thrown
@@ -140,7 +139,8 @@ public class CxfSchemaValidationTest extends CamelTestSupport {
             invokeService(serviceAddressValidationEnabled, RandomStringUtils.random(40, true, true));
             fail("expect a Validation exception here");
         } catch (SOAPFaultException e) {
-            assertEquals("the length of the value is 40, but the required maximum is 30.", e.getMessage(), "");
+            assertEquals("Schema validation error on message from client: the length of the value is 40, but the required maximum is 30..",
+                    e.getMessage(), "");
         }
     }
 

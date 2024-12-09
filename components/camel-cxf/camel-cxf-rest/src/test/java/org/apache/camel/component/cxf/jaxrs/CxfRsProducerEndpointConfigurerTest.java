@@ -25,6 +25,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
 import org.apache.camel.component.cxf.jaxrs.testbean.Customer;
 import org.apache.camel.component.cxf.jaxrs.testbean.CustomerService;
+import org.apache.camel.component.cxf.jaxrs.testbean.ICustomerService;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit5.CamelTestSupport;
 import org.apache.cxf.endpoint.Server;
@@ -42,7 +43,7 @@ public class CxfRsProducerEndpointConfigurerTest extends CamelTestSupport {
                 CxfRsEndpoint endpoint = new CxfRsEndpoint();
                 endpoint.setAddress("http://localhost:8000");
                 endpoint.setCamelContext(context);
-                endpoint.setResourceClasses(CustomerService.class);
+                endpoint.setResourceClasses(ICustomerService.class);
                 endpoint.setEndpointUriIfNotSpecified("cxfrs:simple");
                 endpoint.setCxfRsConfigurer(new MyCxfRsConfigurer());
 
@@ -57,7 +58,6 @@ public class CxfRsProducerEndpointConfigurerTest extends CamelTestSupport {
         };
     }
 
-    @org.junit.jupiter.api.Disabled
     @Test
     public void testCxfRsEndpoinConfigurerProxyApi() throws InterruptedException {
         template.send("direct:start", exchange -> {
