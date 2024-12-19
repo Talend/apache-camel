@@ -28,9 +28,14 @@
 
     <artifactId>camel-aws2-kinesis</artifactId>
     <packaging>jar</packaging>
+    <version>${revision}</version>
 
     <name>Camel :: AWS2 Kinesis</name>
     <description>Consuming and Producing data to AWS Kinesis Service</description>
+
+    <properties>
+        <revision>${camel-aws.tesb.version}</revision>
+    </properties>
 
     <dependencies>
         <dependency>
