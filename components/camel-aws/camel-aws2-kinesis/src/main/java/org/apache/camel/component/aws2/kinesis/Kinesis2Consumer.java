@@ -16,6 +16,8 @@
  */
 package org.apache.camel.component.aws2.kinesis;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -48,6 +50,9 @@ import software.amazon.awssdk.services.kinesis.model.ShardIteratorType;
 
 public class Kinesis2Consumer extends ScheduledBatchPollingConsumer implements ResumeAware<ResumeStrategy> {
     private static final Logger LOG = LoggerFactory.getLogger(Kinesis2Consumer.class);
+
+    private static final String UNIX_TIMESTAMP_MILLIS_REGEX = "^\\d{1,13}$";
+    private static final String UNIX_TIMESTAMP_DOUBLE_REGEX = "^[-+]?\\d+(\\.\\d+)?([eE][-+]?\\d+)?$";
 
     private KinesisConnection connection;
     private ResumeStrategy resumeStrategy;
@@ -246,6 +251,11 @@ public class Kinesis2Consumer extends ScheduledBatchPollingConsumer implements R
                 request.startingSequenceNumber(getEndpoint().getConfiguration().getSequenceNumber());
             }
 
+            if (hasMessageTimestamp()) {
+                String messageTimestamp = getEndpoint().getConfiguration().getMessageTimestamp();
+                request.timestamp(parseMessageTimestamp(messageTimestamp));
+            }
+
             resume(shardId, request);
 
             GetShardIteratorResponse result;
@@ -367,6 +377,11 @@ public class Kinesis2Consumer extends ScheduledBatchPollingConsumer implements R
                         || getEndpoint().getConfiguration().getIteratorType().equals(ShardIteratorType.AT_SEQUENCE_NUMBER));
     }
 
+    private boolean hasMessageTimestamp() {
+        return !getEndpoint().getConfiguration().getMessageTimestamp().isEmpty()
+                && getEndpoint().getConfiguration().getIteratorType().equals(ShardIteratorType.AT_TIMESTAMP);
+    }
+
     @Override
     protected void doStart() throws Exception {
         super.doStart();
@@ -390,6 +405,35 @@ public class Kinesis2Consumer extends ScheduledBatchPollingConsumer implements R
         }
 
         super.doStop();
+    }
+
+    private Instant parseMessageTimestamp(String messageTimestamp) {
+        if (messageTimestamp == null) {
+            throw new IllegalArgumentException("Timestamp can't be null");
+        }
+        // Milliseconds format
+        if (messageTimestamp.matches(UNIX_TIMESTAMP_MILLIS_REGEX)) {
+            long epochMilli = Long.parseLong(messageTimestamp);
+            return Instant.ofEpochMilli(epochMilli);
+        }
+
+        // Double format of seconds with fractional part. (1732882967.573, 1.732882967573E9 etc.)
+        if (messageTimestamp.matches(UNIX_TIMESTAMP_DOUBLE_REGEX)) {
+            // Using BigDecimal to better precision
+            BigDecimal decimalTime = new BigDecimal(messageTimestamp);
+            long seconds = decimalTime.longValue();
+            BigDecimal fractionalPart = decimalTime.subtract(new BigDecimal(seconds));
+            int nanos = fractionalPart.multiply(BigDecimal.valueOf(1_000_000_000)).intValue();
+
+            return Instant.ofEpochSecond(seconds, nanos);
+        }
+
+        // ISO 8601 format
+        try {
+            return Instant.parse(messageTimestamp);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid timestamp format: " + messageTimestamp);
+        }
     }
 
     protected Kinesis2Configuration getConfiguration() {
