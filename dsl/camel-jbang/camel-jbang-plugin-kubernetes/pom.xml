@@ -47,6 +47,18 @@
           <artifactId>camel-jbang-core</artifactId>
         </dependency>
 
+        <!-- Needed for TLS access to private registries -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>${bouncycastle-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk18on</artifactId>
+            <version>${bouncycastle-version}</version>
+        </dependency>
+
         <!-- Kubernetes -->
         <dependency>
             <groupId>io.fabric8</groupId>
@@ -68,23 +80,29 @@
             <version>${knative-client-version}</version>
         </dependency>
 
-        <!-- Camel K-->
-        <!-- TODO: remove dependency in favor of using trait domain model in Camel JBang -->
-        <dependency>
-            <groupId>org.apache.camel.k</groupId>
-            <artifactId>camel-k-crds</artifactId>
-            <version>${camel-k-version}</version>
-        </dependency>
-
-        <!-- Test dependencies -->
+       <!-- Test dependencies -->
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-junit5</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-test-infra-common</artifactId>
+            <version>${upstream.version}</version>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>
+
+        <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>kubernetes-server-mock</artifactId>
+            <version>${kubernetes-client-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>openshift-client</artifactId>
             <version>${kubernetes-client-version}</version>
             <scope>test</scope>
         </dependency>
