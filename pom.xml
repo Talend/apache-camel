@@ -104,7 +104,7 @@
 
     <properties>
         <upstream.version>4.8.1</upstream.version>
-        <camel-support.tesb.version>4.8.1.20240820</camel-support.tesb.version>
+        <camel-support.tesb.version>4.8.1.20250310</camel-support.tesb.version>
         <camel-cxf.tesb.version>4.8.1.20240820</camel-cxf.tesb.version>
         <camel-cxf-soap.tesb.version>4.8.1.20240820</camel-cxf-soap.tesb.version>
         <camel-cxf-rest.tesb.version>4.8.1.20240820</camel-cxf-rest.tesb.version>
