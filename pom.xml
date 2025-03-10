@@ -105,7 +105,7 @@
     <properties>
         <upstream.version>3.20.9</upstream.version>
         <camel-base.tesb.version>3.20.9.20240425</camel-base.tesb.version>
-        <camel-support.tesb.version>3.20.9.20240425</camel-support.tesb.version>
+        <camel-support.tesb.version>3.20.9.20250310</camel-support.tesb.version>
         <camel-aws.tesb.version>3.20.9.20241202</camel-aws.tesb.version>
         <camel-activemq.tesb.version>3.20.9.20240425</camel-activemq.tesb.version>
         <camel-cassandraql.tesb.version>3.20.9.20240425</camel-cassandraql.tesb.version>
