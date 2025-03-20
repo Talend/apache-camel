@@ -1,5 +1,5 @@
 @Library('esb') _
  
 Fork(
-        MVN_MODULES: 'org.apache.camel:camel-support,org.apache.camel:camel-cxf-common,org.apache.camel:camel-cxf-soap,org.apache.camel:camel-cxf-rest,org.apache.camel:camel-cxf-transport,org.apache.camel:camel-cxf-spring-common,org.apache.camel:camel-cxf-spring-soap,org.apache.camel:camel-cxf-spring-rest,org.apache.camel:camel-cxf-spring-transport,org.apache.camel:camel-spring'
+        MVN_MODULES: 'org.apache.camel:camel-support,org.apache.camel:camel-activemq,org.apache.camel:camel-activemq6,org.apache.camel:camel-cxf-common,org.apache.camel:camel-cxf-soap,org.apache.camel:camel-cxf-rest,org.apache.camel:camel-cxf-transport,org.apache.camel:camel-cxf-spring-common,org.apache.camel:camel-cxf-spring-soap,org.apache.camel:camel-cxf-spring-rest,org.apache.camel:camel-cxf-spring-transport,org.apache.camel:camel-spring'
 )
