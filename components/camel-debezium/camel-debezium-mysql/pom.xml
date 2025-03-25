@@ -30,6 +30,11 @@
     <packaging>jar</packaging>
     <name>Camel :: Debezium :: MySQL</name>
     <description>Camel Debezium MySQL support</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-debezium-mysql.tesb.version}</revision>
+    </properties>
 
     <dependencies>
         <!-- camel -->

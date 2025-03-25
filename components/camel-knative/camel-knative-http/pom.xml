@@ -31,8 +31,10 @@
     <packaging>jar</packaging>
     <name>Camel :: Knative HTTP</name>
     <description>Camel Knative HTTP</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-knative-http.tesb.version}</revision>
         <firstVersion>3.15.0</firstVersion>
         <supportLevel>Preview</supportLevel>
         <label>cloud</label>

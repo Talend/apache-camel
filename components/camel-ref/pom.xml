@@ -31,6 +31,11 @@
 
     <name>Camel :: Ref</name>
     <description>Camel Ref component</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-ref.tesb.version}</revision>
+    </properties>
 
     <dependencies>
 

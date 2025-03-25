@@ -30,6 +30,11 @@
     <packaging>maven-plugin</packaging>
     <name>Camel :: Maven Plugins :: Sync Properties</name>
     <description>Copies one POM file properties to different POM file</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${sync-properties-maven-plugin.tesb.version}</revision>
+    </properties>
 
     <dependencyManagement>
         <dependencies>

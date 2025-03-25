@@ -30,6 +30,11 @@
     <packaging>jar</packaging>
     <name>Camel :: Debezium :: MongoDB</name>
     <description>Camel Debezium MongoDB support</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-debezium-mongodb.tesb.version}</revision>
+    </properties>
 
     <dependencies>
         <!-- camel -->

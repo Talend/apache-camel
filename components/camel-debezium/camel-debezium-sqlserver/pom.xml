@@ -30,6 +30,11 @@
     <packaging>jar</packaging>
     <name>Camel :: Debezium :: SQL Server</name>
     <description>Camel Debezium SQL Server support</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-debezium-sqlserver.tesb.version}</revision>
+    </properties>
 
     <dependencies>
         <!-- camel -->

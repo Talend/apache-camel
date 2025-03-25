@@ -30,6 +30,11 @@
     <packaging>jar</packaging>
     <name>Camel :: Debezium :: DB2</name>
     <description>Camel Debezium DB2 support</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-debezium-db2.tesb.version}</revision>
+    </properties>
 
     <dependencies>
         <!-- camel -->

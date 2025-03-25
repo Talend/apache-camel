@@ -32,6 +32,11 @@
 
   <name>Camel :: SMB</name>
   <description>Server Message Block (SMB) file shares</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-smb.tesb.version}</revision>
+    </properties>
 
   <dependencies>
 

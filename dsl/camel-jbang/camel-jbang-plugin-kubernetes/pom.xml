@@ -32,8 +32,10 @@
 
     <name>Camel :: JBang :: Plugin :: Kubernetes</name>
     <description>Camel JBang Kubernetes Plugin</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-jbang-plugin-kubernetes.tesb.version}</revision>
         <firstVersion>4.8.0</firstVersion>
         <label>jbang</label>
         <supportLevel>Preview</supportLevel>

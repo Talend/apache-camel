@@ -31,8 +31,10 @@
     <packaging>jar</packaging>
     <name>Camel :: JSon Path</name>
     <description>Camel JSON Path Language</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-jsonpath.tesb.version}</revision>
     </properties>
 
     <dependencies>

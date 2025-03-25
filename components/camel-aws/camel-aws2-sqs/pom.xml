@@ -31,8 +31,10 @@
 
     <name>Camel :: AWS2 SQS</name>
     <description>Consume and produce messages through AWS SQS Service</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-aws2-sqs.tesb.version}</revision>
     </properties>
 
     <dependencies>

@@ -31,8 +31,10 @@
     <packaging>jar</packaging>
     <name>Camel :: XML DSL with camel-xml-io</name>
     <description>Camel XML DSL with camel-xml-io</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-xml-io-dsl.tesb.version}</revision>
         <firstVersion>3.9.0</firstVersion>
         <title>XML DSL</title>
         <label>dsl</label>

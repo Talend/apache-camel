@@ -30,6 +30,11 @@
     <packaging>jar</packaging>
     <name>Camel :: Debezium :: PostgreSQL</name>
     <description>Camel Debezium PostgreSQL support</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-debezium-postgres.tesb.version}</revision>
+    </properties>
 
     <dependencies>
         <!-- camel -->

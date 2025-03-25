@@ -32,7 +32,10 @@
     <name>Camel :: MinIO</name>
     <description>Store and retrieve objects from Minio Storage Service</description>
 
+    <version>${revision}</version>
+
     <properties>
+        <revision>${camel-minio.tesb.version}</revision>
         <!-- Minio container is not available on s390x -->
         <skipITs.s390x>true</skipITs.s390x>
     </properties>
