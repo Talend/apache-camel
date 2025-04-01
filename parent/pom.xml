@@ -544,22 +544,22 @@
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-management-api</artifactId>
-                <version>${upstream.version}</version>
+                <version>${camel-management-api.tesb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-management</artifactId>
-                <version>${upstream.version}</version>
+                <version>${camel-management.tesb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-base</artifactId>
-                <version>${upstream.version}</version>
+                <version>${camel-base.tesb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-base-engine</artifactId>
-                <version>${upstream.version}</version>
+                <version>${camel-base-engine.tesb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
@@ -575,7 +575,7 @@
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-support</artifactId>
-                <version>${upstream.version}</version>
+                <version>${camel-support.tesb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
@@ -585,7 +585,7 @@
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-core-engine</artifactId>
-                <version>${upstream.version}</version>
+                <version>${camel-core-engine.tesb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
@@ -595,17 +595,17 @@
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-core-model</artifactId>
-                <version>${upstream.version}</version>
+                <version>${camel-core-model.tesb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-core-processor</artifactId>
-                <version>${upstream.version}</version>
+                <version>${camel-core-processor.tesb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-core-reifier</artifactId>
-                <version>${upstream.version}</version>
+                <version>${camel-core-reifier.tesb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
@@ -630,12 +630,12 @@
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-console</artifactId>
-                <version>${upstream.version}</version>
+                <version>${camel-console.tesb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-main</artifactId>
-                <version>${upstream.version}</version>
+                <version>${camel-main.tesb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
