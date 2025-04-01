@@ -74,7 +74,7 @@ org.apache.camel:camel-kamelet-main,\
 org.apache.camel:camel-kotlin-api,\
 org.apache.camel:camel-xml-io-dsl,\
 org.apache.camel:camel-yaml-dsl,\
-org.apache.camel:camel-yaml-dsl-deserializers.\
+org.apache.camel:camel-yaml-dsl-deserializers,\
 org.apache.camel:camel-tooling-maven,\
 org.apache.camel:camel-package-maven-plugin,\
 org.apache.camel:sync-properties-maven-plugin\
