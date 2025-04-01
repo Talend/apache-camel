@@ -32,7 +32,7 @@ org.apache.camel:camel-cxf-spring-soap,\
 org.apache.camel:camel-cxf-spring-rest,\
 org.apache.camel:camel-cxf-spring-transport,\
 org.apache.camel:camel-debezium-common,\
-org.apache.camel:camel-debezium-maven-plugin,\
+org.apache.camel.maven:camel-debezium-maven-plugin,\
 org.apache.camel:camel-debezium-db2,\
 org.apache.camel:camel-debezium-mongodb,\
 org.apache.camel:camel-debezium-mysql,\
