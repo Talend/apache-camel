@@ -38,6 +38,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.camel.FailedToCreateRouteException;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.dsl.jbang.core.common.CommandLineHelper;
@@ -133,6 +134,10 @@ public class Run extends CamelCommand {
 
     @Option(names = { "--camel-version" }, description = "To run using a different Camel version than the default version.")
     String camelVersion;
+
+    @Option(names = { "--camel-spring-boot-version" },
+            description = "To run using a different Camel Spring Boot version than the default version.")
+    String camelSpringBootVersion;
 
     @Option(names = { "--kamelets-version" }, description = "Apache Camel Kamelets version")
     String kameletsVersion;
@@ -861,7 +866,15 @@ public class Run extends CamelCommand {
             return runBackground(main);
         } else {
             // run default in current JVM with same camel version
-            return runKameletMain(main);
+            try {
+                return runKameletMain(main);
+            } catch (FailedToCreateRouteException ex) {
+                if (ignoreLoadingError) {
+                    printer().printErr(ex);
+                    return 0;
+                }
+                throw ex;
+            }
         }
     }
 
@@ -927,7 +940,8 @@ public class Run extends CamelCommand {
             mvnw = "/mvnw.cmd";
         }
         ProcessBuilder pb = new ProcessBuilder();
-        pb.command(runDir + mvnw, "--quiet", "--file", runDir.toString(), "package", "quarkus:" + (dev ? "dev" : "run"));
+        pb.command(runDir + mvnw, "--quiet", "--file", runDir.getCanonicalPath() + File.separatorChar + "pom.xml", "package",
+                "quarkus:" + (dev ? "dev" : "run"));
 
         if (background) {
             Process p = pb.start();
@@ -962,7 +976,7 @@ public class Run extends CamelCommand {
         eq.gradleWrapper = false;
         eq.springBootVersion = this.springBootVersion;
         eq.camelVersion = this.camelVersion;
-        eq.camelSpringBootVersion = this.camelVersion;
+        eq.camelSpringBootVersion = this.camelSpringBootVersion != null ? this.camelSpringBootVersion : this.camelVersion;
         eq.kameletsVersion = this.kameletsVersion;
         eq.exportDir = runDir.toString();
         eq.localKameletDir = this.localKameletDir;
@@ -971,6 +985,7 @@ public class Run extends CamelCommand {
         eq.files = this.files;
         eq.name = this.name;
         eq.gav = this.gav;
+        eq.repositories = this.repositories;
         if (eq.gav == null) {
             if (eq.name == null) {
                 eq.name = "jbang-run-dummy";
@@ -1010,7 +1025,8 @@ public class Run extends CamelCommand {
         if (FileUtil.isWindows()) {
             mvnw = "/mvnw.cmd";
         }
-        pb.command(runDir + mvnw, "--quiet", "--file", runDir.toString(), "spring-boot:run");
+        pb.command(runDir + mvnw, "--quiet", "--file", runDir.getCanonicalPath() + File.separatorChar + "pom.xml",
+                "spring-boot:run");
 
         if (background) {
             Process p = pb.start();

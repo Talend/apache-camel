@@ -139,6 +139,7 @@
         <camel-mina.tesb.version>4.8.1.2025320</camel-mina.tesb.version>
         <camel-minio.tesb.version>4.8.1.2025320</camel-minio.tesb.version>
         <camel-mongodb.tesb.version>4.8.1.2025320</camel-mongodb.tesb.version>
+        <camel-observation.tesb.version>4.8.1.2025320</camel-observation.tesb.version>
         <camel-pdf.tesb.version>4.8.1.2025320</camel-pdf.tesb.version>
         <camel-quartz.tesb.version>4.8.1.2025320</camel-quartz.tesb.version>
         <camel-ref.tesb.version>4.8.1.2025320</camel-ref.tesb.version>
@@ -148,6 +149,7 @@
         <camel-smb.tesb.version>4.8.1.2025320</camel-smb.tesb.version>
         <camel-sql.tesb.version>4.8.1.2025320</camel-sql.tesb.version>
         <camel-tracing.tesb.version>4.8.1.2025320</camel-tracing.tesb.version>
+        <camel-undertow.tesb.version>4.8.1.2025320</camel-undertow.tesb.version>
         <camel-vertx-http.tesb.version>4.8.1.2025320</camel-vertx-http.tesb.version>
         <camel-api.tesb.version>4.8.1.2025320</camel-api.tesb.version>
         <camel-base.tesb.version>4.8.1.2025320</camel-base.tesb.version>
@@ -191,7 +193,7 @@
         <minimalJavaBuildVersion>${jdk.version}</minimalJavaBuildVersion>
 
         <!-- reproduceable builds: https://maven.apache.org/guides/mini/guide-reproducible-builds.html -->
-        <project.build.outputTimestamp>2025-01-08T12:08:04Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2025-04-02T12:00:00Z</project.build.outputTimestamp>
 
         <cyclonedx-maven-plugin-version>2.8.1</cyclonedx-maven-plugin-version>
         <flatten-maven-plugin-version>1.6.0</flatten-maven-plugin-version>
@@ -352,6 +354,7 @@
                             <camel-mina.tesb.version>${camel-mina.tesb.version}</camel-mina.tesb.version>
                             <camel-minio.tesb.version>${camel-minio.tesb.version}</camel-minio.tesb.version>
                             <camel-mongodb.tesb.version>${camel-mongodb.tesb.version}</camel-mongodb.tesb.version>
+                            <camel-observation.tesb.version>${camel-observation.tesb.version}</camel-observation.tesb.version>
                             <camel-pdf.tesb.version>${camel-pdf.tesb.version}</camel-pdf.tesb.version>
                             <camel-quartz.tesb.version>${camel-quartz.tesb.version}</camel-quartz.tesb.version>
                             <camel-ref.tesb.version>${camel-ref.tesb.version}</camel-ref.tesb.version>
@@ -361,6 +364,7 @@
                             <camel-smb.tesb.version>${camel-smb.tesb.version}</camel-smb.tesb.version>
                             <camel-sql.tesb.version>${camel-sql.tesb.version}</camel-sql.tesb.version>
                             <camel-tracing.tesb.version>${camel-tracing.tesb.version}</camel-tracing.tesb.version>
+                            <camel-undertow.tesb.version>${camel-undertow.tesb.version}</camel-undertow.tesb.version>
                             <camel-vertx-http.tesb.version>${camel-vertx-http.tesb.version}</camel-vertx-http.tesb.version>
                             <camel-api.tesb.version>${camel-api.tesb.version}</camel-api.tesb.version>
                             <camel-base.tesb.version>${camel-base.tesb.version}</camel-base.tesb.version>
@@ -536,6 +540,7 @@
                             <Jenkinsfile>SLASHSTAR_STYLE</Jenkinsfile>
                             <Jenkinsfile.deploy>SLASHSTAR_STYLE</Jenkinsfile.deploy>
                             <Jenkinsfile.dryrun>SLASHSTAR_STYLE</Jenkinsfile.dryrun>
+                            <Jenkinsfile.jbangtest>SLASHSTAR_STYLE</Jenkinsfile.jbangtest>
                             <atom>XML_STYLE</atom>
                             <bpmn>XML_STYLE</bpmn>
                             <camel-eclipse-pmd>XML_STYLE</camel-eclipse-pmd>
