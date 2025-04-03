@@ -30,6 +30,11 @@
     <packaging>jar</packaging>
     <name>Camel :: Debezium :: SQL Server</name>
     <description>Camel Debezium SQL Server support</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-debezium-sqlserver.tesb.version}</revision>
+    </properties>
 
     <dependencies>
         <!-- camel -->
@@ -78,6 +83,7 @@
                 <configuration>
                     <connectorClassName>io.debezium.connector.sqlserver.SqlServerConnector</connectorClassName>
                     <connectorConfigClassName>io.debezium.connector.sqlserver.SqlServerConnectorConfig</connectorConfigClassName>
+                    <packageName>org.apache.camel.component.debezium.sqlserver.configuration</packageName>
                     <fields>
                         <database.history>io.debezium.relational.history.FileDatabaseHistory</database.history>
                         <tombstones.on.delete>false</tombstones.on.delete>

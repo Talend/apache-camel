@@ -30,6 +30,11 @@
     <packaging>jar</packaging>
     <name>Camel :: Debezium :: MongoDB</name>
     <description>Camel Debezium MongoDB support</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-debezium-mongodb.tesb.version}</revision>
+    </properties>
 
     <dependencies>
         <!-- camel -->
@@ -78,6 +83,7 @@
                 <configuration>
                     <connectorClassName>io.debezium.connector.mongodb.MongoDbConnector</connectorClassName>
                     <connectorConfigClassName>io.debezium.connector.mongodb.MongoDbConnectorConfig</connectorConfigClassName>
+                    <packageName>org.apache.camel.component.debezium.mongodb.configuration</packageName>
                     <fields>
                         <tombstones.on.delete>false</tombstones.on.delete>
                     </fields>

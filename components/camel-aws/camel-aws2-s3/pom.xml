@@ -31,8 +31,10 @@
 
     <name>Camel :: AWS2 S3</name>
     <description>Consume files and upload files through AWS S3 Service</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-aws2-s3.tesb.version}</revision>
     </properties>
 
     <dependencies>

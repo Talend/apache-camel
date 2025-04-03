@@ -33,8 +33,10 @@
 
     <name>Camel :: JBang :: Main</name>
     <description>Camel JBang</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-jbang-main.tesb.version}</revision>
         <firstVersion>3.12.0</firstVersion>
         <label>jbang</label>
         <supportLevel>Preview</supportLevel>

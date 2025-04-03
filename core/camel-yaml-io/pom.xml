@@ -29,8 +29,10 @@
     <artifactId>camel-yaml-io</artifactId>
     <name>Camel :: YAML IO</name>
     <description>Camel YAML IO</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-yaml-io.tesb.version}</revision>
         <firstVersion>4.0.0</firstVersion>
         <label>dsl</label>
         <camel-generate-yaml-writer>true</camel-generate-yaml-writer>

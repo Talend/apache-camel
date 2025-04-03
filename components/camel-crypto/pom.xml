@@ -30,6 +30,11 @@
     <packaging>jar</packaging>
     <name>Camel :: Crypto</name>
     <description>Camel Cryptographic Support</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-crypto.tesb.version}</revision>
+    </properties>
 
     <dependencies>
         <dependency>

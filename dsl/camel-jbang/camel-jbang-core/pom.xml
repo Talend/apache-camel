@@ -33,8 +33,10 @@
 
     <name>Camel :: JBang :: Core</name>
     <description>Camel JBang Core</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-jbang-core.tesb.version}</revision>
         <firstVersion>3.12.0</firstVersion>
         <label>jbang</label>
         <supportLevel>Preview</supportLevel>

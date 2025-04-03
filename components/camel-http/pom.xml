@@ -31,8 +31,10 @@
 
     <name>Camel :: HTTP</name>
     <description>Camel HTTP support</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-http.tesb.version}</revision>
     </properties>
 
     <dependencies>

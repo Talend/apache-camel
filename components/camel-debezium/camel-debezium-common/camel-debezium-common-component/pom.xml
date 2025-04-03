@@ -30,8 +30,10 @@
     <packaging>jar</packaging>
     <name>Camel :: Debezium :: Common</name>
     <description>Camel Debezium Common support</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-debezium-common.tesb.version}</revision>
         <firstVersion>3.0.0</firstVersion>
     </properties>
 

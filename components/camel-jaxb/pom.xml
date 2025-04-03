@@ -31,8 +31,10 @@
 
     <name>Camel :: JAXB</name>
     <description>Camel JAXB support</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-jaxb.tesb.version}</revision>
         <camel.surefire.parallel>true</camel.surefire.parallel>
     </properties>
 

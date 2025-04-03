@@ -31,8 +31,10 @@
 
     <name>Camel :: Kamelet Main</name>
     <description>Main to run Kamelet standalone</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-kamelet-main.tesb.version}</revision>
         <firstVersion>3.11.0</firstVersion>
         <label>jbang</label>
         <supportLevel>Preview</supportLevel>

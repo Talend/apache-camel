@@ -31,8 +31,10 @@
 
     <name>Camel :: Component DSL</name>
     <description>The Camel Component DSL</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-componentdsl.tesb.version}</revision>
         <firstVersion>3.1.0</firstVersion>
         <title>Java Component DSL</title>
         <label>dsl</label>

@@ -30,8 +30,10 @@
     <packaging>jar</packaging>
     <name>Camel :: MINA</name>
     <description>Camel MINA support</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-mina.tesb.version}</revision>
         <camel.surefire.forkTimeout>1800</camel.surefire.forkTimeout>
     </properties>
 

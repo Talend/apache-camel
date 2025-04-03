@@ -31,8 +31,10 @@
 
     <name>Camel :: Management API</name>
     <description>The Camel Management API</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-management-api.tesb.version}</revision>
         <firstVersion>3.0.0</firstVersion>
         <label>core,management</label>
     </properties>

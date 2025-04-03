@@ -31,8 +31,10 @@
 
     <name>Camel :: Base Engine</name>
     <description>The Base Engine Camel Framework</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-base-engine.tesb.version}</revision>
         <firstVersion>3.7.0</firstVersion>
         <label>core</label>
     </properties>

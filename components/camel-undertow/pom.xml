@@ -30,8 +30,10 @@
     <packaging>jar</packaging>
 
     <name>Camel :: Undertow</name>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-undertow.tesb.version}</revision>
         <camel.surefire.fork.additional-vmargs>-Dio.undertow.client.https.disableEndpointIdentification=true</camel.surefire.fork.additional-vmargs>
     </properties>
 

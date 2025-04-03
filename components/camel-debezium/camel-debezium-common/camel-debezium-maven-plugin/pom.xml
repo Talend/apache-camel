@@ -32,8 +32,10 @@
     <packaging>maven-plugin</packaging>
     <name>Camel :: Debezium :: Maven Plugin</name>
     <description>Camel Debezium Maven Plugin</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-debezium-maven-plugin.tesb.version}</revision>
         <firstVersion>3.0.0</firstVersion>
     </properties>
 

@@ -31,8 +31,10 @@
 
     <name>Camel :: Console</name>
     <description>Camel Developer Console</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-console.tesb.version}</revision>
         <firstVersion>3.15.0</firstVersion>
         <label>core,monitoring</label>
         <camel-prepare-component>false</camel-prepare-component>
