@@ -107,10 +107,10 @@
         <camel-support.tesb.version>4.8.1.20250320</camel-support.tesb.version>
         <camel-activemq.tesb.version>4.8.1.20250320</camel-activemq.tesb.version>
         <camel-activemq6.tesb.version>4.8.1.20250320</camel-activemq6.tesb.version>
-        <camel-cxf.tesb.version>4.8.1.20240820</camel-cxf.tesb.version>
+        <camel-cxf.tesb.version>4.8.1.20250320</camel-cxf.tesb.version>
         <camel-cxf-soap.tesb.version>4.8.1.20250320</camel-cxf-soap.tesb.version>
         <camel-cxf-rest.tesb.version>4.8.1.20250320</camel-cxf-rest.tesb.version>
-        <camel-spring.tesb.version>4.8.1.20240820</camel-spring.tesb.version>
+        <camel-spring.tesb.version>4.8.1.20250320</camel-spring.tesb.version>
         <cxf.tesb.version>4.1.0.1</cxf.tesb.version>
         <camel-langchain4j-tools.tesb.version>4.8.1.20250320</camel-langchain4j-tools.tesb.version>
         <camel-as2-api.tesb.version>4.8.1.20250320</camel-as2-api.tesb.version>
