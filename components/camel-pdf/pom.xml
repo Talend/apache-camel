@@ -30,8 +30,10 @@
     <packaging>jar</packaging>
     <name>Camel :: PDF</name>
     <description>Camel PDF support</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-pdf.tesb.version}</revision>
     </properties>
 
     <dependencies>

@@ -31,8 +31,10 @@
     <packaging>jar</packaging>
     <name>Camel :: YAML DSL</name>
     <description>Camel DSL with YAML</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-yaml-dsl.tesb.version}</revision>
         <firstVersion>3.9.0</firstVersion>
         <title>YAML DSL</title>
         <label>dsl</label>

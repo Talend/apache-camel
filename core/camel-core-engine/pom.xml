@@ -31,8 +31,10 @@
 
     <name>Camel :: Core Engine</name>
     <description>Just the Camel Core engine without any core components</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-core-engine.tesb.version}</revision>
         <firstVersion>3.0.0</firstVersion>
         <label>core</label>
         <platform.skip.tests>false</platform.skip.tests>

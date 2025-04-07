@@ -31,8 +31,10 @@
 
     <name>Camel :: Maven Plugins :: Camel Maven Package</name>
     <description>Maven plugin to help package Camel components and plugins</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-package-maven-plugin.tesb.version}</revision>
         <skip.camel.maven.plugin.tests>false</skip.camel.maven.plugin.tests>
     </properties>
 

@@ -31,6 +31,11 @@
 
     <name>Camel :: File</name>
     <description>Camel File component</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-file.tesb.version}</revision>
+    </properties>
 
     <dependencies>
 

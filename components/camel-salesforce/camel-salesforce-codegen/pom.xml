@@ -31,8 +31,10 @@
     <packaging>jar</packaging>
     <name>Camel :: Salesforce :: CodeGen</name>
     <description>Camel Salesforce DTO Code Generation</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-salesforce-codegen.tesb.version}</revision>
         <salesforce.component.root>..</salesforce.component.root>
         <firstVersion>3.15.0</firstVersion>
     </properties>

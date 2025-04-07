@@ -30,6 +30,11 @@
   <packaging>jar</packaging>
   <name>Camel :: Dynamic Router</name>
   <description>Camel Dynamic Router EIP Component</description>
+  <version>${revision}</version>
+
+  <properties>
+    <revision>${camel-dynamic-router.tesb.version}</revision>
+  </properties>
 
   <dependencies>
     <dependency>

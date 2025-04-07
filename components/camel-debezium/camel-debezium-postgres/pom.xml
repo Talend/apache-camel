@@ -30,6 +30,11 @@
     <packaging>jar</packaging>
     <name>Camel :: Debezium :: PostgreSQL</name>
     <description>Camel Debezium PostgreSQL support</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-debezium-postgres.tesb.version}</revision>
+    </properties>
 
     <dependencies>
         <!-- camel -->
@@ -78,6 +83,7 @@
                 <configuration>
                     <connectorClassName>io.debezium.connector.postgresql.PostgresConnector</connectorClassName>
                     <connectorConfigClassName>io.debezium.connector.postgresql.PostgresConnectorConfig</connectorConfigClassName>
+                    <packageName>org.apache.camel.component.debezium.postgres.configuration</packageName>
                     <fields>
                         <tombstones.on.delete>false</tombstones.on.delete>
                     </fields>

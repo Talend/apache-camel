@@ -32,8 +32,10 @@
 
     <name>Camel :: JBang :: Plugin :: Camel K</name>
     <description>Camel JBang Camel K Plugin</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-jbang-plugin-k.tesb.version}</revision>
         <firstVersion>4.4.0</firstVersion>
         <label>jbang</label>
         <supportLevel>Preview</supportLevel>

@@ -30,8 +30,10 @@
     <artifactId>camel-kubernetes</artifactId>
     <packaging>jar</packaging>
     <name>Camel :: Kubernetes</name>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-kubernetes.tesb.version}</revision>
     </properties>
 
     <dependencyManagement>
