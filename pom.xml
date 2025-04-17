@@ -141,6 +141,7 @@
         <camel-mongodb.tesb.version>4.8.1.20250320</camel-mongodb.tesb.version>
         <camel-observation.tesb.version>4.8.1.20250320</camel-observation.tesb.version>
         <camel-pdf.tesb.version>4.8.1.20250320</camel-pdf.tesb.version>
+        <camel-platform-http-jolokia.tesb.version>4.8.1.20250320</camel-platform-http-jolokia.tesb.version>
         <camel-quartz.tesb.version>4.8.1.20250320</camel-quartz.tesb.version>
         <camel-ref.tesb.version>4.8.1.20250320</camel-ref.tesb.version>
         <camel-rest-openapi.tesb.version>4.8.1.20250320</camel-rest-openapi.tesb.version>
@@ -356,6 +357,7 @@
                             <camel-mongodb.tesb.version>${camel-mongodb.tesb.version}</camel-mongodb.tesb.version>
                             <camel-observation.tesb.version>${camel-observation.tesb.version}</camel-observation.tesb.version>
                             <camel-pdf.tesb.version>${camel-pdf.tesb.version}</camel-pdf.tesb.version>
+                            <camel-platform-http-jolokia.tesb.version>${camel-platform-http-jolokia.tesb.version}</camel-platform-http-jolokia.tesb.version>
                             <camel-quartz.tesb.version>${camel-quartz.tesb.version}</camel-quartz.tesb.version>
                             <camel-ref.tesb.version>${camel-ref.tesb.version}</camel-ref.tesb.version>
                             <camel-rest-openapi.tesb.version>${camel-rest-openapi.tesb.version}</camel-rest-openapi.tesb.version>
