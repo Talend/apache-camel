@@ -53,6 +53,7 @@ org.apache.camel:camel-minio,\
 org.apache.camel:camel-mongodb,\
 org.apache.camel:camel-observation,\
 org.apache.camel:camel-pdf,\
+org.apache.camel:camel-platform-http-jolokia,\
 org.apache.camel:camel-quartz,\
 org.apache.camel:camel-ref,\
 org.apache.camel:camel-rest-openapi,\

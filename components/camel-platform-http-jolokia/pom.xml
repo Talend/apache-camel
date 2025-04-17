@@ -31,8 +31,10 @@
 
     <name>Camel :: Platform HTTP :: Jolokia</name>
     <description>Jolokia plugin for standalone Camel HTTP Platform</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-platform-http-jolokia.tesb.version}</revision>
         <firstVersion>4.5.0</firstVersion>
         <title>Platform HTTP Jolokia</title>
         <label>http,monitoring</label>

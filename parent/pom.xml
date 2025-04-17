@@ -278,7 +278,7 @@
         <jedis-client-version>5.1.5</jedis-client-version>
         <jetcd-version>0.8.3</jetcd-version>
         <jetty-version>12.0.18</jetty-version>
-		<jetty-for-solr-version>10.0.20</jetty-for-solr-version>        
+		<jetty-for-solr-version>10.0.20</jetty-for-solr-version>
         <jetty-plugin-version>${jetty-version}</jetty-plugin-version>
         <jetty-runner-groupId>org.eclipse.jetty</jetty-runner-groupId>
         <jettison-version>1.5.4</jettison-version>
@@ -290,7 +290,7 @@
         <jira-rest-client-api-version>6.0.1</jira-rest-client-api-version>
         <libthrift-version>0.20.0</libthrift-version>
         <jodatime2-version>2.12.7</jodatime2-version>
-        <jolokia-version>2.1.2</jolokia-version>
+        <jolokia-version>2.2.8</jolokia-version>
         <jolt-version>0.1.8</jolt-version>
         <jool-version>0.9.15</jool-version>
         <jooq-version>3.19.14</jooq-version>
@@ -2040,7 +2040,7 @@
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-platform-http-jolokia</artifactId>
-                <version>${upstream.version}</version>
+                <version>${camel-platform-http-jolokia.tesb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
