@@ -57,6 +57,7 @@ org.apache.camel:camel-platform-http-jolokia,\
 org.apache.camel:camel-quartz,\
 org.apache.camel:camel-ref,\
 org.apache.camel:camel-rest-openapi,\
+org.apache.camel:camel-salesforce,\
 org.apache.camel:camel-smb,\
 org.apache.camel:camel-spring,\
 org.apache.camel:camel-sql,\
