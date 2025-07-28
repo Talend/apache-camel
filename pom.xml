@@ -111,7 +111,7 @@
         <camel-cxf-soap.tesb.version>4.8.1.20250320</camel-cxf-soap.tesb.version>
         <camel-cxf-rest.tesb.version>4.8.1.20250320</camel-cxf-rest.tesb.version>
         <camel-spring.tesb.version>4.8.1.20250320</camel-spring.tesb.version>
-        <cxf.tesb.version>4.1.0.1</cxf.tesb.version>
+        <cxf.tesb.version>4.1.0.2</cxf.tesb.version>
         <camel-langchain4j-tools.tesb.version>4.8.1.20250320</camel-langchain4j-tools.tesb.version>
         <camel-as2-api.tesb.version>4.8.1.20250320</camel-as2-api.tesb.version>
         <camel-aws2-kinesis.tesb.version>4.8.1.20250320</camel-aws2-kinesis.tesb.version>
@@ -129,6 +129,7 @@
         <camel-debezium-postgres.tesb.version>4.8.1.20250320</camel-debezium-postgres.tesb.version>
         <camel-debezium-sqlserver.tesb.version>4.8.1.20250320</camel-debezium-sqlserver.tesb.version>
         <camel-direct.tesb.version>4.8.1.20250320</camel-direct.tesb.version>
+        <camel-drill.tesb.version>4.8.1.20250701</camel-drill.tesb.version>
         <camel-dynamic-router.tesb.version>4.8.1.20250320</camel-dynamic-router.tesb.version>
         <camel-file.tesb.version>4.8.1.20250320</camel-file.tesb.version>
         <camel-http.tesb.version>4.8.1.20250320</camel-http.tesb.version>
@@ -345,6 +346,7 @@
                             <camel-debezium-postgres.tesb.version>${camel-debezium-postgres.tesb.version}</camel-debezium-postgres.tesb.version>
                             <camel-debezium-sqlserver.tesb.version>${camel-debezium-sqlserver.tesb.version}</camel-debezium-sqlserver.tesb.version>
                             <camel-direct.tesb.version>${camel-direct.tesb.version}</camel-direct.tesb.version>
+                            <camel-drill.tesb.version>${camel-drill.tesb.version}</camel-drill.tesb.version>
                             <camel-dynamic-router.tesb.version>${camel-dynamic-router.tesb.version}</camel-dynamic-router.tesb.version>
                             <camel-file.tesb.version>${camel-file.tesb.version}</camel-file.tesb.version>
                             <camel-http.tesb.version>${camel-http.tesb.version}</camel-http.tesb.version>
