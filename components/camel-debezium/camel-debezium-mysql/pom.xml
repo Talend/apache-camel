@@ -30,6 +30,11 @@
     <packaging>jar</packaging>
     <name>Camel :: Debezium :: MySQL</name>
     <description>Camel Debezium MySQL support</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-debezium-mysql.tesb.version}</revision>
+    </properties>
 
     <dependencies>
         <!-- camel -->
@@ -71,7 +76,7 @@
             <plugin>
                 <groupId>org.apache.camel.maven</groupId>
                 <artifactId>camel-debezium-maven-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>${upstream.version}</version>
                 <executions>
                     <execution>
                         <id>generate</id>
@@ -91,6 +96,7 @@
                 <configuration>
                     <connectorClassName>io.debezium.connector.mysql.MySqlConnector</connectorClassName>
                     <connectorConfigClassName>io.debezium.connector.mysql.MySqlConnectorConfig</connectorConfigClassName>
+                    <packageName>org.apache.camel.component.debezium.mysql.configuration</packageName>
                     <fields>
                         <database.history>io.debezium.relational.history.FileDatabaseHistory</database.history>
                         <tombstones.on.delete>false</tombstones.on.delete>

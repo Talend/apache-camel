@@ -31,8 +31,10 @@
 
     <name>Camel :: REST OpenApi</name>
     <description>Camel REST support using OpenApi</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-rest-openapi.tesb.version}</revision>
         <firstVersion>3.1.0</firstVersion>
         <label>rest,api,http</label>
     </properties>

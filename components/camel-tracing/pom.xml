@@ -28,6 +28,7 @@
   </parent>
 
   <properties>
+    <revision>${camel-tracing.tesb.version}</revision>
     <firstVersion>3.5.0</firstVersion>
     <label>monitoring,microservice</label>
   </properties>
@@ -36,6 +37,7 @@
   <packaging>jar</packaging>
   <name>Camel :: Common Tracing</name>
   <description>Distributed tracing common interfaces</description>
+  <version>${revision}</version>
 
   <dependencies>
 

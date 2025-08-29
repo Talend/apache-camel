@@ -30,8 +30,10 @@
     <packaging>jar</packaging>
     <name>Camel :: AI :: LangChain4j :: Tools</name>
     <description>LangChain4j Tools and Function Calling Features</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-langchain4j-tools.tesb.version}</revision>
         <firstVersion>4.8.0</firstVersion>
         <label>ai</label>
         <title>LangChain4j Tools</title>
@@ -81,7 +83,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-infra-ollama</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

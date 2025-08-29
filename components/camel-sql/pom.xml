@@ -30,8 +30,10 @@
     <packaging>jar</packaging>
     <name>Camel :: SQL</name>
     <description>Camel SQL support</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-sql.tesb.version}</revision>
         <camel.surefire.parallel>true</camel.surefire.parallel>
     </properties>
 

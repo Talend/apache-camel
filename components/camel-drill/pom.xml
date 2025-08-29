@@ -30,6 +30,13 @@
     <packaging>jar</packaging>
     <name>Camel :: Drill</name>
     <description>Camel Apache Drill support</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-drill.tesb.version}</revision>
+        <apache-drill.tesb.version>1.22.0</apache-drill.tesb.version>
+        <spring.tesb.version>6.1.21</spring.tesb.version>
+    </properties>
 
     <dependencies>
 
@@ -40,7 +47,7 @@
         <dependency>
             <groupId>org.apache.drill.exec</groupId>
             <artifactId>drill-jdbc-all</artifactId>
-            <version>${apache-drill-version}</version>
+            <version>${apache-drill.tesb.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.code.findbugs</groupId>
@@ -55,7 +62,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>${spring-version}</version>
+            <version>${spring.tesb.version}</version>
         </dependency>
         <!-- testing -->
         <dependency>

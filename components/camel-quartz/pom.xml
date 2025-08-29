@@ -30,8 +30,10 @@
     <packaging>jar</packaging>
     <name>Camel :: Quartz</name>
     <description>Camel Quartz support</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-quartz.tesb.version}</revision>
         <camel.surefire.parallel>true</camel.surefire.parallel>
         <camel.surefire.parallel.factor>4</camel.surefire.parallel.factor>
     </properties>
