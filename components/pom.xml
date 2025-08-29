@@ -337,7 +337,8 @@
     </modules>
 
     <properties>
-        <camel-prepare-component>true</camel-prepare-component>
+        <!-- set 'false' to avoid undesired POM modifications -->
+        <camel-prepare-component>false</camel-prepare-component>
         <skipTests.aarch64 />
         <skipITs.aarch64 />
         <skipTests.ppc64le />
@@ -389,7 +390,7 @@
                     <dependency>
                         <groupId>org.apache.camel</groupId>
                         <artifactId>camel-core-model</artifactId>
-                        <version>${project.version}</version>
+                        <version>${upstream.version}</version>
                         <scope>compile</scope>
                     </dependency>
                 </dependencies>

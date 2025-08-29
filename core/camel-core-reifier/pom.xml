@@ -31,8 +31,10 @@
 
     <name>Camel :: Core Reifier</name>
     <description>Camel model to processor reifiers</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-core-reifier.tesb.version}</revision>
         <firstVersion>3.7.0</firstVersion>
         <label>core</label>
     </properties>

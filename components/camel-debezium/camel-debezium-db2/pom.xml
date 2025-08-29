@@ -30,6 +30,11 @@
     <packaging>jar</packaging>
     <name>Camel :: Debezium :: DB2</name>
     <description>Camel Debezium DB2 support</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-debezium-db2.tesb.version}</revision>
+    </properties>
 
     <dependencies>
         <!-- camel -->
@@ -58,7 +63,7 @@
             <plugin>
                 <groupId>org.apache.camel.maven</groupId>
                 <artifactId>camel-debezium-maven-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>${upstream.version}</version>
                 <executions>
                     <execution>
                         <id>generate</id>
@@ -78,6 +83,7 @@
                 <configuration>
                     <connectorClassName>io.debezium.connector.db2.Db2Connector</connectorClassName>
                     <connectorConfigClassName>io.debezium.connector.db2.Db2ConnectorConfig</connectorConfigClassName>
+                    <packageName>org.apache.camel.component.debezium.db2.configuration</packageName>
                     <fields>
                         <tombstones.on.delete>false</tombstones.on.delete>
                     </fields>

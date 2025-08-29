@@ -31,8 +31,10 @@
     <packaging>jar</packaging>
     <name>Camel :: YAML DSL :: Deserializers </name>
     <description>Camel DSL with YAML Deserializers</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-yaml-dsl-deserializers.tesb.version}</revision>
         <firstVersion>3.9.0</firstVersion>
         <sourcecheckExcludes>
             **/*.groovy
@@ -47,7 +49,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-yaml-dsl-common</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
         </dependency>
 
         <dependency>
@@ -152,7 +154,7 @@
                     <dependency>
                         <groupId>org.apache.camel</groupId>
                         <artifactId>camel-catalog</artifactId>
-                        <version>${project.version}</version>
+                        <version>${upstream.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>

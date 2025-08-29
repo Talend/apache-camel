@@ -30,8 +30,10 @@
 
     <name>Camel :: Tooling :: Maven</name>
     <description>Utilities to make Maven operations easier</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-tooling-maven.tesb.version}</revision>
         <camel.osgi.import.pkg>
             *
         </camel.osgi.import.pkg>

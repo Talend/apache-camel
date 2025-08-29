@@ -31,13 +31,18 @@
 
     <name>Camel :: Direct</name>
     <description>Camel Direct component</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-direct.tesb.version}</revision>
+    </properties>
 
     <dependencies>
 
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-support</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
         </dependency>
 
     </dependencies>

@@ -29,8 +29,10 @@
     <artifactId>camel-as2-api</artifactId>
     <name>Camel :: AS2 :: API</name>
     <description>Camel AS2 API</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-as2-api.tesb.version}</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <firstVersion>2.22.0</firstVersion>
@@ -40,7 +42,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-api</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
         </dependency>
 
         <dependency>
