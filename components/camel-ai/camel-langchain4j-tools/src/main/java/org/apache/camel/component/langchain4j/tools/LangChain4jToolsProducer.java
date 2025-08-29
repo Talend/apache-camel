@@ -135,12 +135,11 @@ public class LangChain4jToolsProducer extends DefaultProducer {
         }
 
         final Response<AiMessage> generate = this.chatLanguageModel.generate(chatMessages);
-        String result = extractAiResponse(generate);
         if (chatMemory != null) {
             chatMemory.add(generate.content());
         }
 
-        return result;
+        return extractAiResponse(generate);
     }
 
     /**
