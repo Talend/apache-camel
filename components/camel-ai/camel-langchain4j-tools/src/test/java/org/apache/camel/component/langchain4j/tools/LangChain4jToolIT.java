@@ -22,7 +22,7 @@ import java.util.List;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -42,7 +42,7 @@ public class LangChain4jToolIT extends CamelTestSupport {
 
     public static final String MODEL_NAME = "llama3.1:latest";
     private final String nameFromDB = "pippo";
-    private ChatLanguageModel chatLanguageModel;
+    private ChatModel chatLanguageModel;
 
     @RegisterExtension
     static OllamaService OLLAMA = OllamaServiceFactory.createServiceWithConfiguration(() -> MODEL_NAME);
@@ -66,7 +66,7 @@ public class LangChain4jToolIT extends CamelTestSupport {
         return context;
     }
 
-    protected ChatLanguageModel createModel() {
+    protected ChatModel createModel() {
         chatLanguageModel = OpenAiChatModel.builder()
                 .apiKey("NO_API_KEY")
                 .modelName(MODEL_NAME)
