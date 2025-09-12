@@ -34,6 +34,8 @@ import org.apache.camel.processor.aggregate.ShareUnitOfWorkAggregationStrategy;
 import org.apache.camel.processor.aggregate.UseLatestAggregationStrategy;
 
 public class MulticastReifier extends ProcessorReifier<MulticastDefinition> {
+	
+	private static final int ERROR_HANDLERS_CACHE_SIZE = 100;
 
     public MulticastReifier(Route route, ProcessorDefinition<?> definition) {
         super(route, (MulticastDefinition) definition);
@@ -78,7 +80,7 @@ public class MulticastReifier extends ProcessorReifier<MulticastDefinition> {
 
         MulticastProcessor answer = new MulticastProcessor(
                 camelContext, route, list, strategy, isParallelProcessing, threadPool, shutdownThreadPool, isStreaming,
-                isStopOnException, timeout, prepare, isShareUnitOfWork, isParallelAggregate, 0);
+                isStopOnException, timeout, prepare, isShareUnitOfWork, isParallelAggregate, ERROR_HANDLERS_CACHE_SIZE);
         answer.setSynchronous(isSynchronous);
         return answer;
     }
