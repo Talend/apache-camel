@@ -38,6 +38,7 @@
         <label>ai</label>
         <title>LangChain4j Tools</title>
         <supportLevel>Experimental</supportLevel>
+        <langchain4j-version>1.0.0</langchain4j-version>
     </properties>
 
     <dependencies>
