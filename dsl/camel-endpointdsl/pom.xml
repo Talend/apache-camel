@@ -116,7 +116,23 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.camel</groupId>
-                    <artifactId>amel-langchain4j-core</artifactId>
+                    <artifactId>camel-langchain4j-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.camel</groupId>
+                    <artifactId>camel-milvus</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.camel</groupId>
+                    <artifactId>camel-langchain4j-tokenizer</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.camel</groupId>
+                    <artifactId>camel-pinecone</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.camel</groupId>
+                    <artifactId>camel-qdrant</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -152,6 +168,72 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-langchain4j-chat</artifactId>
+            <version>${version}</version>
+            <exclusions>
+            	<exclusion>
+            	    <groupId>dev.langchain4j</groupId>
+            	    <artifactId>langchain4j</artifactId>
+            	</exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-langchain4j-core</artifactId>
+            <version>${version}</version>
+            <exclusions>
+            	<exclusion>
+            	    <groupId>dev.langchain4j</groupId>
+            	    <artifactId>langchain4j-core</artifactId>
+            	</exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-milvus</artifactId>
+            <version>${version}</version>
+            <exclusions>
+            	<exclusion>
+            	    <groupId>dev.langchain4j</groupId>
+            	    <artifactId>langchain4j-core</artifactId>
+            	</exclusion>
+            </exclusions>
+         </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-langchain4j-tokenizer</artifactId>
+            <version>${version}</version>
+            <exclusions>
+            	<exclusion>
+            	    <groupId>dev.langchain4j</groupId>
+            	    <artifactId>langchain4j</artifactId>
+            	</exclusion>
+            </exclusions>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-pinecone</artifactId>
+            <version>${version}</version>
+            <exclusions>
+            	<exclusion>
+            	    <groupId>dev.langchain4j</groupId>
+            	    <artifactId>langchain4j-core</artifactId>
+            	</exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-qdrant</artifactId>
+            <version>${version}</version>
+            <exclusions>
+            	<exclusion>
+            	    <groupId>dev.langchain4j</groupId>
+            	    <artifactId>langchain4j-core</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>dev.langchain4j</groupId>
