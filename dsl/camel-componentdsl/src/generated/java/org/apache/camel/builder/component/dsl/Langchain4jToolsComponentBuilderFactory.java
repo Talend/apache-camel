@@ -183,7 +183,7 @@ public interface Langchain4jToolsComponentBuilderFactory {
             case "bridgeErrorHandler": ((LangChain4jToolsComponent) component).setBridgeErrorHandler((boolean) value); return true;
             case "lazyStartProducer": ((LangChain4jToolsComponent) component).setLazyStartProducer((boolean) value); return true;
             case "autowiredEnabled": ((LangChain4jToolsComponent) component).setAutowiredEnabled((boolean) value); return true;
-            case "chatModel": getOrCreateConfiguration((LangChain4jToolsComponent) component).setChatModel((dev.langchain4j.model.chat.ChatLanguageModel) value); return true;
+            case "chatModel": getOrCreateConfiguration((LangChain4jToolsComponent) component).setChatModel((dev.langchain4j.model.chat.ChatModel) value); return true;
             default: return false;
             }
         }
