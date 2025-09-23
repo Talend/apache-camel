@@ -29,7 +29,7 @@ import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.input.Prompt;
 import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.model.output.Response;
@@ -50,7 +50,7 @@ public class LangChain4jChatProducer extends DefaultProducer {
 
     private final LangChain4jChatEndpoint endpoint;
 
-    private ChatLanguageModel chatLanguageModel;
+    private ChatModel chatModel;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -108,8 +108,8 @@ public class LangChain4jChatProducer extends DefaultProducer {
     @Override
     protected void doStart() throws Exception {
         super.doStart();
-        this.chatLanguageModel = this.endpoint.getConfiguration().getChatModel();
-        ObjectHelper.notNull(chatLanguageModel, "chatLanguageModel");
+        this.chatModel = this.endpoint.getConfiguration().getChatModel();
+        ObjectHelper.notNull(chatModel, "chatModel");
     }
 
     private void populateResponse(String response, Exchange exchange) {
@@ -125,7 +125,7 @@ public class LangChain4jChatProducer extends DefaultProducer {
     private String sendChatMessage(ChatMessage chatMessage, Exchange exchange) {
         var augmentedChatMessage = addAugmentedData(chatMessage, exchange);
 
-        Response<AiMessage> response = this.chatLanguageModel.generate(augmentedChatMessage);
+        Response<AiMessage> response = this.chatModel.generate(augmentedChatMessage);
         return extractAiResponse(response);
     }
 
@@ -180,9 +180,9 @@ public class LangChain4jChatProducer extends DefaultProducer {
                     .map(camelToolSpecification -> camelToolSpecification.getToolSpecification())
                     .collect(Collectors.toList());
 
-            response = this.chatLanguageModel.generate(chatMessages, toolSpecifications);
+            response = this.chatModel.generate(chatMessages, toolSpecifications);
         } else {
-            response = this.chatLanguageModel.generate(chatMessages);
+            response = this.chatModel.generate(chatMessages);
         }
 
         if (response.content().hasToolExecutionRequests()) {
@@ -214,7 +214,7 @@ public class LangChain4jChatProducer extends DefaultProducer {
                         exchange.getIn().getBody(String.class)));
             }
 
-            response = this.chatLanguageModel.generate(chatMessages);
+            response = this.chatModel.generate(chatMessages);
         }
 
         return extractAiResponse(response);

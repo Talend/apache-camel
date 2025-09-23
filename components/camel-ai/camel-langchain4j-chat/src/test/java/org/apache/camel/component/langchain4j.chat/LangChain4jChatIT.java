@@ -50,7 +50,7 @@ public class LangChain4jChatIT extends OllamaTestSupport {
 
     @Override
     protected RouteBuilder createRouteBuilder() {
-        this.context.getRegistry().bind("chatModel", chatLanguageModel);
+        this.context.getRegistry().bind("chatModel", chatModel);
         LangChain4jRagAggregatorStrategy aggregatorStrategy = new LangChain4jRagAggregatorStrategy();
 
         return new RouteBuilder() {

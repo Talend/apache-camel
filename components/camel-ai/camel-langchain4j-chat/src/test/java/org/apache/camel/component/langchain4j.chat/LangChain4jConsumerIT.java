@@ -23,7 +23,7 @@ import dev.langchain4j.agent.tool.JsonSchemaProperty;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -45,7 +45,7 @@ public class LangChain4jConsumerIT extends CamelTestSupport {
 
     public static final String MODEL_NAME = "llama3.1:latest";
     private final String nameFromDB = "pippo";
-    private ChatLanguageModel chatLanguageModel;
+    private ChatModel chatModel;
 
     @RegisterExtension
     static OllamaService OLLAMA = OllamaServiceFactory.createServiceWithConfiguration(() -> MODEL_NAME);
@@ -54,7 +54,7 @@ public class LangChain4jConsumerIT extends CamelTestSupport {
     protected void setupResources() throws Exception {
         super.setupResources();
 
-        chatLanguageModel = createModel();
+        chatModel = createModel();
     }
 
     @Override
@@ -64,13 +64,13 @@ public class LangChain4jConsumerIT extends CamelTestSupport {
         LangChain4jChatComponent component
                 = context.getComponent(LangChain4jChat.SCHEME, LangChain4jChatComponent.class);
 
-        component.getConfiguration().setChatModel(chatLanguageModel);
+        component.getConfiguration().setChatModel(chatModel);
 
         return context;
     }
 
-    protected ChatLanguageModel createModel() {
-        chatLanguageModel = OpenAiChatModel.builder()
+    protected ChatModel createModel() {
+    	chatModel = OpenAiChatModel.builder()
                 .apiKey("NO_API_KEY")
                 .modelName(MODEL_NAME)
                 .baseUrl(OLLAMA.getEndpoint())
@@ -80,7 +80,7 @@ public class LangChain4jConsumerIT extends CamelTestSupport {
                 .logResponses(true)
                 .build();
 
-        return chatLanguageModel;
+        return chatModel;
     }
 
     @Override
