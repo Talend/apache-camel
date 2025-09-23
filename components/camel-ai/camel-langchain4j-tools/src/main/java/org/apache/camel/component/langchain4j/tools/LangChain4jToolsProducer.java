@@ -70,7 +70,7 @@ public class LangChain4jToolsProducer extends DefaultProducer {
     protected void doStart() throws Exception {
         super.doStart();
         this.chatModel = this.endpoint.getConfiguration().getChatModel();
-        ObjectHelper.notNull(chatModel, "chatLanguageModel");
+        ObjectHelper.notNull(chatModel, "chatModel");
     }
 
     private void populateResponse(String response, Exchange exchange) {
