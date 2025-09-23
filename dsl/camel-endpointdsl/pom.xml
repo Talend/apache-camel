@@ -172,7 +172,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-langchain4j-chat</artifactId>
-            <version>${version}</version>
+            <version>${upstream.version}</version>
             <exclusions>
             	<exclusion>
             	    <groupId>dev.langchain4j</groupId>
@@ -183,7 +183,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-langchain4j-core</artifactId>
-            <version>${version}</version>
+            <version>${upstream.version}</version>
             <exclusions>
             	<exclusion>
             	    <groupId>dev.langchain4j</groupId>
@@ -194,7 +194,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-milvus</artifactId>
-            <version>${version}</version>
+            <version>${upstream.version}</version>
             <exclusions>
             	<exclusion>
             	    <groupId>dev.langchain4j</groupId>
@@ -205,7 +205,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-langchain4j-tokenizer</artifactId>
-            <version>${version}</version>
+            <version>${upstream.version}</version>
             <exclusions>
             	<exclusion>
             	    <groupId>dev.langchain4j</groupId>
@@ -216,7 +216,7 @@
          <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-pinecone</artifactId>
-            <version>${version}</version>
+            <version>${upstream.version}</version>
             <exclusions>
             	<exclusion>
             	    <groupId>dev.langchain4j</groupId>
@@ -227,7 +227,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-qdrant</artifactId>
-            <version>${version}</version>
+            <version>${upstream.version}</version>
             <exclusions>
             	<exclusion>
             	    <groupId>dev.langchain4j</groupId>
