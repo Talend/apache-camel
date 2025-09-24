@@ -155,11 +155,11 @@
             <artifactId>log4j-core</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- manage langchain4j version -->
+        <!-- manage langchain4j version, use custom tesb version -->
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-langchain4j-chat</artifactId>
-            <version>${upstream.version}</version>
+            <version>${camel-componentdsl.tesb.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>dev.langchain4j</groupId>
@@ -170,7 +170,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-langchain4j-core</artifactId>
-            <version>${upstream.version}</version>
+            <version>${camel-componentdsl.tesb.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>dev.langchain4j</groupId>
