@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import dev.langchain4j.rag.content.Content;
+import dev.langchain4j.rag.content.DefaultContent;
 import org.apache.camel.AggregationStrategy;
 import org.apache.camel.Exchange;
 

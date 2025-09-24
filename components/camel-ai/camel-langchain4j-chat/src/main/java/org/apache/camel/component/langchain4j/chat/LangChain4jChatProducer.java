@@ -26,7 +26,6 @@ import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.input.Prompt;
 import dev.langchain4j.model.input.PromptTemplate;
-import dev.langchain4j.model.output.Response;
 import dev.langchain4j.rag.content.Content;
 import dev.langchain4j.rag.content.injector.ContentInjector;
 import dev.langchain4j.rag.content.injector.DefaultContentInjector;
@@ -117,7 +116,7 @@ public class LangChain4jChatProducer extends DefaultProducer {
     private String sendChatMessage(ChatMessage chatMessage, Exchange exchange) {
         var augmentedChatMessage = addAugmentedData(chatMessage, exchange);
 
-        Response<AiMessage> response = this.chatModel.generate(augmentedChatMessage);
+        AiMessage response = this.chatModel.chat(augmentedChatMessage).aiMessage();
         return extractAiResponse(response);
     }
 
@@ -150,7 +149,7 @@ public class LangChain4jChatProducer extends DefaultProducer {
     private String sendListChatMessage(List<ChatMessage> chatMessages, Exchange exchange) {
         LangChain4jChatEndpoint langChain4jChatEndpoint = (LangChain4jChatEndpoint) getEndpoint();
 
-        Response<AiMessage> response;
+        AiMessage response;
 
         // Check if the last message is a UserMessage and if there's a need to augment the message for RAG
         int size = chatMessages.size();
@@ -163,13 +162,12 @@ public class LangChain4jChatProducer extends DefaultProducer {
 
         }
 
-        response = this.chatModel.generate(chatMessages);
+        response = this.chatModel.chat(chatMessages).aiMessage();
         return extractAiResponse(response);
     }
 
-    private String extractAiResponse(Response<AiMessage> response) {
-        AiMessage message = response.content();
-        return message == null ? null : message.text();
+    private String extractAiResponse(AiMessage response) {
+        return response == null ? null : response.text();
     }
 
     public String sendWithPromptTemplate(String promptTemplate, Map<String, Object> variables, Exchange exchange) {

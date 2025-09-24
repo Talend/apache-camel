@@ -16,7 +16,7 @@
  */
 package org.apache.camel.component.langchain4j.chat;
 
-import dev.langchain4j.model.chat.chatModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 import org.apache.camel.test.infra.ollama.services.OllamaService;
 import org.apache.camel.test.infra.ollama.services.OllamaServiceFactory;

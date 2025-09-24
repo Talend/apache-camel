@@ -53,7 +53,7 @@ public class LangChain4jChatConfiguration implements Cloneable {
     }
 
     /**
-     * Chat Language Model of type dev.langchain4j.model.chat.ChatModel
+     * Chat Model of type dev.langchain4j.model.chat.ChatModel
      *
      * @return
      */
