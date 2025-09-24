@@ -34,6 +34,7 @@
     <version>${revision}</version>
 
     <properties>
+        <revision>${camel-langchain4j-tools.tesb.version}</revision>
         <firstVersion>4.7.0</firstVersion>
         <label>ai</label>
         <title>LangChain4j Core</title>
