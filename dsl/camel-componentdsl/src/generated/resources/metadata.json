@@ -4788,7 +4788,7 @@
     "supportLevel": "Preview",
     "groupId": "org.apache.camel",
     "artifactId": "camel-langchain4j-chat",
-    "version": "4.8.1.20250320",
+    "version": "4.8.1.20250906",
     "scheme": "langchain4j-chat",
     "extendsScheme": "",
     "syntax": "langchain4j-chat:chatId",
