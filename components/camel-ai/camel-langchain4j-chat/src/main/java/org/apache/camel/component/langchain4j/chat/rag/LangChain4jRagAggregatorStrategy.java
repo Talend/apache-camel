@@ -43,7 +43,7 @@ public class LangChain4jRagAggregatorStrategy implements AggregationStrategy {
 
         // create a list of contents from the retrieved Strings
         List<Content> newContents = newAugmentedData.get().stream()
-                .map(Content::new)
+                .map(DefaultContent::new)
                 .collect(Collectors.toList());
 
         // Get or create the augmented data list from the old exchange
