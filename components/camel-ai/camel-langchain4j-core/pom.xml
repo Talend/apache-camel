@@ -31,6 +31,7 @@
     <packaging>jar</packaging>
     <name>Camel :: AI :: LangChain4j :: Core</name>
     <description>LangChain4j Core</description>
+    <version>${revision}</version>
 
     <properties>
         <firstVersion>4.7.0</firstVersion>
