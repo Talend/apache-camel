@@ -31,6 +31,7 @@
     <packaging>jar</packaging>
     <name>Camel :: AI :: LangChain4j :: Chat</name>
     <description>LangChain4j Chat component</description>
+    <version>${revision}</version>
 
     <properties>
         <langchain4j-version>1.0.0</langchain4j-version>
