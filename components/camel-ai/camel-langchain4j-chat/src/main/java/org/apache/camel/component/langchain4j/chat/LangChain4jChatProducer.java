@@ -117,7 +117,7 @@ public class LangChain4jChatProducer extends DefaultProducer {
     private String sendChatMessage(ChatMessage chatMessage, Exchange exchange) {
         var augmentedChatMessage = addAugmentedData(chatMessage, exchange);
 
-        AiMessage response = this.chatModel.chat(augmentedChatMessage).aiMessage();
+        Response<AiMessage> response = this.chatModel.generate(augmentedChatMessage);
         return extractAiResponse(response);
     }
 
@@ -150,7 +150,7 @@ public class LangChain4jChatProducer extends DefaultProducer {
     private String sendListChatMessage(List<ChatMessage> chatMessages, Exchange exchange) {
         LangChain4jChatEndpoint langChain4jChatEndpoint = (LangChain4jChatEndpoint) getEndpoint();
 
-        AiMessage response;
+        Response<AiMessage> response;
 
         // Check if the last message is a UserMessage and if there's a need to augment the message for RAG
         int size = chatMessages.size();
@@ -163,12 +163,13 @@ public class LangChain4jChatProducer extends DefaultProducer {
 
         }
 
-        response = this.chatModel.chat(chatMessages).aiMessage();
+        response = this.chatModel.generate(chatMessages);
         return extractAiResponse(response);
     }
 
     private String extractAiResponse(Response<AiMessage> response) {
-        return response == null ? null : response.text();
+        AiMessage message = response.content();
+        return message == null ? null : message.text();
     }
 
     public String sendWithPromptTemplate(String promptTemplate, Map<String, Object> variables, Exchange exchange) {
