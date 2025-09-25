@@ -159,7 +159,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-langchain4j-chat</artifactId>
-            <version>4.8.1.20250906</version>
+            <version>${camel-langchain4j-chat.tesb.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>dev.langchain4j</groupId>
@@ -170,7 +170,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-langchain4j-core</artifactId>
-            <version>4.8.1.20250906</version>
+            <version>${camel-langchain4j-core.tesb.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>dev.langchain4j</groupId>

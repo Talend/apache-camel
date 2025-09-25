@@ -1740,12 +1740,12 @@
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-langchain4j-chat</artifactId>
-                <version>${upstream.version}</version>
+                <version>${camel-langchain4j-chat.tesb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-langchain4j-core</artifactId>
-                <version>${upstream.version}</version>
+                <version>${camel-langchain4j-core.tesb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>

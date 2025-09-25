@@ -34,7 +34,7 @@
     <version>${revision}</version>
 
     <properties>
-        <revision>${camel-langchain4j-tools.tesb.version}</revision>
+        <revision>${camel-langchain4j-chat.tesb.version}</revision>
         <langchain4j-version>1.0.0</langchain4j-version>
     </properties>
  
