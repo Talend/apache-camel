@@ -1102,4 +1102,29 @@
             </build>
         </profile>
     </profiles>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>talend-public</id>
+            <name>Talend Open Source Public group</name>
+            <url>https://artifacts-oss.talend.com/nexus/content/groups/public</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+        <pluginRepository>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>thirdparty-releases</id>
+            <name>Third party releases</name>
+            <url>https://artifacts-zl.talend.com/nexus/content/repositories/thirdparty-releases</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>
