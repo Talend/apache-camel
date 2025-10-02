@@ -38,6 +38,7 @@
         <label>ai</label>
         <title>LangChain4j Tools</title>
         <supportLevel>Experimental</supportLevel>
+        <langchain4j-version>1.0.0</langchain4j-version>
     </properties>
 
     <dependencies>
@@ -77,7 +78,7 @@
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-ollama</artifactId>
-            <version>${langchain4j-version}</version>
+            <version>1.0.0-beta5</version>
             <scope>test</scope>
         </dependency>
         <dependency>

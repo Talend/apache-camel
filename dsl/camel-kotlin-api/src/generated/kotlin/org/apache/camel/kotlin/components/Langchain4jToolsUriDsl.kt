@@ -149,7 +149,7 @@ public class Langchain4jToolsUriDsl(
   }
 
   /**
-   * Chat Language Model of type dev.langchain4j.model.chat.ChatLanguageModel
+   * Chat Language Model of type dev.langchain4j.model.chat.ChatModel
    */
   public fun chatModel(chatModel: String) {
     it.property("chatModel", chatModel)
