@@ -164,7 +164,7 @@ Initialize the OpenAI Chat Language Model, and add it to the Camel Registry:
 
 [source, java]
 ----
-ChatLanguageModel model = OpenAiChatModel.builder()
+ChatModel model = OpenAiChatModel.builder()
                 .apiKey("NO_API_KEY")
                 .modelName("llama3.1:latest")
                 .temperature(0.0)
