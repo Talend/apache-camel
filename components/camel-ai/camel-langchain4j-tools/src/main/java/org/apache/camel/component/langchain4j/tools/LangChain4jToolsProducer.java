@@ -112,7 +112,7 @@ public class LangChain4jToolsProducer extends DefaultProducer {
             final Response<AiMessage> response = chatWithLLM(chatMessages, toolPair, exchange);
             if (isDoneExecuting(response)) {
                 if (chatMemory != null) {
-                    chatMemory.add(generate.content());
+                    chatMemory.add(response.content());
                 }
                 return extractAiResponse(response);
             }
