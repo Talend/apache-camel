@@ -27,6 +27,8 @@ public class LangChain4jToolsEndpointConfigurer extends PropertyConfigurerSuppor
         case "bridgeErrorHandler": target.setBridgeErrorHandler(property(camelContext, boolean.class, value)); return true;
         case "cameltoolparameter":
         case "camelToolParameter": target.setCamelToolParameter(property(camelContext, org.apache.camel.component.langchain4j.tools.spec.CamelSimpleToolParameter.class, value)); return true;
+        case "chatmemory":
+        case "chatMemory": target.getConfiguration().setChatMemory(property(camelContext, dev.langchain4j.memory.ChatMemory.class, value)); return true;
         case "chatmodel":
         case "chatModel": target.getConfiguration().setChatModel(property(camelContext, dev.langchain4j.model.chat.ChatModel.class, value)); return true;
         case "description": target.setDescription(property(camelContext, java.lang.String.class, value)); return true;
@@ -44,7 +46,7 @@ public class LangChain4jToolsEndpointConfigurer extends PropertyConfigurerSuppor
 
     @Override
     public String[] getAutowiredNames() {
-        return new String[]{"chatModel"};
+        return new String[]{"chatMemory", "chatModel"};
     }
 
     @Override
@@ -54,6 +56,8 @@ public class LangChain4jToolsEndpointConfigurer extends PropertyConfigurerSuppor
         case "bridgeErrorHandler": return boolean.class;
         case "cameltoolparameter":
         case "camelToolParameter": return org.apache.camel.component.langchain4j.tools.spec.CamelSimpleToolParameter.class;
+        case "chatmemory":
+        case "chatMemory": return dev.langchain4j.memory.ChatMemory.class;
         case "chatmodel":
         case "chatModel": return dev.langchain4j.model.chat.ChatModel.class;
         case "description": return java.lang.String.class;
