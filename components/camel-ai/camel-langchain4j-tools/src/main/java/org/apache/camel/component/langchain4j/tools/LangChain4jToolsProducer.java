@@ -189,11 +189,17 @@ public class LangChain4jToolsProducer extends DefaultProducer {
         if (chatMemory != null) {
             // first round chat, need to add System and User message. the following rounds only need to add User message.
             boolean isEmpty = chatMemory.messages().size() == 0;
-            for (ChatMessage message : chatMessages) {
-                if (isEmpty || message.type() == ChatMessageType.USER) {
-                    chatMemory.add(message);
-                }
+            if(isEmpty){
+                chatMessages.forEach(chatMemory::add);
             }
+            // else{
+            //     for (ChatMessage message : chatMessages) {
+            //         if (isEmpty || message.type() == ChatMessageType.USER) {
+            //             chatMemory.add(message);
+            //         }
+            //     }
+            // }
+            
         }
 
         ChatRequest.Builder requestBuilder = ChatRequest.builder()
@@ -217,6 +223,10 @@ public class LangChain4jToolsProducer extends DefaultProducer {
         if (!response.content().hasToolExecutionRequests()) {
             exchange.getMessage().setHeader(LangChain4jTools.NO_TOOLS_CALLED_HEADER, Boolean.TRUE);
             return response;
+        }
+
+        if (chatMemory != null) {
+            chatMemory.add(response.content());
         }
 
         chatMessages.add(response.content());
