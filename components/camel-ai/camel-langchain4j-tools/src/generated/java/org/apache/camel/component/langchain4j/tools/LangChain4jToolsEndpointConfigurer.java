@@ -81,6 +81,8 @@ public class LangChain4jToolsEndpointConfigurer extends PropertyConfigurerSuppor
         case "bridgeErrorHandler": return target.isBridgeErrorHandler();
         case "cameltoolparameter":
         case "camelToolParameter": return target.getCamelToolParameter();
+        case "chatmemory":
+        case "chatMemory": return target.getConfiguration().getChatMemory();
         case "chatmodel":
         case "chatModel": return target.getConfiguration().getChatModel();
         case "description": return target.getDescription();
