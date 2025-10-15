@@ -112,9 +112,6 @@ public class LangChain4jToolsProducer extends DefaultProducer {
 //            System.out.println("Starting iteration " + i);
             final Response<AiMessage> response = chatWithLLM(chatMessages, toolPair, exchange, i);
             if (isDoneExecuting(response)) {
-                if (chatMemory != null) {
-                    chatMemory.add(response.content());
-                }
                 return extractAiResponse(response);
             }
 
