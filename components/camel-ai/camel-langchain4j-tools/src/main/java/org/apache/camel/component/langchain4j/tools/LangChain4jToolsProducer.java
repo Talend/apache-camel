@@ -73,6 +73,7 @@ public class LangChain4jToolsProducer extends DefaultProducer {
     @Override
     protected void doStart() throws Exception {
         super.doStart();
+        this.chatMemory = this.endpoint.getConfiguration().getChatMemory();
         this.chatModel = this.endpoint.getConfiguration().getChatModel();
         ObjectHelper.notNull(chatModel, "chatModel");
     }
