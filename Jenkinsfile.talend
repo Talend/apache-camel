@@ -2,6 +2,7 @@
  
 Fork(
         MVN_MODULES: '''\
+org.apache.camel:camel,\
 org.apache.camel:camel-parent,\
 org.apache.camel:camel-activemq,\
 org.apache.camel:camel-activemq6,\
