@@ -31,7 +31,13 @@
     <packaging>jar</packaging>
     <name>Camel :: AI :: LangChain4j :: Chat</name>
     <description>LangChain4j Chat component</description>
+    <version>${revision}</version>
 
+    <properties>
+        <revision>${camel-langchain4j-chat.tesb.version}</revision>
+        <langchain4j-version>1.0.0</langchain4j-version>
+    </properties>
+ 
     <dependencies>
 
         <dependency>
@@ -68,7 +74,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-infra-ollama</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

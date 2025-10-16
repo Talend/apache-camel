@@ -1,0 +1,24 @@
+@Library('esb') _
+ 
+Fork(
+        MVN_MODULES: '''\
+org.apache.camel:camel-parent,\
+org.apache.camel:camel-activemq,\
+org.apache.camel:camel-activemq6,\
+org.apache.camel:camel-cxf-common,\
+org.apache.camel:camel-cxf-soap,\
+org.apache.camel:camel-cxf-rest,\
+org.apache.camel:camel-cxf-transport,\
+org.apache.camel:camel-cxf-spring-common,\
+org.apache.camel:camel-cxf-spring-soap,\
+org.apache.camel:camel-cxf-spring-rest,\
+org.apache.camel:camel-cxf-spring-transport,\
+org.apache.camel:camel-drill,\
+org.apache.camel:camel-langchain4j-core,\
+org.apache.camel:camel-langchain4j-chat,\
+org.apache.camel:camel-langchain4j-tools,\
+org.apache.camel:camel-spring,\
+org.apache.camel:camel-componentdsl,\
+org.apache.camel:camel-endpointdsl\
+'''
+)

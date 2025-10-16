@@ -28,14 +28,14 @@
 
     <artifactId>camel-cxf-spring-common</artifactId>
     <packaging>jar</packaging>
+    <version>${revision}</version>
 
     <name>Camel :: CXF :: Common :: Spring</name>
     <description>Camel CXF Spring Common</description>
 
     <properties>
-
+        <revision>${camel-cxf.tesb.version}</revision>
         <camel-prepare-component>false</camel-prepare-component>
-
     </properties>
 
     <dependencies>
@@ -59,7 +59,7 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-transports-http</artifactId>
-            <version>${cxf-version}</version>
+            <version>${cxf.tesb.version}</version>
         </dependency>
 
         <dependency>

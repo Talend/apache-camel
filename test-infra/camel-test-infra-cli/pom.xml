@@ -38,13 +38,13 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-infra-common</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
             <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-infra-common</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
         </dependency>
         
         <dependency>
@@ -136,7 +136,7 @@
                             <rerunFailingTestsCount>${surefire.rerunFailingTestsCount}</rerunFailingTestsCount>
                             <systemPropertyVariables>
                                 <cli.service.data.folder>target/data</cli.service.data.folder>
-                                <currentProjectVersion>${project.version}</currentProjectVersion>
+                                <currentProjectVersion>${upstream.version}</currentProjectVersion>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>

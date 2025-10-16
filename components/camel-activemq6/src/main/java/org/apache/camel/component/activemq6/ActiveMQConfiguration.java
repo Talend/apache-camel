@@ -215,8 +215,13 @@ public class ActiveMQConfiguration extends JmsConfiguration {
     public static Class<?> loadClass(CamelContext camelContext, String name, ClassLoader loader) throws ClassNotFoundException {
         // if camel then use it to load the class
         if (camelContext != null) {
-            return camelContext.getClassResolver()
-                    .resolveMandatoryClass("org.messaginghub.pooled.jms.JmsPoolConnectionFactory");
+            try {
+                return camelContext.getClassResolver()
+                        .resolveMandatoryClass("org.messaginghub.pooled.jms.JmsPoolConnectionFactory");
+            } catch (ClassNotFoundException e) {
+                // FIXME: revisit Camel class loading for OSGi
+                // continue with local class loaders
+            }
         }
 
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();

@@ -23,9 +23,11 @@ import jakarta.xml.ws.WebServiceProvider;
 
 import javax.xml.namespace.QName;
 
+import org.apache.camel.CamelContext;
 import org.apache.camel.CamelException;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
+import org.apache.camel.support.CamelContextHelper;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -103,7 +105,18 @@ public final class CxfEndpointUtils {
      * case, this method updates the bus configuration with the applicationContext which SpringCamelContext holds
      *
      */
-    public static Bus createBus() {
+    public static Bus createBus(CamelContext context) {
+        // Add minimal Blueprint awareness
+        try {
+            context.getClass().getMethod("getBlueprintContainer");
+            Bus bus = CamelContextHelper.lookup(context, "cxf", Bus.class);
+            if (bus != null) {
+                return bus;
+            }
+        } catch (NoSuchMethodException e) {
+            LOG.debug("CamelContext is not for Blueprint");
+        }
+
         BusFactory busFactory = BusFactory.newInstance();
 
         return busFactory.createBus();

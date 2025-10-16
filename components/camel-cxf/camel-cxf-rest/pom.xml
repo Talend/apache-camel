@@ -28,11 +28,13 @@
 
     <artifactId>camel-cxf-rest</artifactId>
     <packaging>jar</packaging>
+    <version>${revision}</version>
 
     <name>Camel :: CXF :: REST</name>
     <description>Camel CXF REST support</description>
 
     <properties>
+        <revision>${camel-cxf-rest.tesb.version}</revision>
         <camel.surefire.fork.vmargs>--add-opens java.xml/com.sun.org.apache.xerces.internal.dom=ALL-UNNAMED --add-opens java.xml/com.sun.org.apache.xerces.internal.jaxp=ALL-UNNAMED --add-opens java.xml/com.sun.org.apache.xerces.internal.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED</camel.surefire.fork.vmargs>
         <camel.surefire.forkTimeout>300</camel.surefire.forkTimeout>
     </properties>
@@ -64,17 +66,17 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-            <version>${cxf-version}</version>
+            <version>${cxf.tesb.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-rs-client</artifactId>
-            <version>${cxf-version}</version>
+            <version>${cxf.tesb.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-features-logging</artifactId>
-            <version>${cxf-version}</version>
+            <version>${cxf.tesb.version}</version>
         </dependency>
 
 
@@ -120,14 +122,14 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-features-clustering</artifactId>
-            <version>${cxf-version}</version>
+            <version>${cxf.tesb.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-transports-http-undertow</artifactId>
-            <version>${cxf-version}</version>
+            <version>${cxf.tesb.version}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -186,7 +188,7 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-rs-extension-providers</artifactId>
-            <version>${cxf-version}</version>
+            <version>${cxf.tesb.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -31,12 +31,15 @@
     <packaging>jar</packaging>
     <name>Camel :: AI :: LangChain4j :: Core</name>
     <description>LangChain4j Core</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-langchain4j-core.tesb.version}</revision>
         <firstVersion>4.7.0</firstVersion>
         <label>ai</label>
         <title>LangChain4j Core</title>
         <supportLevel>Experimental</supportLevel>
+        <langchain4j-version>1.0.0</langchain4j-version>
     </properties>
 
     <dependencies>

@@ -33,7 +33,7 @@ for this component:
 == URI format
 
 ----
-langchain4j-chat:chatIdId[?options]
+langchain4j-chat:chatId[?options]
 ----
 
 Where *chatId* can be any string to uniquely identify the endpoint
@@ -85,7 +85,7 @@ Initialize the OpenAI Chat Language Model, and add it to the Camel Registry:
 
 [source, java]
 ----
-ChatLanguageModel model = OpenAiChatModel.builder()
+ChatModel model = OpenAiChatModel.builder()
                 .apiKey(openApiKey)
                 .modelName(GPT_3_5_TURBO)
                 .temperature(0.3)
