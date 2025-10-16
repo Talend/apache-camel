@@ -1004,5 +1004,16 @@
             <name>Third party releases</name>
             <url>https://artifacts-zl.talend.com/nexus/content/repositories/thirdparty-releases</url>
         </pluginRepository>
+        <pluginRepository>
+            <id>releases</id>
+            <name>Talend Releases</name>
+            <url>https://artifacts-zl.talend.com/nexus/content/repositories/releases/</url>
+            <snapshots>
+               <enabled>false</enabled>
+            </snapshots>
+            <releases>
+               <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
     </pluginRepositories>
 </project>
