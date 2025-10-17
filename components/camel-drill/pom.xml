@@ -35,7 +35,7 @@
     <properties>
         <revision>${camel-drill.tesb.version}</revision>
         <apache-drill.tesb.version>1.22.0</apache-drill.tesb.version>
-        <spring.tesb.version>6.1.22</spring.tesb.version>
+        <spring-jdbc.tesb.version>6.1.21</spring-jdbc.tesb.version>
     </properties>
 
     <dependencies>
@@ -62,7 +62,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>${spring.tesb.version}</version>
+            <version>${spring-jdbc.tesb.version}</version>
         </dependency>
         <!-- testing -->
         <dependency>

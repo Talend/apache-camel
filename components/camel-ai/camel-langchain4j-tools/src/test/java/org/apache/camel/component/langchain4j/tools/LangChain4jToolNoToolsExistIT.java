@@ -66,7 +66,7 @@ public class LangChain4jToolNoToolsExistIT extends CamelTestSupport {
     }
 
     protected ChatModel createModel() {
-    	chatModel = OpenAiChatModel.builder()
+        chatModel = OpenAiChatModel.builder()
                 .apiKey("NO_API_KEY")
                 .modelName(MODEL_NAME)
                 .baseUrl(OLLAMA.getEndpoint())

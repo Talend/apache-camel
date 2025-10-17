@@ -16,7 +16,7 @@
  */
 package org.apache.camel.component.kamelet.utils.langchain4j.chat;
 
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 
 import static java.time.Duration.ofSeconds;
@@ -66,7 +66,7 @@ public final class OpenAiChatLanguageModelBuilder {
         return this;
     }
 
-    public ChatLanguageModel build() {
+    public ChatModel build() {
         return OpenAiChatModel.builder()
                 .apiKey(apiKey)
                 .modelName(modelName)

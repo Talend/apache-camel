@@ -55,7 +55,7 @@ public class LangChain4jToolsEndpointConfigurer extends PropertyConfigurerSuppor
         case "cameltoolparameter":
         case "camelToolParameter": return org.apache.camel.component.langchain4j.tools.spec.CamelSimpleToolParameter.class;
         case "chatmodel":
-        case "chatModel": return dev.langchain4j.model.chat.ChatLanguageModel.class;
+        case "chatModel": return dev.langchain4j.model.chat.ChatModel.class;
         case "description": return java.lang.String.class;
         case "exceptionhandler":
         case "exceptionHandler": return org.apache.camel.spi.ExceptionHandler.class;
