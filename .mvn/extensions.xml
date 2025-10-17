@@ -3,11 +3,11 @@
     <extension>
         <groupId>org.l2x6.cq</groupId>
         <artifactId>cq-alias-fastinstall-quickly-extension</artifactId>
-        <version>4.10.2</version>
+        <version>4.16.2</version>
     </extension>
     <extension>
-        <groupId>kr.motd.maven</groupId>
-        <artifactId>os-maven-plugin</artifactId>
-        <version>1.7.1</version>
+        <groupId>com.tisonkun.os</groupId>
+        <artifactId>os-detector-maven-plugin</artifactId>
+        <version>0.6.0</version>
     </extension>
 </extensions>

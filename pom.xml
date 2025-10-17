@@ -167,17 +167,6 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
-        <repository>
-            <id>talend-releases</id>
-            <name>Talend Releases</name>
-            <url>https://artifacts-zl.talend.com/nexus/content/repositories/releases/</url>
-            <snapshots>
-               <enabled>false</enabled>
-            </snapshots>
-            <releases>
-               <enabled>true</enabled>
-            </releases>
-        </repository>
     </repositories>
 
     <build>
@@ -1014,17 +1003,6 @@
             <id>thirdparty-releases</id>
             <name>Third party releases</name>
             <url>https://artifacts-zl.talend.com/nexus/content/repositories/thirdparty-releases</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>talend-releases</id>
-            <name>Talend Releases</name>
-            <url>https://artifacts-zl.talend.com/nexus/content/repositories/releases/</url>
-            <snapshots>
-               <enabled>false</enabled>
-            </snapshots>
-            <releases>
-               <enabled>true</enabled>
-            </releases>
         </pluginRepository>
     </pluginRepositories>
 </project>
