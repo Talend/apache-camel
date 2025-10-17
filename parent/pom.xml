@@ -590,7 +590,7 @@
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-support</artifactId>
-                <version>${camel-support.tesb.version}</version>
+                <version>${upstream.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
