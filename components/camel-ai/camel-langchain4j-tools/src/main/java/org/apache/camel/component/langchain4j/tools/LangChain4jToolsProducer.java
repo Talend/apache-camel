@@ -27,7 +27,9 @@ import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.data.message.ChatMessageType;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
+import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
@@ -48,6 +50,8 @@ public class LangChain4jToolsProducer extends DefaultProducer {
     private final LangChain4jToolsEndpoint endpoint;
 
     private ChatModel chatModel;
+
+    private ChatMemory chatMemory;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -72,6 +76,7 @@ public class LangChain4jToolsProducer extends DefaultProducer {
     @Override
     protected void doStart() throws Exception {
         super.doStart();
+        this.chatMemory = this.endpoint.getConfiguration().getChatMemory();
         this.chatModel = this.endpoint.getConfiguration().getChatModel();
         ObjectHelper.notNull(chatModel, "chatModel");
     }
@@ -164,10 +169,14 @@ public class LangChain4jToolsProducer extends DefaultProducer {
                 exchange.setException(e);
             }
 
-            chatMessages.add(new ToolExecutionResultMessage(
+            ToolExecutionResultMessage toolExecutionResultMessage = new ToolExecutionResultMessage(
                     toolExecutionRequest.id(),
                     toolExecutionRequest.name(),
-                    exchange.getIn().getBody(String.class)));
+                    exchange.getIn().getBody(String.class));
+            if (chatMemory != null) {
+                chatMemory.add(toolExecutionResultMessage);
+            }        
+            chatMessages.add(toolExecutionResultMessage);
         }
     }
 
@@ -179,10 +188,23 @@ public class LangChain4jToolsProducer extends DefaultProducer {
      * @param  toolPair     the toolPair containing the available tools to be called
      * @return              the response provided by the model
      */
-    private Response<AiMessage> chatWithLLM(List<ChatMessage> chatMessages, ToolPair toolPair, Exchange exchange) {
+    private Response<AiMessage> chatWithLLM(List<ChatMessage> chatMessages, ToolPair toolPair, Exchange exchange, int countNum) {
+
+        if (chatMemory != null) {
+            boolean isEmpty = chatMemory.messages().size() == 0;
+            if (isEmpty) { // first round chat, need to add System and User message. 
+                chatMessages.forEach(chatMemory::add);
+            }else if (countNum == 0){ // the following rounds only need to add User message.
+                 for (ChatMessage message : chatMessages) {
+                    if (message.type() == ChatMessageType.USER) {
+                        chatMemory.add(message);
+                    }
+                }
+            }
+        }
 
         ChatRequest.Builder requestBuilder = ChatRequest.builder()
-                .messages(chatMessages);
+                .messages(chatMemory != null ? chatMemory.messages() : chatMessages);
 
         // Add tools if available
         if (toolPair != null && toolPair.toolSpecifications() != null) {
@@ -205,6 +227,9 @@ public class LangChain4jToolsProducer extends DefaultProducer {
         }
 
         chatMessages.add(response.content());
+        if (chatMemory != null) {
+            chatMemory.add(response.content());
+        }
         return response;
     }
 
