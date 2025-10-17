@@ -137,7 +137,8 @@ public class CxfSchemaValidationTest extends CamelTestSupport {
             invokeService(serviceAddressValidationEnabled, RandomStringUtils.random(40, true, true));
             fail("expect a Validation exception here");
         } catch (SOAPFaultException e) {
-            assertEquals("Schema validation error on message from client: the length of the value is 40, but the required maximum is 30..",
+            assertEquals(
+                    "Schema validation error on message from client: the length of the value is 40, but the required maximum is 30..",
                     e.getMessage(), "");
         }
     }

@@ -162,12 +162,10 @@ public interface Langchain4jChatComponentBuilderFactory {
         }
     
         /**
-         * Chat Language Model of type
-         * dev.langchain4j.model.chat.ChatModel.
+         * Chat Language Model of type dev.langchain4j.model.chat.ChatModel.
          * 
          * The option is a:
-         * &lt;code&gt;dev.langchain4j.model.chat.ChatModel&lt;/code&gt;
-         * type.
+         * &lt;code&gt;dev.langchain4j.model.chat.ChatModel&lt;/code&gt; type.
          * 
          * Group: advanced
          * 
