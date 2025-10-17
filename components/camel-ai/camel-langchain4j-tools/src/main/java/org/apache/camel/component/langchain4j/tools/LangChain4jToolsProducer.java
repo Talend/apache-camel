@@ -113,7 +113,7 @@ public class LangChain4jToolsProducer extends DefaultProducer {
         int i = 0;
         do {
             LOG.debug("Starting iteration {}", i);
-            final Response<AiMessage> response = chatWithLLM(chatMessages, toolPair, exchange);
+            final Response<AiMessage> response = chatWithLLM(chatMessages, toolPair, exchange, 1);
             if (isDoneExecuting(response)) {
                 return extractAiResponse(response);
             }
@@ -175,7 +175,7 @@ public class LangChain4jToolsProducer extends DefaultProducer {
                     exchange.getIn().getBody(String.class));
             if (chatMemory != null) {
                 chatMemory.add(toolExecutionResultMessage);
-            }        
+            }
             chatMessages.add(toolExecutionResultMessage);
         }
     }
@@ -188,14 +188,15 @@ public class LangChain4jToolsProducer extends DefaultProducer {
      * @param  toolPair     the toolPair containing the available tools to be called
      * @return              the response provided by the model
      */
-    private Response<AiMessage> chatWithLLM(List<ChatMessage> chatMessages, ToolPair toolPair, Exchange exchange, int countNum) {
+    private Response<AiMessage> chatWithLLM(
+            List<ChatMessage> chatMessages, ToolPair toolPair, Exchange exchange, int countNum) {
 
         if (chatMemory != null) {
             boolean isEmpty = chatMemory.messages().size() == 0;
-            if (isEmpty) { // first round chat, need to add System and User message. 
+            if (isEmpty) { // first round chat, need to add System and User message.
                 chatMessages.forEach(chatMemory::add);
-            }else if (countNum == 0){ // the following rounds only need to add User message.
-                 for (ChatMessage message : chatMessages) {
+            } else if (countNum == 0) { // the following rounds only need to add User message.
+                for (ChatMessage message : chatMessages) {
                     if (message.type() == ChatMessageType.USER) {
                         chatMemory.add(message);
                     }
