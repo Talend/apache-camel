@@ -114,7 +114,7 @@
         <cxf.tesb.version>4.1.0.2</cxf.tesb.version>
         <camel-langchain4j-core.tesb.version>4.8.1.20250925</camel-langchain4j-core.tesb.version>
         <camel-langchain4j-chat.tesb.version>4.8.1.20250925</camel-langchain4j-chat.tesb.version>
-        <camel-langchain4j-tools.tesb.version>4.8.1.20250925</camel-langchain4j-tools.tesb.version>
+        <camel-langchain4j-tools.tesb.version>4.8.1.20251016</camel-langchain4j-tools.tesb.version>
         <camel-as2-api.tesb.version>4.8.1.20250320</camel-as2-api.tesb.version>
         <camel-aws2-kinesis.tesb.version>4.8.1.20250320</camel-aws2-kinesis.tesb.version>
         <camel-aws2-s3.tesb.version>4.8.1.20250320</camel-aws2-s3.tesb.version>
