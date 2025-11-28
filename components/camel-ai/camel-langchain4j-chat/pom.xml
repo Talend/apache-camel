@@ -35,7 +35,7 @@
 
     <properties>
         <revision>${camel-langchain4j-chat.tesb.version}</revision>
-        <langchain4j-version>1.0.0</langchain4j-version>
+        <langchain4j-version>1.6.0</langchain4j-version>
     </properties>
  
     <dependencies>
@@ -79,7 +79,7 @@
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-ollama</artifactId>
-            <version>1.0.0-beta5</version>
+            <version>1.6.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
