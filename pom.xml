@@ -109,6 +109,7 @@
         <camel-cxf.tesb.version>4.10.5.20251010</camel-cxf.tesb.version>
         <camel-cxf-soap.tesb.version>4.10.5.20251010</camel-cxf-soap.tesb.version>
         <camel-cxf-rest.tesb.version>4.10.5.20251010</camel-cxf-rest.tesb.version>
+        <camel-salesforce.tesb.version>4.10.5.20251010</camel-salesforce.tesb.version>
         <camel-spring.tesb.version>4.10.5.20251010</camel-spring.tesb.version>
         <cxf.tesb.version>4.1.3.1</cxf.tesb.version>
         <camel-langchain4j-core.tesb.version>4.10.5.20251010</camel-langchain4j-core.tesb.version>
@@ -262,6 +263,7 @@
                             <camel-cxf.tesb.version>${camel-cxf.tesb.version}</camel-cxf.tesb.version>
                             <camel-cxf-soap.tesb.version>${camel-cxf-soap.tesb.version}</camel-cxf-soap.tesb.version>
                             <camel-cxf-rest.tesb.version>${camel-cxf-rest.tesb.version}</camel-cxf-rest.tesb.version>
+                            <camel-salesforce.tesb.version>${camel-salesforce.tesb.version}</camel-salesforce.tesb.version>
                             <camel-spring.tesb.version>${camel-spring.tesb.version}</camel-spring.tesb.version>
                             <cxf.tesb.version>${cxf.tesb.version}</cxf.tesb.version>
                             <camel-langchain4j-core.tesb.version>${camel-langchain4j-core.tesb.version}</camel-langchain4j-core.tesb.version>
