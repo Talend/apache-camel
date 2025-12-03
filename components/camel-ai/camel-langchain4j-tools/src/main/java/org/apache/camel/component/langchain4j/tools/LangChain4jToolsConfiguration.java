@@ -16,6 +16,7 @@
  */
 package org.apache.camel.component.langchain4j.tools;
 
+import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
 import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.spi.Configurer;
@@ -26,12 +27,23 @@ import org.apache.camel.spi.UriParams;
 @Configurer
 @UriParams
 public class LangChain4jToolsConfiguration implements Cloneable {
+    @UriParam(label = "advanced", description = "The chat memory to use")
+    @Metadata(autowired = true)
+    private ChatMemory chatMemory;
 
     @UriParam(label = "advanced")
     @Metadata(autowired = true)
     private ChatModel chatModel;
 
     public LangChain4jToolsConfiguration() {
+    }
+
+    public ChatMemory getChatMemory() {
+        return chatMemory;
+    }
+
+    public void setChatMemory(ChatMemory chatMemory) {
+        this.chatMemory = chatMemory;
     }
 
     /**

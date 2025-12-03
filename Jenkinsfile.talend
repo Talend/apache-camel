@@ -17,6 +17,7 @@ org.apache.camel:camel-drill,\
 org.apache.camel:camel-langchain4j-core,\
 org.apache.camel:camel-langchain4j-chat,\
 org.apache.camel:camel-langchain4j-tools,\
+org.apache.camel:camel-salesforce,\
 org.apache.camel:camel-spring,\
 org.apache.camel:camel-componentdsl,\
 org.apache.camel:camel-endpointdsl\
