@@ -47,7 +47,7 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-langchain4j-agent-api</artifactId>
-      <version>${project.version}</version>
+      <version>${upstream.version}</version>
     </dependency>
     <dependency>
       <groupId>dev.langchain4j</groupId>
@@ -57,7 +57,7 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-langchain4j-tools</artifactId>
-      <version>${project.version}</version>
+      <version>${upstream.version}</version>
     </dependency>
 
     <!-- for testing -->
@@ -94,7 +94,7 @@
       <dependency>
           <groupId>org.apache.camel</groupId>
           <artifactId>camel-test-infra-openai-mock</artifactId>
-          <version>${project.version}</version>
+          <version>${upstream.version}</version>
           <scope>test</scope>
       </dependency>
       <dependency>
@@ -105,13 +105,13 @@
       <dependency>
           <groupId>org.apache.camel</groupId>
           <artifactId>camel-test-infra-ollama</artifactId>
-          <version>${project.version}</version>
+          <version>${upstream.version}</version>
           <scope>test</scope>
       </dependency>
       <dependency>
           <groupId>org.apache.camel</groupId>
           <artifactId>camel-test-infra-ollama</artifactId>
-          <version>${project.version}</version>
+          <version>${upstream.version}</version>
           <type>test-jar</type>
           <scope>test</scope>
       </dependency>

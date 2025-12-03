@@ -72,7 +72,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-spring-ai-embeddings</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
             <scope>test</scope>
         </dependency>
         <!-- Spring AI Qdrant for integration tests -->
@@ -91,13 +91,13 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-infra-qdrant</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-infra-qdrant</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -105,13 +105,13 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-infra-ollama</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-infra-ollama</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

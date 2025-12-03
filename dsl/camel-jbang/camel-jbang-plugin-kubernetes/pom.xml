@@ -249,13 +249,13 @@
             -->
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-infra-common</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-infra-common</artifactId>
-            <version>${project.version}</version>
+            <version>${upstream.version}</version>
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>
@@ -287,7 +287,7 @@
                     </argLine>
                     <systemPropertyVariables>
                         <!-- Used in unit tests to resolve dependencies via Maven downloader -->
-                        <camel.version>${project.version}</camel.version>
+                        <camel.version>${upstream.version}</camel.version>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

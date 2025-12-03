@@ -87,10 +87,10 @@
     </modules>
 
     <scm>
-        <connection>scm:git:http://gitbox.apache.org/repos/asf/camel.git</connection>
-        <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/camel.git</developerConnection>
-        <url>https://gitbox.apache.org/repos/asf?p=camel.git;a=summary</url>
-        <tag>camel-4.18.2</tag>
+        <connection>scm:git:http://github.com/Talend/apache-camel.git</connection>
+        <developerConnection>scm:git:https://github.com/Talend/apache-camel.git</developerConnection>
+        <url>https://github.com/Talend/apache-camel</url>
+        <tag>HEAD</tag>
     </scm>
     <issueManagement>
         <system>jira</system>
@@ -147,6 +147,12 @@
         <enforcer.phase>none</enforcer.phase><!-- We do not enforce with -Dquickly, the property is overridden in the full profile -->
 
         <os.detected.classifier>${nisse.os.classifier}</os.detected.classifier>
+
+        <!-- Talend ESB fork versions -->
+        <upstream.version>4.18.2</upstream.version>
+        <camel-activemq.tesb.version>4.18.2.20260401</camel-activemq.tesb.version>
+        <camel-activemq6.tesb.version>4.18.2.20260401</camel-activemq6.tesb.version>
+        <camel-spring.tesb.version>4.18.2.20260401</camel-spring.tesb.version>
     </properties>
 
     <!-- Comment out the snapshot repositories as we don't need them now -->
@@ -232,10 +238,41 @@
                     <outputDirectory>target</outputDirectory>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>io.paradoxical</groupId>
+                <artifactId>resolved-pom-maven-plugin</artifactId>
+            </plugin>
         </plugins>
 
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>io.paradoxical</groupId>
+                    <artifactId>resolved-pom-maven-plugin</artifactId>
+                    <version>1.0</version>
+                    <configuration>
+                        <properties>
+                            <revision>${revision}</revision>
+                            <upstream.version>${upstream.version}</upstream.version>
+                            <!-- ADD HERE ALL THE PROPERTIES THAT NEED TO BE RESOLVED -->
+                            <camel-spring.tesb.version>${camel-spring.tesb.version}</camel-spring.tesb.version>
+                            <camel-activemq.tesb.version>${camel-activemq.tesb.version}</camel-activemq.tesb.version>
+                            <camel-activemq6.tesb.version>${camel-activemq6.tesb.version}</camel-activemq6.tesb.version>
+                        </properties>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>resolve-my-pom</id>
+                            <phase>initialize</phase>
+                            <goals>
+                                <goal>resolve-pom</goal>
+                            </goals>
+                            <configuration>
+                                <resolvedPomFile>.resolved-pom.xml</resolvedPomFile>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
                 <plugin>
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin</artifactId>
@@ -376,6 +413,11 @@
                                     <exclude>**/javax.annotations.processing.Processor</exclude>
                                     <exclude>**/helm/etc/**</exclude>
                                     <exclude>**/examples/*</exclude>
+                                    <exclude>**/.tool-versions</exclude>
+                                    <exclude>**/Jenkinsfile.talend</exclude>
+                                    <exclude>**/CODEOWNERS</exclude>
+                                    <exclude>**/.resolved-pom.xml</exclude>
+                                    <exclude>.github.inactive/**</exclude>
                                 </excludes>
                             </licenseSet>
                         </licenseSets>
@@ -622,7 +664,7 @@
                             </goals>
                             <configuration>
                                 <outputDirectory>${project.build.directory}</outputDirectory>
-                                <flattenedPomFilename>${project.artifactId}-${project.version}.pom
+                                <flattenedPomFilename>${project.artifactId}-${upstream.version}.pom
                                 </flattenedPomFilename>
                                 <updatePomFile>true</updatePomFile>
                                 <pomElements>
@@ -844,7 +886,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <outputName>${project.artifactId}-${project.version}-sbom</outputName>
+                            <outputName>${project.artifactId}-${upstream.version}-sbom</outputName>
                         </configuration>
                     </plugin>
 
