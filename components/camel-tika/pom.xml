@@ -30,8 +30,11 @@
     <packaging>jar</packaging>
     <name>Camel :: Tika</name>
     <description>This component integrates with Apache Tika to extract content and metadata from thousands of file types.</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-tika.tesb.version}</revision>
+        <tika.tesb.version>3.2.3</tika.tesb.version>
     </properties>
 
     <dependencies>
@@ -44,17 +47,17 @@
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
-            <version>${tika-version}</version>
+            <version>${tika.tesb.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parser-html-commons</artifactId>
-            <version>${tika-version}</version>
+            <artifactId>tika-handler-boilerpipe</artifactId>
+            <version>${tika.tesb.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-parser-text-module</artifactId>
-            <version>${tika-version}</version>
+            <version>${tika.tesb.version}</version>
         </dependency>
 
         <!-- test dependencies -->
