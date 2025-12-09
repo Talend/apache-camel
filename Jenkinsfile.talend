@@ -64,6 +64,7 @@ org.apache.camel:camel-salesforce,\
 org.apache.camel:camel-smb,\
 org.apache.camel:camel-spring,\
 org.apache.camel:camel-sql,\
+org.apache.camel:camel-tika,\
 org.apache.camel:camel-tracing,\
 org.apache.camel:camel-undertow,\
 org.apache.camel:camel-vertx-http,\
