@@ -116,6 +116,7 @@
         <camel-langchain4j-chat.tesb.version>4.10.5.20251224</camel-langchain4j-chat.tesb.version>
         <camel-langchain4j-tools.tesb.version>4.10.5.20251224</camel-langchain4j-tools.tesb.version>
         <camel-drill.tesb.version>4.10.5.20251224</camel-drill.tesb.version>
+        <camel-neo4j.tesb.version>4.10.5.20251224</camel-neo4j.tesb.version>
         <camel-tika.tesb.version>4.10.5.20251224</camel-tika.tesb.version>
         <camel-componentdsl.tesb.version>4.10.5.20251224</camel-componentdsl.tesb.version>
         <camel-endpointdsl.tesb.version>4.10.5.20251224</camel-endpointdsl.tesb.version>
@@ -271,6 +272,7 @@
                             <camel-langchain4j-chat.tesb.version>${camel-langchain4j-chat.tesb.version}</camel-langchain4j-chat.tesb.version>
                             <camel-langchain4j-tools.tesb.version>${camel-langchain4j-tools.tesb.version}</camel-langchain4j-tools.tesb.version>
                             <camel-drill.tesb.version>${camel-drill.tesb.version}</camel-drill.tesb.version>
+                            <camel-neo4j.tesb.version>${camel-neo4j.tesb.version}</camel-neo4j.tesb.version>
                             <camel-tika.tesb.version>${camel-tika.tesb.version}</camel-tika.tesb.version>
                             <camel-componentdsl.tesb.version>${camel-componentdsl.tesb.version}</camel-componentdsl.tesb.version>
                             <camel-endpointdsl.tesb.version>${camel-endpointdsl.tesb.version}</camel-endpointdsl.tesb.version>
