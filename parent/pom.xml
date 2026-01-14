@@ -1948,7 +1948,7 @@
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-neo4j</artifactId>
-                <version>${upstream.version}</version>
+                <version>${camel-neo4j.tesb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
