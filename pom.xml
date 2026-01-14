@@ -104,20 +104,22 @@
 
     <properties>
         <upstream.version>4.10.5</upstream.version>
-        <camel-activemq.tesb.version>4.10.5.20251010</camel-activemq.tesb.version>
-        <camel-activemq6.tesb.version>4.10.5.20251010</camel-activemq6.tesb.version>
-        <camel-cxf.tesb.version>4.10.5.20251010</camel-cxf.tesb.version>
-        <camel-cxf-soap.tesb.version>4.10.5.20251010</camel-cxf-soap.tesb.version>
-        <camel-cxf-rest.tesb.version>4.10.5.20251010</camel-cxf-rest.tesb.version>
-        <camel-salesforce.tesb.version>4.10.5.20251010</camel-salesforce.tesb.version>
-        <camel-spring.tesb.version>4.10.5.20251010</camel-spring.tesb.version>
+        <camel-activemq.tesb.version>4.10.5.20251224</camel-activemq.tesb.version>
+        <camel-activemq6.tesb.version>4.10.5.20251224</camel-activemq6.tesb.version>
+        <camel-cxf.tesb.version>4.10.5.20251224</camel-cxf.tesb.version>
+        <camel-cxf-soap.tesb.version>4.10.5.20251224</camel-cxf-soap.tesb.version>
+        <camel-cxf-rest.tesb.version>4.10.5.20251224</camel-cxf-rest.tesb.version>
+        <camel-salesforce.tesb.version>4.10.5.20251224</camel-salesforce.tesb.version>
+        <camel-spring.tesb.version>4.10.5.20251224</camel-spring.tesb.version>
         <cxf.tesb.version>4.1.3.1</cxf.tesb.version>
-        <camel-langchain4j-core.tesb.version>4.10.5.20251010</camel-langchain4j-core.tesb.version>
-        <camel-langchain4j-chat.tesb.version>4.10.5.20251010</camel-langchain4j-chat.tesb.version>
-        <camel-langchain4j-tools.tesb.version>4.10.5.20251010</camel-langchain4j-tools.tesb.version>
-        <camel-drill.tesb.version>4.10.5.20251010</camel-drill.tesb.version>
-        <camel-componentdsl.tesb.version>4.10.5.20251010</camel-componentdsl.tesb.version>
-        <camel-endpointdsl.tesb.version>4.10.5.20251010</camel-endpointdsl.tesb.version>
+        <camel-langchain4j-core.tesb.version>4.10.5.20251224</camel-langchain4j-core.tesb.version>
+        <camel-langchain4j-chat.tesb.version>4.10.5.20251224</camel-langchain4j-chat.tesb.version>
+        <camel-langchain4j-tools.tesb.version>4.10.5.20251224</camel-langchain4j-tools.tesb.version>
+        <camel-drill.tesb.version>4.10.5.20251224</camel-drill.tesb.version>
+        <camel-neo4j.tesb.version>4.10.5.20251224</camel-neo4j.tesb.version>
+        <camel-tika.tesb.version>4.10.5.20251224</camel-tika.tesb.version>
+        <camel-componentdsl.tesb.version>4.10.5.20251224</camel-componentdsl.tesb.version>
+        <camel-endpointdsl.tesb.version>4.10.5.20251224</camel-endpointdsl.tesb.version>
 
         <!-- unify the encoding for all the modules -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -270,6 +272,8 @@
                             <camel-langchain4j-chat.tesb.version>${camel-langchain4j-chat.tesb.version}</camel-langchain4j-chat.tesb.version>
                             <camel-langchain4j-tools.tesb.version>${camel-langchain4j-tools.tesb.version}</camel-langchain4j-tools.tesb.version>
                             <camel-drill.tesb.version>${camel-drill.tesb.version}</camel-drill.tesb.version>
+                            <camel-neo4j.tesb.version>${camel-neo4j.tesb.version}</camel-neo4j.tesb.version>
+                            <camel-tika.tesb.version>${camel-tika.tesb.version}</camel-tika.tesb.version>
                             <camel-componentdsl.tesb.version>${camel-componentdsl.tesb.version}</camel-componentdsl.tesb.version>
                             <camel-endpointdsl.tesb.version>${camel-endpointdsl.tesb.version}</camel-endpointdsl.tesb.version>
                         </properties>
