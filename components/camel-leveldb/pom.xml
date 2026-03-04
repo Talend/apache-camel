@@ -30,8 +30,10 @@
     <packaging>jar</packaging>
     <name>Camel :: LevelDB</name>
     <description>Using LevelDB as persistent EIP store</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-leveldb.tesb.version}</revision>
         <firstVersion>2.10.0</firstVersion>
         <label>database</label>
         <title>LevelDB</title>
