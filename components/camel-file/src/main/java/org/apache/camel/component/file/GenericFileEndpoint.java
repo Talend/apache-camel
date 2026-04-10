@@ -1438,7 +1438,7 @@ public abstract class GenericFileEndpoint<T> extends ScheduledPollEndpoint imple
 
     /**
      * A pluggable in-progress repository org.apache.camel.spi.IdempotentRepository. The in-progress repository is used
-     * to account the current in progress files being consumed. By default a memory based repository is used.
+     * to account the current in progress files being consumed. By default, a memory based repository is used.
      */
     public void setInProgressRepository(IdempotentRepository inProgressRepository) {
         this.inProgressRepository = inProgressRepository;
