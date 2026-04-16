@@ -53,6 +53,25 @@ public interface Sjms2ComponentBuilderFactory {
     interface Sjms2ComponentBuilder extends ComponentBuilder<Sjms2Component> {
     
         /**
+         * Sets the JMS client ID to use. Note that this value, if specified,
+         * must be unique and can only be used by a single JMS connection
+         * instance. It is typically only required for durable topic
+         * subscriptions. If using Apache ActiveMQ you may prefer to use Virtual
+         * Topics instead.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: common
+         * 
+         * @param clientId the value to set
+         * @return the dsl builder
+         */
+        default Sjms2ComponentBuilder clientId(java.lang.String clientId) {
+            doSetProperty("clientId", clientId);
+            return this;
+        }
+    
+        /**
          * The connection factory to be use. A connection factory must be
          * configured either on the component or endpoint.
          * 
@@ -332,6 +351,7 @@ public interface Sjms2ComponentBuilderFactory {
                 String name,
                 Object value) {
             switch (name) {
+            case "clientId": ((Sjms2Component) component).setClientId((java.lang.String) value); return true;
             case "connectionFactory": ((Sjms2Component) component).setConnectionFactory((jakarta.jms.ConnectionFactory) value); return true;
             case "bridgeErrorHandler": ((Sjms2Component) component).setBridgeErrorHandler((boolean) value); return true;
             case "lazyStartProducer": ((Sjms2Component) component).setLazyStartProducer((boolean) value); return true;

@@ -31,7 +31,6 @@ import org.apache.camel.component.sjms.jms.DestinationCreationStrategy;
 import org.apache.camel.component.sjms.jms.JmsKeyFormatStrategy;
 import org.apache.camel.component.sjms.jms.MessageCreatedStrategy;
 import org.apache.camel.spi.Metadata;
-import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.annotations.Component;
 import org.apache.camel.support.HeaderFilterStrategyComponent;
 
@@ -43,7 +42,7 @@ public class SjmsComponent extends HeaderFilterStrategyComponent {
     @Metadata(label = "common", autowired = true,
               description = "The connection factory to be use. A connection factory must be configured either on the component or endpoint.")
     private ConnectionFactory connectionFactory;
-    @UriParam(description = "Sets the JMS client ID to use. Note that this value, if specified, must be unique and can only be used by a single JMS connection instance."
+    @Metadata(description = "Sets the JMS client ID to use. Note that this value, if specified, must be unique and can only be used by a single JMS connection instance."
                             + " It is typically only required for durable topic subscriptions."
                             + " If using Apache ActiveMQ you may prefer to use Virtual Topics instead.")
     private String clientId;
