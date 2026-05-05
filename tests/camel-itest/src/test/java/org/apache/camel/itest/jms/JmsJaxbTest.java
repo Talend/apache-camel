@@ -79,6 +79,7 @@ public class JmsJaxbTest extends CamelTestSupport {
     protected void bindToRegistry(Registry registry) {
         // add ActiveMQ with embedded broker
         JmsComponent amq = jmsServiceExtension.getComponent();
+        amq.setObjectMessageEnabled(true);
 
         amq.setCamelContext(context);
 
