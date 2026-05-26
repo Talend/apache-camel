@@ -28,6 +28,7 @@
 
     <artifactId>camel-core-model</artifactId>
     <packaging>jar</packaging>
+    <version>${revision}</version>
 
     <name>Camel :: Core Model</name>
     <description>Camel model</description>
@@ -35,6 +36,7 @@
     <properties>
         <firstVersion>3.7.0</firstVersion>
         <label>core</label>
+        <revision>${camel-core-model.tesb.version}</revision>
     </properties>
 
     <dependencies>

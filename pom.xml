@@ -150,9 +150,10 @@
 
         <!-- Talend ESB fork versions -->
         <upstream.version>4.18.2</upstream.version>
-        <camel-activemq.tesb.version>4.18.2.20260401</camel-activemq.tesb.version>
-        <camel-activemq6.tesb.version>4.18.2.20260401</camel-activemq6.tesb.version>
-        <camel-spring.tesb.version>4.18.2.20260401</camel-spring.tesb.version>
+        <camel-activemq.tesb.version>4.18.2.20260522</camel-activemq.tesb.version>
+        <camel-activemq6.tesb.version>4.18.2.20260522</camel-activemq6.tesb.version>
+        <camel-spring.tesb.version>4.18.2.20260522</camel-spring.tesb.version>
+        <camel-core-model.tesb.version>4.18.2.20260522</camel-core-model.tesb.version>
     </properties>
 
     <!-- Comment out the snapshot repositories as we don't need them now -->

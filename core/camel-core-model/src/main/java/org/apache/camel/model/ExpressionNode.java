@@ -146,6 +146,29 @@ public abstract class ExpressionNode extends ProcessorDefinition<ExpressionNode>
     }
 
     @Override
+    public ExpressionNode id(String id) {
+        if (!(this instanceof OutputNode)) {
+            // CAMEL-21778: avoid calling getParent().id(id) as that can cause StackOverflowError
+            // when the parent is ChoiceDefinition (recursive loop: ExpressionNode.id ->
+            // ChoiceDefinition.id -> p.id -> ExpressionNode.id -> ...).
+            // Instead, resolve the parent's outputs directly and call setId (non-recursive).
+            if (getParent() != null) {
+                List<ProcessorDefinition<?>> outputs = getParent().getOutputs();
+                if (!outputs.isEmpty()) {
+                    outputs.get(outputs.size() - 1).setId(id);
+                } else {
+                    setId(id);
+                }
+            } else {
+                setId(id);
+            }
+            return this;
+        } else {
+            return super.id(id);
+        }
+    }
+
+    @Override
     public List<ProcessorDefinition<?>> getOutputs() {
         return Collections.emptyList();
     }
