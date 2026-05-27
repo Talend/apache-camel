@@ -23,6 +23,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.*;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.AiMessage;
@@ -32,17 +33,22 @@ import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
+import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.Response;
 import org.apache.camel.Exchange;
 import org.apache.camel.InvalidPayloadException;
+import org.apache.camel.TypeConverter;
 import org.apache.camel.component.langchain4j.tools.spec.CamelToolExecutorCache;
 import org.apache.camel.component.langchain4j.tools.spec.CamelToolSpecification;
 import org.apache.camel.support.DefaultProducer;
 import org.apache.camel.util.ObjectHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LangChain4jToolsProducer extends DefaultProducer {
+    private static final Logger LOG = LoggerFactory.getLogger(LangChain4jToolsProducer.class);
 
     private final LangChain4jToolsEndpoint endpoint;
 
@@ -109,7 +115,7 @@ public class LangChain4jToolsProducer extends DefaultProducer {
         // First talk to the model to get the tools to be called
         int i = 0;
         do {
-//            System.out.println("Starting iteration " + i);
+            //            System.out.println("Starting iteration " + i);
             final Response<AiMessage> response = chatWithLLM(chatMessages, toolPair, exchange, i);
             if (isDoneExecuting(response)) {
                 return extractAiResponse(response);
@@ -117,7 +123,7 @@ public class LangChain4jToolsProducer extends DefaultProducer {
 
             // Only invoke the tools ... the response will be computed on the next loop
             invokeTools(chatMessages, exchange, response, toolPair);
-//            System.out.println("Finished iteration " + i);
+            //            System.out.println("Finished iteration " + i);
             i++;
         } while (true);
     }
@@ -151,11 +157,47 @@ public class LangChain4jToolsProducer extends DefaultProducer {
                     .filter(c -> c.getToolSpecification().name().equals(toolName)).findFirst().get();
 
             try {
+                TypeConverter typeConverter = endpoint.getCamelContext().getTypeConverter();
+
+                // Get declared parameters from tool specification to filter incoming fields
+                Set<String> declaredParams = Set.of();
+                JsonObjectSchema paramSchema = camelToolSpecification.getToolSpecification().parameters();
+                if (paramSchema != null && paramSchema.properties() != null) {
+                    declaredParams = paramSchema.properties().keySet();
+                }
+                final Set<String> allowedParams = declaredParams;
+
                 // Map Json to Header
                 JsonNode jsonNode = objectMapper.readValue(toolExecutionRequest.arguments(), JsonNode.class);
 
                 jsonNode.fieldNames()
-                        .forEachRemaining(name -> exchange.getMessage().setHeader(name, jsonNode.get(name)));
+                        .forEachRemaining(name -> {
+                            if (!allowedParams.contains(name)) {
+                                LOG.warn("Skipping undeclared tool argument '{}' for tool '{}'",
+                                        name, toolName);
+                                return;
+                            }
+                            final JsonNode value = jsonNode.get(name);
+                            Object headerValue;
+
+                            // Try to get values for the known tool parameter types
+                            if (value instanceof TextNode) {
+                                headerValue = typeConverter.convertTo(String.class, value);
+                            } else if (value instanceof IntNode) {
+                                headerValue = typeConverter.convertTo(Integer.class, value);
+                            } else if (value instanceof LongNode) {
+                                headerValue = typeConverter.convertTo(Long.class, value);
+                            } else if (value instanceof DoubleNode) {
+                                headerValue = typeConverter.convertTo(Double.class, value);
+                            } else if (value instanceof BooleanNode) {
+                                headerValue = typeConverter.convertTo(Boolean.class, value);
+                            } else {
+                                // Fallback to JsonNode to enable the value to be extracted elsewhere
+                                headerValue = value;
+                            }
+
+                            exchange.getMessage().setHeader(name, headerValue);
+                        });
 
                 // Execute the consumer route
 
@@ -172,7 +214,7 @@ public class LangChain4jToolsProducer extends DefaultProducer {
                     exchange.getIn().getBody(String.class));
             if (chatMemory != null) {
                 chatMemory.add(toolExecutionResultMessage);
-            }        
+            }
             chatMessages.add(toolExecutionResultMessage);
         }
     }
@@ -185,14 +227,15 @@ public class LangChain4jToolsProducer extends DefaultProducer {
      * @param  toolPair     the toolPair containing the available tools to be called
      * @return              the response provided by the model
      */
-    private Response<AiMessage> chatWithLLM(List<ChatMessage> chatMessages, ToolPair toolPair, Exchange exchange, int countNum) {
+    private Response<AiMessage> chatWithLLM(
+            List<ChatMessage> chatMessages, ToolPair toolPair, Exchange exchange, int countNum) {
 
         if (chatMemory != null) {
             boolean isEmpty = chatMemory.messages().size() == 0;
-            if (isEmpty) { // first round chat, need to add System and User message. 
+            if (isEmpty) { // first round chat, need to add System and User message.
                 chatMessages.forEach(chatMemory::add);
-            }else if (countNum == 0){ // the following rounds only need to add User message.
-                 for (ChatMessage message : chatMessages) {
+            } else if (countNum == 0) { // the following rounds only need to add User message.
+                for (ChatMessage message : chatMessages) {
                     if (message.type() == ChatMessageType.USER) {
                         chatMemory.add(message);
                     }
