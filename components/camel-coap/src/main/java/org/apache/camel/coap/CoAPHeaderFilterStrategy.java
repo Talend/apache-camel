@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.component.mail;
+package org.apache.camel.coap;
 
 import org.apache.camel.support.DefaultHeaderFilterStrategy;
 
-public class MailHeaderFilterStrategy extends DefaultHeaderFilterStrategy {
+/**
+ * Default header filter strategy for CoAP endpoints.
+ * <p>
+ * Filters out Camel internal headers (starting with "Camel" or "camel") in both directions to prevent external CoAP
+ * clients from injecting internal Camel headers via query parameters.
+ */
+public class CoAPHeaderFilterStrategy extends DefaultHeaderFilterStrategy {
 
-    public MailHeaderFilterStrategy() {
-        initialize();
-    }
-
-    protected void initialize() {
+    public CoAPHeaderFilterStrategy() {
         setLowerCase(true);
-        // filter headers begin with "Camel" or "org.apache.camel"
         setOutFilterStartsWith(CAMEL_FILTER_STARTS_WITH);
         setInFilterStartsWith(CAMEL_FILTER_STARTS_WITH);
     }
-
 }
