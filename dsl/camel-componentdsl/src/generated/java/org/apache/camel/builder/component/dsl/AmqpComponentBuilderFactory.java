@@ -2009,6 +2009,30 @@ public interface AmqpComponentBuilderFactory {
         }
     
         /**
+         * Sets an ObjectInputFilter pattern (jdk.serialFilter syntax) applied
+         * as a defense-in-depth check on the class of the body returned by
+         * jakarta.jms.ObjectMessage.getObject(). The pattern is evaluated after
+         * the JMS provider has deserialized the payload, so this option alone
+         * does not prevent gadget-chain execution that happens inside the
+         * provider's ObjectInputStream; to block such attacks, also configure
+         * the JMS provider's own deserialization filter and/or the JVM-wide
+         * -Djdk.serialFilter. When this option is not set and no JVM-wide
+         * filter is configured, a conservative default filter allowing java.,
+         * javax. and org.apache.camel. is applied.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: security
+         * 
+         * @param deserializationFilter the value to set
+         * @return the dsl builder
+         */
+        default AmqpComponentBuilder deserializationFilter(java.lang.String deserializationFilter) {
+            doSetProperty("deserializationFilter", deserializationFilter);
+            return this;
+        }
+    
+        /**
          * Password to use with the ConnectionFactory. You can also configure
          * username/password directly on the ConnectionFactory.
          * 
@@ -2274,6 +2298,7 @@ public interface AmqpComponentBuilderFactory {
             case "headerFilterStrategy": ((AMQPComponent) component).setHeaderFilterStrategy((org.apache.camel.spi.HeaderFilterStrategy) value); return true;
             case "errorHandlerLoggingLevel": getOrCreateConfiguration((AMQPComponent) component).setErrorHandlerLoggingLevel((org.apache.camel.LoggingLevel) value); return true;
             case "errorHandlerLogStackTrace": getOrCreateConfiguration((AMQPComponent) component).setErrorHandlerLogStackTrace((boolean) value); return true;
+            case "deserializationFilter": getOrCreateConfiguration((AMQPComponent) component).setDeserializationFilter((java.lang.String) value); return true;
             case "password": getOrCreateConfiguration((AMQPComponent) component).setPassword((java.lang.String) value); return true;
             case "username": getOrCreateConfiguration((AMQPComponent) component).setUsername((java.lang.String) value); return true;
             case "transacted": getOrCreateConfiguration((AMQPComponent) component).setTransacted((boolean) value); return true;

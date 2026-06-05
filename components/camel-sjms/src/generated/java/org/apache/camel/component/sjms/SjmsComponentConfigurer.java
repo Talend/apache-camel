@@ -29,6 +29,8 @@ public class SjmsComponentConfigurer extends PropertyConfigurerSupport implement
         case "bridgeErrorHandler": target.setBridgeErrorHandler(property(camelContext, boolean.class, value)); return true;
         case "connectionfactory":
         case "connectionFactory": target.setConnectionFactory(property(camelContext, jakarta.jms.ConnectionFactory.class, value)); return true;
+        case "deserializationfilter":
+        case "deserializationFilter": target.setDeserializationFilter(property(camelContext, java.lang.String.class, value)); return true;
         case "destinationcreationstrategy":
         case "destinationCreationStrategy": target.setDestinationCreationStrategy(property(camelContext, org.apache.camel.component.sjms.jms.DestinationCreationStrategy.class, value)); return true;
         case "exceptionlistener":
@@ -65,6 +67,8 @@ public class SjmsComponentConfigurer extends PropertyConfigurerSupport implement
         case "bridgeErrorHandler": return boolean.class;
         case "connectionfactory":
         case "connectionFactory": return jakarta.jms.ConnectionFactory.class;
+        case "deserializationfilter":
+        case "deserializationFilter": return java.lang.String.class;
         case "destinationcreationstrategy":
         case "destinationCreationStrategy": return org.apache.camel.component.sjms.jms.DestinationCreationStrategy.class;
         case "exceptionlistener":
@@ -97,6 +101,8 @@ public class SjmsComponentConfigurer extends PropertyConfigurerSupport implement
         case "bridgeErrorHandler": return target.isBridgeErrorHandler();
         case "connectionfactory":
         case "connectionFactory": return target.getConnectionFactory();
+        case "deserializationfilter":
+        case "deserializationFilter": return target.getDeserializationFilter();
         case "destinationcreationstrategy":
         case "destinationCreationStrategy": return target.getDestinationCreationStrategy();
         case "exceptionlistener":

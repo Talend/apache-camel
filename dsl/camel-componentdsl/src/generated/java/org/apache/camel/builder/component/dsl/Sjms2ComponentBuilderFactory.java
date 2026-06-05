@@ -293,6 +293,30 @@ public interface Sjms2ComponentBuilderFactory {
             doSetProperty("headerFilterStrategy", headerFilterStrategy);
             return this;
         }
+    
+        /**
+         * Sets an ObjectInputFilter pattern (jdk.serialFilter syntax) applied
+         * as a defense-in-depth check on the class of the body returned by
+         * jakarta.jms.ObjectMessage.getObject(). The pattern is evaluated after
+         * the JMS provider has deserialized the payload, so this option alone
+         * does not prevent gadget-chain execution that happens inside the
+         * provider's ObjectInputStream; to block such attacks, also configure
+         * the JMS provider's own deserialization filter and/or the JVM-wide
+         * -Djdk.serialFilter. When this option is not set and no JVM-wide
+         * filter is configured, a conservative default filter allowing java.,
+         * javax. and org.apache.camel. is applied.
+         * 
+         * The option is a: &lt;code&gt;java.lang.String&lt;/code&gt; type.
+         * 
+         * Group: security
+         * 
+         * @param deserializationFilter the value to set
+         * @return the dsl builder
+         */
+        default Sjms2ComponentBuilder deserializationFilter(java.lang.String deserializationFilter) {
+            doSetProperty("deserializationFilter", deserializationFilter);
+            return this;
+        }
     }
 
     class Sjms2ComponentBuilderImpl
@@ -320,6 +344,7 @@ public interface Sjms2ComponentBuilderFactory {
             case "replyToOnTimeoutMaxConcurrentConsumers": ((Sjms2Component) component).setReplyToOnTimeoutMaxConcurrentConsumers((int) value); return true;
             case "requestTimeoutCheckerInterval": ((Sjms2Component) component).setRequestTimeoutCheckerInterval((long) value); return true;
             case "headerFilterStrategy": ((Sjms2Component) component).setHeaderFilterStrategy((org.apache.camel.spi.HeaderFilterStrategy) value); return true;
+            case "deserializationFilter": ((Sjms2Component) component).setDeserializationFilter((java.lang.String) value); return true;
             default: return false;
             }
         }

@@ -14,24 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.component.knative.http;
+package com.example.external;
 
-import org.apache.camel.support.DefaultHeaderFilterStrategy;
-import org.apache.camel.support.http.HttpUtil;
+import java.io.Serializable;
 
-public class KnativeHttpHeaderFilterStrategy extends DefaultHeaderFilterStrategy {
-    public KnativeHttpHeaderFilterStrategy() {
-        initialize();
+/**
+ * Serializable type living outside the {@code java.**}, {@code javax.**} and {@code org.apache.camel.**} packages, used
+ * to verify that the default deserialization allowlist rejects unknown classes.
+ */
+public final class NotAllowedSerializable implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private final String value;
+
+    public NotAllowedSerializable(String value) {
+        this.value = value;
     }
 
-    protected final void initialize() {
-        HttpUtil.addCommonFilters(getOutFilter());
-
-        setLowerCase(true);
-
-        // filter headers begin with "Camel" or "org.apache.camel"
-        // must ignore case for Http based transports
-        setOutFilterPattern("(?i)(Camel|org\\.apache\\.camel)[\\.|a-z|A-z|0-9]*");
-        setInFilterStartsWith(CAMEL_FILTER_STARTS_WITH);
+    public String getValue() {
+        return value;
     }
 }

@@ -75,6 +75,15 @@ public class SjmsComponent extends HeaderFilterStrategyComponent {
     @Metadata(label = "advanced",
               description = "Specifies the JMS Exception Listener that is to be notified of any underlying JMS exceptions.")
     private ExceptionListener exceptionListener;
+    @Metadata(label = "advanced,security",
+              description = "Sets an ObjectInputFilter pattern (jdk.serialFilter syntax) applied as a defense-in-depth"
+                            + " check on the class of the body returned by jakarta.jms.ObjectMessage.getObject()."
+                            + " The pattern is evaluated after the JMS provider has deserialized the payload, so this option"
+                            + " alone does not prevent gadget-chain execution that happens inside the provider's ObjectInputStream;"
+                            + " to block such attacks, also configure the JMS provider's own deserialization filter and/or"
+                            + " the JVM-wide -Djdk.serialFilter. When this option is not set and no JVM-wide filter is configured,"
+                            + " a conservative default filter allowing java.**, javax.** and org.apache.camel.** is applied.")
+    private String deserializationFilter;
 
     public SjmsComponent() {
     }
@@ -93,6 +102,7 @@ public class SjmsComponent extends HeaderFilterStrategyComponent {
         endpoint.setMessageCreatedStrategy(messageCreatedStrategy);
         endpoint.setClientId(clientId);
         endpoint.setExceptionListener(exceptionListener);
+        endpoint.setDeserializationFilter(deserializationFilter);
         if (getHeaderFilterStrategy() != null) {
             endpoint.setHeaderFilterStrategy(getHeaderFilterStrategy());
         }
@@ -214,5 +224,13 @@ public class SjmsComponent extends HeaderFilterStrategyComponent {
 
     public void setReplyToOnTimeoutMaxConcurrentConsumers(int replyToOnTimeoutMaxConcurrentConsumers) {
         this.replyToOnTimeoutMaxConcurrentConsumers = replyToOnTimeoutMaxConcurrentConsumers;
+    }
+
+    public String getDeserializationFilter() {
+        return deserializationFilter;
+    }
+
+    public void setDeserializationFilter(String deserializationFilter) {
+        this.deserializationFilter = deserializationFilter;
     }
 }
