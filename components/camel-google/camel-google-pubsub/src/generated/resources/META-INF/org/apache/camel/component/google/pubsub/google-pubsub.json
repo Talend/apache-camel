@@ -11,7 +11,7 @@
     "supportLevel": "Stable",
     "groupId": "org.apache.camel",
     "artifactId": "camel-google-pubsub",
-    "version": "4.8.1-SNAPSHOT",
+    "version": "4.8.1.20260608",
     "scheme": "google-pubsub",
     "extendsScheme": "",
     "syntax": "google-pubsub:projectId:destinationName",
@@ -39,7 +39,7 @@
     "CamelGooglePubsubMessageId": { "index": 0, "kind": "header", "displayName": "", "group": "common", "label": "", "required": false, "javaType": "String", "deprecated": false, "deprecationNote": "", "autowired": false, "secret": false, "description": "The ID of the message, assigned by the server when the message is published.", "constantName": "org.apache.camel.component.google.pubsub.GooglePubsubConstants#MESSAGE_ID" },
     "CamelGooglePubsubMsgAckId": { "index": 1, "kind": "header", "displayName": "", "group": "consumer", "label": "consumer", "required": false, "javaType": "String", "deprecated": false, "deprecationNote": "", "autowired": false, "secret": false, "description": "The ID used to acknowledge the received message.", "constantName": "org.apache.camel.component.google.pubsub.GooglePubsubConstants#ACK_ID" },
     "CamelGooglePubsubPublishTime": { "index": 2, "kind": "header", "displayName": "", "group": "consumer", "label": "consumer", "required": false, "javaType": "com.google.protobuf.Timestamp", "deprecated": false, "deprecationNote": "", "autowired": false, "secret": false, "description": "The time at which the message was published", "constantName": "org.apache.camel.component.google.pubsub.GooglePubsubConstants#PUBLISH_TIME" },
-    "CamelGooglePubsubAttributes": { "index": 3, "kind": "header", "displayName": "", "group": "common", "label": "", "required": false, "javaType": "Map<String, String>", "deprecated": true, "deprecationNote": "", "autowired": false, "secret": false, "description": "The attributes of the message.", "constantName": "org.apache.camel.component.google.pubsub.GooglePubsubConstants#ATTRIBUTES" },
+    "CamelGooglePubsubAttributes": { "index": 3, "kind": "header", "displayName": "", "group": "common", "label": "", "required": false, "javaType": "Map<String, String>", "deprecated": false, "deprecationNote": "", "autowired": false, "secret": false, "description": "The attributes of the message.", "constantName": "org.apache.camel.component.google.pubsub.GooglePubsubConstants#ATTRIBUTES" },
     "CamelGooglePubsubOrderingKey": { "index": 4, "kind": "header", "displayName": "", "group": "producer", "label": "producer", "required": false, "javaType": "String", "deprecated": false, "deprecationNote": "", "autowired": false, "secret": false, "description": "If non-empty, identifies related messages for which publish order should be respected.", "constantName": "org.apache.camel.component.google.pubsub.GooglePubsubConstants#ORDERING_KEY" },
     "CamelGooglePubsubAcknowledge": { "index": 5, "kind": "header", "displayName": "", "group": "consumer", "label": "consumer", "required": false, "javaType": "org.apache.camel.component.google.pubsub.consumer.GooglePubsubAcknowledge", "deprecated": false, "deprecationNote": "", "autowired": false, "secret": false, "description": "Can be used to manually acknowledge or negative-acknowledge a message when ackMode=NONE.", "constantName": "org.apache.camel.component.google.pubsub.GooglePubsubConstants#GOOGLE_PUBSUB_ACKNOWLEDGE" }
   },
