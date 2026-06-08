@@ -31,8 +31,10 @@
     <packaging>jar</packaging>
     <name>Camel :: Infinispan :: Remote</name>
     <description>Camel Infinispan Remote support</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-infinispan.tesb.version}</revision>
         <!-- Infinispan container is not available on these platforms -->
         <skipITs.ppc64le>true</skipITs.ppc64le>
         <skipITs.s390x>true</skipITs.s390x>
