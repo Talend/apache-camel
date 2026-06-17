@@ -31,8 +31,10 @@
     <packaging>jar</packaging>
     <name>Camel :: Consul</name>
     <description>Camel Consul support</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-consul.tesb.version}</revision>
         <!-- Consul container is not available on these platforms -->
         <skipTests.s390x>true</skipTests.s390x>
         <skipITs.s390x>true</skipITs.s390x>

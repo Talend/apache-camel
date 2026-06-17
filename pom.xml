@@ -105,23 +105,25 @@
     <properties>
         <upstream.version>4.8.1</upstream.version>
         <camel-support.tesb.version>4.8.1.20260120</camel-support.tesb.version>
-        <camel-activemq.tesb.version>4.8.1.20250320</camel-activemq.tesb.version>
-        <camel-activemq6.tesb.version>4.8.1.20250320</camel-activemq6.tesb.version>
+        <camel-activemq.tesb.version>4.8.1.20260608</camel-activemq.tesb.version>
+        <camel-activemq6.tesb.version>4.8.1.20260608</camel-activemq6.tesb.version>
         <camel-cxf.tesb.version>4.8.1.20251008</camel-cxf.tesb.version>
         <camel-cxf-soap.tesb.version>4.8.1.20250320</camel-cxf-soap.tesb.version>
-        <camel-cxf-rest.tesb.version>4.8.1.20250320</camel-cxf-rest.tesb.version>
+        <camel-cxf-rest.tesb.version>4.8.1.20260608</camel-cxf-rest.tesb.version>
+        <camel-cxf-transport.tesb.version>4.8.1.20260608</camel-cxf-transport.tesb.version>
         <camel-spring.tesb.version>4.8.1.20250320</camel-spring.tesb.version>
         <cxf.tesb.version>4.1.0.2</cxf.tesb.version>
         <camel-langchain4j-core.tesb.version>4.8.1.20251119</camel-langchain4j-core.tesb.version>
         <camel-langchain4j-chat.tesb.version>4.8.1.20251119</camel-langchain4j-chat.tesb.version>
         <camel-langchain4j-tools.tesb.version>4.8.1.20251119</camel-langchain4j-tools.tesb.version>
+        <camel-amqp.tesb.version>4.8.1.20260608</camel-amqp.tesb.version>
         <camel-as2-api.tesb.version>4.8.1.20250320</camel-as2-api.tesb.version>
         <camel-aws2-kinesis.tesb.version>4.8.1.20250320</camel-aws2-kinesis.tesb.version>
         <camel-aws2-s3.tesb.version>4.8.1.20250320</camel-aws2-s3.tesb.version>
         <camel-aws2-sqs.tesb.version>4.8.1.20250320</camel-aws2-sqs.tesb.version>
+        <camel-coap.tesb.version>4.8.1.20260608</camel-coap.tesb.version>
+        <camel-consul.tesb.version>4.8.1.20260608</camel-consul.tesb.version>
         <camel-crypto.tesb.version>4.8.1.20250320</camel-crypto.tesb.version>
-        <!-- <camel-cxf-rest.tesb.version>4.8.1.20250320</camel-cxf-rest.tesb.version> -->
-        <!-- <camel-cxf-soap.tesb.version>4.8.1.20250320</camel-cxf-soap.tesb.version> -->
         <camel-debezium-common.tesb.version>4.8.1.20250320</camel-debezium-common.tesb.version>
         <camel-debezium-maven-plugin.tesb.version>4.8.1.20250320</camel-debezium-maven-plugin.tesb.version>
         <camel-debezium-db2.tesb.version>4.8.1.20250320</camel-debezium-db2.tesb.version>
@@ -134,13 +136,17 @@
         <camel-drill.tesb.version>4.8.1.20250901</camel-drill.tesb.version>
         <camel-dynamic-router.tesb.version>4.8.1.20250320</camel-dynamic-router.tesb.version>
         <camel-file.tesb.version>4.8.1.20250320</camel-file.tesb.version>
+        <camel-google-pubsub.tesb.version>4.8.1.20260608</camel-google-pubsub.tesb.version>
         <camel-http.tesb.version>4.8.1.20250320</camel-http.tesb.version>
+        <camel-infinispan.tesb.version>4.8.1.20260608</camel-infinispan.tesb.version>
         <camel-jaxb.tesb.version>4.8.1.20250320</camel-jaxb.tesb.version>
+        <camel-jms.tesb.version>4.8.1.20260608</camel-jms.tesb.version>
         <camel-jsonpath.tesb.version>4.8.1.20250320</camel-jsonpath.tesb.version>
-        <camel-knative-http.tesb.version>4.8.1.20250320</camel-knative-http.tesb.version>
+        <camel-knative-http.tesb.version>4.8.1.20260608</camel-knative-http.tesb.version>
         <camel-kubernetes.tesb.version>4.8.1.20250320</camel-kubernetes.tesb.version>
         <camel-leveldb.tesb.version>4.8.1.20260304</camel-leveldb.tesb.version>
-        <camel-mina.tesb.version>4.8.1.20250320</camel-mina.tesb.version>
+        <camel-mail.tesb.version>4.8.1.20260608</camel-mail.tesb.version>
+        <camel-mina.tesb.version>4.8.1.20260608</camel-mina.tesb.version>
         <camel-minio.tesb.version>4.8.1.20250320</camel-minio.tesb.version>
         <camel-mongodb.tesb.version>4.8.1.20250320</camel-mongodb.tesb.version>
         <camel-observation.tesb.version>4.8.1.20250320</camel-observation.tesb.version>
@@ -151,6 +157,8 @@
         <camel-rest-openapi.tesb.version>4.8.1.20250320</camel-rest-openapi.tesb.version>
         <camel-salesforce-codegen.tesb.version>4.8.1.20250320</camel-salesforce-codegen.tesb.version>
         <camel-salesforce.tesb.version>4.8.1.20251213</camel-salesforce.tesb.version>
+        <camel-sjms.tesb.version>4.8.1.20260608</camel-sjms.tesb.version>
+        <camel-sjms2.tesb.version>4.8.1.20260608</camel-sjms2.tesb.version>
         <camel-smb.tesb.version>4.8.1.20250320</camel-smb.tesb.version>
         <camel-sql.tesb.version>4.8.1.20250320</camel-sql.tesb.version>
         <camel-tika.tesb.version>4.8.1.20251208</camel-tika.tesb.version>
@@ -168,10 +176,9 @@
         <camel-main.tesb.version>4.8.1.20250320</camel-main.tesb.version>
         <camel-management.tesb.version>4.8.1.20250320</camel-management.tesb.version>
         <camel-management-api.tesb.version>4.8.1.20250320</camel-management-api.tesb.version>
-        <!-- <camel-support.tesb.version>4.8.1.20250320</camel-support.tesb.version> -->
         <camel-yaml-io.tesb.version>4.8.1.20250320</camel-yaml-io.tesb.version>
-        <camel-componentdsl.tesb.version>4.8.1.20250320</camel-componentdsl.tesb.version>
-        <camel-endpointdsl.tesb.version>4.8.1.20250320</camel-endpointdsl.tesb.version>
+        <camel-componentdsl.tesb.version>4.8.1.20260608</camel-componentdsl.tesb.version>
+        <camel-endpointdsl.tesb.version>4.8.1.20260608</camel-endpointdsl.tesb.version>
         <camel-jbang-container.tesb.version>4.8.1.20250320</camel-jbang-container.tesb.version>
         <camel-jbang-core.tesb.version>4.8.1.20250320</camel-jbang-core.tesb.version>
         <camel-jbang-main.tesb.version>4.8.1.20250320</camel-jbang-main.tesb.version>
@@ -331,18 +338,20 @@
                             <camel-cxf.tesb.version>${camel-cxf.tesb.version}</camel-cxf.tesb.version>
                             <camel-cxf-soap.tesb.version>${camel-cxf-soap.tesb.version}</camel-cxf-soap.tesb.version>
                             <camel-cxf-rest.tesb.version>${camel-cxf-rest.tesb.version}</camel-cxf-rest.tesb.version>
+                            <camel-cxf-transport.tesb.version>${camel-cxf-transport.tesb.version}</camel-cxf-transport.tesb.version>
                             <camel-spring.tesb.version>${camel-spring.tesb.version}</camel-spring.tesb.version>
                             <cxf.tesb.version>${cxf.tesb.version}</cxf.tesb.version>
                             <camel-langchain4j-core.tesb.version>${camel-langchain4j-core.tesb.version}</camel-langchain4j-core.tesb.version>
                             <camel-langchain4j-chat.tesb.version>${camel-langchain4j-chat.tesb.version}</camel-langchain4j-chat.tesb.version>
                             <camel-langchain4j-tools.tesb.version>${camel-langchain4j-tools.tesb.version}</camel-langchain4j-tools.tesb.version>
+                            <camel-amqp.tesb.version>${camel-amqp.tesb.version}</camel-amqp.tesb.version>
                             <camel-as2-api.tesb.version>${camel-as2-api.tesb.version}</camel-as2-api.tesb.version>
                             <camel-aws2-kinesis.tesb.version>${camel-aws2-kinesis.tesb.version}</camel-aws2-kinesis.tesb.version>
                             <camel-aws2-s3.tesb.version>${camel-aws2-s3.tesb.version}</camel-aws2-s3.tesb.version>
                             <camel-aws2-sqs.tesb.version>${camel-aws2-sqs.tesb.version}</camel-aws2-sqs.tesb.version>
+                            <camel-coap.tesb.version>${camel-coap.tesb.version}</camel-coap.tesb.version>
+                            <camel-consul.tesb.version>${camel-consul.tesb.version}</camel-consul.tesb.version>
                             <camel-crypto.tesb.version>${camel-crypto.tesb.version}</camel-crypto.tesb.version>
-                            <!-- <camel-cxf-rest.tesb.version>${camel-cxf-rest.tesb.version}</camel-cxf-rest.tesb.version> -->
-                            <!-- <camel-cxf-soap.tesb.version>${camel-cxf-soap.tesb.version}</camel-cxf-soap.tesb.version> -->
                             <camel-debezium-common.tesb.version>${camel-debezium-common.tesb.version}</camel-debezium-common.tesb.version>
                             <camel-debezium-maven-plugin.tesb.version>${camel-debezium-maven-plugin.tesb.version}</camel-debezium-maven-plugin.tesb.version>
                             <camel-debezium-db2.tesb.version>${camel-debezium-db2.tesb.version}</camel-debezium-db2.tesb.version>
@@ -355,12 +364,16 @@
                             <camel-drill.tesb.version>${camel-drill.tesb.version}</camel-drill.tesb.version>
                             <camel-dynamic-router.tesb.version>${camel-dynamic-router.tesb.version}</camel-dynamic-router.tesb.version>
                             <camel-file.tesb.version>${camel-file.tesb.version}</camel-file.tesb.version>
+                            <camel-google-pubsub.tesb.version>${camel-google-pubsub.tesb.version}</camel-google-pubsub.tesb.version>
                             <camel-http.tesb.version>${camel-http.tesb.version}</camel-http.tesb.version>
+                            <camel-infinispan.tesb.version>${camel-infinispan.tesb.version}</camel-infinispan.tesb.version>
                             <camel-jaxb.tesb.version>${camel-jaxb.tesb.version}</camel-jaxb.tesb.version>
+                            <camel-jms.tesb.version>${camel-jms.tesb.version}</camel-jms.tesb.version>
                             <camel-jsonpath.tesb.version>${camel-jsonpath.tesb.version}</camel-jsonpath.tesb.version>
                             <camel-knative-http.tesb.version>${camel-knative-http.tesb.version}</camel-knative-http.tesb.version>
                             <camel-kubernetes.tesb.version>${camel-kubernetes.tesb.version}</camel-kubernetes.tesb.version>
                             <camel-leveldb.tesb.version>${camel-leveldb.tesb.version}</camel-leveldb.tesb.version>
+                            <camel-mail.tesb.version>${camel-mail.tesb.version}</camel-mail.tesb.version>
                             <camel-mina.tesb.version>${camel-mina.tesb.version}</camel-mina.tesb.version>
                             <camel-minio.tesb.version>${camel-minio.tesb.version}</camel-minio.tesb.version>
                             <camel-mongodb.tesb.version>${camel-mongodb.tesb.version}</camel-mongodb.tesb.version>
@@ -372,6 +385,8 @@
                             <camel-rest-openapi.tesb.version>${camel-rest-openapi.tesb.version}</camel-rest-openapi.tesb.version>
                             <camel-salesforce-codegen.tesb.version>${camel-salesforce-codegen.tesb.version}</camel-salesforce-codegen.tesb.version>
                             <camel-salesforce.tesb.version>${camel-salesforce.tesb.version}</camel-salesforce.tesb.version>
+                            <camel-sjms.tesb.version>${camel-sjms.tesb.version}</camel-sjms.tesb.version>
+                            <camel-sjms2.tesb.version>${camel-sjms2.tesb.version}</camel-sjms2.tesb.version>
                             <camel-smb.tesb.version>${camel-smb.tesb.version}</camel-smb.tesb.version>
                             <camel-sql.tesb.version>${camel-sql.tesb.version}</camel-sql.tesb.version>
                             <camel-tika.tesb.version>${camel-tika.tesb.version}</camel-tika.tesb.version>
@@ -389,7 +404,6 @@
                             <camel-main.tesb.version>${camel-main.tesb.version}</camel-main.tesb.version>
                             <camel-management.tesb.version>${camel-management.tesb.version}</camel-management.tesb.version>
                             <camel-management-api.tesb.version>${camel-management-api.tesb.version}</camel-management-api.tesb.version>
-                            <!-- <camel-support.tesb.version>${camel-support.tesb.version}</camel-support.tesb.version> -->
                             <camel-yaml-io.tesb.version>${camel-yaml-io.tesb.version}</camel-yaml-io.tesb.version>
                             <camel-componentdsl.tesb.version>${camel-componentdsl.tesb.version}</camel-componentdsl.tesb.version>
                             <camel-endpointdsl.tesb.version>${camel-endpointdsl.tesb.version}</camel-endpointdsl.tesb.version>

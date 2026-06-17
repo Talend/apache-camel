@@ -208,6 +208,15 @@ public class SjmsEndpoint extends DefaultEndpoint
               description = "Specifies whether Camel should auto map the received JMS message to a suited payload type, such as jakarta.jms.TextMessage to a String etc."
                             + " See section about how mapping works below for more details.")
     private boolean mapJmsMessage = true;
+    @UriParam(label = "advanced,security",
+              description = "Sets an ObjectInputFilter pattern (jdk.serialFilter syntax) applied as a defense-in-depth"
+                            + " check on the class of the body returned by jakarta.jms.ObjectMessage.getObject()."
+                            + " The pattern is evaluated after the JMS provider has deserialized the payload, so this option"
+                            + " alone does not prevent gadget-chain execution that happens inside the provider's ObjectInputStream;"
+                            + " to block such attacks, also configure the JMS provider's own deserialization filter and/or"
+                            + " the JVM-wide -Djdk.serialFilter. When this option is not set and no JVM-wide filter is configured,"
+                            + " a conservative default filter allowing java.**, javax.** and org.apache.camel.** is applied.")
+    private String deserializationFilter;
     @UriParam(label = "advanced",
               description = "To use a custom DestinationCreationStrategy.")
     private DestinationCreationStrategy destinationCreationStrategy = new DefaultDestinationCreationStrategy();
@@ -449,7 +458,7 @@ public class SjmsEndpoint extends DefaultEndpoint
     protected JmsBinding createBinding() {
         return new JmsBinding(
                 isMapJmsMessage(), isAllowNullBody(), getHeaderFilterStrategy(), getJmsKeyFormatStrategy(),
-                getMessageCreatedStrategy());
+                getMessageCreatedStrategy(), getDeserializationFilter());
     }
 
     public void setBinding(JmsBinding binding) {
@@ -732,6 +741,23 @@ public class SjmsEndpoint extends DefaultEndpoint
 
     public void setMapJmsMessage(boolean mapJmsMessage) {
         this.mapJmsMessage = mapJmsMessage;
+    }
+
+    public String getDeserializationFilter() {
+        return deserializationFilter;
+    }
+
+    /**
+     * Sets an {@link java.io.ObjectInputFilter} pattern (same syntax as {@code jdk.serialFilter}) applied as a
+     * defense-in-depth check on the class of the body returned by {@link jakarta.jms.ObjectMessage#getObject()}. The
+     * pattern is evaluated after the JMS provider has deserialized the payload, so this option alone does not prevent
+     * gadget-chain execution that happens inside the provider's {@code ObjectInputStream}; to block such attacks, also
+     * configure the JMS provider's own deserialization filter and/or the JVM-wide {@code -Djdk.serialFilter}. When this
+     * option is not set and no JVM-wide filter is configured, a conservative default filter allowing {@code java.**},
+     * {@code javax.**} and {@code org.apache.camel.**} is applied.
+     */
+    public void setDeserializationFilter(String deserializationFilter) {
+        this.deserializationFilter = deserializationFilter;
     }
 
     public MessageCreatedStrategy getMessageCreatedStrategy() {

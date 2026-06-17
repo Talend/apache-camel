@@ -31,8 +31,10 @@
     <packaging>jar</packaging>
     <name>Camel :: Simple JMS2</name>
     <description>A pure Java JMS 2.0 Camel Component</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-sjms2.tesb.version}</revision>
         <camel.surefire.forkTimeout>6000</camel.surefire.forkTimeout>
     </properties>
 

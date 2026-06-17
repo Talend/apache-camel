@@ -18,10 +18,13 @@ org.apache.camel:camel-support,\
 \
 org.apache.camel:camel-activemq,\
 org.apache.camel:camel-activemq6,\
+org.apache.camel:camel-amqp,\
 org.apache.camel:camel-as2-api,\
 org.apache.camel:camel-aws2-kinesis,\
 org.apache.camel:camel-aws2-s3,\
 org.apache.camel:camel-aws2-sqs,\
+org.apache.camel:camel-coap,\
+org.apache.camel:camel-consul,\
 org.apache.camel:camel-crypto,\
 org.apache.camel:camel-cxf-common,\
 org.apache.camel:camel-cxf-soap,\
@@ -43,8 +46,11 @@ org.apache.camel:camel-direct,\
 org.apache.camel:camel-drill,\
 org.apache.camel:camel-dynamic-router,\
 org.apache.camel:camel-file,\
+org.apache.camel:camel-google-pubsub,\
 org.apache.camel:camel-http,\
+org.apache.camel:camel-infinispan,\
 org.apache.camel:camel-jaxb,\
+org.apache.camel:camel-jms,\
 org.apache.camel:camel-jsonpath,\
 org.apache.camel:camel-knative-http,\
 org.apache.camel:camel-kubernetes,\
@@ -52,6 +58,7 @@ org.apache.camel:camel-langchain4j-core,\
 org.apache.camel:camel-langchain4j-chat,\
 org.apache.camel:camel-langchain4j-tools,\
 org.apache.camel:camel-leveldb,\
+org.apache.camel:camel-mail,\
 org.apache.camel:camel-mina,\
 org.apache.camel:camel-minio,\
 org.apache.camel:camel-mongodb,\
@@ -62,6 +69,8 @@ org.apache.camel:camel-quartz,\
 org.apache.camel:camel-ref,\
 org.apache.camel:camel-rest-openapi,\
 org.apache.camel:camel-salesforce,\
+org.apache.camel:camel-sjms,\
+org.apache.camel:camel-sjms2,\
 org.apache.camel:camel-smb,\
 org.apache.camel:camel-spring,\
 org.apache.camel:camel-sql,\

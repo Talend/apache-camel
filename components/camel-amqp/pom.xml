@@ -31,6 +31,11 @@
 
     <name>Camel :: AMQP</name>
     <description>Camel AMQP component which is based on the Apache Qpid project</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-amqp.tesb.version}</revision>
+    </properties>
 
     <dependencies>
         <dependency>

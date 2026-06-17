@@ -31,8 +31,10 @@
 
     <name>Camel :: JMS</name>
     <description>Camel JMS support</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-jms.tesb.version}</revision>
         <camel.surefire.reuseForks>true</camel.surefire.reuseForks>
         <camel.surefire.forkCount>1</camel.surefire.forkCount>
         <camel.surefire.forkTimeout>1200</camel.surefire.forkTimeout>

@@ -25,8 +25,10 @@ public class MailHeaderFilterStrategy extends DefaultHeaderFilterStrategy {
     }
 
     protected void initialize() {
+        setLowerCase(true);
         // filter headers begin with "Camel" or "org.apache.camel"
         setOutFilterStartsWith(CAMEL_FILTER_STARTS_WITH);
+        setInFilterStartsWith(CAMEL_FILTER_STARTS_WITH);
     }
 
 }

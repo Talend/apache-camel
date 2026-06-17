@@ -30,8 +30,10 @@
     <packaging>jar</packaging>
     <name>Camel :: Simple JMS</name>
     <description>A pure Java JMS Camel Component</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-sjms.tesb.version}</revision>
         <camel.surefire.reuseForks>true</camel.surefire.reuseForks>
         <camel.surefire.forkCount>1</camel.surefire.forkCount>
         <camel.surefire.forkTimeout>1200</camel.surefire.forkTimeout>
