@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Collections;
@@ -129,7 +130,7 @@ public class BlobOperations {
             throw new IllegalArgumentException("In order to download a blob, you will need to specify the fileDir in the URI");
         }
 
-        final File fileToDownload = new File(fileDir, client.getBlobName());
+        final File fileToDownload = resolveWithinDirectory(fileDir, client.getBlobName());
         final BlobCommonRequestOptions commonRequestOptions = getCommonRequestOptions(exchange);
         final BlobRange blobRange = configurationProxy.getBlobRange(exchange);
         final ParallelTransferOptions parallelTransferOptions = configurationProxy.getParallelTransferOptions(exchange);
@@ -483,5 +484,19 @@ public class BlobOperations {
         if (configurationProxy.getConfiguration().isCloseStreamAfterWrite()) {
             inputStream.close();
         }
+    }
+
+    private static File resolveWithinDirectory(String fileDir, String name) {
+        final File target = new File(fileDir, name);
+        // normalize lexically (removes ./ and ../ segments) and compare on path-segment boundaries so a sibling
+        // directory whose name merely extends fileDir is not considered contained
+        final Path normalizedDir = new File(fileDir).toPath().normalize();
+        final Path normalizedTarget = target.toPath().normalize();
+        if (!normalizedTarget.startsWith(normalizedDir)) {
+            throw new IllegalArgumentException(
+                    "Cannot download to file '" + name
+                            + "' as it resolves outside the configured fileDir directory: " + fileDir);
+        }
+        return target;
     }
 }
