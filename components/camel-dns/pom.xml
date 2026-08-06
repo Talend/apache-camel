@@ -30,6 +30,11 @@
     <artifactId>camel-dns</artifactId>
     <description>Camel DNS support</description>
     <packaging>jar</packaging>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-dns.tesb.version}</revision>
+    </properties>
 
     <dependencies>
 

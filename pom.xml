@@ -133,6 +133,7 @@
         <camel-debezium-postgres.tesb.version>4.8.1.20250320</camel-debezium-postgres.tesb.version>
         <camel-debezium-sqlserver.tesb.version>4.8.1.20250320</camel-debezium-sqlserver.tesb.version>
         <camel-direct.tesb.version>4.8.1.20250320</camel-direct.tesb.version>
+        <camel-dns.tesb.version>4.8.1.20260801</camel-dns.tesb.version>
         <camel-drill.tesb.version>4.8.1.20250901</camel-drill.tesb.version>
         <camel-dynamic-router.tesb.version>4.8.1.20250320</camel-dynamic-router.tesb.version>
         <camel-file.tesb.version>4.8.1.20250320</camel-file.tesb.version>
@@ -149,6 +150,7 @@
         <camel-mina.tesb.version>4.8.1.20260608</camel-mina.tesb.version>
         <camel-minio.tesb.version>4.8.1.20250320</camel-minio.tesb.version>
         <camel-mongodb.tesb.version>4.8.1.20250320</camel-mongodb.tesb.version>
+        <camel-mongodb-gridfs.tesb.version>4.8.1.20260801</camel-mongodb-gridfs.tesb.version>
         <camel-observation.tesb.version>4.8.1.20250320</camel-observation.tesb.version>
         <camel-pdf.tesb.version>4.8.1.20250320</camel-pdf.tesb.version>
         <camel-platform-http-jolokia.tesb.version>4.8.1.20250320</camel-platform-http-jolokia.tesb.version>
@@ -361,6 +363,7 @@
                             <camel-debezium-postgres.tesb.version>${camel-debezium-postgres.tesb.version}</camel-debezium-postgres.tesb.version>
                             <camel-debezium-sqlserver.tesb.version>${camel-debezium-sqlserver.tesb.version}</camel-debezium-sqlserver.tesb.version>
                             <camel-direct.tesb.version>${camel-direct.tesb.version}</camel-direct.tesb.version>
+                            <camel-dns.tesb.version>${camel-dns.tesb.version}</camel-dns.tesb.version>
                             <camel-drill.tesb.version>${camel-drill.tesb.version}</camel-drill.tesb.version>
                             <camel-dynamic-router.tesb.version>${camel-dynamic-router.tesb.version}</camel-dynamic-router.tesb.version>
                             <camel-file.tesb.version>${camel-file.tesb.version}</camel-file.tesb.version>
@@ -377,6 +380,7 @@
                             <camel-mina.tesb.version>${camel-mina.tesb.version}</camel-mina.tesb.version>
                             <camel-minio.tesb.version>${camel-minio.tesb.version}</camel-minio.tesb.version>
                             <camel-mongodb.tesb.version>${camel-mongodb.tesb.version}</camel-mongodb.tesb.version>
+                            <camel-mongodb-gridfs.tesb.version>${camel-mongodb-gridfs.tesb.version}</camel-mongodb-gridfs.tesb.version>
                             <camel-observation.tesb.version>${camel-observation.tesb.version}</camel-observation.tesb.version>
                             <camel-pdf.tesb.version>${camel-pdf.tesb.version}</camel-pdf.tesb.version>
                             <camel-platform-http-jolokia.tesb.version>${camel-platform-http-jolokia.tesb.version}</camel-platform-http-jolokia.tesb.version>
