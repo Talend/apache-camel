@@ -29,7 +29,6 @@ import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.api.management.ManagedAttribute;
 import org.apache.camel.api.management.ManagedResource;
-import org.apache.camel.http.base.HttpHelper;
 import org.apache.camel.http.base.cookie.CookieHandler;
 import org.apache.camel.http.common.HttpCommonEndpoint;
 import org.apache.camel.spi.Metadata;
@@ -255,9 +254,9 @@ public class HttpEndpoint extends HttpCommonEndpoint {
                 String host = getCamelContext().getGlobalOption("http.proxyHost");
                 int port = Integer.parseInt(getCamelContext().getGlobalOption("http.proxyPort"));
                 String scheme = getCamelContext().getGlobalOption("http.proxyScheme");
-                // fallback and use either http or https depending on secure
+                // proxy connection uses http by default regardless of the target endpoint scheme
                 if (scheme == null) {
-                    scheme = HttpHelper.isSecureConnection(getEndpointUri()) ? "https" : "http";
+                    scheme = "http";
                 }
                 LOG.debug(
                         "CamelContext properties http.proxyHost, http.proxyPort, and http.proxyScheme detected. Using http proxy host: {} port: {} scheme: {}",
