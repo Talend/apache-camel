@@ -170,7 +170,9 @@ public abstract class HttpCommonEndpoint extends DefaultEndpoint
     private String proxyHost;
     @UriParam(label = "producer,proxy", description = "Proxy port to use")
     private int proxyPort;
-    @UriParam(label = "producer,proxy", enums = "http,https", description = "Proxy authentication scheme to use")
+    @UriParam(label = "producer,proxy", enums = "http,https", defaultValue = "http",
+              description = "Proxy server connection protocol scheme. Defaults to http regardless of the target endpoint scheme,"
+                            + " because most corporate HTTP proxies expect a plain HTTP connection on their listener port.")
     private String proxyAuthScheme;
     @UriParam(label = "producer,proxy", enums = "Basic,Digest,NTLM", description = "Proxy authentication method to use")
     private String proxyAuthMethod;

@@ -31,8 +31,10 @@
 
     <name>Camel :: HTTP :: Common</name>
     <description>Camel HTTP common</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-http-common.tesb.version}</revision>
         <firstVersion>2.16.0</firstVersion>
     </properties>
 
