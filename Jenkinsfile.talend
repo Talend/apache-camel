@@ -48,6 +48,7 @@ org.apache.camel:camel-drill,\
 org.apache.camel:camel-dynamic-router,\
 org.apache.camel:camel-file,\
 org.apache.camel:camel-google-pubsub,\
+org.apache.camel:camel-http-common,\
 org.apache.camel:camel-http,\
 org.apache.camel:camel-infinispan,\
 org.apache.camel:camel-jaxb,\

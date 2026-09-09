@@ -131,13 +131,6 @@ public class HttpComponent extends HttpCommonComponent implements RestProducerFa
     protected Timeout responseTimeout = Timeout.ofMilliseconds(0);
 
     // proxy
-    @Metadata(label = "producer,proxy", description = "Proxy server host")
-    protected String proxyHost;
-    @Metadata(label = "producer,proxy", description = "Proxy server port")
-    protected Integer proxyPort;
-    @Metadata(label = "producer,proxy", description = "Comma-separated list of hosts that should bypass the proxy. "
-                                                      + "Supports wildcards, e.g., localhost,*.example.com,192.168.*.")
-    protected String nonProxyHosts;
     @Metadata(label = "producer,proxy", enums = "http,https", defaultValue = "http",
               description = "Proxy server connection protocol scheme. Defaults to http regardless of the target endpoint scheme,"
                             + " because most corporate HTTP proxies expect a plain HTTP connection on their listener port.")
@@ -230,9 +223,9 @@ public class HttpComponent extends HttpCommonComponent implements RestProducerFa
             configurer = getHttpClientConfigurer();
         }
         HttpCredentialsHelper credentialsProvider = new HttpCredentialsHelper();
-        configurer = configureBasicAuthentication(parameters, configurer, credentialsProvider, targetUri);
+        configurer = configureBasicAuthentication(parameters, configurer, credentialsProvider);
         configurer = configureHttpProxy(parameters, configurer, credentialsProvider);
-        configurer = configureOAuth2Authentication(parameters, configurer, targetUri);
+        configurer = configureOAuth2Authentication(parameters, configurer);
 
         return configurer;
     }

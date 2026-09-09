@@ -138,7 +138,8 @@
         <camel-dynamic-router.tesb.version>4.8.1.20250320</camel-dynamic-router.tesb.version>
         <camel-file.tesb.version>4.8.1.20250320</camel-file.tesb.version>
         <camel-google-pubsub.tesb.version>4.8.1.20260608</camel-google-pubsub.tesb.version>
-        <camel-http.tesb.version>4.8.1.20250320</camel-http.tesb.version>
+        <camel-http.tesb.version>4.8.1.20260909</camel-http.tesb.version>
+        <camel-http-common.tesb.version>4.8.1.20260909</camel-http-common.tesb.version>
         <camel-infinispan.tesb.version>4.8.1.20260608</camel-infinispan.tesb.version>
         <camel-jaxb.tesb.version>4.8.1.20250320</camel-jaxb.tesb.version>
         <camel-jms.tesb.version>4.8.1.20260608</camel-jms.tesb.version>
@@ -179,8 +180,8 @@
         <camel-management.tesb.version>4.8.1.20250320</camel-management.tesb.version>
         <camel-management-api.tesb.version>4.8.1.20250320</camel-management-api.tesb.version>
         <camel-yaml-io.tesb.version>4.8.1.20250320</camel-yaml-io.tesb.version>
-        <camel-componentdsl.tesb.version>4.8.1.20260608</camel-componentdsl.tesb.version>
-        <camel-endpointdsl.tesb.version>4.8.1.20260608</camel-endpointdsl.tesb.version>
+        <camel-componentdsl.tesb.version>4.8.1.20260909</camel-componentdsl.tesb.version>
+        <camel-endpointdsl.tesb.version>4.8.1.20260909</camel-endpointdsl.tesb.version>
         <camel-jbang-container.tesb.version>4.8.1.20250320</camel-jbang-container.tesb.version>
         <camel-jbang-core.tesb.version>4.8.1.20250320</camel-jbang-core.tesb.version>
         <camel-jbang-main.tesb.version>4.8.1.20250320</camel-jbang-main.tesb.version>
