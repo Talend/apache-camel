@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.camel.component.langchain4j.tools;
+
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
 import org.apache.camel.RuntimeCamelException;
@@ -36,7 +37,7 @@ public class LangChain4jToolsConfiguration implements Cloneable {
 
     public LangChain4jToolsConfiguration() {
     }
-    
+
     public ChatMemory getChatMemory() {
         return chatMemory;
     }
@@ -44,6 +45,7 @@ public class LangChain4jToolsConfiguration implements Cloneable {
     public void setChatMemory(ChatMemory chatMemory) {
         this.chatMemory = chatMemory;
     }
+
     /**
      * Chat Language Model of type dev.langchain4j.model.chat.ChatModel
      *
