@@ -160,7 +160,7 @@
         <camel-rest-openapi.tesb.version>4.8.1.20250320</camel-rest-openapi.tesb.version>
         <camel-salesforce-codegen.tesb.version>4.8.1.20250320</camel-salesforce-codegen.tesb.version>
         <camel-salesforce.tesb.version>4.8.1.20251213</camel-salesforce.tesb.version>
-        <camel-sjms.tesb.version>4.8.1.20260608</camel-sjms.tesb.version>
+        <camel-sjms.tesb.version>4.8.10-4.14.7-1</camel-sjms.tesb.version>
         <camel-sjms2.tesb.version>4.8.1.20260608</camel-sjms2.tesb.version>
         <camel-smb.tesb.version>4.8.1.20250320</camel-smb.tesb.version>
         <camel-sql.tesb.version>4.8.1.20250320</camel-sql.tesb.version>
