@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class JmsBindingObjectMessageEnabledTest {
 
     private JmsBinding binding(boolean objectMessageEnabled) {
-        return new JmsBinding(true, true, null, null, null, null, null, objectMessageEnabled);
+        return new JmsBinding(true, true, null, null, null, null, objectMessageEnabled);
     }
 
     @Test

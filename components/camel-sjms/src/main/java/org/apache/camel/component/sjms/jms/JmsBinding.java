@@ -91,7 +91,7 @@ public class JmsBinding {
 
     public JmsBinding(boolean mapJmsMessage, boolean allowNullBody,
                       HeaderFilterStrategy headerFilterStrategy, JmsKeyFormatStrategy jmsJmsKeyFormatStrategy,
-                      MessageCreatedStrategy messageCreatedStrategy, JmsMessageType jmsMessageType,
+                      MessageCreatedStrategy messageCreatedStrategy,
                       String deserializationFilterPattern, boolean objectMessageEnabled) {
         this.mapJmsMessage = mapJmsMessage;
         this.allowNullBody = allowNullBody;
