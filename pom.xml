@@ -142,7 +142,7 @@
         <camel-http-common.tesb.version>4.8.1.20260909</camel-http-common.tesb.version>
         <camel-infinispan.tesb.version>4.8.1.20260608</camel-infinispan.tesb.version>
         <camel-jaxb.tesb.version>4.8.1.20250320</camel-jaxb.tesb.version>
-        <camel-jms.tesb.version>4.8.1.20260608</camel-jms.tesb.version>
+        <camel-jms.tesb.version>4.8.10-4.14.7-1</camel-jms.tesb.version>
         <camel-jsonpath.tesb.version>4.8.1.20250320</camel-jsonpath.tesb.version>
         <camel-knative-http.tesb.version>4.8.1.20260608</camel-knative-http.tesb.version>
         <camel-kubernetes.tesb.version>4.8.1.20250320</camel-kubernetes.tesb.version>
