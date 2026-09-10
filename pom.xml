@@ -105,8 +105,8 @@
     <properties>
         <upstream.version>4.8.1</upstream.version>
         <camel-support.tesb.version>4.8.1.20260120</camel-support.tesb.version>
-        <camel-activemq.tesb.version>4.8.1.20260608</camel-activemq.tesb.version>
-        <camel-activemq6.tesb.version>4.8.1.20260608</camel-activemq6.tesb.version>
+        <camel-activemq.tesb.version>4.8.10-4.14.7-1</camel-activemq.tesb.version>
+        <camel-activemq6.tesb.version>4.8.10-4.14.7-1</camel-activemq6.tesb.version>
         <camel-cxf.tesb.version>4.8.1.20251008</camel-cxf.tesb.version>
         <camel-cxf-soap.tesb.version>4.8.1.20250320</camel-cxf-soap.tesb.version>
         <camel-cxf-rest.tesb.version>4.8.1.20260608</camel-cxf-rest.tesb.version>
@@ -116,7 +116,7 @@
         <camel-langchain4j-core.tesb.version>4.8.1.20251119</camel-langchain4j-core.tesb.version>
         <camel-langchain4j-chat.tesb.version>4.8.1.20251119</camel-langchain4j-chat.tesb.version>
         <camel-langchain4j-tools.tesb.version>4.8.1.20260909</camel-langchain4j-tools.tesb.version>
-        <camel-amqp.tesb.version>4.8.1.20260608</camel-amqp.tesb.version>
+        <camel-amqp.tesb.version>4.8.10-4.14.7-1</camel-amqp.tesb.version>
         <camel-as2-api.tesb.version>4.8.1.20250320</camel-as2-api.tesb.version>
         <camel-aws2-kinesis.tesb.version>4.8.1.20250320</camel-aws2-kinesis.tesb.version>
         <camel-aws2-s3.tesb.version>4.8.1.20250320</camel-aws2-s3.tesb.version>
