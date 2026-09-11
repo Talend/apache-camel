@@ -107,6 +107,7 @@
         <camel-support.tesb.version>4.8.1.20260120</camel-support.tesb.version>
         <camel-activemq.tesb.version>4.8.10-4.14.7-1</camel-activemq.tesb.version>
         <camel-activemq6.tesb.version>4.8.10-4.14.7-1</camel-activemq6.tesb.version>
+        <camel-aws2-sns.tesb.version>4.8.10-4.14.7-1</camel-aws2-sns.tesb.version>
         <camel-cxf.tesb.version>4.8.1.20251008</camel-cxf.tesb.version>
         <camel-cxf-soap.tesb.version>4.8.1.20250320</camel-cxf-soap.tesb.version>
         <camel-cxf-rest.tesb.version>4.8.1.20260608</camel-cxf-rest.tesb.version>
@@ -338,6 +339,7 @@
                             <camel-support.tesb.version>${camel-support.tesb.version}</camel-support.tesb.version>
                             <camel-activemq.tesb.version>${camel-activemq.tesb.version}</camel-activemq.tesb.version>
                             <camel-activemq6.tesb.version>${camel-activemq6.tesb.version}</camel-activemq6.tesb.version>
+                            <camel-aws2-sns.tesb.version>${camel-aws2-sns.tesb.version>}</camel-aws2-sns.tesb.version>
                             <camel-cxf.tesb.version>${camel-cxf.tesb.version}</camel-cxf.tesb.version>
                             <camel-cxf-soap.tesb.version>${camel-cxf-soap.tesb.version}</camel-cxf-soap.tesb.version>
                             <camel-cxf-rest.tesb.version>${camel-cxf-rest.tesb.version}</camel-cxf-rest.tesb.version>
