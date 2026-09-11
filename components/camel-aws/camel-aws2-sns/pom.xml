@@ -31,8 +31,10 @@
 
     <name>Camel :: AWS2 SNS</name>
     <description>Send Notifications through AWS SNS service</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-aws2-sns.tesb.version}</revision>
         <camel.surefire.forkTimeout>1200</camel.surefire.forkTimeout>
         <camel.surefire.fork.additional-vmargs>-Xmx2G</camel.surefire.fork.additional-vmargs>
     </properties>
