@@ -31,7 +31,6 @@ import org.apache.camel.component.sjms.jms.DestinationCreationStrategy;
 import org.apache.camel.component.sjms.jms.JmsKeyFormatStrategy;
 import org.apache.camel.component.sjms.jms.MessageCreatedStrategy;
 import org.apache.camel.spi.Metadata;
-import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.annotations.Component;
 import org.apache.camel.support.HeaderFilterStrategyComponent;
 
@@ -43,7 +42,7 @@ public class SjmsComponent extends HeaderFilterStrategyComponent {
     @Metadata(label = "common", autowired = true,
               description = "The connection factory to be use. A connection factory must be configured either on the component or endpoint.")
     private ConnectionFactory connectionFactory;
-    @UriParam(description = "Sets the JMS client ID to use. Note that this value, if specified, must be unique and can only be used by a single JMS connection instance."
+    @Metadata(description = "Sets the JMS client ID to use. Note that this value, if specified, must be unique and can only be used by a single JMS connection instance."
                             + " It is typically only required for durable topic subscriptions."
                             + " If using Apache ActiveMQ you may prefer to use Virtual Topics instead.")
     private String clientId;
@@ -84,6 +83,14 @@ public class SjmsComponent extends HeaderFilterStrategyComponent {
                             + " the JVM-wide -Djdk.serialFilter. When this option is not set and no JVM-wide filter is configured,"
                             + " a conservative default filter allowing java.**, javax.** and org.apache.camel.** is applied.")
     private String deserializationFilter;
+    @Metadata(label = "advanced",
+              description = "Whether to enable sending and receiving JMS ObjectMessage."
+                            + " By default this is disabled because Java object serialization is a known source of security"
+                            + " vulnerabilities. Enable this option only if you trust the source of the messages and need"
+                            + " to send or receive Java serialized objects via JMS. When disabled, Camel will refuse to"
+                            + " create or read JMS ObjectMessage instances. Options that rely on ObjectMessage internally"
+                            + " (such as transferException) require this option to be enabled.")
+    private boolean objectMessageEnabled;
 
     public SjmsComponent() {
     }
@@ -103,6 +110,7 @@ public class SjmsComponent extends HeaderFilterStrategyComponent {
         endpoint.setClientId(clientId);
         endpoint.setExceptionListener(exceptionListener);
         endpoint.setDeserializationFilter(deserializationFilter);
+        endpoint.setObjectMessageEnabled(objectMessageEnabled);
         if (getHeaderFilterStrategy() != null) {
             endpoint.setHeaderFilterStrategy(getHeaderFilterStrategy());
         }
@@ -232,5 +240,20 @@ public class SjmsComponent extends HeaderFilterStrategyComponent {
 
     public void setDeserializationFilter(String deserializationFilter) {
         this.deserializationFilter = deserializationFilter;
+    }
+
+    public boolean isObjectMessageEnabled() {
+        return objectMessageEnabled;
+    }
+
+    /**
+     * Whether to enable sending and receiving JMS ObjectMessage. By default this is disabled because Java object
+     * serialization is a known source of security vulnerabilities. Enable this option only if you trust the source of
+     * the messages and need to send or receive Java serialized objects via JMS. When disabled, Camel will refuse to
+     * create or read JMS ObjectMessage instances. Options that rely on ObjectMessage internally (such as
+     * transferException) require this option to be enabled.
+     */
+    public void setObjectMessageEnabled(boolean objectMessageEnabled) {
+        this.objectMessageEnabled = objectMessageEnabled;
     }
 }

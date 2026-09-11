@@ -27,6 +27,8 @@ public class SjmsComponentConfigurer extends PropertyConfigurerSupport implement
         case "autowiredEnabled": target.setAutowiredEnabled(property(camelContext, boolean.class, value)); return true;
         case "bridgeerrorhandler":
         case "bridgeErrorHandler": target.setBridgeErrorHandler(property(camelContext, boolean.class, value)); return true;
+        case "clientid":
+        case "clientId": target.setClientId(property(camelContext, java.lang.String.class, value)); return true;
         case "connectionfactory":
         case "connectionFactory": target.setConnectionFactory(property(camelContext, jakarta.jms.ConnectionFactory.class, value)); return true;
         case "deserializationfilter":
@@ -43,6 +45,8 @@ public class SjmsComponentConfigurer extends PropertyConfigurerSupport implement
         case "lazyStartProducer": target.setLazyStartProducer(property(camelContext, boolean.class, value)); return true;
         case "messagecreatedstrategy":
         case "messageCreatedStrategy": target.setMessageCreatedStrategy(property(camelContext, org.apache.camel.component.sjms.jms.MessageCreatedStrategy.class, value)); return true;
+        case "objectmessageenabled":
+        case "objectMessageEnabled": target.setObjectMessageEnabled(property(camelContext, boolean.class, value)); return true;
         case "recoveryinterval":
         case "recoveryInterval": target.setRecoveryInterval(property(camelContext, java.time.Duration.class, value).toMillis()); return true;
         case "replytoontimeoutmaxconcurrentconsumers":
@@ -65,6 +69,8 @@ public class SjmsComponentConfigurer extends PropertyConfigurerSupport implement
         case "autowiredEnabled": return boolean.class;
         case "bridgeerrorhandler":
         case "bridgeErrorHandler": return boolean.class;
+        case "clientid":
+        case "clientId": return java.lang.String.class;
         case "connectionfactory":
         case "connectionFactory": return jakarta.jms.ConnectionFactory.class;
         case "deserializationfilter":
@@ -81,6 +87,8 @@ public class SjmsComponentConfigurer extends PropertyConfigurerSupport implement
         case "lazyStartProducer": return boolean.class;
         case "messagecreatedstrategy":
         case "messageCreatedStrategy": return org.apache.camel.component.sjms.jms.MessageCreatedStrategy.class;
+        case "objectmessageenabled":
+        case "objectMessageEnabled": return boolean.class;
         case "recoveryinterval":
         case "recoveryInterval": return long.class;
         case "replytoontimeoutmaxconcurrentconsumers":
@@ -99,6 +107,8 @@ public class SjmsComponentConfigurer extends PropertyConfigurerSupport implement
         case "autowiredEnabled": return target.isAutowiredEnabled();
         case "bridgeerrorhandler":
         case "bridgeErrorHandler": return target.isBridgeErrorHandler();
+        case "clientid":
+        case "clientId": return target.getClientId();
         case "connectionfactory":
         case "connectionFactory": return target.getConnectionFactory();
         case "deserializationfilter":
@@ -115,6 +125,8 @@ public class SjmsComponentConfigurer extends PropertyConfigurerSupport implement
         case "lazyStartProducer": return target.isLazyStartProducer();
         case "messagecreatedstrategy":
         case "messageCreatedStrategy": return target.getMessageCreatedStrategy();
+        case "objectmessageenabled":
+        case "objectMessageEnabled": return target.isObjectMessageEnabled();
         case "recoveryinterval":
         case "recoveryInterval": return target.getRecoveryInterval();
         case "replytoontimeoutmaxconcurrentconsumers":

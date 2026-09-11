@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class JmsBindingDeserializationFilterTest {
 
     private JmsBinding newBinding(String filter) {
-        return new JmsBinding(true, true, null, null, null, filter);
+        return new JmsBinding(true, true, null, null, null, filter, false);
     }
 
     @Test

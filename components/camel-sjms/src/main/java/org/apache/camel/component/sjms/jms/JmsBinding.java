@@ -80,23 +80,41 @@ public class JmsBinding {
     private final JmsKeyFormatStrategy jmsJmsKeyFormatStrategy;
     private final MessageCreatedStrategy messageCreatedStrategy;
     private final ObjectInputFilter deserializationFilter;
+    private final boolean objectMessageEnabled;
 
     public JmsBinding(boolean mapJmsMessage, boolean allowNullBody,
                       HeaderFilterStrategy headerFilterStrategy, JmsKeyFormatStrategy jmsJmsKeyFormatStrategy,
                       MessageCreatedStrategy messageCreatedStrategy) {
         this(mapJmsMessage, allowNullBody, headerFilterStrategy, jmsJmsKeyFormatStrategy,
-             messageCreatedStrategy, null);
+             messageCreatedStrategy, null, false);
     }
 
     public JmsBinding(boolean mapJmsMessage, boolean allowNullBody,
                       HeaderFilterStrategy headerFilterStrategy, JmsKeyFormatStrategy jmsJmsKeyFormatStrategy,
-                      MessageCreatedStrategy messageCreatedStrategy, String deserializationFilterPattern) {
+                      MessageCreatedStrategy messageCreatedStrategy,
+                      String deserializationFilterPattern, boolean objectMessageEnabled) {
         this.mapJmsMessage = mapJmsMessage;
         this.allowNullBody = allowNullBody;
         this.headerFilterStrategy = headerFilterStrategy;
         this.jmsJmsKeyFormatStrategy = jmsJmsKeyFormatStrategy;
         this.messageCreatedStrategy = messageCreatedStrategy;
         this.deserializationFilter = resolveDeserializationFilter(deserializationFilterPattern);
+        this.objectMessageEnabled = objectMessageEnabled;
+    }
+
+    /**
+     * Whether sending and receiving JMS {@link ObjectMessage} is enabled. Disabled by default for security reasons.
+     * When disabled, the binding refuses to create or read JMS {@link ObjectMessage} instances, and any feature that
+     * relies on {@link ObjectMessage} (such as {@code transferException}) is also disabled.
+     */
+    protected boolean isObjectMessageEnabled() {
+        return objectMessageEnabled;
+    }
+
+    private static IllegalStateException objectMessageDisabled(String operation) {
+        return new IllegalStateException(
+                "JMS ObjectMessage is disabled by default for security reasons (" + operation + ")."
+                                         + " Set objectMessageEnabled=true on the SJMS endpoint or component to enable it.");
     }
 
     private static ObjectInputFilter resolveDeserializationFilter(String configuredPattern) {
@@ -184,6 +202,9 @@ public class JmsBinding {
             }
 
             if (message instanceof ObjectMessage) {
+                if (!isObjectMessageEnabled()) {
+                    throw objectMessageDisabled("receiving ObjectMessage");
+                }
                 LOG.trace("Extracting body as a ObjectMessage from JMS message: {}", message);
                 ObjectMessage objectMessage = (ObjectMessage) message;
                 Object payload = objectMessage.getObject();
@@ -450,6 +471,9 @@ public class JmsBinding {
     }
 
     protected Message createJmsMessage(Exception cause, Session session) throws JMSException {
+        if (!isObjectMessageEnabled()) {
+            throw objectMessageDisabled("transferException reply");
+        }
         LOG.trace("Using JmsMessageType: {}", JmsMessageType.Object);
         Message answer = session.createObjectMessage(cause);
         // ensure default delivery mode is used by default
@@ -558,6 +582,9 @@ public class JmsBinding {
                 return message;
             }
             case Object:
+                if (!isObjectMessageEnabled()) {
+                    throw objectMessageDisabled("creating ObjectMessage");
+                }
                 ObjectMessage message = session.createObjectMessage();
                 if (body != null) {
                     try {
