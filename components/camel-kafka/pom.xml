@@ -30,6 +30,11 @@
     <packaging>jar</packaging>
     <name>Camel :: Kafka</name>
     <description>Camel Kafka support</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-kafka.tesb.version}</revision>
+    </properties>
 
     <dependencies>
 
