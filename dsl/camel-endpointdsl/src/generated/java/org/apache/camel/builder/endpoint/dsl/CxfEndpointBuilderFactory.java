@@ -2635,10 +2635,10 @@ public interface CxfEndpointBuilderFactory {
          * 
          * Group: common
          * 
-         * @return the name of the header {@code operationName}.
+         * @return the name of the header {@code CxfOperationName}.
          */
-        public String operationName() {
-            return "operationName";
+        public String cxfOperationName() {
+            return "CamelCxfOperationName";
         }
         /**
          * The operation namespace.
@@ -2647,10 +2647,10 @@ public interface CxfEndpointBuilderFactory {
          * 
          * Group: common
          * 
-         * @return the name of the header {@code operationNamespace}.
+         * @return the name of the header {@code CxfOperationNamespace}.
          */
-        public String operationNamespace() {
-            return "operationNamespace";
+        public String cxfOperationNamespace() {
+            return "CamelCxfOperationNamespace";
         }
         /**
          * The destination override url.
