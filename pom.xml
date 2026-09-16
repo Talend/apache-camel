@@ -167,7 +167,7 @@
         <camel-smb.tesb.version>4.8.1.20250320</camel-smb.tesb.version>
         <camel-sql.tesb.version>4.8.1.20250320</camel-sql.tesb.version>
         <camel-tika.tesb.version>4.8.1.20251208</camel-tika.tesb.version>
-        <camel-tracing.tesb.version>4.8.1.20250320</camel-tracing.tesb.version>
+        <camel-tracing.tesb.version>4.8.10-4.14.7-1</camel-tracing.tesb.version>
         <camel-undertow.tesb.version>4.8.1.20250320</camel-undertow.tesb.version>
         <camel-vertx-http.tesb.version>4.8.1.20250320</camel-vertx-http.tesb.version>
         <camel-api.tesb.version>4.8.1.20250320</camel-api.tesb.version>
