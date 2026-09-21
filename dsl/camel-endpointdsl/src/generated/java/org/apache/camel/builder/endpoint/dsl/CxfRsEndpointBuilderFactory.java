@@ -2171,10 +2171,10 @@ public interface CxfRsEndpointBuilderFactory {
          * 
          * Group: common
          * 
-         * @return the name of the header {@code CxfOperationName}.
+         * @return the name of the header {@code operationName}.
          */
-        public String cxfOperationName() {
-            return "CamelCxfOperationName";
+        public String operationName() {
+            return "operationName";
         }
         /**
          * The authentication.
