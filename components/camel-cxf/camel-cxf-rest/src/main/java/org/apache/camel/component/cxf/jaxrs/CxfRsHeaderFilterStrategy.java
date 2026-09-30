@@ -28,6 +28,11 @@ public class CxfRsHeaderFilterStrategy extends DefaultHeaderFilterStrategy {
     protected void initialize() {
 
         getOutFilter().add(CxfConstants.OPERATION_NAME.toLowerCase());
+        // legacy (non Camel prefixed) operation headers must neither leak out nor be set by a client (CVE-2026-46592)
+        getOutFilter().add(CxfConstants.LEGACY_OPERATION_NAME.toLowerCase());
+        getOutFilter().add(CxfConstants.LEGACY_OPERATION_NAMESPACE.toLowerCase());
+        getInFilter().add(CxfConstants.LEGACY_OPERATION_NAME.toLowerCase());
+        getInFilter().add(CxfConstants.LEGACY_OPERATION_NAMESPACE.toLowerCase());
 
         getOutFilter().add("Content-Type".toLowerCase());
         // Support to filter the Content-Type case insensitive

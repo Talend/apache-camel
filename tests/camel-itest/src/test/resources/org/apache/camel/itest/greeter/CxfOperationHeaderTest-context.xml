@@ -29,56 +29,45 @@
     ">
 
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
-    
+
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
-    
-    <jaxws:endpoint id="greeter" 
-	  implementor="org.apache.camel.itest.utils.extensions.GreeterImpl"
-	  address="http://localhost:${JmsToCxfInOutTest.port}/SoapContext/SoapPort"
+
+    <jaxws:endpoint id="greeter"
+      implementor="org.apache.camel.itest.utils.extensions.GreeterImpl"
+      address="http://localhost:${CxfOperationHeaderTest.port1}/SoapContext/SoapPort"
       endpointName="s:SoapOverHttp"
       serviceName="s:SOAPService"
       xmlns:s="http://apache.org/hello_world_soap_http"/>
-	  
 
-    <cxf:cxfEndpoint id="serviceEndpoint" address="http://localhost:${JmsToCxfInOutTest.port}/SoapContext/SoapPort"
+    <cxf:cxfEndpoint id="serviceEndpoint" address="http://localhost:${CxfOperationHeaderTest.port1}/SoapContext/SoapPort"
                      wsdlURL="wsdl/hello_world.wsdl"
                      serviceClass="org.apache.hello_world_soap_http.Greeter"
                      endpointName="s:SoapOverHttp"
                      serviceName="s:SOAPService"
                      xmlns:s="http://apache.org/hello_world_soap_http">
     </cxf:cxfEndpoint>
-    
-
-    <bean id="jms" class="org.apache.camel.component.jms.JmsComponent">
-      <property name="configuration">
-        <bean class="org.apache.camel.component.jms.JmsConfiguration">
-            <property name="connectionFactory">
-                <bean class="org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory">
-                    <property name="brokerURL" value="vm://itest-jms"/>
-                </bean>
-            </property>
-            <property name="deserializationFilter" value="java.**;javax.**;org.apache.camel.**;org.apache.cxf.**;!*"/>
-        </bean>
-      </property>
-      <property name="deserializationFilter" value="org.apache.cxf.*"/>
-      <property name="objectMessageEnabled" value="true"/>
-    </bean>
 
     <camelContext xmlns="http://camel.apache.org/schema/spring">
+        <!-- CVE-2026-46592: HTTP bridge whose route intends greetMe; a client must not redirect it -->
         <route>
-            <from uri="jms:queue:bridge.cxf"/>
-            <to uri="log:jms"/>
-            <!-- The CXF operation header (CxfConstants.OPERATION_NAME =
-                 "CamelCxfOperationName") is filtered at the JMS boundary by
-                 JmsHeaderFilterStrategy, which strips "Camel*" headers by design.
-                 Restore it from the application-level carrier header set by the
-                 sender. See the 4.21 upgrade guide. -->
-            <setHeader name="CamelCxfOperationName">
-                <simple>${header.operationName}</simple>
-            </setHeader>
-            <to uri="cxf://bean:serviceEndpoint"/>
+            <from uri="jetty:http://localhost:{{CxfOperationHeaderTest.port2}}/bridge"/>
+            <convertBodyTo type="java.lang.String"/>
+            <to uri="cxf:bean:serviceEndpoint?defaultOperationName=greetMe"/>
         </route>
 
+        <!-- route written before CVE-2026-46592, selecting the operation with the legacy header -->
+        <route>
+            <from uri="direct:legacy"/>
+            <setHeader name="operationName">
+                <constant>sayHi</constant>
+            </setHeader>
+            <to uri="cxf:bean:serviceEndpoint"/>
+        </route>
+
+        <route>
+            <from uri="direct:prefixed"/>
+            <to uri="cxf:bean:serviceEndpoint"/>
+        </route>
     </camelContext>
 
 </beans>

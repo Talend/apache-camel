@@ -30,6 +30,11 @@
     <packaging>jar</packaging>
     <name>Camel :: Netty HTTP</name>
     <description>Camel Netty HTTP support</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-netty-http.tesb.version}</revision>
+    </properties>
 
     <dependencies>
         <dependency>

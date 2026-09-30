@@ -48,6 +48,7 @@ org.apache.camel:camel-drill,\
 org.apache.camel:camel-dynamic-router,\
 org.apache.camel:camel-file,\
 org.apache.camel:camel-google-pubsub,\
+org.apache.camel:camel-http-base,\
 org.apache.camel:camel-http-common,\
 org.apache.camel:camel-http,\
 org.apache.camel:camel-infinispan,\
@@ -66,8 +67,10 @@ org.apache.camel:camel-mina,\
 org.apache.camel:camel-minio,\
 org.apache.camel:camel-mongodb,\
 org.apache.camel:camel-mongodb-gridfs,\
+org.apache.camel:camel-netty-http,\
 org.apache.camel:camel-observation,\
 org.apache.camel:camel-pdf,\
+org.apache.camel:camel-platform-http,\
 org.apache.camel:camel-platform-http-jolokia,\
 org.apache.camel:camel-quartz,\
 org.apache.camel:camel-ref,\

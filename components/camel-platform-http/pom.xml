@@ -31,6 +31,11 @@
     <packaging>jar</packaging>
     <name>Camel :: Platform HTTP</name>
     <description>HTTP service leveraging existing runtime platform HTTP server</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-platform-http.tesb.version}</revision>
+    </properties>
 
     <dependencies>
         <dependency>

@@ -59,6 +59,7 @@ import org.apache.camel.component.cxf.common.CxfPayload;
 import org.apache.camel.component.cxf.common.DataFormat;
 import org.apache.camel.component.cxf.common.header.CxfHeaderHelper;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
+import org.apache.camel.component.cxf.common.message.CxfOperationHeaders;
 import org.apache.camel.component.cxf.util.ReaderInputStream;
 import org.apache.camel.spi.HeaderFilterStrategy;
 import org.apache.camel.spi.HeaderFilterStrategyAware;
@@ -381,7 +382,7 @@ public class DefaultCxfBinding implements CxfBinding, HeaderFilterStrategyAware 
     }
 
     private static void setOperationNameViaMethod(Exchange camelExchange, Method method) {
-        camelExchange.getIn().setHeader(CxfConstants.OPERATION_NAME, method.getName());
+        CxfOperationHeaders.setOperationName(camelExchange.getIn(), method.getName());
         if (LOG.isTraceEnabled()) {
             LOG.trace("Set IN header: {}={}",
                     CxfConstants.OPERATION_NAME, method.getName());
@@ -389,10 +390,8 @@ public class DefaultCxfBinding implements CxfBinding, HeaderFilterStrategyAware 
     }
 
     private static void setOperationNameDirectly(Exchange camelExchange, BindingOperationInfo boi) {
-        camelExchange.getIn().setHeader(CxfConstants.OPERATION_NAMESPACE,
-                boi.getName().getNamespaceURI());
-        camelExchange.getIn().setHeader(CxfConstants.OPERATION_NAME,
-                boi.getName().getLocalPart());
+        CxfOperationHeaders.setOperationNamespace(camelExchange.getIn(), boi.getName().getNamespaceURI());
+        CxfOperationHeaders.setOperationName(camelExchange.getIn(), boi.getName().getLocalPart());
         if (LOG.isTraceEnabled()) {
             logOperationHeaders(boi);
         }
@@ -934,8 +933,7 @@ public class DefaultCxfBinding implements CxfBinding, HeaderFilterStrategyAware 
             // from the previous request or response propagated with the invocation context
             cxfContext.remove(CxfConstants.PROTOCOL_HEADERS);
         }
-        if (camelHeaders.get(CxfConstants.OPERATION_NAMESPACE) == null
-                && camelHeaders.get(CxfConstants.OPERATION_NAME) == null) {
+        if (!CxfOperationHeaders.hasOperationHeaders(camelHeaders)) {
             cxfContext.put(SoapBindingConstants.SOAP_ACTION, camelHeaders.get(SoapBindingConstants.SOAP_ACTION));
         }
     }
