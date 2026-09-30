@@ -36,6 +36,11 @@ public class HttpHeaderFilterStrategy extends org.apache.camel.http.base.HttpHea
 
         setLowerCase(true);
 
+        // CVE-2026-46592: an HTTP client must not select the operation invoked by a cxf/cxfrs producer through the
+        // legacy (non Camel prefixed) camel-cxf operation headers
+        getInFilter().add("operationname");
+        getInFilter().add("operationnamespace");
+
         // filter headers begin with "Camel" or "org.apache.camel"
         // must ignore case for Http based transports
         setOutFilterStartsWith(CAMEL_FILTER_STARTS_WITH);

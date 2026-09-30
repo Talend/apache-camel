@@ -52,6 +52,11 @@ public class CxfHeaderFilterStrategy extends DefaultHeaderFilterStrategy {
         //filter the operationName and operationName
         getOutFilter().add(CxfConstants.OPERATION_NAME.toLowerCase());
         getOutFilter().add(CxfConstants.OPERATION_NAMESPACE.toLowerCase());
+        // legacy (non Camel prefixed) operation headers must neither leak out nor be set by a client (CVE-2026-46592)
+        getOutFilter().add(CxfConstants.LEGACY_OPERATION_NAME.toLowerCase());
+        getOutFilter().add(CxfConstants.LEGACY_OPERATION_NAMESPACE.toLowerCase());
+        getInFilter().add(CxfConstants.LEGACY_OPERATION_NAME.toLowerCase());
+        getInFilter().add(CxfConstants.LEGACY_OPERATION_NAMESPACE.toLowerCase());
 
         // Request and response context Maps will be passed to CXF Client APIs
         getOutFilter().add(Client.REQUEST_CONTEXT.toLowerCase());

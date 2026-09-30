@@ -45,6 +45,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.component.cxf.common.CxfOperationException;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
+import org.apache.camel.component.cxf.common.message.CxfOperationHeaders;
 import org.apache.camel.http.base.cookie.CookieHandler;
 import org.apache.camel.support.DefaultAsyncProducer;
 import org.apache.camel.support.ExchangeHelper;
@@ -190,7 +191,7 @@ public class CxfRsProducer extends DefaultAsyncProducer {
     protected void invokeAsyncProxyClient(Exchange exchange, final AsyncCallback callback) throws Exception {
         Message inMessage = exchange.getIn();
         Object[] varValues = inMessage.getHeader(CxfConstants.CAMEL_CXF_RS_VAR_VALUES, Object[].class);
-        String methodName = inMessage.getHeader(CxfConstants.OPERATION_NAME, String.class);
+        String methodName = CxfOperationHeaders.getOperationName(inMessage);
         Client target;
 
         JAXRSClientFactoryBean cfb = clientFactoryBeanCache.get(CxfRsEndpointUtils
@@ -443,7 +444,7 @@ public class CxfRsProducer extends DefaultAsyncProducer {
     protected void invokeProxyClient(Exchange exchange) throws Exception {
         Message inMessage = exchange.getIn();
         Object[] varValues = inMessage.getHeader(CxfConstants.CAMEL_CXF_RS_VAR_VALUES, Object[].class);
-        String methodName = inMessage.getHeader(CxfConstants.OPERATION_NAME, String.class);
+        String methodName = CxfOperationHeaders.getOperationName(inMessage);
         Client target = null;
 
         JAXRSClientFactoryBean cfb = clientFactoryBeanCache.get(CxfRsEndpointUtils

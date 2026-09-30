@@ -105,4 +105,12 @@ public class NettyHttpHeaderFilterStrategyTest {
         assertTrue(filter.applyFilterToCamelHeaders("host", "dummy.host.com", exchange));
         assertTrue(filter.applyFilterToCamelHeaders("Host", "dummy.host.com", exchange));
     }
+
+    @Test
+    public void applyFilterToExternalLegacyCxfOperationHeaders() {
+        // CVE-2026-46592: an HTTP client must not select the cxf operation
+        assertTrue(filter.applyFilterToExternalHeaders("operationName", "deleteAll", exchange));
+        assertTrue(filter.applyFilterToExternalHeaders("OPERATIONNAME", "deleteAll", exchange));
+        assertTrue(filter.applyFilterToExternalHeaders("operationNamespace", "urn:test", exchange));
+    }
 }
