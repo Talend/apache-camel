@@ -36,6 +36,7 @@ import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.component.cxf.common.CxfPayload;
 import org.apache.camel.component.cxf.common.DataFormat;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
+import org.apache.camel.component.cxf.common.message.CxfOperationHeaders;
 import org.apache.camel.support.DefaultAsyncProducer;
 import org.apache.camel.support.service.ServiceHelper;
 import org.apache.camel.util.ObjectHelper;
@@ -408,7 +409,7 @@ public class CxfProducer extends DefaultAsyncProducer {
      * null:
      * </p>
      * <ul>
-     * <li>Using the in message header "operationName".</li>
+     * <li>Using the in message header "CamelCxfOperationName" (or the deprecated "operationName").</li>
      * <li>Using the defaultOperationName option value from the CxfEndpoint.</li>
      * <li>Using the first operation which is find from the CxfEndpoint Operations list.</li>
      * <ul>
@@ -416,7 +417,7 @@ public class CxfProducer extends DefaultAsyncProducer {
     private BindingOperationInfo getBindingOperationInfo(Exchange ex) {
         CxfEndpoint cxfEndpoint = (CxfEndpoint) this.getEndpoint();
         BindingOperationInfo answer = null;
-        String lp = ex.getIn().getHeader(CxfConstants.OPERATION_NAME, String.class);
+        String lp = CxfOperationHeaders.getOperationName(ex.getIn());
         if (lp == null) {
             LOG.debug("CxfProducer cannot find the {} from message header, trying with defaultOperationName",
                     CxfConstants.OPERATION_NAME);
@@ -434,7 +435,7 @@ public class CxfProducer extends DefaultAsyncProducer {
             }
 
         } else {
-            String ns = ex.getIn().getHeader(CxfConstants.OPERATION_NAMESPACE, String.class);
+            String ns = CxfOperationHeaders.getOperationNamespace(ex.getIn());
             if (ns == null) {
                 ns = cxfEndpoint.getDefaultOperationNamespace();
             }

@@ -46,9 +46,28 @@ public final class CxfConstants {
     public static final String PROTOCOL_NAME_RES = "res";
 
     @Metadata(description = "The name of the operation.", javaType = "String")
-    public static final String OPERATION_NAME = "operationName";
+    public static final String OPERATION_NAME = "CamelCxfOperationName";
     @Metadata(description = "The operation namespace.", javaType = "String", applicableFor = SCHEME_CXF)
-    public static final String OPERATION_NAMESPACE = "operationNamespace";
+    public static final String OPERATION_NAMESPACE = "CamelCxfOperationNamespace";
+    /**
+     * Pre CVE-2026-46592 name of {@link #OPERATION_NAME}, still honoured for backward compatibility.
+     *
+     * @deprecated use {@link #OPERATION_NAME}
+     */
+    @Deprecated
+    public static final String LEGACY_OPERATION_NAME = "operationName";
+    /**
+     * Pre CVE-2026-46592 name of {@link #OPERATION_NAMESPACE}, still honoured for backward compatibility.
+     *
+     * @deprecated use {@link #OPERATION_NAMESPACE}
+     */
+    @Deprecated
+    public static final String LEGACY_OPERATION_NAMESPACE = "operationNamespace";
+    /**
+     * System property to disable the {@link #LEGACY_OPERATION_NAME} / {@link #LEGACY_OPERATION_NAMESPACE} headers
+     * support (enabled by default).
+     */
+    public static final String LEGACY_OPERATION_HEADERS_PROPERTY = "camel.cxf.legacyOperationHeaders";
     public static final String SPRING_CONTEXT_ENDPOINT = "bean:";
     @Metadata(description = "The destination override url", javaType = "String", applicableFor = SCHEME_CXF)
     public static final String DESTINATION_OVERRIDE_URL = Exchange.DESTINATION_OVERRIDE_URL;

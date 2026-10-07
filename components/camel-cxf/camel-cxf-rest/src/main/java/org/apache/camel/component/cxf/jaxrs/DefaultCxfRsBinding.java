@@ -39,6 +39,7 @@ import org.apache.camel.ExchangePropertyKey;
 import org.apache.camel.Message;
 import org.apache.camel.component.cxf.common.header.CxfHeaderHelper;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
+import org.apache.camel.component.cxf.common.message.CxfOperationHeaders;
 import org.apache.camel.spi.HeaderFilterStrategy;
 import org.apache.camel.spi.HeaderFilterStrategyAware;
 import org.apache.camel.support.ExchangeHelper;
@@ -167,7 +168,7 @@ public class DefaultCxfRsBinding implements CxfRsBinding, HeaderFilterStrategyAw
 
         copyOperationResourceInfoStack(cxfMessage, camelMessage);
 
-        camelMessage.setHeader(CxfConstants.OPERATION_NAME, method.getName());
+        CxfOperationHeaders.setOperationName(camelMessage, method.getName());
 
         camelMessage.setHeader(CxfConstants.CAMEL_CXF_MESSAGE, cxfMessage);
 
