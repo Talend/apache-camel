@@ -30,8 +30,10 @@
     <packaging>jar</packaging>
     <name>Camel :: Cometd</name>
     <description>Camel Cometd support based on Jetty</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-cometd.tesb.version}</revision>
     </properties>
 
     <dependencies>

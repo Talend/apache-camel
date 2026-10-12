@@ -71,7 +71,7 @@ public abstract class SolrComponentTestSupport extends SolrTestSupport {
     protected void solrInsertTestEntry(String id) {
         Map<String, Object> headers = new HashMap<>();
         headers.put(SolrConstants.OPERATION, SolrConstants.OPERATION_INSERT);
-        headers.put("SolrField.id", id);
+        headers.put("CamelSolrField.id", id);
         template.sendBodyAndHeaders("direct:start", "", headers);
     }
 

@@ -29,6 +29,11 @@
     <packaging>jar</packaging>
     <name>Camel :: Solr</name>
     <description>Camel Solr Support</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-solr.tesb.version}</revision>
+    </properties>
 
     <dependencies>
         <dependency>

@@ -25,7 +25,7 @@ public final class SolrConstants {
     public static final String CLIENT = "CamelSolrClient";
     @Metadata(description = "The collection to execute the request again.", javaType = "String")
     public static final String COLLECTION = "CamelSolrCollection";
-    public static final String FIELD = "SolrField.";
+    public static final String FIELD = "CamelSolrField.";
     @Metadata(description = "The operation to perform.", javaType = "String")
     public static final String OPERATION = "SolrOperation";
     public static final String OPERATION_COMMIT = "COMMIT";
@@ -39,7 +39,7 @@ public final class SolrConstants {
     public static final String OPERATION_DELETE_BY_ID = "DELETE_BY_ID";
     public static final String OPERATION_DELETE_BY_QUERY = "DELETE_BY_QUERY";
     public static final String OPERATION_QUERY = "QUERY";
-    public static final String PARAM = "SolrParam.";
+    public static final String PARAM = "CamelSolrParam.";
     @Metadata(description = "The query to execute.", javaType = "String")
     public static final String QUERY_STRING = "CamelSolrQueryString";
     @Metadata(description = "The content type.", javaType = "String")

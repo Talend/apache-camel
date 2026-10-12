@@ -31,8 +31,10 @@
 
     <name>Camel :: Azure :: Storage Blob</name>
     <description>Camel Azure Blob Storage Service Component</description>
+    <version>${revision}</version>
 
     <properties>
+        <revision>${camel-azure-storage-blob.tesb.version}</revision>
         <!-- Azurite is not available on these platforms -->
         <skipITs.ppc64le>true</skipITs.ppc64le>
         <skipITs.s390x>true</skipITs.s390x>

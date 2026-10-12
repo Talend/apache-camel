@@ -23,7 +23,10 @@ org.apache.camel:camel-as2-api,\
 org.apache.camel:camel-aws2-kinesis,\
 org.apache.camel:camel-aws2-s3,\
 org.apache.camel:camel-aws2-sqs,\
+org.apache.camel:camel-azure-storage-blob,\
+org.apache.camel:camel-azure-storage-datalake,\
 org.apache.camel:camel-coap,\
+org.apache.camel:camel-cometd,\
 org.apache.camel:camel-consul,\
 org.apache.camel:camel-crypto,\
 org.apache.camel:camel-cxf-common,\
@@ -79,6 +82,7 @@ org.apache.camel:camel-salesforce,\
 org.apache.camel:camel-sjms,\
 org.apache.camel:camel-sjms2,\
 org.apache.camel:camel-smb,\
+org.apache.camel:camel-solr,\
 org.apache.camel:camel-spring,\
 org.apache.camel:camel-sql,\
 org.apache.camel:camel-tika,\

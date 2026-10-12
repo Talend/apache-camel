@@ -122,7 +122,10 @@
         <camel-aws2-kinesis.tesb.version>4.8.1.20250320</camel-aws2-kinesis.tesb.version>
         <camel-aws2-s3.tesb.version>4.8.1.20250320</camel-aws2-s3.tesb.version>
         <camel-aws2-sqs.tesb.version>4.8.10-4.14.7-1</camel-aws2-sqs.tesb.version>
+        <camel-azure-storage-blob.tesb.version>4.8.10-4.14.9-1</camel-azure-storage-blob.tesb.version>
+        <camel-azure-storage-datalake.tesb.version>4.8.10-4.14.9-1</camel-azure-storage-datalake.tesb.version>
         <camel-coap.tesb.version>4.8.1.20260608</camel-coap.tesb.version>
+        <camel-cometd.tesb.version>4.8.10-4.14.8-1</camel-cometd.tesb.version>
         <camel-consul.tesb.version>4.8.1.20260608</camel-consul.tesb.version>
         <camel-crypto.tesb.version>4.8.1.20250320</camel-crypto.tesb.version>
         <camel-debezium-common.tesb.version>4.8.1.20250320</camel-debezium-common.tesb.version>
@@ -168,6 +171,7 @@
         <camel-sjms.tesb.version>4.8.10-4.14.7-1</camel-sjms.tesb.version>
         <camel-sjms2.tesb.version>4.8.10-4.14.7-1</camel-sjms2.tesb.version>
         <camel-smb.tesb.version>4.8.1.20250320</camel-smb.tesb.version>
+        <camel-solr.tesb.version>4.8.10-4.14.8-1</camel-solr.tesb.version>
         <camel-sql.tesb.version>4.8.1.20250320</camel-sql.tesb.version>
         <camel-tika.tesb.version>4.8.1.20251208</camel-tika.tesb.version>
         <camel-tracing.tesb.version>4.8.10-4.14.7-1</camel-tracing.tesb.version>
@@ -358,7 +362,10 @@
                             <camel-aws2-kinesis.tesb.version>${camel-aws2-kinesis.tesb.version}</camel-aws2-kinesis.tesb.version>
                             <camel-aws2-s3.tesb.version>${camel-aws2-s3.tesb.version}</camel-aws2-s3.tesb.version>
                             <camel-aws2-sqs.tesb.version>${camel-aws2-sqs.tesb.version}</camel-aws2-sqs.tesb.version>
+                            <camel-azure-storage-blob.tesb.version>${camel-azure-storage-blob.tesb.version}</camel-azure-storage-blob.tesb.version>
+                            <camel-azure-storage-datalake.tesb.version>${camel-azure-storage-datalake.tesb.version}</camel-azure-storage-datalake.tesb.version>
                             <camel-coap.tesb.version>${camel-coap.tesb.version}</camel-coap.tesb.version>
+                            <camel-cometd.tesb.version>${camel-cometd.tesb.version}</camel-cometd.tesb.version>
                             <camel-consul.tesb.version>${camel-consul.tesb.version}</camel-consul.tesb.version>
                             <camel-crypto.tesb.version>${camel-crypto.tesb.version}</camel-crypto.tesb.version>
                             <camel-debezium-common.tesb.version>${camel-debezium-common.tesb.version}</camel-debezium-common.tesb.version>
@@ -404,6 +411,7 @@
                             <camel-sjms.tesb.version>${camel-sjms.tesb.version}</camel-sjms.tesb.version>
                             <camel-sjms2.tesb.version>${camel-sjms2.tesb.version}</camel-sjms2.tesb.version>
                             <camel-smb.tesb.version>${camel-smb.tesb.version}</camel-smb.tesb.version>
+                            <camel-solr.tesb.version>${camel-solr.tesb.version}</camel-solr.tesb.version>
                             <camel-sql.tesb.version>${camel-sql.tesb.version}</camel-sql.tesb.version>
                             <camel-tika.tesb.version>${camel-tika.tesb.version}</camel-tika.tesb.version>
                             <camel-tracing.tesb.version>${camel-tracing.tesb.version}</camel-tracing.tesb.version>

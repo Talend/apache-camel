@@ -110,7 +110,7 @@ public class SolrUpdateAutocommitTest extends SolrComponentTestSupport {
 
         Exchange exchange = createExchangeWithBody(null);
         exchange.getIn().setHeader(SolrConstants.OPERATION, SolrConstants.OPERATION_INSERT_STREAMING);
-        exchange.getIn().setHeader("SolrField.id", "MA147LL/A");
+        exchange.getIn().setHeader("CamelSolrField.id", "MA147LL/A");
         template.send("direct:startAutoCommit", exchange);
 
         Thread.sleep(500);
@@ -124,7 +124,7 @@ public class SolrUpdateAutocommitTest extends SolrComponentTestSupport {
     public void indexSingleDocumentOnlyWithId() throws Exception {
         Exchange exchange = createExchangeWithBody(null);
         exchange.getIn().setHeader(SolrConstants.OPERATION, SolrConstants.OPERATION_INSERT);
-        exchange.getIn().setHeader("SolrField.id", "MA147LL/A");
+        exchange.getIn().setHeader("CamelSolrField.id", "MA147LL/A");
 
         template.send("direct:startAutoCommit", exchange);
 
@@ -139,7 +139,7 @@ public class SolrUpdateAutocommitTest extends SolrComponentTestSupport {
     public void caughtSolrExceptionIsHandledElegantly() {
         Exchange exchange = createExchangeWithBody(null);
         exchange.getIn().setHeader(SolrConstants.OPERATION, SolrConstants.OPERATION_INSERT);
-        exchange.getIn().setHeader("SolrField.name", "Missing required field throws exception.");
+        exchange.getIn().setHeader("CamelSolrField.name", "Missing required field throws exception.");
 
         template.send("direct:startAutoCommit", exchange);
 
@@ -151,9 +151,9 @@ public class SolrUpdateAutocommitTest extends SolrComponentTestSupport {
     public void setHeadersAsSolrFields() throws Exception {
         Exchange exchange = createExchangeWithBody("Body is ignored");
         exchange.getIn().setHeader(SolrConstants.OPERATION, SolrConstants.OPERATION_INSERT);
-        exchange.getIn().setHeader("SolrField.id", "MA147LL/A");
-        exchange.getIn().setHeader("SolrField.name", "Apple 60 GB iPod with Video Playback Black");
-        exchange.getIn().setHeader("SolrField.manu", "Apple Computer Inc.");
+        exchange.getIn().setHeader("CamelSolrField.id", "MA147LL/A");
+        exchange.getIn().setHeader("CamelSolrField.name", "Apple 60 GB iPod with Video Playback Black");
+        exchange.getIn().setHeader("CamelSolrField.manu", "Apple Computer Inc.");
 
         template.send("direct:startAutoCommit", exchange);
 
@@ -172,8 +172,8 @@ public class SolrUpdateAutocommitTest extends SolrComponentTestSupport {
         String[] categories = { "electronics", "apple" };
         Exchange exchange = createExchangeWithBody("Test body for iPod.");
         exchange.getIn().setHeader(SolrConstants.OPERATION, SolrConstants.OPERATION_INSERT);
-        exchange.getIn().setHeader("SolrField.id", "MA147LL/A");
-        exchange.getIn().setHeader("SolrField.cat", categories);
+        exchange.getIn().setHeader("CamelSolrField.id", "MA147LL/A");
+        exchange.getIn().setHeader("CamelSolrField.cat", categories);
 
         template.send("direct:startAutoCommit", exchange);
 
@@ -191,9 +191,9 @@ public class SolrUpdateAutocommitTest extends SolrComponentTestSupport {
     public void indexDocuments() throws Exception {
         Exchange exchange = createExchangeWithBody(null);
         exchange.getIn().setHeader(SolrConstants.OPERATION, SolrConstants.OPERATION_INSERT);
-        exchange.getIn().setHeader("SolrField.id", "MA147LL/A");
-        exchange.getIn().setHeader("SolrField.name", "Apple 60 GB iPod with Video Playback Black");
-        exchange.getIn().setHeader("SolrField.manu", "Apple Computer Inc.");
+        exchange.getIn().setHeader("CamelSolrField.id", "MA147LL/A");
+        exchange.getIn().setHeader("CamelSolrField.name", "Apple 60 GB iPod with Video Playback Black");
+        exchange.getIn().setHeader("CamelSolrField.manu", "Apple Computer Inc.");
         template.send("direct:startAutoCommit", exchange);
 
         QueryResponse afterCommitResponse = executeSolrQuery("*:*");
@@ -205,9 +205,9 @@ public class SolrUpdateAutocommitTest extends SolrComponentTestSupport {
     public void invalidSolrParametersAreIgnored() throws Exception {
         Exchange exchange = createExchangeWithBody(null);
         exchange.getIn().setHeader(SolrConstants.OPERATION, SolrConstants.OPERATION_INSERT);
-        exchange.getIn().setHeader("SolrField.id", "MA147LL/A");
-        exchange.getIn().setHeader("SolrField.name", "Apple 60 GB iPod with Video Playback Black");
-        exchange.getIn().setHeader("SolrParam.invalid-param", "this is ignored");
+        exchange.getIn().setHeader("CamelSolrField.id", "MA147LL/A");
+        exchange.getIn().setHeader("CamelSolrField.name", "Apple 60 GB iPod with Video Playback Black");
+        exchange.getIn().setHeader("CamelSolrParam.invalid-param", "this is ignored");
 
         template.send("direct:startAutoCommit", exchange);
 
@@ -299,9 +299,10 @@ public class SolrUpdateAutocommitTest extends SolrComponentTestSupport {
         Exchange exchange = createExchangeWithBody(new File("src/test/resources/data/books.csv"));
         exchange.getIn().setHeader(SolrConstants.OPERATION, SolrConstants.OPERATION_INSERT);
         exchange.getIn().setHeader(SolrConstants.PARAM + UpdateParams.ASSUME_CONTENT_TYPE, "text/csv");
-        exchange.getIn().setHeader("SolrParam.fieldnames", "id,cat,name,price,inStock,author_t,series_t,sequence_i,genre_s");
-        exchange.getIn().setHeader("SolrParam.skip", "cat,sequence_i,genre_s");
-        exchange.getIn().setHeader("SolrParam.skipLines", 1);
+        exchange.getIn().setHeader("CamelSolrParam.fieldnames",
+                "id,cat,name,price,inStock,author_t,series_t,sequence_i,genre_s");
+        exchange.getIn().setHeader("CamelSolrParam.skip", "cat,sequence_i,genre_s");
+        exchange.getIn().setHeader("CamelSolrParam.skipLines", 1);
 
         template.send("direct:startAutoCommit", exchange);
 
@@ -320,7 +321,7 @@ public class SolrUpdateAutocommitTest extends SolrComponentTestSupport {
 
         Exchange exchange = createExchangeWithBody(new File("src/test/resources/data/tutorial.pdf"));
         exchange.getIn().setHeader(SolrConstants.OPERATION, SolrConstants.OPERATION_INSERT);
-        exchange.getIn().setHeader("SolrParam.literal.id", "tutorial.pdf");
+        exchange.getIn().setHeader("CamelSolrParam.literal.id", "tutorial.pdf");
 
         template.send("direct:startAutoCommit", exchange);
 

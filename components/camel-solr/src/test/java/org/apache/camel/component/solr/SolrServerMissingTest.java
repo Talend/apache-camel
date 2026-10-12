@@ -28,7 +28,7 @@ public class SolrServerMissingTest extends SolrTestSupport {
     public void indexSingleDocumentToNonexistentServer() {
         Exchange exchange = createExchangeWithBody(null);
         exchange.getIn().setHeader(SolrConstants.OPERATION, SolrConstants.OPERATION_INSERT);
-        exchange.getIn().setHeader("SolrField.id", "MA147LL/A");
+        exchange.getIn().setHeader("CamelSolrField.id", "MA147LL/A");
 
         template.send("direct:start", exchange);
 
