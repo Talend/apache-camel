@@ -24,6 +24,7 @@ org.apache.camel:camel-aws2-kinesis,\
 org.apache.camel:camel-aws2-s3,\
 org.apache.camel:camel-aws2-sqs,\
 org.apache.camel:camel-azure-storage-blob,\
+org.apache.camel:camel-azure-storage-datalake,\
 org.apache.camel:camel-coap,\
 org.apache.camel:camel-cometd,\
 org.apache.camel:camel-consul,\

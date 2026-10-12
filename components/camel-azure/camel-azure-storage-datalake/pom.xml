@@ -31,6 +31,11 @@
 
     <name>Camel :: Azure :: Storage Datalake</name>
     <description>Camel Azure Datalake Component</description>
+    <version>${revision}</version>
+
+    <properties>
+        <revision>${camel-azure-storage-datalake.tesb.version}</revision>
+    </properties>
 
     <dependencies>
         <dependency>

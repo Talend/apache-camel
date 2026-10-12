@@ -123,6 +123,7 @@
         <camel-aws2-s3.tesb.version>4.8.1.20250320</camel-aws2-s3.tesb.version>
         <camel-aws2-sqs.tesb.version>4.8.10-4.14.7-1</camel-aws2-sqs.tesb.version>
         <camel-azure-storage-blob.tesb.version>4.8.10-4.14.9-1</camel-azure-storage-blob.tesb.version>
+        <camel-azure-storage-datalake.tesb.version>4.8.10-4.14.9-1</camel-azure-storage-datalake.tesb.version>
         <camel-coap.tesb.version>4.8.1.20260608</camel-coap.tesb.version>
         <camel-cometd.tesb.version>4.8.10-4.14.8-1</camel-cometd.tesb.version>
         <camel-consul.tesb.version>4.8.1.20260608</camel-consul.tesb.version>
@@ -362,6 +363,7 @@
                             <camel-aws2-s3.tesb.version>${camel-aws2-s3.tesb.version}</camel-aws2-s3.tesb.version>
                             <camel-aws2-sqs.tesb.version>${camel-aws2-sqs.tesb.version}</camel-aws2-sqs.tesb.version>
                             <camel-azure-storage-blob.tesb.version>${camel-azure-storage-blob.tesb.version}</camel-azure-storage-blob.tesb.version>
+                            <camel-azure-storage-datalake.tesb.version>${camel-azure-storage-datalake.tesb.version}</camel-azure-storage-datalake.tesb.version>
                             <camel-coap.tesb.version>${camel-coap.tesb.version}</camel-coap.tesb.version>
                             <camel-cometd.tesb.version>${camel-cometd.tesb.version}</camel-cometd.tesb.version>
                             <camel-consul.tesb.version>${camel-consul.tesb.version}</camel-consul.tesb.version>
