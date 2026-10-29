@@ -139,7 +139,7 @@ jobs:
 
   notify:
     name: Slack notification
-    needs: [build]
+    needs: [build, deploy]
     if: always() && github.event_name != 'pull_request' && needs.build.result != 'skipped'
     runs-on: ubuntu-latest
     steps:
