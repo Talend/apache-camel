@@ -81,7 +81,11 @@ jobs:
         id: modules
         env:
           INPUT_MODULES: ${{ inputs.mvn_modules }}
-        run: echo "modules=${INPUT_MODULES:-$MVN_MODULES}" >> "$GITHUB_OUTPUT"
+          VAR_MODULES: ${{ vars.MVN_MODULES }}
+        run: |
+          echo "modules=${INPUT_MODULES:-$MVN_MODULES}" >> "$GITHUB_OUTPUT"
+          if [ -n "$INPUT_MODULES" ]; then src="workflow_dispatch input"; elif [ -n "$VAR_MODULES" ]; then src="repository variable MVN_MODULES"; else src="workflow default"; fi
+          echo "::notice title=Modules to build ($src)::${INPUT_MODULES:-$MVN_MODULES}"
 
       - name: mvn install
         env:
