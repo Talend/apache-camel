@@ -1,0 +1,63 @@
+# Compares the GAVs of the modules in scope with what is already published in global-artifacts.
+# Release versions are immutable there: a GAV that already exists is skipped by the deploy job
+# (re-deploying it fails with 409), so a changed module that keeps its old version would never ship.
+# Used by the build job (early report, also on pull requests) and by the deploy job (selects what to deploy).
+name: Select GAVs to deploy
+description: Lists the reactor GAVs in scope and splits them into already published / to deploy.
+inputs:
+  modules:
+    description: "-pl value, or ALL for the whole reactor"
+    required: true
+  url:
+    description: Maven repository URL
+    required: true
+  username:
+    required: true
+  token:
+    description: "Token with read:packages (empty = check skipped, e.g. pull requests from forks)"
+    required: false
+    default: ''
+outputs:
+  modules:
+    description: Comma-separated groupId:artifactId of the modules not yet published (for -pl)
+    value: ${{ steps.select.outputs.modules }}
+runs:
+  using: composite
+  steps:
+    - id: select
+      shell: bash
+      env:
+        MVN_MODULES: ${{ inputs.modules }}
+        URL: ${{ inputs.url }}
+        GH_USER: ${{ inputs.username }}
+        GH_TOKEN: ${{ inputs.token }}
+      run: |
+        if [ -z "$GH_TOKEN" ]; then
+          echo "::notice::no token available, published-GAV check skipped"
+          echo "modules=" >> "$GITHUB_OUTPUT"; exit 0
+        fi
+        W="$RUNNER_TEMP/select-gavs"; mkdir -p "$W"; cd "$W"; : > todo.txt; : > todo-gav.txt; : > skipped.txt
+        cd "$GITHUB_WORKSPACE"
+        PL=(); [ "$MVN_MODULES" = "ALL" ] || PL=(-pl "$MVN_MODULES")
+        mvn -q -B "${PL[@]}" org.codehaus.mojo:exec-maven-plugin:3.5.0:exec \
+          -Dexec.executable=echo -Dexec.args='GAV ${project.groupId}:${project.artifactId}:${project.version}' \
+          | sed -n 's/^GAV //p' > "$W/gavs.txt"
+        [ -s "$W/gavs.txt" ] || { echo "::error::no module resolved from MVN_MODULES=$MVN_MODULES"; exit 1; }
+        while IFS=: read -r g a v; do
+          url="$URL/${g//.//}/$a/$v/$a-$v.pom"
+          code=$(curl -s -L -o /dev/null -w '%{http_code}' -u "$GH_USER:$GH_TOKEN" "$url")
+          case "$code" in
+            200) echo "$g:$a:$v" >> "$W/skipped.txt" ;;
+            404) echo "$g:$a" >> "$W/todo.txt"; echo "$g:$a:$v" >> "$W/todo-gav.txt" ;;
+            *)   echo "::error::unexpected HTTP $code checking $url"; exit 1 ;;
+          esac
+        done < "$W/gavs.txt"
+        echo "modules=$(paste -sd, "$W/todo.txt")" >> "$GITHUB_OUTPUT"
+        {
+          echo "### global-artifacts: GAVs of the modules in scope"
+          echo "**New, will be deployed ($(wc -l < "$W/todo.txt" | tr -d ' '))**"; echo '```'; cat "$W/todo-gav.txt"; echo '```'
+          echo "**Already published, will be skipped ($(wc -l < "$W/skipped.txt" | tr -d ' '))**"; echo '```'; cat "$W/skipped.txt"; echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
+        if [ ! -s "$W/todo.txt" ]; then
+          echo "::warning::every module in scope is already published in global-artifacts: nothing would be deployed. Bump the version (fork dated version) if the content changed."
+        fi
