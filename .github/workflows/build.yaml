@@ -87,24 +87,32 @@ jobs:
           if [ -n "$INPUT_MODULES" ]; then src="workflow_dispatch input"; elif [ -n "$VAR_MODULES" ]; then src="repository variable MVN_MODULES"; else src="workflow default"; fi
           echo "::notice title=Modules to build ($src)::${INPUT_MODULES:-$MVN_MODULES}"
 
-      - name: mvn install
-        env:
-          MVN_MODULES: ${{ steps.modules.outputs.modules }}
-        run: |
-          mvn --version
-          if [ "$MVN_MODULES" = "ALL" ]; then
-            mvn install $MAVEN_CUSTOM_OPTIONS -DskipTests -Dmaven.test.skip.exec=true
-          else
-            mvn install $MAVEN_CUSTOM_OPTIONS -pl "$MVN_MODULES" -DskipTests
-          fi
-
       - name: Check GAVs against global-artifacts
+        id: check
         uses: ./.github/actions/select-gavs
         with:
           modules: ${{ steps.modules.outputs.modules }}
           url: ${{ env.GLOBAL_ARTIFACTS_URL }}
           username: ${{ env.GITHUB_ACTOR }}
           token: ${{ env.GLOBAL_ARTIFACTS_TOKEN }}
+
+      - name: mvn install
+        env:
+          MVN_MODULES: ${{ steps.modules.outputs.modules }}
+          CHECKED: ${{ steps.check.outputs.checked }}
+          NEW_MODULES: ${{ steps.check.outputs.modules }}
+        run: |
+          mvn --version
+          EXTRA=(-DskipTests); [ "$MVN_MODULES" = "ALL" ] && EXTRA+=(-Dmaven.test.skip.exec=true)
+          if [ "$CHECKED" = "true" ]; then
+            # release GAVs already in global-artifacts are immutable and never redeployed: build only the new ones
+            if [ -z "$NEW_MODULES" ]; then echo "::notice::every module in scope is already published, nothing to build"; exit 0; fi
+            mvn install $MAVEN_CUSTOM_OPTIONS -pl "$NEW_MODULES" "${EXTRA[@]}"
+          elif [ "$MVN_MODULES" = "ALL" ]; then
+            mvn install $MAVEN_CUSTOM_OPTIONS "${EXTRA[@]}"
+          else
+            mvn install $MAVEN_CUSTOM_OPTIONS -pl "$MVN_MODULES" -DskipTests
+          fi
 
   deploy:
     name: Deploy distribution
@@ -148,6 +156,10 @@ jobs:
           url: ${{ env.GLOBAL_ARTIFACTS_URL }}
           username: ${{ env.GITHUB_ACTOR }}
           token: ${{ env.GLOBAL_ARTIFACTS_TOKEN }}
+
+      - name: Fail when the GAV check could not run
+        if: steps.select.outputs.checked != 'true'
+        run: echo "::error::GAV check did not run, refusing to deploy"; exit 1
 
       - name: mvn deploy
         if: steps.select.outputs.modules != ''
