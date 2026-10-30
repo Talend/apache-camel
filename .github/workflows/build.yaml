@@ -1,5 +1,5 @@
 # GitHub Actions replacement for the former Jenkinsfile.talend (shared-lib step `Fork`):
-#   Package distribution -> Sanity check (manual approval) -> Deploy distribution.
+#   Build -> Sanity check (manual approval) -> Deploy distribution.
 # Deployment never runs for pull requests: it needs a manual workflow_dispatch with `deploy` ticked,
 # plus approval on the `global-artifacts-deploy` environment.
 # Packages are read from / published to GitHub Packages (Talend/global-artifacts) with the CI_BUILD_DPE_PAT secret (read:packages, plus write:packages for deploy):
@@ -51,7 +51,7 @@ env:
 
 jobs:
   build:
-    name: Package distribution
+    name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 120
     outputs:
