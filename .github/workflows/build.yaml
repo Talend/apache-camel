@@ -1,7 +1,7 @@
 # GitHub Actions replacement for the former Jenkinsfile.talend (shared-lib step `Fork`):
 #   Build -> Sanity check (manual approval) -> Deploy distribution.
-# Deployment never runs for pull requests: it needs a manual workflow_dispatch with `deploy` ticked,
-# plus approval on the `global-artifacts-deploy` environment.
+# Deployment never runs for pull requests: it runs on push (i.e. after a PR is merged into tesb/** or maintenance/**)
+# or on a manual workflow_dispatch with `deploy` ticked, always after approval on the `global-artifacts-deploy` environment.
 # Packages are read from / published to GitHub Packages (Talend/global-artifacts) with the CI_BUILD_DPE_PAT secret (read:packages, plus write:packages for deploy):
 # the repository must be granted access in the package settings of global-artifacts (read for build, write for deploy).
 # Modules to build: workflow_dispatch input `mvn_modules` > repository variable MVN_MODULES (Settings > Variables) > MVN_MODULES default below.
@@ -119,7 +119,7 @@ jobs:
     needs: build
     # Jenkins: `input 'Do you want to proceed to the Deployment?'`. Here: required reviewers on the
     # `global-artifacts-deploy` environment (Settings > Environments). Never on pull requests.
-    if: github.event_name == 'workflow_dispatch' && inputs.deploy && github.event_name != 'pull_request'
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy)
     runs-on: ubuntu-latest
     timeout-minutes: 120
     environment: global-artifacts-deploy
@@ -166,7 +166,7 @@ jobs:
         env:
           MVN_DEPLOY_MODULES: ${{ steps.select.outputs.modules }}
           MVN_ALL: ${{ needs.build.outputs.modules == 'ALL' }}
-          MVN_DEPLOY_GOAL: ${{ inputs.deploy_goal }}
+          MVN_DEPLOY_GOAL: ${{ inputs.deploy_goal || 'deploy' }}
         run: |
           EXTRA=(-DskipTests); [ "$MVN_ALL" = "true" ] && EXTRA+=(-Dmaven.test.skip.exec=true)
           mvn "$MVN_DEPLOY_GOAL" $MAVEN_CUSTOM_OPTIONS -pl "$MVN_DEPLOY_MODULES" "${EXTRA[@]}"
