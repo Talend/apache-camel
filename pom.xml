@@ -255,6 +255,18 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
+        <!-- the Talend-built (dated) modules a module built alone depends on, e.g. camel-api 4.8.1.20250320 for camel-bean -->
+        <repository>
+            <id>global-artifacts</id>
+            <name>Talend global-artifacts (GitHub Packages)</name>
+            <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
     </repositories>
 
     <build>
