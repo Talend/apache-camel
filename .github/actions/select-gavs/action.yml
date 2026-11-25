@@ -41,10 +41,8 @@ runs:
         fi
         W="$RUNNER_TEMP/select-gavs"; mkdir -p "$W"; cd "$W"; : > todo.txt; : > todo-gav.txt; : > skipped.txt
         cd "$GITHUB_WORKSPACE"
-        PL=(); [ "$MVN_MODULES" = "ALL" ] || PL=(-pl "$MVN_MODULES")
-        mvn -q -B "${PL[@]}" org.codehaus.mojo:exec-maven-plugin:3.5.0:exec \
-          -Dexec.executable=echo -Dexec.args='GAV ${project.groupId}:${project.artifactId}:${project.version}' \
-          | sed -n 's/^GAV //p' > "$W/gavs.txt" || true
+        # computed from the poms, not with `mvn exec:exec` (it resolves dependencies: a module depending on another new, unbuilt GAV aborted the listing and silently dropped every module after it)
+        python3 "$GITHUB_ACTION_PATH/list-gavs.py" "$GITHUB_WORKSPACE" "$MVN_MODULES" > "$W/gavs.txt" 2> "$W/gavs.err" || { echo "::error::could not list the GAVs of MVN_MODULES=$MVN_MODULES: $(cat "$W/gavs.err")"; exit 1; }
         if [ ! -s "$W/gavs.txt" ]; then
           echo "::warning::could not list the GAVs of MVN_MODULES=$MVN_MODULES, published-GAV check skipped"
           echo "checked=false" >> "$GITHUB_OUTPUT"; echo "modules=" >> "$GITHUB_OUTPUT"; exit 0
