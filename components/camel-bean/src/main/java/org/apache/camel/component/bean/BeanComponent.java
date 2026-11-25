@@ -91,6 +91,13 @@ public class BeanComponent extends DefaultComponent {
         }
     }
 
+    /**
+     * Current number of entries in the BeanInfo cache (0 if the cache is disabled).
+     */
+    public int getCurrentBeanCacheSize() {
+        return beanInfoCache != null ? beanInfoCache.size() : 0;
+    }
+
     void addBeanInfoToCache(BeanInfoCacheKey key, BeanInfo beanInfo) {
         if (beanInfoCache != null && beanInfo != null) {
             beanInfoCache.put(key, beanInfo);
