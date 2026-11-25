@@ -10,10 +10,11 @@ NEW (not yet published, not yet built) GAV aborts the whole listing and every mo
 silently disappears from the check (nothing new is built or deployed).
 Here the effective version is computed from the poms only (own <version> or the parent's,
 ${revision} and other ${property} placeholders resolved, -D properties of .mvn/maven.config included).
-ALL = the modules of <modules> plus those of the profiles active by default (what a plain `mvn` builds);
-an explicit -pl entry may also name a module of a non-default profile.
+The reactor is what a plain `mvn` (no -P) builds: the modules of <modules> plus those of the profiles active
+by default; a -pl entry naming a module of another profile is refused, as Maven does ("Could not find the
+selected project"). Modules of other profiles are not even read.
 Not supported (exits non-zero rather than guess): properties defined only in a parent outside the reactor.
-Profiles activated otherwise than by default (property, jdk, file) are not followed for ALL.
+Profiles activated otherwise than by default (property, jdk, file) are not followed.
 Exits non-zero, with the reason on stderr, if a module is unknown, ambiguous or missing on disk, or a
 version cannot be resolved: a partial list would silently skip modules.
 """
@@ -55,10 +56,10 @@ def load(pom_file):
         for p in pe:
             if isinstance(p.tag, str):
                 props[p.tag.replace(NS, "")] = (p.text or "").strip()
-    modules = [(m, True) for m in module_list(root)]
+    modules = module_list(root)
     for prof in root.findall(NS + "profiles/" + NS + "profile"):
-        default = text(child(prof, "activation"), "activeByDefault") == "true"
-        modules += [(m, default) for m in module_list(prof)]
+        if text(child(prof, "activation"), "activeByDefault") == "true":
+            modules += module_list(prof)
     return {
         "file": pom_file,
         "artifactId": text(root, "artifactId"),
@@ -76,22 +77,19 @@ def pom_of(path):
     return os.path.join(path, "pom.xml") if os.path.isdir(path) else path
 
 
-def walk(pom_file, in_all, acc, order):
+def walk(pom_file, acc, order):
     pom_file = os.path.normpath(pom_file)
     if pom_file in acc:
-        acc[pom_file]["in_all"] |= in_all
         return
     mod = load(pom_file)
-    mod["in_all"] = in_all
     acc[pom_file] = mod
     order.append(pom_file)
-    for m, default in mod["modules"]:
+    for m in mod["modules"]:
         sub = pom_of(os.path.join(os.path.dirname(pom_file), m))
-        if os.path.isfile(sub):
-            walk(sub, in_all and default, acc, order)
-        elif default:
+        if not os.path.isfile(sub):
             # Maven fails on a missing module: skipping it would silently drop it (and its submodules) from the check
             fail("module %s declared in %s does not exist" % (m, pom_file))
+        walk(sub, acc, order)
 
 
 def cli_props(base):
@@ -148,13 +146,13 @@ def main():
     pom = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] else "pom.xml"
     root_pom = os.path.normpath(pom_of(os.path.join(base, pom)))
     acc, order = {}, []
-    walk(root_pom, True, acc, order)
+    walk(root_pom, acc, order)
     mods = [acc[f] for f in order]
     by_ga = {(m["groupId"], m["artifactId"]): m for m in mods}
     by_path = {os.path.dirname(m["file"]): m for m in mods}
     by_path.update({m["file"]: m for m in mods})
     if scope == "ALL":
-        wanted = [m for m in mods if m["in_all"]]
+        wanted = mods
     else:
         wanted = []
         for sel in filter(None, (s.strip() for s in scope.split(","))):
@@ -166,7 +164,8 @@ def main():
                 p = os.path.normpath(os.path.join(os.path.dirname(root_pom), sel))
                 found = [by_path[p]] if p in by_path else []
             if len(found) != 1:
-                fail("module %s %s" % (sel, "is ambiguous" if found else "is not part of the reactor"))
+                fail("module %s %s" % (sel, "is ambiguous" if found else
+                                       "is not part of the reactor (modules of non-default profiles are not, no -P)"))
             if found[0] not in wanted:
                 wanted.append(found[0])
     extra = cli_props(base)
